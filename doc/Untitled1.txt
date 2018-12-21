@@ -1,0 +1,8 @@
+position:
+
+1. relative  --- 相对定位 ----自身原来的位置定位
+2. static  ----没有定位 ，默认
+3. absolute ---绝对定位
+4. fix- ---固定定位
+
+div --- relative > chile div---absolute

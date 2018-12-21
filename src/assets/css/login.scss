@@ -1,0 +1,43 @@
+
+@media screen and (max-width: 1024px) {
+  .login-box-card{
+    width: 300px;
+    top:120px;
+    right: 40px;
+    .login-box-card-input{
+      width: 250px;
+    }
+  }
+}
+
+@media screen and (max-width: 1366px) and (min-width: 1025px){
+  .login-box-card{
+    width: 350px;
+    top:145px;
+    right: 90px;
+    .login-box-card-input{
+      width: 280px;
+    }
+  }
+}
+@media screen and (max-width: 1600px) and (min-width: 1367px){
+  .login-box-card{
+    width: 350px;
+    top:170px;
+    right: 150px;
+    .login-box-card-input{
+      width: 300px;
+    }
+  }
+}
+@media screen and (max-width: 1920px) and (min-width: 1601px){
+  .login-box-card{
+    width: 400px;
+    top:200px;
+    right: 190px;
+    .login-box-card-input{
+      width: 350px;
+    }
+  }
+}
+

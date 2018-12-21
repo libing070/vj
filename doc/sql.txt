@@ -1,0 +1,37 @@
+show dbs;
+db.createCollection('Person');
+db.getCollection('Person').drop();//db.Person.drop();
+db.Person.insert({'id':1,'name':'Tom','age':13});
+db.Person.insert({'id':2,'name':'jack','age':23});
+db.Person.insert({'id':3,'name':'bing','age':11});
+db.Person.insert({'id':4,'name':'tem','age':22});
+db.Person.insert({'id':5,'name':'zhang','age':14});
+
+db.createCollection('Account');
+
+db.Account.insert({'id':9,'name':'libing','age':24,'phone':'18680506315'});
+
+db.User.insert({'id':101,'name':'Tom','age':23,'class':{'phone':'18765245221','sex':'男','address':'湖北'},'time':new Date()});
+db.User.insert({'id':102,'name':'李兵','age':27,'class':{'phone':'15635423454','sex':'男','address':'湖北'},'time':new Date()});
+db.User.insert({'id':103,'name':'张三','age':21,'class':{'phone':'15436789265','sex':'女','address':'山东'},'time':new Date()});
+db.User.insert({'id':104,'name':'王五','age':22,'class':{'phone':'13542765637','sex':'男','address':'北京'},'time':new Date()});
+db.User.insert({'id':105,'name':'李留','age':23,'class':{'phone':'18763542543','sex':'女','address':'上海'},'time':new Date()});
+
+
+
+db.goods.insert({'productId':100018,'productName':'erwrr','salePrice':3244,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100019,'productName':'retf','salePrice':4121,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100028,'productName':'erww23rr','salePrice':2221,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100038,'productName':'ffd','salePrice':313,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100048,'productName':'erwrr','salePrice':234,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100058,'productName':'dsds','salePrice':44,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100068,'productName':'erccwrr','salePrice':54,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100078,'productName':'erwrr','salePrice':64,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100088,'productName':'bgnm','salePrice':13,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+db.goods.insert({'productId':100098,'productName':'iouuy','salePrice':28,'productImage':'xxx.jpg','productUrl':'xxx.com','time':new Date()});
+
+
+//db.Person.drop();//删除集合（表）
+//db.accounts.insert({"id":'10000001', "accoundId":'libing',"accountPassword":'123456', "accoundPhone":'18680506315',"LoginStatus":"1","accoundEmail":"18680506315@163.com","registerAccountTime":new Date()});
+//db.users.insert({"id":'10000001',"userId":'libing',"userEmail":"18680506315@163.com","userPhone":"18680506315","userName":"李兵","userAge":"24","userSex":"0",//"0":"男","1":"女""userJob":"码农","userAddress":"湖北","time":new Date()});
+//db.loginlogs.insert({"id":"100000001","accoundId":"libing","loginTime":new Date(),"logoutTime":new Date(),});

@@ -1,0 +1,68 @@
+$ git config --global user.email "18680506315@163.com"  //登录邮箱账号
+
+$ git config --global user.name "libing070"    //登录用户名
+
+
+上传项目到git  注意 上传之前 要在github中创建一个文件夹 和你的项目文件夹名字一致
+
+$ git init // 初始化本地项目 生成.git
+
+$ git status  //查看状态   
+
+$ git add .  //添加项目到仓库
+
+$ git commit -m "提交信息"
+
+$ git pull --rebase origin master  //如果本地没有README.md文件  执行该命令 如果报错执行下命令
+$ git remote add origin git@github.com:libing070/aaa.git 该命令执行完后再执行上个命令
+
+$ git push -u origin master  //上传到github  如果报错执行下面命令  由于版本不一致导致上传出错
+
+$ git push -u origin master -f  
+
+
+上传部分文件
+$ git status  //查看状态   
+
+$ git add .  //添加项目到仓库
+
+$ git commit -m "提交信息"
+
+$ git push -u origin master
+
+/////////////////////////////////
+从github.com下载项目到本地  
+
+$ git clone https://github.com/libing070/omp.git
+
+上传单个文件到github.com
+https://blog.csdn.net/web_hwg/article/details/72312954
+
+1.检测本地修改过的文件（git status）
+2.添加修改过的文件到索引库（git add -u）
+3.再次检测（git status）
+4.将修改从暂存区提交到本地版本库（git commit -m “modify”）
+5.从远程获取最新版本并merge到本地（git pull）
+6.将本地版本库的分支推送到远程服务器上对应的分支（git push）
+
+
+
+
+
+git clone git@code.aliyun.com:CXSJ/Hadoop-web.git
+
+git branch -r   查看远程分支
+
+git checkout -b web-header origin/web-header
+
+git branch --set-upstream-to=origin/web-header web-header
+
+
+https://www.cnblogs.com/smiler/p/6924583.html //切换分支
+
+
+
+
+
+
+
