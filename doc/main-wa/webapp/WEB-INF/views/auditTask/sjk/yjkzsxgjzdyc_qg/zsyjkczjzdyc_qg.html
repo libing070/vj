@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>赠送有价卡充值集中度异常(全国)</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+	<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+	<link rel="stylesheet" href="/cmwa/resource/css/sjkcss.css">
+	<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+
+	<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/sjk/yjkzsxgjzdyc_qg/zsyjkczjzdyc_qg.js"></script>
+
+</head>
+<body>
+<form id="queryParam">
+
+	<input type="hidden" id="currSumBeginDate" name="currSumBeginDate">
+	<input type="hidden" id="currSumEndDate" name="currSumEndDate">
+    <!-- 国信透传条件 -->
+    <input type="hidden" id="provinceCode" name="provinceCode">
+    <input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+    <input type="hidden" id="endAcctMonth" name="endAcctMonth">
+    <input type="hidden" id="auditId" name="auditId">
+</form>
+<div class="container-fluid">
+    <!-- 选项卡 -->
+    <div class="tab-nav">
+        <ul>
+            <li id="hz_tab" class="active">汇总分析</li>
+        </ul>
+    </div>
+
+    <!-- 选项卡info -->
+    <div class="tab-box">
+        <!-- 汇总分析 -->
+        <div class="tab-info" style="display:block">
+            <!-- sub-nav -->
+            <div class="tab-sub-nav">
+                <ul>
+                	<li ><a href="/cmwa/yjkzsjzdyc_qg/index">有价卡赠送集中度异常</a></li>
+                	<li class="active"><a href="/cmwa/zsyjkczjzdyc_qg/index">赠送有价卡充值集中度异常</a></li>
+                </ul>
+            </div>
+
+            <!-- 左右部分，地图内容 -->
+            <div class="tab-mapbox" style="min-width: 1024px;overflow: hidden;position: relative">
+                <div class="col-xs-6" style="padding-right: 15px">
+                    <div class="sjk_map">
+                        <!-- 左侧地图展示 -->
+                        <div class="sjk_lft_show_wrap">
+                            <!-- 地图 -->
+                            <div id="mapWrap" class="sjk_map_wrap">
+                                <!-- 地图上方专题按钮 -->
+                                <button id="contentTipBtn" class="sjk_map_top_icon">
+                                    <span class="glyphicon glyphicon-comment"></span>
+                                </button>
+                                <button id="mapTipBtn" class="sjk_map_tip_btn">
+                                    <span class="glyphicon glyphicon-exclamation-sign"></span>
+                                </button>
+                                <!-- 提示信息 -->
+                                <p id="hintText" class="sjk_hint_text GMnone">
+                                 	以审计结束月为准，统计一年周期内各赠送区间的累计充值用户数量</p>
+                                <p id="noteText" class="sjk_note_text GMnone">
+                                 	风险级别：橙色：单用户充值金额超5000的用户数量排名前5名的省份；绿色：单用户充值金额超5000的用户数量排名>5名的省份；灰色：无数据</p>
+                                <!-- 地图展示区域 -->
+                                <div id="chinaMap" class="sjk_map_continer"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6" style="padding-right:0;">
+                    <div class="sjk_rit_charts">
+                        <!-- 图表区域 -->
+                        <div id="chartArea">
+                        	<div class="sjk_chart_area">
+                            <button id="showTbBtn" type="button" class="sjk_tb_btn">
+                                <span class="glyphicon glyphicon-th-list"></span>
+                            </button>
+                            <button id="showFullBtn" type="button" class="sjk_full_btn">
+                                <span class="glyphicon glyphicon-resize-full"></span>
+                            </button>
+                            <!-- 图表1 -->
+                            <div class="col-xs-12 sjk_show_item">
+                                <div class="sjk_title">
+                                    <p class="sjk_title_font">单用户充值金额超5000的用户数量</p> 
+                                </div>
+                                <div id="conShowWrap1" class="sjk_content_show_wrap">
+                                    <div id="conShow1" class="sjk_content_show" style="">
+                                    </div>
+                                </div>
+                            </div>
+                           
+                           </div>
+                           <!-- 右侧div分割 -->
+							<div class="col-xs-12 line"></div>
+	                       <div class="sjk_chart_area">
+	                        	 <!-- 图表2 -->
+	                            <div class="col-xs-12 sjk_show_item">
+										<div class="sjk_title">
+											<p class="sjk_title_font">单用户充值金额超5000的用户数量</p>
+										</div>
+										<div class="sjk_content_show_wrap" id="conShowWrap2">
+	                                    <div class="sjk_content_show" id="conShow2">
+	                                    </div>
+	                                </div>
+	                            </div>
+	                        </div>
+                        </div>
+                        
+                        <!-- 表格区域 -->
+                        <div id="tbArea" class="sjk_tb_area GMnone">
+                            <button id="tbOffBtn" type="button" class="sjk_off_btn">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                            <div class="sjk_tb_ctn">
+								 <table id="tableId"></table>
+                                 <div id="table_pageBar"></div>
+                                 <a href="javascript:;" id="table_export"> 导出 </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="fullChartArea" class="col-xs-12 GMnone full_chart">
+                    <button id="fullOffBtn" type="button" class="sjk_full_off_btn">
+                        <span class="glyphicon glyphicon-resize-small"></span>
+                    </button>
+                    <!-- 图表1 -->
+                    <div class="col-xs-12 sjk_show_item full_item">
+                         	 <div class="sjk_title">
+                                   	<p class="sjk_title_font">单用户充值金额超5000的用户数量</p> 
+                             </div>
+                        	<div id="conShowWrap3" class="sjk_content_show_wrap">
+                            <div id="conShow3" class="sjk_content_show" style="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 line"></div>
+                    <!-- 图表2 -->
+                    <div class="col-xs-12 sjk_show_item full_item">
+                        <div class="sjk_title">
+                            <p class="sjk_title_font">单用户充值金额超5000的用户数量</p> 
+                        </div>
+                        <div id="conShowWrap4" class="sjk_content_show_wrap">
+                            <div id="conShow4" class="sjk_content_show" style="min-width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="xzsr">
+
+		<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="sumCityMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="YK_USER_NUM" column="YK_USER_NUM" />
+		<result property="TEST_USER_NUM" column="TEST_USER_NUM" />
+		<result property="FREE_USER_NUM" column="FREE_USER_NUM" />
+		<result property="EMP_USER_NUM" column="EMP_USER_NUM" />
+		<result property="VT_YK_AMT" column="VT_YK_AMT" />
+		<result property="VT_TEST_AMT" column="VT_TEST_AMT" />
+		<result property="VT_FREE_AMT" column="VT_FREE_AMT" />
+		<result property="VT_EMP_AMT" column="VT_EMP_AMT" />
+		<result property="TOL_VT_AMT" column="TOL_VT_AMT" />
+		<result property="TOL_AMT" column="TOL_AMT" />
+		<result property="PER_AMT" column="PER_AMT" />
+	</resultMap>
+	<resultMap type="java.util.Map" id="sumDetailMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="VT_FEE_TYP_NM" column="VT_FEE_TYP_NM" />
+		<result property="USER_ID" column="USER_ID" />
+		<result property="cust_nm" column="cust_nm" />
+		<result property="vt_amt" column="vt_amt" />
+	</resultMap>
+	<resultMap type="java.util.Map" id="JieLunMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="VT_YK_AMT" column="VT_YK_AMT" />
+		<result property="VT_TEST_AMT" column="VT_TEST_AMT" />
+		<result property="VT_FREE_AMT" column="VT_FREE_AMT" />
+		<result property="VT_EMP_AMT" column="VT_EMP_AMT" />
+		<result property="TOL_VT_AMT" column="TOL_VT_AMT" />
+	</resultMap>
+	
+	<!-- 双折线 省汇总表-->
+	<select id="selectPerMonthXzsr" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT
+			CMCC_prov_prvd_id as provinceCode,
+			short_name as provName,
+			Aud_trm as auditMonth,
+			sum(TOL_VT_AMT) as tol_vt_amt
+		FROM hpeapb.sum_zbzj_1101_prvd
+		where 1=1  
+		<if test="provinceCode!=null and  provinceCode !=''">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate !=null and  currSumBeginDate !=''">
+			and Aud_trm &gt;=#{currSumBeginDate }
+		</if>
+		<if test="currSumEndDate !=null and  currSumEndDate !=''">
+			and Aud_trm &lt;=#{currSumEndDate }
+		</if>
+		group by Aud_trm
+		order by Aud_trm
+	</select>
+	
+	<select id="selectAvgMonthXzsr" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	 	SELECT
+			CMCC_prov_prvd_id as provinceCode,
+			short_name as provName,
+			Aud_trm as auditMonth,
+			IFNULL(AVG(TOL_VT_AMT),0) as pjsr
+		FROM hpeapb.sum_zbzj_1101_prvd
+		where 1=1  
+		<if test="provinceCode!=null and  provinceCode !=''">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+			and Aud_trm &gt;=#{currSumBeginDate }
+		</if>
+		<if test="currSumEndDate !=null and  currSumEndDate !=''">
+			and Aud_trm &lt;=#{currSumEndDate }
+		</if>
+	</select>
+	
+	<select id="selectQianZhejielun" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+			select Aud_trm as shenjiyue  
+			from hpeapb.sum_zbzj_1101_prvd 
+			where  tol_vt_amt=(select 
+									max(tol_vt_amt) from hpeapb.sum_zbzj_1101_prvd 
+									where 1=1 
+										and cmcc_prov_prvd_id =#{provinceCode}
+										and Aud_trm &gt;=#{currSumBeginDate }
+										and Aud_trm &lt;=#{currSumEndDate })
+										and cmcc_prov_prvd_id =#{provinceCode}
+										and Aud_trm &gt;=#{currSumBeginDate }
+										and Aud_trm &lt;=#{currSumEndDate }
+	</select>
+	
+	<select id="selectZhejielun" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT
+			short_name as provName,
+			Aud_trm as auditMonth,
+			ifnull(max(tol_vt_amt),0) as maxzhi,
+			IFNULL(AVG(TOL_VT_AMT),0) as pjz
+		FROM hpeapb.sum_zbzj_1101_prvd
+		where 1=1  
+		<if test="provinceCode!=null and  provinceCode !=''">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate !=null and  currSumBeginDate !=''">
+			and Aud_trm &gt;=#{currSumBeginDate }
+		</if>
+		<if test="currSumEndDate !=null and  currSumEndDate !=''">
+			and Aud_trm &lt;=#{currSumEndDate }
+		</if>	
+	</select>
+		<!--柱图  -->
+		<select id="selectOnloadZhu" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+			SELECT
+				cmcc_prvd_nm_short  as dsmc,
+				short_name as provName,
+				Aud_trm as Aud_trm,
+				sum(VT_YK_AMT ) as  vt_yk_amt,
+				sum(VT_TEST_AMT)  as  vt_test_amt,
+				sum(VT_FREE_AMT)  as   vt_free_amt,
+				sum(VT_EMP_AMT)   as   vt_emp_amt,
+				sum(TOL_VT_AMT)  as   tol_vt_amt	
+			FROM hpeapb.sum_zbzj_1101_cty
+			where 1=1   
+			<if test="provinceCode!=null and  provinceCode !=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+			</if>
+			<if test="currSumBeginDate !=null and  currSumBeginDate !=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and  currSumEndDate !=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+			<if test="currSumDown == 0">
+			
+			</if>
+			group by cmcc_prov_id
+			order by sum(TOL_VT_AMT) desc
+	</select>
+	
+		
+	<select id="selectSumCity" resultType="java.util.HashMap" parameterType="pager"> 	
+		SELECT
+			cmcc_prov_prvd_id,
+			cmcc_prvd_nm_short  as dsmc,
+			short_name as provName,
+			Aud_trm as Aud_trm,
+			YK_USER_NUM as yk_user_num,
+			TEST_USER_NUM  as  test_user_num,
+			FREE_USER_NUM as  free_user_num,
+			EMP_USER_NUM   as  emp_user_num,
+			VT_YK_AMT  as vt_yk_amt,
+			VT_TEST_AMT  as  vt_test_amt,
+			VT_FREE_AMT  as   vt_free_amt,
+			VT_EMP_AMT   as   vt_emp_amt,
+			TOL_VT_AMT  as   tol_vt_amt,
+			TOL_AMT    as    tol_amt,
+			PER_AMT    as   per_amt	
+		FROM hpeapb.sum_zbzj_1101_cty
+		where 1=1 
+		<if test="params.provinceCode !=null and  params.provinceCode !=''">
+			and cmcc_prov_prvd_id =#{params.provinceCode }
+		</if> 
+		<if test="params.currSumBeginDate !=null and  params.currSumBeginDate !=''">
+			and Aud_trm &gt;=#{params.currSumBeginDate }
+		</if>
+		<if test="params.currSumEndDate !=null and  params.currSumEndDate !=''">
+			and Aud_trm &lt;=#{params.currSumEndDate }
+		</if>
+		order by Aud_trm,tol_vt_amt  desc
+	</select>
+	<!-- 查询所有地市汇总信息做导出 -->
+	<select id="selectSumCityAll" resultMap="sumCityMap" parameterType="java.util.HashMap">
+		select
+			Gen_date,
+			Aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			YK_USER_NUM,
+			TEST_USER_NUM,
+			FREE_USER_NUM,
+			EMP_USER_NUM,
+			VT_YK_AMT,
+			VT_TEST_AMT,
+			VT_FREE_AMT,
+			VT_EMP_AMT,
+			TOL_VT_AMT,
+			TOL_AMT,
+			PER_AMT
+ 		from  hpeapb.sum_zbzj_1101_cty 
+ 		where 1=1 
+		<if test="provinceCode!=null  and  provinceCode!=''">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate !=null  and currSumBeginDate!=''">
+			and Aud_trm &gt;=#{currSumBeginDate }
+		</if>
+		<if test="currSumEndDate !=null and currSumEndDate!=''">
+			and Aud_trm &lt;=#{currSumEndDate }
+		</if>
+	</select>
+		
+	<select id="selectMingXi" resultType="java.util.HashMap" parameterType="pager">
+	 	SELECT
+			cmcc_prov_id  as dsdm,
+			short_name as provName,
+			Aud_trm as auditMonth,
+			cmcc_prvd_nm_short as dsmc,
+			VT_FEE_TYP_ID,
+			VT_FEE_TYP_NM AS VT_FEE_TYP,
+			USER_ID as yhbs,
+			cust_nm  as khmc,
+			vt_amt  as xzsr
+		FROM hpeapb.det_zbzj_1101
+		where 1=1  
+		<if test="params.provinceCode!=null and params.provinceCode!=''">
+		and cmcc_prov_prvd_id =#{params.provinceCode}
+		</if>
+		<if test="params.currDetBeginDate !=null and params.currDetBeginDate!=''">
+			and Aud_trm &gt;=#{params.currDetBeginDate }
+		</if>
+		<if test="params.currDetEndDate !=null and params.currDetEndDate!='' ">
+			and Aud_trm &lt;=#{params.currDetEndDate }
+		</if>
+		<if test="params.currCityName !=null and params.currCityName!='' ">
+			and cmcc_prov_id =#{params.currCityName }
+		</if>
+		<if test="params.currXzsrType !=null and params.currXzsrType!=''">
+			and VT_FEE_TYP_ID =#{params.currXzsrType }
+		</if>
+		order by Aud_trm desc,cmcc_prov_id
+		</select>
+	
+	<select id="selectXzsrDetailAll" resultMap="sumDetailMap" parameterType="java.util.HashMap">
+		SELECT 
+				Gen_date,
+				Aud_trm,
+				cmcc_prov_prvd_id,
+				short_name,
+				cmcc_prov_id,
+				cmcc_prvd_nm_short,
+				VT_FEE_TYP_ID,
+				VT_FEE_TYP_NM AS VT_FEE_TYP,
+				USER_ID,
+				cust_nm,
+				vt_amt	
+		FROM hpeapb.det_zbzj_1101
+		where 1=1
+			<!-- 省编码 -->
+			<if test="provinceCode!=null and provinceCode !=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+			</if>
+			<if test="currXzsrType!=null and currXzsrType !=''">
+				and VT_FEE_TYP_ID=#{currXzsrType}
+			</if>
+			<if test="currCityName!=null and currCityName !=''">
+				and cmcc_prov_id =#{currCityName}
+			</if>
+			<if test="currDetBeginDate !=null and currDetBeginDate !=''">
+				and Aud_trm &gt;=#{currDetBeginDate }
+			</if>
+			<if test="currDetEndDate !=null and currDetEndDate !=''">
+				and Aud_trm &lt;=#{currDetEndDate }
+			</if>
+			order by Aud_trm desc,cmcc_prov_id  LIMIT #{pageStar},#{pageEnd}
+	</select>	
+	<!-- 柱状图的审计结论-->
+	<select id="selectZhuJieLun" resultMap="JieLunMap" parameterType="java.util.HashMap">
+		SELECT
+			Gen_date,
+			Aud_trm,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			cmcc_prov_prvd_id,
+			sum(VT_YK_AMT) as VT_YK_AMT,
+		    sum(VT_TEST_AMT) as VT_TEST_AMT,
+		    sum(VT_FREE_AMT) as VT_FREE_AMT,
+		    sum(VT_EMP_AMT) as VT_EMP_AMT,
+			sum(TOL_VT_AMT)  as TOL_VT_AMT
+	 	FROM  hpeapb.sum_zbzj_1101_cty
+	    where 1=1 
+			<if test="provinceCode!=null and provinceCode !=''">
+				and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+			<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and currSumEndDate !=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+			group by cmcc_prov_id
+			order by sum(TOL_VT_AMT) desc
+			LIMIT 3
+		
+	</select>	
+</mapper>
+

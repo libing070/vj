@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="tyghjfycMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_hz_qst_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,sum(TRADE_CNT) tradeCnt
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE cmcc_prov_prvd_id = #{provinceCode}
+		AND AUD_TRM &gt;=  #{currSumBeginDate} 
+		AND AUD_TRM &lt;= #{currSumEndDate}
+		<if test="jfbsVal  != '' and jfbsVal  !=null ">
+			and TRADE_CNT &gt;= #{jfbsVal} 
+		</if>
+		GROUP BY aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_hz_qst_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm ,SHORT_NAME,sum(TRADE_CNT) as TRADE_CNT,
+				COUNT(1) as tianshu,sum(TRADE_AMT) as TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		<if test="params.jfbsVal  != '' and params.jfbsVal  !=null ">
+			and TRADE_CNT &gt;= #{params.jfbsVal} 
+		</if>
+		GROUP BY aud_trm
+		order by aud_trm desc
+	</select>
+	
+	<select id="export_hz_qst_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,cmcc_prov_prvd_id,short_name,sum(TRADE_CNT) as TRADE_CNT,
+				COUNT(1) as tianshu,sum(TRADE_AMT) as TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE cmcc_prov_prvd_id = #{provinceCode}
+		AND AUD_TRM &gt;=  #{currSumBeginDate} 
+		AND AUD_TRM &lt;=  #{currSumEndDate}
+		<if test="jfbsVal  != '' and jfbsVal  !=null ">
+			and TRADE_CNT &gt;= #{jfbsVal} 
+		</if>
+		GROUP BY aud_trm
+		order by aud_trm desc
+	</select>
+	
+	<select id="load_hz_czy_conclusion" resultType="Map" parameterType="Map">
+		SELECT concat(left(trim(EMP_NM),1),'**') as staff_nm,COUNT(DISTINCT busi_typ) as busitypnum,sum(TRADE_CNT) sumNum
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE cmcc_prov_prvd_id = #{provinceCode}
+		AND AUD_TRM &gt;=  #{currSumBeginDate} 
+		AND AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>
+		GROUP BY EMP_ID
+		order by sum(TRADE_CNT) desc,emp_id
+		limit 3
+	</select>
+	<select id="load_hz_czy_chart" resultType="Map" parameterType="Map">
+		
+		SELECT concat(left(b.EMP_NM,1),'**') EMP_NM,b.sumNum,a.busi_typ_nm,sum(a.TRADE_CNT) as TRADE_CNT,a.EMP_ID
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty a
+		JOIN (SELECT trim(EMP_NM) as EMP_NM,sum(TRADE_CNT) sumNum,EMP_ID
+				FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+				WHERE cmcc_prov_prvd_id = #{provinceCode}
+				AND AUD_TRM &gt;=  #{currSumBeginDate} 
+				AND AUD_TRM &lt;= #{currSumEndDate}
+				<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+					and cmcc_prov_id = #{czyCitySingle} 
+				</if>
+				GROUP BY EMP_ID
+				order by sum(TRADE_CNT) desc
+				limit 10) b
+		ON a.EMP_ID = b.EMP_ID
+		WHERE cmcc_prov_prvd_id = #{provinceCode}
+		AND AUD_TRM &gt;=  #{currSumBeginDate} 
+		AND AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>
+		GROUP BY EMP_ID,busi_typ
+		order by b.sumNum desc,sum(a.TRADE_CNT) desc,a.EMP_ID
+			
+	</select>
+	
+	<select id="load_hz_czy_table" resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{params.currSumBeginDate},"-",#{params.currSumEndDate}) as aud_trm, 
+		<if test="params.czyCitySingle == ''">
+			short_name AS short_name,
+		    </if>
+			<if test="params.czyCitySingle==null">
+				short_name AS short_name,
+		    </if>
+			<if test="params.czyCitySingle != '' and params.czyCitySingle !=null  ">
+			 	CMCC_prvd_nm_short  AS short_name,
+		    </if>
+		EMP_ID,concat(left(EMP_NM,1),'**') as EMP_NM,
+		busi_typ,busi_typ_nm,sum(TRADE_CNT) as TRADE_CNT,count(TRADE_TM) as TRADE_TM,sum(TRADE_AMT) as TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		<if test="params.czyCitySingle  != '' and params.czyCitySingle  !=null ">
+			and cmcc_prov_id = #{params.czyCitySingle} 
+		</if>
+		group by EMP_ID,busi_typ
+		order by sum(TRADE_CNT) desc,EMP_ID
+	</select>
+	<select id="load_hz_czy_table2" resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{params.currSumBeginDate},"-",#{params.currSumEndDate}) as aud_trm,
+		CMCC_prvd_nm_short as short_name,EMP_ID,concat(left(EMP_NM,1),'**') ,
+		busi_typ,busi_typ_nm,sum(TRADE_CNT) as TRADE_CNT,count(TRADE_TM) as TRADE_TM,sum(TRADE_AMT) as TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		<if test="params.czyCitySingle  != '' and params.czyCitySingle  !=null ">
+			and cmcc_prov_id = #{params.czyCitySingle} 
+		</if>
+		group by EMP_ID,busi_typ
+		order by sum(TRADE_CNT) desc,EMP_ID
+	</select>
+	<select id="export_hz_czy_table" resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{currSumBeginDate},"-",#{currSumEndDate}) as aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+		CMCC_prvd_nm_short,EMP_ID,concat(left(EMP_NM,1),'**') EMP_NM,
+		busi_typ,busi_typ_nm,sum(TRADE_CNT) as TRADE_CNT,count(TRADE_TM) as TRADE_TM,sum(TRADE_AMT) as TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>
+		group by EMP_ID,busi_typ
+		order by sum(TRADE_CNT) desc,EMP_ID
+	</select>
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,short_name,CMCC_prvd_nm_short,emp_id,concat(left(emp_nm,1),'**') emp_nm,
+				trade_ser_no,subs_id,
+				busi_typ,busi_typ_nm,trade_amt,opr_tm
+		FROM hpeapb.det_ygyccz_2302
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and aud_trm &gt;=  #{params.currDetBeginDate} 
+		and aud_trm &lt;= #{params.currDetEndDate}
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		<if test="params.currBusiType  != '' and params.currBusiType  !=null ">
+			and busi_typ = #{params.currBusiType } 
+		</if>
+		order by aud_trm desc,CMCC_prvd_nm_short,trade_amt desc
+	</select>
+	
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,emp_id,
+			concat(left(emp_nm,1),'**') emp_nm,emp_post,emp_chnl_id,emp_chnl_nm,emp_chnl_typ,trade_ser_no,subs_id,
+			busi_typ,busi_typ_nm,trade_amt,opr_tm,order_typ,busi_chnl_id,busi_chnl_nm
+		FROM hpeapb.det_ygyccz_2302
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		and aud_trm &gt;=  #{currDetBeginDate} 
+		and aud_trm &lt;= #{currDetEndDate}
+		<if test="currCityType  != '' and currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType } 
+		</if>
+		<if test="currBusiType  != '' and currBusiType  !=null ">
+			and busi_typ = #{currBusiType } 
+		</if>
+		order by aud_trm desc,CMCC_prvd_nm_short,trade_amt desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

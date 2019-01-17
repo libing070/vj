@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="realNameMapper">
+
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="detailMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="subs_id" column="subs_id" />
+		<result property="msisdn" column="msisdn" />
+		<result property="ent_dt" column="ent_dt" />
+		<result property="subs_stat_typ_cd" column="subs_stat_typ_cd" />
+		<result property="ent_chnl_id" column="ent_chnl_id" />
+		<result property="subs_pay_typ_cd" column="subs_pay_typ_cd" />
+		<result property="subs_typ_cd" column="subs_typ_cd" />
+		<result property="cust_id" column="cust_id" />
+	</resultMap>
+		<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="sumRealPrvdMap">
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="CMCC_prov_prvd_id" column="CMCC_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="no_real_name_num" column="no_real_name_num" />
+		<result property="tol_subs_num" column="tol_subs_num" />
+		<result property="no_real_name_per" column="no_real_name_per" />
+		<result property="real_name_per" column="real_name_per" />
+	</resultMap>
+	<!-- 查询实名制登记率全国排名 -->
+	<select id="selectSumSort" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	select a.* ,@rank:=@rank+1 as sort  from (
+	    SELECT
+			CMCC_prov_prvd_id as provinceCode,
+			short_name as provName,
+			Aud_trm as auditMonth,
+			no_real_name_num as noRealNameNum,
+			tol_subs_num as tolSubsNum,
+			ifnull(no_real_name_per,0) as noRealNamePer, 
+			real_name_per as realNamePer
+		FROM hpeapb.sum_smzdjl_prvd
+		where 1=1  
+		
+		<if test="currSumEndDate !=null">
+			and Aud_trm =#{currSumEndDate }
+		</if>
+	ORDER BY real_name_per desc ) a ,(SELECT @rank:=0) b
+	</select>
+	
+	
+	<select id="selectTop3City" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT
+	Gen_date,
+	Aud_trm,
+	CMCC_prov_prvd_id,
+	short_name,
+	CMCC_prov_id,
+	CMCC_prvd_nm_short,
+	no_real_name_num,
+	tol_subs_num,
+	no_real_name_per,
+	real_name_per
+	FROM
+	hpeapb.sum_smzdjl_cty 
+	where 1=1 
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumEndDate !=null">
+			and Aud_trm =#{currSumEndDate }
+		</if>
+	order by real_name_per 
+	LIMIT 3
+	</select>
+	
+	
+	<!-- 查询实名制登记率地市汇总 -->
+	<select id="selectSumCity" resultType="java.util.HashMap" parameterType="pager">
+	SELECT
+			Gen_date,
+			Aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			CMCC_prov_id,
+			CMCC_prvd_nm_short,
+			no_real_name_num,
+			tol_subs_num,
+			no_real_name_per,
+			real_name_per
+	FROM hpeapb.sum_smzdjl_cty
+	where 1=1
+		<if test="params.provinceCode!=null">
+			and cmcc_prov_prvd_id =#{params.provinceCode}
+		</if>
+		<if test="params.currSumEndDate !=null">
+			and Aud_trm =#{params.currSumEndDate }
+		</if>
+	 order by Aud_trm desc,no_real_name_num desc
+	</select>
+	<!-- 查询所有实名制登记率地市汇总 -->
+	<select id="selectSumCityAll" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT
+		Gen_date,
+		Aud_trm,
+		CMCC_prov_prvd_id,
+		short_name,
+		CMCC_prov_id,
+		CMCC_prvd_nm_short,
+		no_real_name_num,
+		tol_subs_num,
+		no_real_name_per,
+		real_name_per
+	FROM hpeapb.sum_smzdjl_cty
+	where 1=1
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumEndDate !=null">
+			and Aud_trm =#{currSumEndDate }
+		</if>
+		order by Aud_trm desc,no_real_name_num desc
+	</select>
+	
+	<!-- 查询实名制登记率省份汇总语句 -->
+	<select id="selectSumRealNamePrvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT
+			CMCC_prov_prvd_id,
+			short_name,
+			Aud_trm,
+			no_real_name_num,
+			tol_subs_num,
+			no_real_name_per,
+			real_name_per
+	FROM hpeapb.sum_smzdjl_prvd
+	where 1=1
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate !=null">
+			and Aud_trm &gt;=#{currSumBeginDate }
+		</if>
+		<if test="currSumEndDate !=null">
+			and Aud_trm &lt;=#{currSumEndDate }
+		</if>
+		order by Aud_trm
+	</select>
+	
+	<!-- 查询实名制登记率省份汇总语句 Con-->
+	<select id="selectSumRealNamePrvdCon" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT
+			CMCC_prov_prvd_id,
+			short_name,
+			aud_trm,
+			no_real_name_num,
+			tol_subs_num,
+			no_real_name_per,
+			(real_name_per)*100 as real_name_per
+	FROM hpeapb.sum_smzdjl_prvd
+	where 1=1
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate !=null">
+			and Aud_trm &gt;=#{currSumBeginDate }
+		</if>
+		<if test="currSumEndDate !=null">
+			and Aud_trm &lt;=#{currSumEndDate }
+		</if>
+		ORDER BY real_name_per asc limit 1
+	</select>
+	<!-- 查询实名制登记率详情语句 -->
+	<select id="selectRealNameDetail" resultMap="detailMap" parameterType="pager">
+	SELECT DISTINCT
+			Gen_date,
+			Aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			subs_id,
+			cmcc_prvd_nm_short,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(trim(MSISDN))-4)),'****') END)AS MSISDN,
+			ent_dt,
+			subs_stat_typ_cd,
+			ent_chnl_id,
+			subs_pay_typ_cd,
+			subs_typ_cd,
+			cust_id
+	FROM hpeapb.det_smzdjl
+	where 1=1
+		<!-- 省编码 -->
+		<if test="params.provinceCode!=null">
+		and cmcc_prov_prvd_id =#{params.provinceCode}
+		</if>
+		<!-- 用户类型 -->
+		<if test="params.currUserType!=null and params.currUserType!=''">
+			and subs_typ_cd =#{params.currUserType}
+		</if>
+		<!-- 地市 -->
+		<if test="params.currCityType!=null and params.currCityType!=''">
+			and cmcc_prov_id =#{params.currCityType}
+		</if>
+		<!-- 用户状态 -->
+		<if test="params.currUserStatus!=null and params.currUserStatus!=''">
+			and subs_stat_typ_cd =#{params.currUserStatus}
+		</if>
+		<!-- 付费类型 -->
+		<if test="params.currPayType!=null and params.currPayType!=''">
+			and subs_pay_typ_cd =#{params.currPayType}
+		</if>
+	
+		<!-- 审计月份 -->
+		<if test="params.currDetEndDate!=null">
+			and Aud_trm =#{params.currDetEndDate}
+		</if>
+		<!-- 入网时间 -->
+		<if test="params.currEntDtBegin!=null and params.currEntDtBegin!='' and params.currEntDtEnd!=null and params.currEntDtEnd!= ''">
+			and  ent_dt between #{params.currEntDtBegin} and #{params.currEntDtEnd} 
+		</if>
+		<if test="params.currEntDtBegin!=null and params.currEntDtBegin!='' and params.currEntDtEnd==null">
+			and ent_dt &gt;=#{params.currEntDtBegin}
+		</if>
+		<if test="params.currEntDtBegin==null and params.currEntDtEnd!=null and params.currEntDtEnd!=''">
+			and ent_dt &lt;=#{params.currEntDtEnd}
+		</if>
+		order by Aud_trm desc,cmcc_prov_id
+	</select>
+	
+	<!-- 查询所有实名制登记率详情语句 -->
+	<select id="selectRealNameDetailAll" resultMap="detailMap" parameterType="java.util.HashMap">
+	SELECT DISTINCT
+			Gen_date,
+			Aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			subs_id,
+			cmcc_prvd_nm_short,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(trim(MSISDN))-4)),'****') END)AS MSISDN,
+			ent_dt,
+			subs_stat_typ_cd,
+			ent_chnl_id,
+			subs_pay_typ_cd,
+			subs_typ_cd,
+			cust_id
+	FROM hpeapb.det_smzdjl
+	where 1=1
+		<!-- 省编码 -->
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<!-- 用户类型 -->
+		<if test="currUserType!=null and currUserType!=''">
+			and subs_typ_cd =#{currUserType}
+		</if>
+		<!-- 地市 -->
+		<if test="currCityType!=null and currCityType!=''">
+			and cmcc_prov_id =#{currCityType}
+		</if>
+		<!-- 用户状态 -->
+		<if test="currUserStatus!=null and currUserStatus!=''">
+			and subs_stat_typ_cd =#{currUserStatus}
+		</if>
+		<!-- 付费类型 -->
+		<if test="currPayType!=null and currPayType!=''">
+			and subs_pay_typ_cd =#{currPayType}
+		</if>
+		
+		<!-- 审计月份 -->
+		<if test="currDetEndDate!=null">
+			and Aud_trm =#{currDetEndDate}
+		</if>
+		<!-- 入网时间 -->
+		<if test="currEntDtBegin!=null and currEntDtBegin!='' and currEntDtEnd!=null and currEntDtEnd!= ''">
+			and  ent_dt between #{currEntDtBegin} and #{currEntDtEnd} 
+		</if>
+		<if test="currEntDtBegin!=null and currEntDtBegin!='' and currEntDtEnd==null">
+			and ent_dt &gt;=#{currEntDtBegin}
+		</if>
+		<if test="currEntDtBegin==null and currEntDtEnd!=null and currEntDtEnd!=''">
+			and ent_dt &lt;=#{currEntDtEnd}
+		</if>
+		order by Aud_trm desc,cmcc_prov_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+
+</mapper>
+

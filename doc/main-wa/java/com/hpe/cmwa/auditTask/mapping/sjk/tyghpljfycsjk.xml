@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="tyghpljfycsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(TRADE_CNT) AS TRADE_CNT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and TRADE_CNT != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(TRADE_CNT) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(TRADE_CNT) AS TRADE_CNT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(TRADE_CNT) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(TRADE_CNT) AS TRADE_CNT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM,
+			SHORT_NAME,
+			SUM(TRADE_CNT) AS TRADE_CNT,
+			SUM(TRADE_AMT) AS TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		GROUP BY CMCC_PROV_PRVD_ID,AUD_TRM
+		order by AUD_TRM desc,TRADE_CNT desc,CMCC_PROV_PRVD_ID
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			CMCC_PROV_ID,
+			CMCC_PRVD_NM_SHORT,
+			EMP_ID,
+			EMP_NM,
+			BUSI_TYP,
+			BUSI_TYP_NM,
+			TRADE_CNT,
+			TRADE_TM,
+			TRADE_AMT
+		FROM hpeapb.sum_ygyccz_2302_opr_busi_cty
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by AUD_TRM desc,TRADE_CNT desc,CMCC_PROV_PRVD_ID
+	</select>
+</mapper>
+

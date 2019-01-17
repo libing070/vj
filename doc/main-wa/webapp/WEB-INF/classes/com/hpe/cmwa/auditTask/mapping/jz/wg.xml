@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="wg">
+
+		<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="sumCityMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="BUSI_ACCE_TYP" column="BUSI_ACCE_TYP" />
+		<result property="USER_NUM" column="USER_NUM" />
+		<result property="BUSI_NUM" column="BUSI_NUM" />
+		<result property="TOL_USER_NUM" column="TOL_USER_NUM" />
+		<result property="TOL_BUSI_NUM" column="TOL_BUSI_NUM" />
+		<result property="PER_USER_NUM" column="PER_USER_NUM" />
+		<result property="PER_BUSI_NUM" column="PER_BUSI_NUM" />
+	</resultMap>
+	<resultMap type="java.util.Map" id="sumDetailMap">
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="USER_ID" column="USER_ID" />
+		<result property="OPR_SER_NO" column="OPR_SER_NO" />
+		<result property="BUSI_ACCE_TYP" column="BUSI_ACCE_TYP" />
+		<result property="MSISDN" column="MSISDN" />
+		<result property="BUSI_TYP_NO" column="BUSI_TYP_NO" />
+		<result property="BUSI_TYP_NM" column="BUSI_TYP_NM" />	
+		<result property="BUSI_OPR_TM" column="BUSI_OPR_TM" />
+		<result property="ORDER_STAT" column="ORDER_STAT" />	
+		<result property="BUSI_EFF_DT" column="BUSI_EFF_DT" />
+		<result property="BUSI_END_DT" column="BUSI_END_DT" />	
+		<result property="BUSI_CHNL_ID" column="BUSI_CHNL_ID" />
+		<result property="BUSI_CHNL_NM" column="BUSI_CHNL_NM" />
+		<result property="STAFF_ID" column="STAFF_ID" />
+		<result property="STAFF_NM" column="STAFF_NM" />
+	</resultMap>
+	<resultMap type="java.util.Map" id="JieLunMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="Aud_trm" column="Aud_trm" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="VT_YK_AMT" column="VT_YK_AMT" />
+		<result property="VT_TEST_AMT" column="VT_TEST_AMT" />
+		<result property="VT_FREE_AMT" column="VT_FREE_AMT" />
+		<result property="VT_EMP_AMT" column="VT_EMP_AMT" />
+		<result property="TOL_VT_AMT" column="TOL_VT_AMT" />
+	</resultMap>
+
+	<!-- 双折线 省汇总表-->
+		<select id="selectPerMonthWg" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  SELECT
+				CMCC_prov_prvd_id as provinceCode,
+				short_name as provName,
+				Aud_trm as auditMonth,
+				sum(BUSI_NUM) as busi_num
+			FROM hpeapb.sum_zbzj_1102_prvd
+			where BUSI_NUM > 0 
+			<if test="provinceCode!=null and  provinceCode !=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+			</if>
+			<if test="currSumBeginDate !=null and  currSumBeginDate !=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and  currSumEndDate !=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+			group by Aud_trm
+			order by Aud_trm
+		</select>
+		
+		<select id="selectQianZhejielun" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+			select Aud_trm as shenjiyue  
+			from hpeapb.sum_zbzj_1102_prvd 
+			where  BUSI_NUM=(select 
+									max(BUSI_NUM) from hpeapb.sum_zbzj_1102_prvd 
+									where BUSI_NUM > 0 
+										and cmcc_prov_prvd_id =#{provinceCode}
+										and Aud_trm &gt;=#{currSumBeginDate }
+										and Aud_trm &lt;=#{currSumEndDate })
+										and cmcc_prov_prvd_id =#{provinceCode}
+										and Aud_trm &gt;=#{currSumBeginDate }
+										and Aud_trm &lt;=#{currSumEndDate }
+	</select>
+	
+		<select id="selectZhejielun" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+			SELECT
+				short_name as provName,
+				Aud_trm as auditMonth,
+				ifnull(max(BUSI_NUM),0) as maxzhi,
+				IFNULL(AVG(BUSI_NUM),0) as pjz
+			FROM hpeapb.sum_zbzj_1102_prvd
+			where BUSI_NUM > 0  
+			<if test="provinceCode!=null and  provinceCode !=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+			</if>
+			<if test="currSumBeginDate !=null and  currSumBeginDate !=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and  currSumEndDate !=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+	
+		</select>
+		
+		<select id="selectAvgMonthWg" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		 	SELECT
+				CMCC_prov_prvd_id as provinceCode,
+				short_name as provName,
+				Aud_trm as auditMonth,
+				IFNULL(AVG(BUSI_NUM),0) as pjsr
+			FROM hpeapb.sum_zbzj_1102_prvd
+			where BUSI_NUM > 0  
+			<if test="provinceCode!=null and  provinceCode !=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+			</if>
+			<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and  currSumEndDate !=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+		</select>
+		
+		<select id="selectSumCity" resultType="java.util.HashMap" parameterType="pager"> 	
+			SELECT
+				Gen_date,
+				Aud_trm,
+				cmcc_prvd_nm_short,
+				BUSI_ACCE_TYP,
+				USER_NUM,
+				BUSI_NUM,
+				TOL_USER_NUM,
+				TOL_BUSI_NUM,
+				PER_USER_NUM,
+				PER_BUSI_NUM
+	 		from  hpeapb.sum_zbzj_1102_ywlx 
+			where BUSI_NUM > 0 
+			<if test="params.provinceCode !=null and  params.provinceCode !=''">
+				and cmcc_prov_prvd_id =#{params.provinceCode }
+			</if> 
+			<if test="params.currSumBeginDate !=null and  params.currSumBeginDate !=''">
+				and Aud_trm &gt;=#{params.currSumBeginDate }
+			</if>
+			<if test="params.currSumEndDate !=null and  params.currSumEndDate !=''">
+				and Aud_trm &lt;=#{params.currSumEndDate }
+			</if>
+			order by Aud_trm desc,BUSI_NUM  desc
+		</select>
+		<!-- 查询所有地市汇总信息做导出 -->
+		<select id="selectSumCityAll" resultMap="sumCityMap" parameterType="java.util.HashMap">
+			select
+				Gen_date,
+				Aud_trm,
+				cmcc_prov_prvd_id,
+				short_name,
+				cmcc_prov_id,
+				cmcc_prvd_nm_short,
+				BUSI_ACCE_TYP,
+				USER_NUM,
+				BUSI_NUM,
+				TOL_USER_NUM,
+				TOL_BUSI_NUM,
+				PER_USER_NUM,
+				PER_BUSI_NUM
+	 		from  hpeapb.sum_zbzj_1102_ywlx
+	 		where BUSI_NUM > 0 
+			<if test="provinceCode!=null  and  provinceCode!=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+			</if>
+			<if test="currSumBeginDate !=null  and currSumBeginDate!=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and currSumEndDate!=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+		</select>
+		
+		<select id="selectMingXi" resultType="java.util.HashMap" parameterType="pager">
+		 	SELECT 
+				Aud_trm,
+				cmcc_prov_prvd_id,
+				short_name,
+				cmcc_prov_id,
+				cmcc_prvd_nm_short,
+				USER_ID,
+				BUSI_ACCE_TYP_ID,
+				BUSI_ACCE_TYP_NM,
+				(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS MSISDN,
+				BUSI_TYP_NO,
+				BUSI_TYP_NM,
+				BUSI_OPR_TM,
+				BUSI_CHNL_ID,
+				BUSI_CHNL_NM,
+				STAFF_ID,
+				concat(left(STAFF_NM,1),'**') AS STAFF_NM	
+			FROM hpeapb.det_zbzj_1102
+			where 1=1  
+			<if test="params.provinceCode!=null and params.provinceCode!=''">
+			and cmcc_prov_prvd_id =#{params.provinceCode}
+			</if>
+			<if test="params.currDetBeginDate !=null and params.currDetBeginDate!=''">
+				and Aud_trm &gt;=#{params.currDetBeginDate }
+			</if>
+			<if test="params.currDetEndDate !=null and params.currDetEndDate!=''">
+				and Aud_trm &lt;=#{params.currDetEndDate }
+			</if>
+			<if test="params.currCityName !=null and params.currCityName!=''">
+				and cmcc_prov_id =#{params.currCityName }
+			</if>
+			<if test="params.currYwType !=null and params.currYwType!=''">
+				and BUSI_ACCE_TYP_ID =#{params.currYwType }
+			</if>
+			order by Aud_trm desc,cmcc_prov_id
+		</select>
+		<select id="selectWgDetailAll" resultMap="sumDetailMap" parameterType="java.util.HashMap">
+			SELECT 
+				Aud_trm,
+				cmcc_prov_prvd_id,
+				short_name,
+				cmcc_prov_id,
+				cmcc_prvd_nm_short,
+				USER_ID,
+	     		OPR_SER_NO,
+				BUSI_ACCE_TYP_ID,
+				BUSI_ACCE_TYP_NM,
+				(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS MSISDN,
+				BUSI_TYP_NO,
+				BUSI_TYP_NM,
+				BUSI_OPR_TM,
+	      		ORDER_STAT,
+	      		BUSI_EFF_DT,
+	      		BUSI_END_DT,
+				BUSI_CHNL_ID,
+				BUSI_CHNL_NM,
+				STAFF_ID,
+				CONCAT(left(STAFF_NM,1),'**') AS STAFF_NM	
+			FROM hpeapb.det_zbzj_1102
+			where 1=1
+				<!-- 省编码 -->
+				<if test="provinceCode!=null and provinceCode !=''">
+				and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+				<if test="currYwType!=null and currYwType !=''">
+					and BUSI_ACCE_TYP_ID =#{currYwType }
+				</if>
+				<if test="currCityName!=null and currCityName !=''">
+					and cmcc_prov_id =#{currCityName}
+				</if>
+				<if test="currDetBeginDate !=null and currDetBeginDate !=''">
+					and Aud_trm &gt;=#{currDetBeginDate }
+				</if>
+				<if test="currDetEndDate !=null and currDetEndDate !=''">
+					and Aud_trm &lt;=#{currDetEndDate }
+				</if>
+				order by Aud_trm desc,cmcc_prov_id LIMIT #{pageStar},#{pageEnd}
+	</select>
+	<!-- 查询得到全省排名前三的业务 -->
+	<select id="selectZhuZhuangTu" resultType="Map" parameterType="java.util.HashMap">
+		SELECT
+			BUSI_ACCE_TYP as busi_acce_typ
+		FROM  hpeapb.sum_zbzj_1102_ywlx
+		where 1=1 
+			<if test="provinceCode!=null and provinceCode !=''">
+				and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+			<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+				and Aud_trm &gt;=#{currSumBeginDate }
+			</if>
+			<if test="currSumEndDate !=null and currSumEndDate !=''">
+				and Aud_trm &lt;=#{currSumEndDate }
+			</if>
+		group  by BUSI_ACCE_TYP
+		order  by sum(BUSI_NUM) DESC
+		limit 3
+	</select>	
+	
+	<select id="selectZhu" resultType="Map" parameterType="java.util.HashMap">
+		select cmcc_prvd_nm_short,
+			sum(case when BUSI_ACCE_TYP =#{type0} then BUSI_NUM else 0 end )  AS firstyw, 
+			sum(case when BUSI_ACCE_TYP =#{type1} then BUSI_NUM else 0 end )  AS secondyw, 
+			sum(case when BUSI_ACCE_TYP =#{type2} then BUSI_NUM else 0 end )  AS threeyw,
+			sum(case when BUSI_ACCE_TYP !=#{type0} AND BUSI_ACCE_TYP !=#{type1} AND BUSI_ACCE_TYP !=#{type2} then BUSI_NUM else 0 end )  AS otheryw
+			from hpeapb.sum_zbzj_1102_ywlx 
+			where 1=1 
+				<if test="provinceCode!=null and provinceCode !=''">
+					and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+				<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+					and Aud_trm &gt;=#{currSumBeginDate }
+				</if>
+				<if test="currSumEndDate !=null and currSumEndDate !=''">
+					and Aud_trm &lt;=#{currSumEndDate }
+				</if>
+				group  by cmcc_prov_id
+				order by sum(BUSI_NUM) desc
+	</select>	
+	
+	<select id="selectZhuQianJieLun" resultType="Map" parameterType="java.util.HashMap">
+		SELECT
+			sum(BUSI_NUM),
+			sum(USER_NUM)
+	 	FROM  hpeapb.sum_zbzj_1102_ywlx
+			where 1=1 
+				<if test="provinceCode!=null and provinceCode !=''">
+					and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+				<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+					and Aud_trm &gt;=#{currSumBeginDate }
+				</if>
+				<if test="currSumEndDate !=null and currSumEndDate !=''">
+					and Aud_trm &lt;=#{currSumEndDate }
+				</if>
+	</select>
+	<select id="selectZhuZhongJieLun" resultType="Map" parameterType="java.util.HashMap">
+			SELECT
+				BUSI_ACCE_TYP,
+				sum(BUSI_NUM) as ywbs
+		 	FROM  hpeapb.sum_zbzj_1102_ywlx
+		    where 1=1 
+				<if test="provinceCode!=null and provinceCode !=''">
+					and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+				<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+					and Aud_trm &gt;=#{currSumBeginDate }
+				</if>
+				<if test="currSumEndDate !=null and currSumEndDate !=''">
+					and Aud_trm &lt;=#{currSumEndDate }
+				</if>
+			group by  BUSI_ACCE_TYP
+			order by  sum(BUSI_NUM) DESC
+			limit 3
+	</select>	
+	<select id="selectZhuHouJieLun" resultType="Map" parameterType="java.util.HashMap">
+			SELECT
+				cmcc_prvd_nm_short,
+				sum(BUSI_NUM) as dsbs
+		 	FROM  hpeapb.sum_zbzj_1102_ywlx
+		    where 1=1 
+				<if test="provinceCode!=null and provinceCode !=''">
+					and cmcc_prov_prvd_id =#{provinceCode}
+				</if>
+				<if test="currSumBeginDate !=null and currSumBeginDate !=''">
+					and Aud_trm &gt;=#{currSumBeginDate }
+				</if>
+				<if test="currSumEndDate !=null and currSumEndDate !=''">
+					and Aud_trm &lt;=#{currSumEndDate }
+				</if>
+			group by cmcc_prov_id
+			order by  sum(BUSI_NUM) DESC
+			limit 3
+	</select>								 
+</mapper>
+

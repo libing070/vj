@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zdljfwfwgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(errNum) as errNum,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_zdfwfhgx_6001_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by errNum desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(errNum) as errNum,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_zdfwfhgx_6001_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and errNum !=0 
+		group by cmcc_prov_prvd_id 
+		order by errNum desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(errNum) as errNum,short_name,
+			aud_trm,cmcc_prov_prvd_id 
+		from 
+			hpeapb.sum_zdfwfhgx_6001_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,errNum,tolNum,(numPer*100) as numPer,
+			err_pay_amt,err_sals_amt,(amtPer*100) as amtPer
+ 		from 
+ 			hpeapb.sum_zdfwfhgx_6001_prvd 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,errNum desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,errNum,tolNum,(numPer*100) as numPer,
+			err_pay_amt,err_sals_amt,(amtPer*100) as amtPer
+ 		from 
+ 			hpeapb.sum_zdfwfhgx_6001_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,errNum desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

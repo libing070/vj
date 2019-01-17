@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="cqqfywMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_qst_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audtrm,sum(wg_busi_num) as wg_busi_num
+		FROM hpeapb.dm_sum_khqf_1003_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+			AND AUD_TRM &gt;=  #{currSumBeginDate} 
+			AND AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_hz_qst_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			wg_busi_num,
+			wg_cust_num
+		from hpeapb.dm_sum_khqf_1003_prvd
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		order by aud_trm desc,wg_busi_num desc
+	</select>
+	
+	<select id="export_hz_qst_table" resultType="Map" parameterType="Map">
+		select aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			wg_busi_num,
+			wg_cust_num
+		from hpeapb.dm_sum_khqf_1003_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		order by aud_trm desc,wg_busi_num desc
+	</select>
+	
+	
+	
+	
+	<select id="load_hz_city_chart" resultType="Map" parameterType="Map">
+		select cmcc_prvd_nm_short,sum(wg_busi_num) as wg_busi_num,sum(wg_cust_num) as wg_cust_num
+		from hpeapb.dm_sum_khqf_1003_cty 
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		group by cmcc_prvd_nm_short
+		order by wg_busi_num desc,cmcc_prov_id
+	</select>
+	
+	<select id="load_hz_city_table" resultType="Map" parameterType="Map">
+		select aud_trm,
+			short_name,
+			cmcc_prvd_nm_short,
+			wg_busi_num,
+			wg_cust_num
+		from hpeapb.dm_sum_khqf_1003_cty
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		order by aud_trm desc,wg_busi_num desc
+	</select>
+	<select id="export_hz_city_table" resultType="Map" parameterType="Map">
+		select aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			wg_busi_num,
+			wg_cust_num
+		from hpeapb.dm_sum_khqf_1003_cty
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		order by aud_trm desc,wg_busi_num desc
+	</select>
+	<select id="load_hz_city_conclusion" resultType="Map" parameterType="Map">
+		SELECT sum(wg_busi_num) as wg_busi_num,sum(wg_cust_num) as wg_cust_num
+		FROM hpeapb.dm_sum_khqf_1003_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+	</select>
+	
+	<select id="load_hz_city_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT cmcc_prvd_nm_short,sum(wg_busi_num) as wg_busi_num,sum(wg_cust_num) as wg_cust_num
+		FROM hpeapb.dm_sum_khqf_1003_cty
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		group by 1
+		order by 2 desc,cmcc_prov_id
+		limit 3
+	</select>
+	
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm,
+		short_name,
+		cmcc_prvd_nm_short,
+		subscrb_dt,
+		cust_id,
+		cust_nm,
+		ear_trm,
+		acct_age,
+		dbt_amt,
+		org_svc_typ,
+		org_svc_typ_nm,
+		eff_dt,
+		end_dt,
+		subscrb_stat
+		FROM hpeapb.dm_det_khqf_1003
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currDetBeginDate} 
+		and AUD_TRM &lt;= #{params.currDetEndDate}
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		ORDER BY aud_trm desc,cmcc_prov_id
+	</select>
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT  
+		 Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		subscrb_dt,
+		acct_id,
+		acct_nm,
+		cust_id,
+		cust_nm,
+		org_cust_lvl,
+		ear_trm,
+		acct_age,
+		dbt_amt,
+		org_svc_typ,
+		org_svc_typ_nm,
+		eff_dt,
+		end_dt,
+		subscrb_stat
+		FROM hpeapb.dm_det_khqf_1003
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate}
+		<if test="currCityType  != '' and currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType} 
+		</if>
+		ORDER BY AUD_TRM DESC ,cmcc_prov_id
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	
+</mapper>
+

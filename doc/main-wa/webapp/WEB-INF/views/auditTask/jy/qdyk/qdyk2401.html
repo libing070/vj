@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/jy/qdyk/qdyk2401.js"></script>
+</head>
+<body>
+	<form id="queryParam">
+
+		<input type="hidden" id="provId" /> 
+		<input type="hidden" id="mx_cityCode" />
+		<input type="hidden" id="mx_qdTypeSelect" />
+		
+		
+
+		<!-- 省编ID（内） -->
+		<input type="hidden" id="currTab" value="hz" />
+		<!-- 汇总-->
+		<input type="hidden" id="provinceName" name="provinceName">
+
+		<!-- 国信透传条件 -->
+		<!-- 外传参数 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<!-- 省编ID（外） -->
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth"> 
+		<input type="hidden" id="auditId" name="auditId">
+		<input type="hidden" id="taskCode" name="taskCode">
+	</form>
+	<div class="container-fluid">
+		<!-- 选项卡 -->
+		<div class="tab-nav">
+			<ul>
+				<li id="hz_tab" class="active">汇总分析</li>
+				<li id="mx_tab">明细数据</li>
+			</ul>
+		</div>
+
+		<!-- 选项卡info -->
+		<div class="tab-box">
+			<!-- 汇总分析 -->
+			<div class="tab-info" style="display:block">
+				<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+                      <!--   <li class="active"><a href="/cmwa/xefzscz/2304/index">渠道养卡</a></li> -->
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="hz_startMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="hz_endMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<a href="javascript:;" id="hz_search_btn"> <i
+						class="icon icon-search"></i> 查询 </a>
+				</div>
+
+
+				<!-- mapBox -->
+				<div class="tab-mapbox">
+					<!-- 渠道养卡用户数量波动趋势 -->
+					<div class="col-xs-12">
+						<div class="map">
+							<div class="title">
+								<h2>渠道养卡用户数量波动趋势</h2>
+								<!-- 条件选择按钮 -->
+								<div class="right-info">
+									<ol>
+										<li class="active" id="qdykyhsl_Chart">统计</li>
+										<li id="qdykyhsl_Tab">数据表</li>
+									</ol>
+								</div>
+							</div>
+							<!-- 条件选择按钮  end-->
+							
+							<div class="tab-map-box">
+								<!-- 图形 -->
+								<div class="tab-map-info" style="display:block">
+									<div class="shuoming" id="qdykyhslChart_Con"></div>
+									<div id="qdykyhslChart"></div>
+								</div>
+								<!-- 图形 end -->
+								<!-- 数据表  -->
+								<div class="tab-map-info" id="qdykyhslDivId_class">
+									<div class="col-xs-12">
+										<div class="shuoming" id="yhhzTop10TelTable_Con"></div>
+										<div class="table-box">
+											<div class="table-responsive">
+												<a href="javascript:;" id="exportQdykyhslTable"> 导出 </a>
+												<div class="clear"></div>
+												<div class="table-responsive" id="qdykyhslDelTableAjax">
+													<table id="qdykyhsl_Table"></table>
+													<div id="qdykyhsl_TablePageBar"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- 数据表  end-->
+						</div>
+					</div>
+					<!-- 渠道养卡用户数量波动趋势  end-->
+					
+					<!-- 地市渠道养卡用户数量统计 -->
+					<div class="col-xs-12">
+						<div class="map">
+							<div class="title">
+								<h2>地市渠道养卡用户数量统计</h2>
+								<!-- 条件选择按钮 -->
+								<div class="right-info">
+									<ol>
+										<li class="active" id="dsxefzcz_Chart">统计</li>
+										<li id="dsxefzcz_Tab">数据表</li>
+									</ol>
+								</div>
+							</div>
+							<!-- 条件选择按钮  end-->
+							
+							<div class="tab-map-box">
+								<!-- 图形 -->
+								<div class="tab-map-info" style="display:block">
+									<div class="shuoming" id="dsxefzcz_Con"></div>
+									<div id="dsxefzczCharts"></div>
+								</div>
+								<!-- 图形 end -->
+								<!-- 数据表  -->
+								<div class="tab-map-info" id="dsxefzczDivId_class">
+									<div class="col-xs-12">
+										<div class="shuoming" id="dsxefzczTable_Con"></div>
+										<div class="table-box">
+											<div class="table-responsive">
+												<a href="javascript:;" id="exportDsxefzczTable"> 导出 </a>
+												<div class="clear"></div>
+												<div class="table-responsive" id="dsxefzczDelTableAjax">
+													<table id="dsxefzczTable"></table>
+													<div id="dsxefzczTablePageBar"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<div class="tab-map-info">
+									<div class="table-box">
+										<div class="table-responsive" id="">
+											<table id=""></table>
+											<div id=""></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- 数据表  end-->
+						</div>
+					</div>
+					<!-- 地市小额非整数充值统计  end-->
+				</div>
+			</div>
+
+			<!-- 明细数据 -->
+			<div class="tab-info">
+				<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+                       <!--  <li class="active"><a href="/cmwa/xefzscz/2304/index">渠道养卡</a></li> -->
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="mx_startMonth" autocomplete="off" type="text" readonly > 
+							<span class="add-on"> <i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="mx_endMonth" autocomplete="off" type="text" readonly > 
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+
+					<a href="javascript:;" id="mx_search_btn"> <i class="icon icon-search"></i> 查询 </a> 
+					<a class="more-btn" href="javascript:;"> 更多查询条件 </a> 
+					<a id="mx_reset_btn" class="reset-btn" href="javascript:;"> 重置 </a>
+					<a id="exportMxDetailList" href="javascript:;"> 导出 </a>
+				</div>
+
+				<!-- moreBox -->
+				<div class="more-box">
+					<div class="select-box">
+						<p>
+							<input id="mx_cityCodeText" type="text" autocomplete="off" placeholder="地市名称" readonly>
+							<span> <i class="icon icon-angle-down"></i> </span>
+						</p>
+						<ul id="mx_cityCodeSelect">
+						</ul>
+					</div>
+					
+					<div class="select-box">
+						<p>
+							<input id="mx_qdTypeText" type="text" autocomplete="off" placeholder="渠道类型名称" readonly>
+							<span> <i class="icon icon-angle-down"></i> </span>
+						</p>
+						<ul id="mx_qdTypeSelect" name="mx_qdTypeSelect">
+							<li date="0">全渠道</li>
+							<li date="1">自有渠道</li>
+							<li date="2">社会渠道</li>
+							<li date="qt">其他渠道</li>
+						</ul>
+					</div>
+					
+				</div>
+
+				<!-- 数据Table -->
+				<div class="shuju_box">
+					<h2></h2>
+					<div class="shuju_table">
+						<table id="cityDetailGridData"></table>
+						<div id="cityDetailGridDataPageBar"></div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+</body>
+</html>

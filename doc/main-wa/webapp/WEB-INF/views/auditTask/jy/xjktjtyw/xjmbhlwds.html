@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>虚假虚假魔百和互联网电视</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+	<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+	<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+	<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/jy/xjktjtyw/xjmbhlwds.js"></script>
+</head>
+<body>
+    <form id="queryParam">
+
+       <!-- 国信透传条件 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth">
+		<input type="hidden" id="auditId" name="auditId">
+		<input type="hidden" id="taskCode" name="taskCode">
+		
+		<!-- 汇总条件 -->
+		<input type="hidden" id="currSumBeginDate" name="currSumBeginDate">
+		<input type="hidden" id="currSumEndDate" name="currSumEndDate">
+		<input type="hidden" id="provinceName" name="provinceName">
+		
+		<!-- 清单条件 -->
+		<input type="hidden" id="currDetBeginDate" name="currDetBeginDate">
+		<input type="hidden" id="currDetEndDate" name="currDetEndDate">
+		<input type="hidden" id="currCityType" name="currCityType">
+		<input type="hidden" id="currBusiType" name="currBusiType">
+		
+		<!-- 原始时间开始结束 -->
+		<input type="hidden" id="initBeginDate">
+		<input type="hidden" id="initEndDate">
+		
+		<input type="hidden" id="currTab" value="hz"/>  
+        
+    </form>
+    <div class="container-fluid">
+        <!-- 选项卡 -->
+        <div class="tab-nav">
+            <ul>
+                <li id="hz_tab" class="active">汇总分析</li>
+<!--                 <li id="mx_tab">明细数据</li>
+ -->            </ul>
+        </div>
+
+        <!-- 选项卡info -->
+        <div class="tab-box">
+            <!-- 汇总分析 -->
+            <div class="tab-info" style="display:block">
+            	
+            	<div class="tab-sub-nav">
+                    <ul>
+              			<li class=""><a href="/cmwa/xjjtkd/index">虚假家庭宽带</a></li>
+              			<li class="active"><a href="/cmwa/xjmbhlwds/index">虚假魔百和互联网电视</a></li>
+                    </ul>
+                </div>
+
+                <div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date">
+						<dt>
+							<input value="2016-02" type="text" autocomplete="off" disabled="disabled" readonly id="sumBeginDate" >
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime" id="sumEndDate">
+						<dt>
+							<input value="2016-04" type="text" >
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					 <a href="javascript:;" id="hz_search_btn">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+				</div>
+                <!-- mapBox -->
+                <div class="tab-mapbox">   
+                   <div class="col-xs-12">
+                        <div class="map">
+                        	
+                            <div class="title">
+                                <h2>虚假魔百和互联网电视统计</h2>
+                                <div class="right-info">
+                                	<!-- <dl>
+                                        <dt>
+                                            <input id="czyCityText" type="text"  readonly> <span><i class="icon icon-angle-down"></i></span>
+                                        </dt>
+                                        <dd>
+                                           <ul id="czyCitySelect">
+							
+											</ul>
+                                        </dd>
+                                    </dl> -->
+                                    <ol>
+                                        <li class="active" id="hz_yw_btn">统计</li>
+                                        <li id="hz_yw_sjb">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="shuoming" id="hz_yw_conclusion">
+                                    </div>
+                                    <div id="hz_yw_chart">
+                                    </div>
+                                </div>
+                                
+								<div class="tab-map-info" id="tab-map-info_hz">
+								 	<div class="shuoming" id="hz_yw_table_conclusion">
+                                    </div>
+                                     <div class="table-box">
+                                        <a href="javascript:;" id="hz_yw_export"> 导出 </a>
+                                        <div class="clear"></div>
+                                        <div class="table-responsive" >
+                                            <table id="hz_yw_table"></table>
+                                            <div id="hz_yw_pageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+
+            <!-- 明细数据 -->
+            <div class="tab-info">
+                <!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul>
+              			<li class="active"><a href="/cmwa/xjjtkd/index">虚假家庭宽带</a></li>
+              			 <li><a href="/cmwa/xjmbhlwds/index">虚假魔百和互联网电视</a></li>
+              			
+                    </ul>
+                </div>
+                
+                <!-- dateBox -->
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					
+				    <a href="javascript:;" id="mx_search_btn">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+					<a class="more-btn" id="moreConditions" href="javascript:;">
+						更多查询条件
+					</a>
+					<a class="reset-btn" id="resetMxId" href="javascript:;">
+						重置
+					</a> 
+					<a href="javascript:;" id="export_mx_table">
+						导出
+					</a>
+				</div>
+
+                <!-- moreBox -->
+                <div class="more-box">
+					<div class="select-box">
+                        <p>
+                            <input type="text" autocomplete="off" placeholder="地市名称" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="cityType">
+                        </ul>
+                    </div>
+                    <!-- <div class="select-box">
+                        <p>
+                            <input type="text" autocomplete="off" placeholder="业务类型名称" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="busiType">
+                        </ul>
+                    </div> -->
+                </div>
+
+                <!-- 数据Table -->
+                <div class="shuju_box">
+                    <h2></h2>
+                    <div class="shuju_table">
+                        <table id="mx_table"></table>
+                        <div id="mx_pageBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

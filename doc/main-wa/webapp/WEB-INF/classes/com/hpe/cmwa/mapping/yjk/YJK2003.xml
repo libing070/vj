@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="YJK2003">
+
+    <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" />
+
+    <!-- 排名趋势 -->
+    <select id="getRankTrendList" resultType="Map" parameterType="Map">
+
+        select c.cmcc_prov_id, c.cmcc_prvd_nm_short, sum(c.infraction_num) as cnt, (sum(c.infraction_num) / sum(tol_num) * 100) as per_weigui_cnt from hpeapb.sum_yjk_2003 c 
+        
+        <where>
+            <if test="hz_startMonth != null and hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+            </if>
+            
+            <if test="hz_endMonth != null and hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+        </where>
+        group by c.cmcc_prov_id, c.cmcc_prvd_nm_short
+        order by sum(c.infraction_num) desc, c.cmcc_prov_id
+        
+        limit 0, 10
+        
+    </select>
+    <select id="getConclusionList" resultType="Map" parameterType="Map">
+
+        select c.cmcc_prvd_nm_short, sum(c.infraction_num) as cnt, (sum(c.infraction_num) / sum(tol_num) * 100) as per_weigui_cnt from hpeapb.sum_yjk_2003 c 
+        
+        <where>
+            <if test="hz_startMonth != null and hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+            </if>
+            
+            <if test="hz_endMonth != null and hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+        </where>
+        group by c.cmcc_prov_id, c.cmcc_prvd_nm_short
+        order by per_weigui_cnt desc, c.cmcc_prov_id
+        limit 3
+        
+    </select>
+
+    <!-- 获取省汇总列表 -->
+    <select id="getProvSumList" resultType="Map" parameterType="Map">
+
+        select a.*, @rank:= @rank + 1 as rank_num from (
+            select c.cmcc_prov_prvd_id, sum(c.infraction_num) as infraction_num, sum(c.tol_num) AS tol_num from hpeapb.sum_yjk_2003_prvd c
+            
+            <where>
+                <if test="hz_startMonth != null and hz_startMonth != ''">
+                    <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+                </if>
+                
+                <if test="hz_endMonth != null and hz_endMonth != ''">
+                    <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+                </if>
+            </where>
+        
+            group by c.cmcc_prov_prvd_id
+            order by sum(c.infraction_num) desc, c.cmcc_prov_prvd_id       
+        ) a, (select @rank:= 0) b
+    
+    </select>
+    
+    <!-- 获取地市汇总列表 -->
+    <select id="getCitySumList" resultType="Map" parameterType="Map">
+    
+        select c.cmcc_prov_id, c.cmcc_prvd_nm_short, sum(c.infraction_num) as infraction_num, sum(c.tol_num) as tol_num, (sum(c.infraction_num) / sum(c.tol_num) * 100) as per_weigui_cnt from hpeapb.sum_yjk_2003 c 
+        
+        <where>
+            <if test="hz_startMonth != null and hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+            </if>
+            
+            <if test="hz_endMonth != null and hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+        </where>
+        
+        group by c.cmcc_prov_id, c.cmcc_prvd_nm_short
+        order by sum(c.infraction_num) desc, c.cmcc_prov_id
+        
+    </select>
+    
+    <!-- 获取地市汇总数据（分页） -->    
+    <select id="getCitySumPagerList" resultType="Map" parameterType="pager">
+        select c.cmcc_prov_id, c.cmcc_prvd_nm_short, sum(c.infraction_num) as infraction_num, sum(c.tol_num) as tol_num, (sum(c.infraction_num) / sum(c.tol_num) * 100) as per_weigui_cnt from hpeapb.sum_yjk_2003 c 
+        
+        <where>
+            <if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{params.hz_startMonth} ]]> 
+            </if>
+            
+            <if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{params.hz_endMonth} ]]> 
+            </if>
+            
+            <if test="params.provId != null and params.provId != ''">
+                and c.cmcc_prov_prvd_id = #{params.provId}
+            </if>
+        </where>
+        
+        group by c.cmcc_prov_id, c.cmcc_prvd_nm_short
+        order by sum(c.infraction_num) desc, c.cmcc_prov_id
+        
+    </select>
+
+    <!-- 获取地市明细数据 -->    
+    <select id="getCityDetailList" resultType="Map" parameterType="Map">
+    
+         select 
+         gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			cty_name,
+			yjk_typ,
+			infraction_typ,
+			yjk_no,
+			yjk_stat,
+			yjk_amt,
+			(CASE WHEN pay_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(pay_msisdn,1,(LENGTH(pay_msisdn)-4)),'****') END)AS pay_msisdn,
+			pay_time,
+			yjk_typ_name,
+			infraction_typ_name
+         from hpeapb.det_yjk_2003 c
+        
+        <where>
+            <if test="mx_startMonth != null and mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{mx_startMonth} ]]> 
+            </if>
+            
+            <if test="mx_endMonth != null and mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{mx_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+            
+            <if test="mx_cityCode != null and mx_cityCode != ''">
+                and c.cmcc_prov_id = #{mx_cityCode}
+            </if>
+            
+            <if test='mx_infraction_typ != null and mx_infraction_typ != ""'>
+                and c.infraction_typ = #{mx_infraction_typ}
+            </if>
+			
+        </where>
+        order by aud_trm desc
+        LIMIT #{pageStar},#{pageEnd}
+    </select>
+    
+    <!-- 获取地市明细数据（分页） -->    
+    <select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+    
+        select gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			cty_name,
+			yjk_typ,
+			infraction_typ,
+			yjk_no,
+			yjk_stat,
+			yjk_amt,
+			(CASE WHEN pay_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(pay_msisdn,1,(LENGTH(pay_msisdn)-4)),'****') END)AS pay_msisdn,
+			pay_time,
+			yjk_typ_name,
+			infraction_typ_name
+        from hpeapb.det_yjk_2003 c
+        
+        <where>
+            <if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{params.mx_startMonth} ]]> 
+            </if>
+            
+            <if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{params.mx_endMonth} ]]> 
+            </if>
+            
+            <if test="params.provId != null and params.provId != ''">
+                and c.cmcc_prov_prvd_id = #{params.provId}
+            </if>
+            
+            <if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+                and c.cmcc_prov_id = #{params.mx_cityCode}
+            </if>
+            
+            <if test='params.mx_infraction_typ != null and params.mx_infraction_typ != ""'>
+                and c.infraction_typ = #{params.mx_infraction_typ}
+            </if>
+
+        </where>
+    		order by aud_trm desc
+    </select>
+
+</mapper>
+

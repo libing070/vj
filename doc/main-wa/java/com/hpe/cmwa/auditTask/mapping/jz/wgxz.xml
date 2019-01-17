@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="wgxz">
+
+	<!-- 折线 -->
+	<select id="getWgzsChart" resultType="Map" parameterType="Map">
+		select 
+   			ifnull(sum(infrac_pack_num),0) as sum_infrac_pack_num,
+	 		aud_trm
+		from 
+			hpeapb.sum_csmtc_prvd
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		GROUP BY aud_trm order by aud_trm asc
+	</select>
+	
+	<!-- 平均值 -->
+	<select id="getWgzsChartAVGNumber" resultType="Map" parameterType="Map">
+		select 
+  			IFNULL(AVG(infrac_pack_num),0) as avg_infrac_pack_num
+		from 
+			hpeapb.sum_csmtc_prvd
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+	</select>
+	<!-- 最大值 -->
+	<select id="getWgzsChartMAXNumber" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,infrac_pack_num as max_infrac_pack_num
+		from
+			hpeapb.sum_csmtc_prvd
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY infrac_pack_num DESC  limit 1
+	</select>
+	
+	<!--折线 数据表 -->
+	<select id="loadWgzs_TabDetailTable" resultType="Map" parameterType="pager">
+		select 
+			gen_date,			
+			aud_trm,				
+			cmcc_prov_prvd_id,	
+			short_name,			
+			infrac_pack_num		
+		from
+			hpeapb.sum_csmtc_prvd
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		ORDER BY aud_trm desc
+	</select>
+	<!--折线 数据表 导出 -->
+	<select id="exportWgzsDetail" resultType="Map" parameterType="Map">
+		select 
+			gen_date,			
+			aud_trm,				
+			cmcc_prov_prvd_id,	
+			short_name,			
+			infrac_pack_num		
+		from
+			hpeapb.sum_csmtc_prvd
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY aud_trm desc LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	<!-- 明细数据表 -->
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+		select  
+			aud_trm,			
+			cmcc_prov_prvd_id,	
+			short_name,			
+			fee_pack_unit_cd,	
+			fee_pack_nm,		
+			fee_pack_desc,		
+			fee_pack_stat,		
+			pack_end_dt,		
+			onln_dt,			
+			tgt_rgn_mkt,		
+			tgt_grp,			
+			voic_tot,			
+			dom_call,			
+			prov_call,			
+			loacl_call,			
+			org_call,			
+			folk_call,			
+			nets_call,			
+			cell_call,			
+			idle_tm_call,		
+			long_pack_id		
+		from 
+			hpeapb.det_csmtc
+		where 1=1 
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.mx_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+			and cmcc_prov_id = #{params.mx_cityCode}
+		</if>
+		<if test="params.mx_xsTypeSelect != null and params.mx_xsTypeSelect != ''">
+			and fee_pack_stat = #{params.mx_xsTypeSelect}
+		</if>
+		ORDER BY aud_trm DESC ,onln_dt DESC
+	</select>
+	
+	<!-- 明细导出 -->
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,			
+			cmcc_prov_prvd_id,	
+			short_name,			
+			fee_pack_unit_cd,	
+			fee_pack_nm,		
+			fee_pack_desc,		
+			fee_pack_stat,		
+			pack_end_dt,		
+			onln_dt,			
+			tgt_rgn_mkt,		
+			tgt_grp,			
+			voic_tot,			
+			dom_call,			
+			prov_call,			
+			loacl_call,			
+			org_call,			
+			folk_call,			
+			nets_call,			
+			cell_call,			
+			idle_tm_call,		
+			long_pack_id		
+		from 
+			hpeapb.det_csmtc
+		where 1=1 
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{mx_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+			and cmcc_prov_id = #{mx_cityCode}
+		</if>
+		<if test="mx_xsTypeSelect != null and mx_xsTypeSelect != ''">
+			and fee_pack_stat = #{mx_xsTypeSelect}
+		</if>
+		ORDER BY aud_trm DESC,onln_dt DESC  LIMIT #{pageStar},#{pageEnd}
+	</select>
+
+</mapper>

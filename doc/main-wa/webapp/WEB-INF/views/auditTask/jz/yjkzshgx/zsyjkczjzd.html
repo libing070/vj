@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>赠送有价卡充值集中度</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript"
+	src="/cmwa/resource/js/cmwa/auditTask/jz/yjkzshgx/zsyjkczjzd.js"></script>
+</head>
+<body>
+	<form id="queryParam">
+
+		<input type="hidden" id="provId" /> 
+		<input type="hidden" id="mx_cityCode" /> 
+		<input type="hidden" id="mx_czTypeSelect" />
+
+
+		<!-- 省编ID（内） -->
+		<input type="hidden" id="currTab" value="hz" />
+		<!-- 汇总-->
+		<input type="hidden" id="provinceName" name="provinceName">
+
+		<!-- 国信透传条件 -->
+		<!-- 外传参数 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<!-- 省编ID（外） -->
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth"> 
+		<input type="hidden" id="auditId" name="auditId"> 
+		<input type="hidden" id="taskCode" name="taskCode">
+	</form>
+	<div class="container-fluid">
+		<!-- 选项卡 -->
+		<div class="tab-nav">
+			<ul>
+				<li id="hz_tab" class="active">汇总分析</li>
+				<li id="mx_tab">明细数据</li>
+			</ul>
+		</div>
+
+		<!-- 选项卡info -->
+		<div class="tab-box">
+			<!-- 汇总分析 -->
+			<div class="tab-info" id="tabInfoId" style="display:block">
+				<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+						<li ><a href="/cmwa/yjkzshgx/index">赠送有价卡汇总分析</a></li>
+						<li ><a href="/cmwa/yjkzsdxfx2006/200604/index">有价卡赠送对象分析</a></li>
+						<li><a href="/cmwa/zsyjkpljh/index">赠送有价卡批量激活</a></li>
+						<li class="active"><a href="/cmwa/zsyjkczjzd/index">赠送有价卡充值集中度</a></li>
+						<li ><a href="/cmwa/yjkys_jz/index">赠送有价卡异省充值比例异常</a></li>
+						<li><a href="/cmwa/fqczhmjzd/index">发起充值号码集中度</a></li>
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="hz_startMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="hz_endMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<a href="javascript:;" id="hz_search_btn"> <i
+						class="icon icon-search"></i> 查询 </a>
+				</div>
+
+
+				<!-- mapBox -->
+				<div class="tab-mapbox">
+					<div class="col-xs-12">
+						<div class="map">
+							<div class="title">
+								<h2>赠送有价卡集中充值地市分布</h2>
+								<!-- 条件选择按钮 -->
+								<div class="right-info">
+									<ol>
+										<li class="active" id="zsyjkjzczds_Chart">统计</li>
+										<li id="zsyjkjzczds_Table">数据表</li>
+									</ol>
+								</div>
+							</div>
+
+							<div class="tab-map-box">
+								<!-- 图形 -->
+								<div class="tab-map-info" style="display:block">
+									<div class="shuoming" id="zsyjkjzczdsChartCon"></div>
+									<div id="zsyjkjzczdsChart"></div>
+								</div>
+								<!-- 图形 end -->
+
+								<!-- 数据表  -->
+								<div class="tab-map-info" id="zsyjkjzczdsDetailTableDiv_class">
+									<div class="shuoming" id="zsyjkjzczdsTableCon"></div>
+									<div class="table-box">
+										<div class="table-responsive" id="zsyjkjzczdsTableAjax">
+											<a href="javascript:;" id="exportZsyjkjzczdsTable"> 导出 </a>
+											<div class="clear"></div>
+											<div class="table-responsive" id="zsyjkjzczdsDelTableAjax">
+												<table id="zsyjkjzczdsTable"></table>
+												<div id="zsyjkjzczdsTablePageBar"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<!-- 数据表  end-->
+						</div>
+					</div>
+
+					<div class="col-xs-12">
+						<div class="map">
+							<div class="title">
+								<h2>赠送有价卡集中充值金额排名前十用户</h2>
+								<!-- 条件选择按钮 -->
+								<div class="right-info">
+									<ol>
+										<li class="active" id="zsyjkjzczje_Chart">统计</li>
+										<li id="zsyjkjzczje_Table">数据表</li>
+									</ol>
+								</div>
+							</div>
+							<!-- 条件选择按钮  end-->
+
+							<div class="tab-map-box">
+								<!-- 图形 -->
+								<div class="tab-map-info" style="display:block">
+									<div class="shuoming" id="zsyjkjzczjeCon"></div>
+									<div id="zsyjkjzczjeCharts"></div>
+								</div>
+								<!-- 图形 end -->
+								<!-- 数据表  -->
+								<div class="tab-map-info" id="zsyjkjzczjeDetailTableDiv_class">
+									<div class="shuoming" id="zsyjkjzczjeTableCon"></div>
+									<div class="table-box">
+										<div class="table-responsive" id="zsyjkjzczjeTableAjax">
+											<a href="javascript:;" id="exportZsyjkjzczjeTable"> 导出 </a>
+											<div class="clear"></div>
+											<div class="table-responsive" id="zsyjkjzczjeDelTableAjax">
+												<table id="zsyjkjzczjeTable"></table>
+												<div id="zsyjkjzczjeTablePageBar"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<!-- 数据表  end-->
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 汇总 end -->
+			<!-- 明细数据 -->
+			<div class="tab-info" id="tabMxInfo">
+				<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+						<li ><a href="/cmwa/yjkzshgx/index">赠送有价卡汇总分析</a></li>
+						<li ><a href="/cmwa/yjkzsdxfx2006/200604/index">有价卡赠送对象分析</a></li>
+                        <li><a href="/cmwa/zsyjkpljh/index">赠送有价卡批量激活</a></li>
+						<li class="active"><a href="/cmwa/zsyjkczjzd/index">赠送有价卡充值集中度</a></li>
+						<li ><a href="/cmwa/yjkys_jz/index">赠送有价卡异省充值比例异常</a></li>
+						<li><a href="/cmwa/fqczhmjzd/index">发起充值号码集中度</a></li>
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="mx_startMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"> <i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="mx_endMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+
+					<a href="javascript:;" id="mx_search_btn"> <i
+						class="icon icon-search"></i> 查询 </a> <a class="more-btn"
+						href="javascript:;"> 更多查询条件 </a> <a id="mx_reset_btn"
+						class="reset-btn" href="javascript:;"> 重置 </a> <a
+						id="exportMxDetailList" href="javascript:;"> 导出 </a>
+				</div>
+
+				<!-- moreBox -->
+				<div class="more-box">
+					<div class="select-box">
+						<p>
+							<input id="mx_cityCodeText" type="text" autocomplete="off"
+								placeholder="地市名称" readonly> <span> <i
+								class="icon icon-angle-down"></i> </span>
+						</p>
+						<ul id="mx_cityCodeSelect"></ul>
+					</div>
+
+				</div>
+
+				<!-- 数据Table -->
+				<div class="shuju_box">
+					<h2></h2>
+					<div class="shuju_table">
+						<table id="cityDetailGridData"></table>
+						<div id="cityDetailGridDataPageBar"></div>
+					</div>
+				</div>
+			</div>
+			<!-- 明细end -->
+			
+		</div>
+	</div>
+</body>
+</html>

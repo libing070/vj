@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtsrybdsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,COUNT(org_svc_typ) AS subjnum
+		FROM hpeapb.sum_jtcp_3901_prvd
+		WHERE aud_trm_end =  #{currSumEndDate}
+		and var_wave >= 0.5
+		and org_svc_typ != ''
+		group by cmcc_prov_prvd_id
+		ORDER BY subjnum DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,COUNT(org_svc_typ) AS subjnum
+		FROM hpeapb.sum_jtcp_3901_prvd
+		WHERE aud_trm_end =  #{currSumEndDate}
+		and var_wave >= 0.5
+		group by cmcc_prov_prvd_id
+		ORDER BY subjnum DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm_end as aud_trm,COUNT(DISTINCT(org_svc_typ)) AS subjnum
+		FROM hpeapb.sum_jtcp_3901_prvd
+		WHERE aud_trm_end = #{currSumEndDate}
+		and var_wave >= 0.5
+		group by aud_trm_end
+		ORDER BY aud_trm_end
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm_end,
+			cmcc_prov_prvd_id,
+			short_name,
+			org_svc_typ,
+			org_svc_typ_nm,
+			rat_wave*100 as rat_wave,
+			var_wave*100 as var_wave
+		FROM hpeapb.sum_jtcp_3901_prvd
+		WHERE aud_trm_end =  #{params.currSumEndDate}
+		and var_wave >= 0.5
+		order by CMCC_PROV_PRVD_ID,var_wave desc
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm_end,
+			cmcc_prov_prvd_id,
+			short_name,
+			org_svc_typ,
+			org_svc_typ_nm,
+			rat_wave*100 as rat_wave,
+			var_wave*100 as var_wave
+		FROM hpeapb.sum_jtcp_3901_prvd
+		WHERE aud_trm_end =  #{currSumEndDate}
+		and var_wave >= 0.5
+		order by CMCC_PROV_PRVD_ID,var_wave desc
+	</select>
+</mapper>
+

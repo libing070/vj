@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zsyjkczjzd_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_amt) as yjk_amt,cmcc_prov_prvd_id,
+			short_name
+		from 
+			hpeapb.sum_zsyjk_msisdn_focus_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by yjk_amt desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_amt) as yjk_amt,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_zsyjk_msisdn_focus_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and yjk_amt !=0 
+		group by cmcc_prov_prvd_id 
+		order by yjk_amt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_amt) as yjk_amt,
+			aud_trm 
+		from 
+			hpeapb.sum_zsyjk_msisdn_focus_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			charge_msisdn_num,
+			yjk_num,
+			yjk_amt
+
+ 		from 
+ 			hpeapb.sum_zsyjk_msisdn_focus_prvd 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,yjk_amt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			charge_msisdn_num,
+			yjk_num,
+			yjk_amt
+ 		from 
+ 			hpeapb.sum_zsyjk_msisdn_focus_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,yjk_amt desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

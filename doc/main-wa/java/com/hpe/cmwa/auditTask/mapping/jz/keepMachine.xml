@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="keepMachineMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+
+	<!-- 清单明细 -->
+	<resultMap type="java.util.Map"  id="detZdwgxs5001Map">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccProvNmShort" column="cmcc_prov_nm_short"/>
+		<result property="imei" column="imei"/>
+		<result property="msisdn" column="msisdn"/>
+		<result property="trmnlStyle" column="trmnl_style"/>
+		<result property="chnlId" column="chnl_id"/>
+		<result property="chnlName" column="chnl_name"/>
+		<result property="chnlType" column="chnl_type"/>
+		<result property="chnlTypeNm" column="chnl_type_nm"/>
+		<result property="salsDt" column="sals_dt"/>
+		<result property="infractionSettAmt" column="infraction_sett_amt"/>
+		<result property="focusCd" column="focus_cd"/>
+		<result property="focusNm" column="focus_nm"/>
+		<result property="infractionTyp" column="infraction_typ"/>
+		<result property="salsTmOut" column="sals_tm_out"/>
+		<result property="taoliShortName" column="taoli_short_name"/>
+		<result property="weiguiShortName" column="weigui_short_name"/>
+		<result property="infractionFlag" column="infraction_flag"/>
+		<result property="infractionName" column="infraction_name"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库  地市汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="sumZdwgxs5001CtyMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short"/>
+		<result property="errNum" column="errNum"/>
+		<result property="errAmt" column="errAmt"/>
+		<result property="amtPer" column="amtPer"/>
+		<result property="tolNum" column="tolNum"/>
+		<result property="tolAmt" column="tolAmt"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库  省汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="sumZdwgxs5001PrvdMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="errNum" column="errNum"/>
+		<result property="numPer" column="numPer"/>
+		<result property="errAmt" column="errAmt"/>
+		<result property="amtPer" column="amtPer"/>
+		<result property="tolNum" column="tolNum"/>
+		<result property="tolAmt" column="tolAmt"/>
+		
+		<result property="aud_trm_numPer" column="aud_trm_numPer"/>
+		<result property="aud_trm_amtPer" column="aud_trm_amtPer"/>
+	</resultMap>
+	
+	<!-- 曲线图数据-->
+	<select id="selectPersonPrvdInfo" resultMap="sumZdwgxs5001PrvdMap"  parameterType="java.util.Map">
+		select 
+		aud_trm , errNum, errAmt, tolNum , tolAmt,numPer,amtPer
+		FROM hpeapb.sum_zdwgxs_5001_prvd where 1=1 
+		 AND cmcc_prov_prvd_id = #{provinceCode} 
+		 AND aud_trm &gt;=  #{currSumBeginDate} 
+		 AND aud_trm &lt;= #{currSumEndDate} 
+		 order by aud_trm
+	</select>
+	
+	<select id="selectPersonPrvdInfoCon" resultMap="sumZdwgxs5001PrvdMap"  parameterType="java.util.Map">
+		select 
+		t1.aud_trm_numPer,t1.numPer,t2.aud_trm_amtPer,t2.amtPer
+		FROM 
+		(
+			(select aud_trm as aud_trm_numPer,(numPer)*100 numPer from hpeapb.sum_zdwgxs_5001_prvd 
+				 where 1=1 
+				 AND cmcc_prov_prvd_id = #{provinceCode} 
+				 AND aud_trm &gt;=  #{currSumBeginDate} 
+				 AND aud_trm &lt;= #{currSumEndDate} ORDER BY numPer desc limit 1
+			) as t1,
+			(select aud_trm as aud_trm_amtPer,(amtPer)*100 amtPer from hpeapb.sum_zdwgxs_5001_prvd
+				where 1=1 
+				 AND cmcc_prov_prvd_id = #{provinceCode} 
+				 AND aud_trm &gt;=  #{currSumBeginDate} 
+				 AND aud_trm &lt;= #{currSumEndDate} ORDER BY amtPer desc limit 1
+			) as t2
+		)
+	</select>
+	
+	<!-- 地图旁边数据 -->
+	<select id="selectDataAnalysis" resultMap="sumZdwgxs5001PrvdMap"  parameterType="java.util.Map">
+		SELECT c.* FROM (SELECT a.*, (@rank := @rank+1) as sort 
+		FROM(SELECT cmcc_prov_prvd_id,short_name, SUM(errNum) AS errNum,SUM(errAmt) AS errAmt,SUM(tolNum) AS tolNum,SUM(tolAmt) AS tolAmt
+		FROM hpeapb.sum_zdwgxs_5001_prvd where 1=1 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate}
+		GROUP BY cmcc_prov_prvd_id
+		ORDER BY SUM(errNum) DESC ) a, (SELECT (@rank :=0)) b) c WHERE cmcc_prov_prvd_id = #{provinceCode}
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取地市前三的地市名称 -->
+	<select id="selectThreeCity" resultType="java.lang.String"  parameterType="java.util.Map">
+		select 
+		cmcc_prvd_nm_short  
+		FROM hpeapb.sum_zdwgxs_5001_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm &gt;=  #{currSumBeginDate} 
+		AND aud_trm &lt;= #{currSumEndDate}
+		 AND cmcc_prov_id != 10000
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(errNum)/SUM(tolNum) DESC ,cmcc_prov_id
+		limit 3
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取全国各省数据（全国地图、导出全国各省） -->
+	<!-- 导出全国各省 个人客户欠费 数据 -->
+	<!-- <select id="selectAllPrvd" resultMap="sumZdwgxs5001PrvdMap"  parameterType="java.util.Map">
+		select 
+		aud_trm , cmcc_prov_prvd_id, short_name ,errNum ,numPer, errAmt,amtPer,tolNum,tolAmt
+		FROM hpeapb.sum_zdwgxs_5001_prvd where 1=1 
+		 AND aud_trm = #{currSumEndDate} 
+		 order by errNum DESC 
+	</select> -->
+	
+	<!-- 根据省份代码、审计时间获取各个地市数据  （全省地图、导出全省各市数据）-->
+	<select id="selectMapData" resultMap="sumZdwgxs5001CtyMap"  parameterType="java.util.Map">
+		select 
+		aud_trm , cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,
+		SUM(errNum) AS errNum,SUM(errAmt) AS  errAmt,
+		SUM(tolNum) AS tolNum,SUM(tolAmt) AS tolAmt,
+		SUM(errNum)/SUM(tolNum) AS numPer,SUM(errAmt)/SUM(tolAmt) AS amtPer
+		FROM hpeapb.sum_zdwgxs_5001_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm &gt;=  #{currSumBeginDate} 
+		AND aud_trm &lt;= #{currSumEndDate}
+		AND cmcc_prov_id != 10000
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(errNum)/SUM(tolNum) DESC 
+	</select>
+	<!-- 获取全省各市 个人客户欠费 数据 -->
+	<select id="selectAllCityPerson" resultMap="sumZdwgxs5001CtyMap"  parameterType="java.util.Map">
+		select a.*, (@rank:= @rank + 1) as sort 
+		FROM( SELECT aud_trm , cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,
+		SUM(errNum) AS errNum,SUM(errAmt) AS errAmt,SUM(amtPer) AS amtPer,SUM(tolNum) AS tolNum,SUM(tolAmt) AS tolAmt
+		FROM hpeapb.sum_zdwgxs_5001_cty  where 1=1 
+		AND cmcc_prov_prvd_id = #{params.provinceCode} 
+		and aud_trm &gt;=  #{params.currSumBeginDate} 
+		and aud_trm &lt;= #{params.currSumEndDate}
+		AND cmcc_prov_id != 10000
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(errNum)/SUM(tolNum) DESC 
+		) a,(SELECT (@rank:=5*(#{curPage}-1))) b 
+	</select>
+	
+	<!-- 查询全国个人客户欠费清单数据 -->
+	<select id="selectAllChinaPerson" resultMap="detZdwgxs5001Map"  parameterType="java.util.Map">
+		select 
+		aud_trm , cmcc_prov_nm_short, imei,
+		trmnl_style,chnl_name,chnl_type_nm, sals_dt, infraction_sett_amt,
+		infraction_typ, sals_tm_out, taoli_short_name, weigui_short_name, infraction_flag,infraction_name
+		FROM hpeapb.det_zdwgxs_5001 where 1=1 
+		and cmcc_prov_prvd_id = #{params.provinceCode}
+		 AND aud_trm &gt;=  #{params.currDetBeginDate} 
+		 AND aud_trm &lt;= #{params.currDetEndDate} 
+		  AND cmcc_prov_id != 10000
+		 <if test="params.currCityType != '' and params.currCityType !=null ">
+			AND cmcc_prov_id =#{params.currCityType} 
+		 </if>
+		 <if test="params.currChnlType != '' and params.currChnlType !=null ">
+			AND chnl_type =#{params.currChnlType} 
+		 </if>
+		 <if test="params.currInfractionFlag != '' and params.currInfractionFlag !=null ">
+			AND infraction_flag = #{params.currInfractionFlag} 
+		 </if>
+		 order by infraction_sett_amt DESC 
+	</select>
+	
+	<!-- 导出全国个人客户欠费清单数据 -->
+	<select id="exportAllChinaPerson" resultMap="detZdwgxs5001Map"  parameterType="java.util.Map">
+		select 
+		aud_trm, cmcc_prov_nm_short, imei , trmnl_style, chnl_id , chnl_name ,chnl_type  , chnl_type_nm, sals_dt , infraction_sett_amt,  
+		focus_cd ,  focus_nm , infraction_typ , sals_tm_out , taoli_short_name,  weigui_short_name , infraction_flag , infraction_name
+		FROM hpeapb.det_zdwgxs_5001 where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode}
+		 AND aud_trm &gt;=  #{currDetBeginDate} 
+		 AND aud_trm &lt;= #{currDetEndDate} 
+		 AND cmcc_prov_id != 10000
+		 <if test="currCityType != '' and currCityType !=null ">
+			AND cmcc_prov_id =#{currCityType} 
+		 </if>
+		 <if test="currChnlType != '' and currChnlType !=null ">
+			AND chnl_type =#{currChnlType} 
+		 </if>
+		 <if test="currInfractionFlag != '' and currInfractionFlag !=null ">
+			AND infraction_flag =#{currInfractionFlag} 
+		 </if>
+		 order by aud_trm desc,cmcc_prov_id,infraction_sett_amt DESC 
+		 LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	
+	<!-- 审计期间全国违规数量占比-->
+	<select id="getAllChinaScal" resultType="java.lang.Double"  parameterType="java.util.Map">
+		SELECT 
+		SUM(errNum)/SUM(tolNum)
+		FROM hpeapb.sum_zdwgxs_5001_prvd WHERE 
+		aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate}   
+	</select>
+	
+	<!-- 清单明细 -->
+	<resultMap type="java.util.Map"  id="detZdwgxs5002Map">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccProvNmShort" column="cmcc_prov_nm_short"/>
+		<result property="imei" column="imei"/>
+		<result property="msisdn" column="msisdn"/>
+		<result property="trmnlStyle" column="trmnl_style"/>
+		<result property="chnlId" column="chnl_id"/>
+		<result property="chnlName" column="chnl_name"/>
+		<result property="chnlType" column="chnl_type"/>
+		<result property="chnlTypeNm" column="chnl_type_nm"/>
+		<result property="salsDt" column="sals_tm"/>
+		<result property="infractionSettAmt" column="infraction_sett_amt"/>
+		<result property="focusCd" column="focus_cd"/>
+		<result property="focusNm" column="focus_nm"/>
+		<result property="infractionTyp" column="infraction_typ"/>
+		<result property="salsTmOut" column="sals_tm_out"/>
+		<result property="taoliShortName" column="taoli_short_name"/>
+		<result property="weiguiShortName" column="weigui_short_name"/>
+		<result property="infractionFlag" column="infraction_flag"/>
+		<result property="infractionName" column="infraction_name"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库  地市汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="sumZdwgxs5002CtyMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short"/>
+		<result property="errNum" column="errNum"/>
+		<result property="errAmt" column="errAmt"/>
+		<result property="amtPer" column="amtPer"/>
+		<result property="tolNum" column="tolNum"/>
+		<result property="tolAmt" column="tolAmt"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库  省汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="sumZdwgxs5002PrvdMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="errNum" column="errNum"/>
+		<result property="numPer" column="numPer"/>
+		<result property="errAmt" column="errAmt"/>
+		<result property="amtPer" column="amtPer"/>
+		<result property="tolNum" column="tolNum"/>
+		<result property="tolAmt" column="tolAmt"/>
+		
+		<result property="aud_trm_numPer" column="aud_trm_numPer"/>
+		<result property="aud_trm_amtPer" column="aud_trm_amtPer"/>
+	</resultMap>
+	
+	<select id="chselectPersonPrvdInfoCon" resultMap="sumZdwgxs5002PrvdMap"  parameterType="java.util.Map">
+		select 
+		t1.aud_trm_numPer,t1.numPer,t2.aud_trm_amtPer,t2.amtPer
+		FROM 
+		(
+			(select aud_trm as aud_trm_numPer,(numPer)*100 numPer from hpeapb.sum_zdwgxs_5002_prvd 
+				 where 1=1 
+				 AND cmcc_prov_prvd_id = #{provinceCode} 
+				 AND aud_trm &gt;=  #{currSumBeginDate} 
+				 AND aud_trm &lt;= #{currSumEndDate} ORDER BY numPer desc limit 1
+			) as t1,
+			(select aud_trm as aud_trm_amtPer,(amtPer)*100 amtPer from hpeapb.sum_zdwgxs_5002_prvd
+				where 1=1 
+				 AND cmcc_prov_prvd_id = #{provinceCode} 
+				 AND aud_trm &gt;=  #{currSumBeginDate} 
+				 AND aud_trm &lt;= #{currSumEndDate} ORDER BY amtPer desc limit 1
+			) as t2
+		)
+	</select>
+	
+	<!-- 曲线图数据-->
+	<select id="chselectPersonPrvdInfo" resultMap="sumZdwgxs5002PrvdMap"  parameterType="java.util.Map">
+		select 
+		aud_trm , errNum, errAmt, tolNum , tolAmt,numPer,amtPer
+		FROM hpeapb.sum_zdwgxs_5002_prvd where 1=1 
+		 AND cmcc_prov_prvd_id = #{provinceCode} 
+		 AND aud_trm &gt;=  #{currSumBeginDate} 
+		 AND aud_trm &lt;= #{currSumEndDate} 
+		 order by aud_trm
+	</select>
+	
+	<!-- 地图旁边数据 -->
+	<select id="chselectDataAnalysis" resultMap="sumZdwgxs5002PrvdMap"  parameterType="java.util.Map">
+		SELECT c.* FROM(SELECT a.*, (@rank := @rank+1) as sort 
+		FROM(SELECT cmcc_prov_prvd_id,short_name, SUM(errNum) AS errNum,SUM(errAmt) AS errAmt,SUM(tolNum) AS tolNum,SUM(tolAmt) AS tolAmt
+		FROM hpeapb.sum_zdwgxs_5002_prvd where 1=1 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate}
+		GROUP BY cmcc_prov_prvd_id
+		ORDER BY SUM(errNum) DESC ) a, (SELECT (@rank :=0)) b) c WHERE cmcc_prov_prvd_id = #{provinceCode}
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取地市前三的地市名称 -->
+	<select id="chselectThreeCity" resultType="java.lang.String"  parameterType="java.util.Map">
+		select 
+		cmcc_prvd_nm_short  
+		FROM hpeapb.sum_zdwgxs_5002_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate}
+		AND cmcc_prov_id != 10000
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(errNum)/SUM(tolNum) DESC 
+		limit 3
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取各个地市数据  （全省地图、导出全省各市数据）-->
+	<select id="chselectMapData" resultMap="sumZdwgxs5002CtyMap"  parameterType="java.util.Map">
+	select 
+		aud_trm , cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,
+		SUM(errNum) AS errNum,SUM(errAmt) AS  errAmt,
+		SUM(tolNum) AS tolNum,SUM(tolAmt) AS tolAmt,
+		SUM(errNum)/SUM(tolNum) AS numPer,SUM(errAmt)/SUM(tolAmt) AS amtPer
+		FROM hpeapb.sum_zdwgxs_5002_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm &gt;=  #{currSumBeginDate} 
+		AND aud_trm &lt;= #{currSumEndDate}
+		AND cmcc_prov_id != 10000
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(errNum)/SUM(tolNum) DESC 
+		
+	</select>
+	<!-- 获取全省各市 个人客户欠费 数据 -->
+	<select id="chselectAllCityPerson" resultMap="sumZdwgxs5002CtyMap"  parameterType="java.util.Map">
+		select a.*, (@rank:= @rank + 1) as sort 
+		FROM( SELECT aud_trm , cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,
+		SUM(errNum) AS errNum,SUM(errAmt) AS errAmt,SUM(amtPer) AS amtPer,SUM(tolNum) AS tolNum,SUM(tolAmt) AS tolAmt
+		FROM hpeapb.sum_zdwgxs_5002_cty  where 1=1 
+		AND cmcc_prov_prvd_id = #{params.provinceCode} 
+		and aud_trm &gt;=  #{params.currSumBeginDate} 
+		and aud_trm &lt;= #{params.currSumEndDate}
+		AND cmcc_prov_id != 10000
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(errNum)/SUM(tolNum) DESC 
+		) a,(SELECT (@rank:=5*(#{curPage}-1))) b 
+		
+	</select>
+	
+	<!-- 获取全国各省 个人客户欠费 数据 -->
+	<select id="chselectAllPrvdPerson" resultMap="sumZdwgxs5002PrvdMap"  parameterType="java.util.Map">
+		select 
+		aud_trm , cmcc_prov_prvd_id, short_name ,errNum ,numPer, errAmt,amtPer,tolNum,tolAmt
+		FROM hpeapb.sum_zdwgxs_5002_prvd where 1=1 
+		 AND aud_trm = #{params.currSumEndDate} 
+		 order by errNum DESC 
+	</select>
+	
+	<!-- 查询全国个人客户欠费清单数据 -->
+	<select id="chselectAllChinaPerson" resultMap="detZdwgxs5002Map"  parameterType="java.util.Map">
+		select 
+		aud_trm , cmcc_prov_nm_short, imei,
+		trmnl_style,chnl_name,chnl_type_nm, sals_tm as salsDt, infraction_sett_amt,
+		infraction_typ, sals_tm_out, taoli_short_name, weigui_short_name, infraction_flag,infraction_name
+		FROM hpeapb.det_zdwgxs_5002 where 1=1 
+		and cmcc_prov_prvd_id = #{params.provinceCode}
+		 AND aud_trm &gt;=  #{params.currDetBeginDate} 
+		 AND aud_trm &lt;= #{params.currDetEndDate} 
+		 AND cmcc_prov_id != 10000
+		 <if test="params.currCityType != '' and params.currCityType !=null ">
+			AND cmcc_prov_id =#{params.currCityType} 
+		</if>
+		 <if test="params.currChnlType != '' and params.currChnlType !=null ">
+			AND chnl_type =#{params.currChnlType} 
+		 </if>
+		 <if test="params.currInfractionFlag != '' and params.currInfractionFlag !=null ">
+			AND infraction_flag =#{params.currInfractionFlag} 
+		 </if>
+		 order by aud_trm desc,cmcc_prov_id,infraction_sett_amt DESC 
+	</select>
+	
+	<!-- 导出全国个人客户欠费清单数据 -->
+	<select id="chexportAllChinaPerson" resultMap="detZdwgxs5002Map"  parameterType="java.util.Map">
+		select 
+		aud_trm, cmcc_prov_nm_short, imei , trmnl_style, chnl_id , chnl_name ,chnl_type  , chnl_type_nm,  sals_tm as salsDt , infraction_sett_amt,  
+		focus_cd ,  focus_nm , infraction_typ , sals_tm_out , taoli_short_name,  weigui_short_name , infraction_flag , infraction_name
+		FROM hpeapb.det_zdwgxs_5002 where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode}
+		 AND aud_trm &gt;=  #{currDetBeginDate} 
+		 AND aud_trm &lt;= #{currDetEndDate} 
+		 AND cmcc_prov_id != 10000
+		 <if test="currCityType != '' and currCityType !=null ">
+			AND cmcc_prov_id =#{currCityType} 
+		 </if>
+		 <if test="currChnlType != '' and currChnlType !=null ">
+			AND chnl_type =#{currChnlType} 
+		 </if>
+		 <if test="currInfractionFlag != '' and currInfractionFlag !=null ">
+			AND infraction_flag = #{currInfractionFlag} 
+		 </if>
+		 order by aud_trm desc,cmcc_prov_id,infraction_sett_amt DESC 
+		 LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	
+	<!-- 全国异常欠费金额比例 -->
+	<select id="chgetAllChinaScal" resultType="java.lang.Double"  parameterType="java.util.Map">
+		SELECT 
+		SUM(errNum)/SUM(tolNum)
+		FROM hpeapb.sum_zdwgxs_5002_prvd WHERE 1=1 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate}  
+	</select>
+	
+</mapper>
+

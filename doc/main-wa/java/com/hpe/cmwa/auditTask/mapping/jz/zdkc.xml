@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="zdkcMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_zdcs_chart1" resultType="Map" parameterType="Map">
+		SELECT imei_fty_nm as imeiFtyNm
+		FROM hpeapb.sum_zdkchgx_1801_fty 
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		AND aud_trm = #{currSumEndDate} 
+		GROUP BY imei_fty_nm
+		ORDER BY SUM(long_aging_imei_num) DESC
+		LIMIT 3
+	</select>
+	<select id="load_hz_zdcs_chart2" resultType="Map" parameterType="Map">
+		select aud_trm as audTrm,
+			sum(case when imei_fty_nm =#{value0}  then long_aging_imei_num else 0 end )  AS firsl, 
+			sum(case when imei_fty_nm =#{value1} then long_aging_imei_num else 0 end )  AS secsl, 
+			sum(case when imei_fty_nm =#{value2} then long_aging_imei_num else 0 end )  AS thrsl,
+			sum(case when imei_fty_nm !=#{value0} AND imei_fty_nm !=#{value1} AND imei_fty_nm !=#{value2} then long_aging_imei_num else 0 end )  AS othersl
+		from hpeapb.sum_zdkchgx_1801_fty 
+		where  CMCC_prov_prvd_id = #{provinceCode}
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY aud_trm
+	</select>
+	<select id="load_hz_zdcs_conclusion" resultType="Map" parameterType="Map">
+		SELECT a.imei_fty_nm as imeiFtyNm ,SUM(a.long_aging_imei_num) as longAgingIemiNum,b.sumNum
+		FROM hpeapb.sum_zdkchgx_1801_fty a,
+		(SELECT sum(long_aging_imei_num) as sumNum,CMCC_prov_prvd_id
+		FROM hpeapb.sum_zdkchgx_1801_fty
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		AND aud_trm =  #{currSumEndDate} ) b
+		WHERE a.CMCC_prov_prvd_id = #{provinceCode}
+		AND aud_trm = #{currSumEndDate} 
+		AND a.CMCC_prov_prvd_id = b.CMCC_prov_prvd_id
+		GROUP BY imei_fty_nm
+		ORDER BY SUM(a.long_aging_imei_num) DESC
+		LIMIT 3
+	</select>
+	
+	<select id="load_hz_zdlx_chart1" resultType="Map" parameterType="Map">
+		SELECT imei_typ_nm as imeiTypNm
+		FROM hpeapb.sum_zdkchgx_1801_typ 
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		AND aud_trm = #{currSumEndDate} 
+		GROUP BY imei_typ_nm
+		ORDER BY SUM(long_aging_imei_num) DESC
+		LIMIT 3
+	</select>
+	<select id="load_hz_zdlx_chart2" resultType="Map" parameterType="Map">
+		select aud_trm as audTrm,
+			sum(case when imei_typ_nm =#{value0}  then long_aging_imei_num else 0 end )  AS firsl, 
+			sum(case when imei_typ_nm =#{value1} then long_aging_imei_num else 0 end )  AS secsl, 
+			sum(case when imei_typ_nm =#{value2} then long_aging_imei_num else 0 end )  AS thrsl,
+			sum(case when imei_typ_nm !=#{value0} AND imei_typ_nm !=#{value1} AND imei_typ_nm !=#{value2} then long_aging_imei_num else 0 end )  AS othersl
+		from hpeapb.sum_zdkchgx_1801_typ 
+		where  CMCC_prov_prvd_id = #{provinceCode}
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY aud_trm
+	</select>
+	<select id="load_hz_zdlx_conclusion" resultType="Map" parameterType="Map">
+		SELECT a.imei_typ_nm as imeiTypNm ,SUM(a.long_aging_imei_num) as longAgingIemiNum,b.sumNum
+		FROM hpeapb.sum_zdkchgx_1801_typ a,
+		(SELECT sum(long_aging_imei_num) as sumNum,CMCC_prov_prvd_id
+		FROM hpeapb.sum_zdkchgx_1801_typ
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		AND aud_trm =  #{currSumEndDate} ) b
+		WHERE a.CMCC_prov_prvd_id = #{provinceCode}
+		AND aud_trm = #{currSumEndDate} 
+		AND a.CMCC_prov_prvd_id = b.CMCC_prov_prvd_id
+		GROUP BY imei_typ_nm
+		ORDER BY SUM(a.long_aging_imei_num) DESC
+		LIMIT 3
+	</select>
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,imei,dat_rcd_dt,imei_fty_nm,imei_model_nm,imei_mode,imei_typ_nm
+		FROM hpeapb.det_zdkchgx_1801
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and AUD_TRM &gt;=  #{params.currDetBeginDate} 
+		and AUD_TRM &lt;= #{params.currDetEndDate}
+		order by aud_trm desc,dat_rcd_dt desc
+	</select>
+	
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,CMCC_prov_prvd_id,short_name,imei,dat_rcd_dt,imei_fty_nm,imei_model_nm,imei_mode,imei_typ_nm
+		FROM hpeapb.det_zdkchgx_1801
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate}
+		order by aud_trm desc,dat_rcd_dt desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="gejfbdMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_qst_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audtrm,sum(trade_value) as sumvalue
+		FROM hpeapb.sum_jfbdyc_2901_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+			AND AUD_TRM &gt;=  #{currSumBeginDate} 
+			AND AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_hz_qst_table" resultType="Map" parameterType="Map">
+		select aud_trm,short_name,subs_id,trade_value
+		from hpeapb.sum_jfbdyc_2901_prvd
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		order by aud_trm desc,trade_value desc
+	</select>
+	
+	<select id="export_hz_qst_table" resultType="Map" parameterType="Map">
+		select aud_trm,CMCC_prov_prvd_id,short_name,subs_id,trade_value
+		from hpeapb.sum_jfbdyc_2901_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		order by aud_trm desc,trade_value desc
+	</select>
+	
+	<select id="load_hz_city_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,sum(trade_value) as sumvalue,CMCC_prvd_nm_short,COUNT(subs_id) as YHnumber
+		FROM sum_jfbdyc_2901_cty
+		where CMCC_PROV_PRVD_ID = #{provinceCode}
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY cmcc_prov_id
+		ORDER BY cmcc_prov_id
+	</select>
+	
+	<select id="load_hz_city_table" resultType="Map" parameterType="Map">
+		select aud_trm,short_name,CMCC_prvd_nm_short,subs_id,trade_value
+		from hpeapb.sum_jfbdyc_2901_cty
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		order by aud_trm desc,trade_value desc
+	</select>
+	<select id="export_hz_city_table" resultType="Map" parameterType="Map">
+		select aud_trm,CMCC_prov_prvd_id,short_name,cmcc_prov_id,CMCC_prvd_nm_short,subs_id,trade_value
+		from hpeapb.sum_jfbdyc_2901_cty
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		order by aud_trm desc,trade_value desc
+	</select>
+	<select id="load_hz_city_conclusion" resultType="Map" parameterType="Map">
+		SELECT sum(trade_value) as sumvalue,COUNT(subs_id) as yhnumber
+		FROM sum_jfbdyc_2901_cty
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+	</select>
+	
+	<select id="load_hz_city_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT CMCC_prvd_nm_short,subs_id,trade_value
+		FROM sum_jfbdyc_2901_cty
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		ORDER BY trade_value desc,cmcc_prov_id
+		LIMIT 3
+	</select>
+	
+	<select id="load_hz_czy_chart" resultType="Map" parameterType="Map">
+		select sum(trade_value) AS sumValue,COUNT(subs_id) userNumber,concat(left(TRIM(nm),1),'**')  as czyName
+		from hpeapb.sum_jfbdyc_2901_ctyopr
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>
+		GROUP BY nm
+		ORDER BY sum(trade_value) desc
+		LIMIT 10
+	</select>
+	<select id="load_hz_czy_conclusion" resultType="Map" parameterType="Map">
+		select sum(trade_value) AS sumValue,COUNT(subs_id) userNumber,concat(left(TRIM(nm),1),'**') as czyName,b.allValue
+		from hpeapb.sum_jfbdyc_2901_ctyopr a
+		JOIN (select count(trade_value) as allValue,CMCC_prov_prvd_id
+		from hpeapb.sum_jfbdyc_2901_ctyopr
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>) b
+		ON a.CMCC_prov_prvd_id = b.CMCC_prov_prvd_id
+		WHERE a.CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and a.AUD_TRM &gt;=  #{currSumBeginDate} 
+		and a.AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and a.cmcc_prov_id = #{czyCitySingle} 
+		</if>
+		GROUP BY a.nm
+		ORDER BY sum(a.trade_value) desc
+		LIMIT 3
+	</select>
+	
+	<select id="export_hz_czy_table" resultType="Map" parameterType="Map">
+		select aud_trm,CMCC_prov_prvd_id,short_name,cmcc_prov_id,CMCC_prvd_nm_short,subs_id,
+				emp_id,concat(left(TRIM(nm),1),'**')  as nm,trade_typ,trade_typ_name,trade_value
+		from hpeapb.sum_jfbdyc_2901_ctyopr
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>
+		order by aud_trm desc,emp_id desc
+	</select>
+	
+	<select id="load_hz_czy_table" resultType="Map" parameterType="Map">
+		select aud_trm,short_name,CMCC_prvd_nm_short,emp_id, concat(left(TRIM(nm),1),'**') as nm,trade_typ_name,sum(trade_value) as trade_value
+		from hpeapb.sum_jfbdyc_2901_ctyopr
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		<if test="params.czyCitySingle  != '' and params.czyCitySingle  !=null ">
+			and cmcc_prov_id = #{params.czyCitySingle} 
+		</if>
+		group by aud_trm,CMCC_prvd_nm_short,emp_id,trade_typ_name
+		order by aud_trm desc,trade_value desc
+	</select>
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,short_name,CMCC_prvd_nm_short, concat(left(TRIM(nm),1),'**') as nm,emp_post,chnl_nm,cor_chnl_typ,
+				trade_ser_no,subs_id,trade_value,validity_dt
+		FROM hpeapb.det_jfbdyc_2901
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currDetBeginDate} 
+		and AUD_TRM &lt;= #{params.currDetEndDate}
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		ORDER BY aud_trm desc,CMCC_prvd_nm_short
+	</select>
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT  
+			  gen_date, 
+		  aud_trm, 
+		  CMCC_prov_prvd_id, 
+		  short_name, 
+		  cmcc_prov_id, 
+		  CMCC_prvd_nm_short, 
+		  emp_id, 
+		  concat(left(nm,1),'**') as nm , 
+		  emp_post, 
+		  emp_stat, 
+		  blto_chnl_id, 
+		  chnl_nm, 
+		  cor_chnl_typ, 
+		  trade_ser_no, 
+		  points_chnl_id, 
+		  trade_tm,
+		  trade_typ, 
+		  trade_typ_name, 
+		  trade_typ_nm, 
+		  subs_id, 
+		  subs_id, 
+		  points_typ, 
+		  trade_value, 
+		  trade_stat, 
+		  zero_flag, 
+		  opposite_msisdn, 
+		  validity_dt 
+		FROM hpeapb.det_jfbdyc_2901
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate}
+		<if test="currCityType  != '' and currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType} 
+		</if>
+		ORDER BY AUD_TRM DESC ,CMCC_prvd_nm_short
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	
+</mapper>
+

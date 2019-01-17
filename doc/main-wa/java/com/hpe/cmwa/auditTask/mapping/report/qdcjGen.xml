@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="qdcjGenMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+<!--1 社会渠道服务费占总收入比重 begin  -->
+	<select id="select_totalInfo01" resultType="Map" parameterType="Map">
+		select 
+		format(sum(shqd_fee)/10000,2) as shqdFee,
+		format(sum(shqd_fee)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as shqdFeePer
+		from hpeapb.dm_sum_qdcj_2001_prvd
+		where aud_trm between #{beginAudTrm} and #{endAudTrm}
+		<if test="provinceCode!=10000">
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	
+	<select id="select_qdcj11_tab" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(sum(shqd_fee)/10000,2) as shqdFee,
+				format(sum(tol_amt)/10000,2) as talAmt,
+				format(sum(shqd_fee)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as shqdFeePer
+			FROM
+				hpeapb.dm_sum_qdcj_2001_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			group by short_name
+			order by sum(shqd_fee)/sum(tol_amt) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT
+				short_name as area_name,
+				format(sum(shqd_fee)/10000,2) as shqdFee,
+				format(sum(tol_amt)/10000,2) as talAmt,
+				format(sum(shqd_fee)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as shqdFeePer
+			FROM
+				hpeapb.dm_sum_qdcj_2001_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode}
+		</if>
+	</select>
+	<!--社会渠道服务费占总收入比重 end  -->
+	
+	<!--2 集团业务服务费占集团业务收入比重 begin  -->
+	<select id="select_totalInfo02" resultType="Map" parameterType="Map">
+		select 
+		format(sum(jtyw_fee)/10000,2) as jtywFee,
+		format(sum(jtyw_fee)/(case when sum(jtyw_amt)!=0 then sum(jtyw_amt) else 1 end)*100,2) as jtywFeePer
+		from hpeapb.dm_sum_qdcj_2002_prvd
+		where aud_trm between #{beginAudTrm} and #{endAudTrm}
+		<if test="provinceCode!=10000">
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	
+	<select id="select_qdcj21_tab" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(sum(jtyw_fee)/10000,2) as jtywFee,
+				format(sum(jtyw_amt)/10000,2) as talAmt,
+				format(sum(jtyw_fee)/(case when sum(jtyw_amt)!=0 then sum(jtyw_amt) else 1 end)*100,2) as jtywFeePer
+			FROM
+				hpeapb.dm_sum_qdcj_2002_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			group by short_name
+			order by sum(jtyw_fee)/sum(jtyw_amt) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT
+				short_name as area_name,
+				format(sum(jtyw_fee)/10000,2) as jtywFee,
+				format(sum(jtyw_amt)/10000,2) as talAmt,
+				format(sum(jtyw_fee)/(case when sum(jtyw_amt)!=0 then sum(jtyw_amt) else 1 end)*100,2) as jtywFeePer
+			FROM
+				hpeapb.dm_sum_qdcj_2002_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode}
+		</if>
+	</select>
+	<!--集团业务服务费占集团业务收入比重 end  -->
+	
+	
+	<!--3    家庭业务服务费占家庭业务收入比重 begin  -->
+	<select id="select_totalInfo03" resultType="Map" parameterType="Map">
+		select 
+		format(sum(home_fee)/10000,2) as homeFee,
+		format(sum(home_fee)/(case when sum(home_amt)!=0 then sum(home_amt) else 1 end)*100,2) as homeFeePer
+		from hpeapb.dm_sum_qdcj_2003_prvd
+		where aud_trm between #{beginAudTrm} and #{endAudTrm}
+		<if test="provinceCode!=10000">
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	
+	<select id="select_qdcj31_tab" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(sum(home_fee)/10000,2) as homeFee,
+				format(sum(home_amt)/10000,2) as talAmt,
+				format(sum(home_fee)/(case when sum(home_amt)!=0 then sum(home_amt) else 1 end)*100,2) as homeFeePer
+			FROM
+				hpeapb.dm_sum_qdcj_2003_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			group by short_name
+			order by sum(home_fee)/(case when sum(home_amt)!=0 then sum(home_amt) else 1 end) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT
+				short_name as area_name,
+				format(sum(home_fee)/10000,2) as homeFee,
+				format(sum(home_amt)/10000,2) as talAmt,
+				format(sum(home_fee)/(case when sum(home_amt)!=0 then sum(home_amt) else 1 end)*100,2) as homeFeePer
+			FROM
+				hpeapb.dm_sum_qdcj_2003_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode}
+		</if>
+	</select>
+	<!--家庭业务服务费占家庭业务收入比重 end  -->
+	
+	<!--4    激励酬金占总酬金的比重 begin  -->
+	<select id="select_totalInfo04" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(jl_amt)/10000,2) as jlAmt,
+			format(sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as jlAmtPer
+			from hpeapb.dm_sum_qdcj_2004_prvd
+			where aud_trm between #{firAudTrm} and #{endAudTrm}
+		</if>
+		
+		<if test="provinceCode!=10000">
+			select 
+			format(sum(jl_amt)/10000,2) as jlAmt,
+			format(sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as jlAmtPer
+			from hpeapb.dm_sum_qdcj_2004_cty
+			where aud_trm between #{firAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_totalInfo04_2" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			SELECT COUNT(a.area_name) as area_num  from (
+			SELECT
+			short_name as area_name,
+			format(sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as jlAmtPer
+			FROM
+				hpeapb.dm_sum_qdcj_2004_prvd
+			WHERE aud_trm between #{firAudTrm} and #{endAudTrm}
+			group by short_name
+			HAVING jlAmtPer>15) a
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT COUNT(a.area_name) as area_num  from (
+			SELECT
+			cmcc_prvd_nm_short as area_name,
+			format(sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as jlAmtPer
+			FROM
+				hpeapb.dm_sum_qdcj_2004_cty
+			WHERE aud_trm between #{firAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			group by cmcc_prvd_nm_short
+			HAVING jlAmtPer>15) a
+		</if>
+	</select>
+	
+	
+	<select id="select_qdcj41_tab" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			SELECT
+				short_name as area_name,
+				format(sum(jl_amt)/10000,2) as jlAmt,
+				format(sum(tol_amt)/10000,2) as tolAmt,
+			format(sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as jlAmtPer
+			FROM
+				hpeapb.dm_sum_qdcj_2004_prvd
+			where aud_trm between #{firAudTrm} and #{endAudTrm}
+			group by short_name
+			HAVING jlAmtPer>15
+			order by sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end) DESC
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(sum(jl_amt)/10000,2) as jlAmt,
+				format(sum(tol_amt)/10000,2) as tolAmt,
+			format(sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end)*100,2) as jlAmtPer
+			FROM
+				hpeapb.dm_sum_qdcj_2004_cty
+			where aud_trm between #{firAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			group by cmcc_prvd_nm_short
+			order by sum(jl_amt)/(case when sum(tol_amt)!=0 then sum(tol_amt) else 1 end) DESC
+		</if>
+	</select>
+	<!--激励酬金占总酬金的比重 end  -->
+	
+	<!--5    社会渠道服务费业财一致性 begin  -->
+	<select id="select_totalInfo05" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(erp_amt)/10000,2) as erp_amt,
+			format(sum(boss_amt)/10000,2) as boss_amt,
+			format(sum(diff_amt)/10000,2) as diff_amt
+			from hpeapb.dm_sum_qdcj_2005_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(sum(erp_amt)/10000,2) as erp_amt,
+			format(sum(boss_amt)/10000,2) as boss_amt,
+			format(sum(diff_amt)/10000,2) as diff_amt
+			from hpeapb.dm_sum_qdcj_2005_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	
+	<select id="select_qdcj51_tab" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			SELECT
+				short_name as area_name,
+				format(sum(erp_amt)/10000,2) as erp_amt,
+				format(sum(boss_amt)/10000,2) as boss_amt,
+				format(sum(diff_amt)/10000,2) as diff_amt,
+				format(sum(boss_amt)/(case when sum(erp_amt)!=0 then sum(erp_amt) else 1 end)*100,2) as amtPer
+			FROM
+				hpeapb.dm_sum_qdcj_2005_prvd
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			group by short_name
+			order by sum(diff_amt) DESC
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(sum(erp_amt)/10000,2) as erp_amt,
+				format(sum(boss_amt)/10000,2) as boss_amt,
+				format(sum(diff_amt)/10000,2) as diff_amt,
+				format(sum(boss_amt)/(case when sum(erp_amt)!=0 then sum(erp_amt) else 1 end)*100,2) as amtPer
+			FROM
+				hpeapb.dm_sum_qdcj_2005_cty
+			where aud_trm between #{beginAudTrm} and #{endAudTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			group by cmcc_prvd_nm_short
+			order by sum(diff_amt) DESC
+		</if>
+	</select>
+	<!--社会渠道服务费业财一致性 end  -->
+	
+	
+</mapper>
+

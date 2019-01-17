@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="commonMapper">
+
+	<cache eviction="LRU" flushInterval="1800000" size="4096"
+		readOnly="true" />
+
+	<select id="dict_province" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT prvd_id as id,
+		'province' as bizType,
+		CAST(prvd_id
+		AS char(5)) as as bizValue,
+		short_name as bizText,
+		prvd_id as
+		orderIndex,
+		'' as remark
+		FROM hpeapm.busi_workspace_org
+		ORDER BY id
+	</select>
+
+	<select id="dict_company" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT prvd_id as id,
+		'company' as bizType,
+		CAST(prvd_id
+		AS char(5)) as bizValue,
+		prvd_name as bizText,
+		prvd_id as orderIndex,
+		''
+		as remark
+		FROM hpeapm.busi_workspace_org
+
+		ORDER BY id
+	</select>
+
+	<select id="dict_common" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT id,
+		biz_Value as bizValue,
+		biz_Type as bizType,
+		biz_Text as
+		bizText,
+		order_Index as orderIndex,
+		script,
+		remark,
+		is_Active as isActive
+		FROM hpeapm.dict_common
+		where 1=1
+		<if test="bizType!=null">
+			and biz_Type=#{bizType}
+		</if>
+		ORDER BY biz_Type, order_Index
+	</select>
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="provinceList">
+		<result property="name" column="name" />
+		<result property="company" column="company" />
+		<result property="provinceCode" column="provinceCode" />
+	</resultMap>
+	<select id="selectProvinceList" resultMap="provinceList"
+		parameterType="java.util.Map">
+		SELECT short_name,
+		prvd_name,
+		prvd_id
+		FROM
+		hpeapm.busi_workspace_org
+	</select>
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="cityList">
+		<result property="name" column="name" />
+		<result property="CityCode" column="CityCode" />
+		<result property="provinceCode" column="provinceCode" />
+	</resultMap>
+
+	<select id="selectCityList" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT
+		tb_sum_prvd_name.CMCC_prvd_cd,
+		tb_sum_prvd_name.CMCC_prvd_nm,
+		tb_sum_prvd_name.CMCC_prvd_nm_short,
+		tb_sum_prvd_name.CMCC_prov_prvd_id,
+		tb_sum_prvd_name.eff_dt,
+		tb_sum_prvd_name.end_dt
+		FROM
+		hpeapm.tb_sum_prvd_name
+
+		where 1=1
+		<if test="provinceCode!=null">
+			and CMCC_prov_prvd_id=#{provinceCode}
+		</if>
+		order by CMCC_prov_prvd_id ,CMCC_prvd_cd
+	</select>
+
+	<!-- 根据地市简名称查询记录 20160918 add by GuoXY -->
+	<select id="selectCityByName" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT CMCC_prvd_nm_short as name, CMCC_prvd_cd as cityCode,
+		CMCC_prov_prvd_id as provinceCode
+		FROM hpeapm.TB_SUM_PRVD_NAME
+		where 1=1
+		<if test="cityName!=null">
+			and CMCC_prvd_nm_short like '%${cityName}%'
+		</if>
+	</select>
+	<select id="selectAuditUrlMapping" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT
+		'' as id,
+		url as bizText,
+		'auditTaskUrl' as bizType,
+		audit_id as bizValue,
+		'' as orderIndex,
+		'' as script,
+		'' as remark,
+		'' as
+		isActive
+		FROM hpeapm.audit_task_urlmapping
+	</select>
+	<select id="selectEnventCodeMapping" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT
+		'' as id,
+		eventName as bizText,
+		'eventCodeType' as
+		bizType,
+		eventCode as bizValue,
+		'' as orderIndex,
+		'' as script,
+		'' as
+		remark,
+		'' as isActive
+		FROM hpeapm.event_code_config
+	</select>
+	<insert id="addLocalCode" parameterType="java.util.Map">
+		insert into
+		hpeapm.eventCodeLog
+		(userId,userName,eventName,operationType,plat,other,resourceUrl,clientAddress,serverAddress)
+		values(#{userId},#{userName},#{eventName},#{operationType},"HP",#{other},#{resourceUrl},#{clientAddress},#{serverAddress})
+	</insert>
+
+	<!-- 查询日志 -->
+	<select id="selectLog" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select a.ID as operationId,a.clientAddress,a.createTime
+		as operateDate,a.eventName as
+		msg,a.operationType,a.other,a.plat,a.resourceUrl,a.serverAddress,a.userName
+		as operator,b.eventCode as operationName from hpeapm.eventcodelog as a
+		left join hpeapm.event_code_config as b on a.eventName=b.eventName
+		where 1=1 and DATE_FORMAT(a.createTime,'%Y-%m-%d')=#{createTime}
+	</select>
+</mapper>
+

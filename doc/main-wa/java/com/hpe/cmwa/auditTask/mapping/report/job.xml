@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="FileJobMapper">
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="fileGenReqList">
+		<result column="id" property="id" />
+		<result column="model_id" property="modelId" />
+		<result column="model_type" property="modelType" />
+		<result column="aud_trm" property="audTrm" />
+		<result column="subject_id" property="subjectId" />
+		<result column="focus_cd" property="focusCd" />
+		<result column="prvd_id" property="prvdId" />
+		<result column="status" property="status" />
+		<result column="model_fin_time" property="modelFinTime" />
+		<result column="doc_file_gen_time" property="docFileGenTime" />
+		<result column="exec_count" property="execCount" />
+	</resultMap>
+	
+	<!-- 执行JOB之前，修改Notify表，确定待生成的审计报告范围 -->
+	<update id="updateNotifyForRunJob" parameterType="java.util.Map">
+		
+		UPDATE hpeapm.busi_model_notify SET status=0 
+			WHERE aud_trm='${audtrm}' 
+			<if test="subjectid!=null">
+				AND subject_id='${subjectid}'
+			</if>
+			<if test="focuscds!=null">
+				AND focus_cd in (${focuscds})
+			</if>
+			<if test="prvdids!=null">
+				AND prvd_id in (${prvdids})
+			</if> 
+	</update>
+	<update id="updateNotifyTo5" parameterType="java.util.Map"> 
+		UPDATE hpeapm.busi_model_notify SET status=5 where status=0
+	</update>
+	<update id="testdataupdate" parameterType="java.util.Map"> 
+		update ${testdata}
+	</update>
+	<insert id="testdataadd" parameterType="java.util.Map"> 
+		 insert ${testdata}
+	</insert>
+	<delete id="testdatadel" parameterType="java.util.Map"> 
+		 delete ${testdata}
+	</delete>
+	<update id="testdataexec" parameterType="java.util.Map"> 
+		${testdata}
+	</update>
+	<!-- 查询待生成清单和审计报告的请求 -->
+	<select id="selectFileGenReqList" resultMap="fileGenReqList" parameterType="java.util.Map">
+		SELECT * FROM hpeapm.busi_model_notify 
+		  where  status != 5 
+				and subject_id = #{subjectId}
+		order by prvd_id desc
+	</select>
+	<!-- 更新通知状态，对于文件生成完成的请求更改为完成状态  -->
+	<update id="updateFileGenReqStatusAndTimeById" parameterType="java.util.Map">
+		update hpeapm.busi_model_notify 
+		<set>  
+		     <if test="status != null and status != '' ">  
+		            status=#{status},  
+		     </if>
+		     <if test="csvFileGenTime != null and csvFileGenTime != '' ">  
+		            csv_file_gen_time=#{csvFileGenTime},  
+		     </if>
+		     <if test="docFileGenTime != null and docFileGenTime != '' ">  
+		            doc_file_gen_time=#{docFileGenTime},  
+		     </if>	     
+		     <if test="csvFileFtpTime != null and csvFileFtpTime != '' ">  
+		            csv_file_ftp_time=#{csvFileFtpTime},  
+		     </if>
+		     <if test="docFileFtpTime != null and docFileFtpTime != '' ">  
+		            doc_file_ftp_time=#{docFileFtpTime},  
+		     </if>
+		</set> 
+		where id=#{id}
+	</update>
+	
+	<update id="updateFileGenReqStatusAndTimeBySubject" parameterType="java.util.Map">
+		update hpeapm.busi_model_notify 
+		<set>  
+		     <if test="status != null and status != '' ">  
+		            status=#{status},  
+		     </if>
+		     <if test="docFileGenTime != null and docFileGenTime != '' ">  
+		            doc_file_gen_time=#{docFileGenTime},  
+		     </if>	     
+		</set> 
+		<where>
+		     aud_trm=#{audTrm} 
+			 <if test="prvdId>0">  
+		           and prvd_id=#{prvdId}
+		     </if>
+			 <if test="subjectId != null and subjectId != '' ">  
+		           and subject_id=#{subjectId}  
+		     </if>
+		     and <![CDATA[ status<>5 ]]>
+		     
+		      <if test="ids!= null"> 
+		      and id in 
+		      		<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+					</foreach>
+		     </if>
+		</where>
+	</update>
+	
+	<!-- 更新通notify的执行次数  -->
+	<update id="updateFileGenReqExecCount" parameterType="java.util.Map">
+		update hpeapm.busi_model_notify 
+		<set>  
+			exec_count=exec_count+1
+		</set> 
+		where id=#{id}
+	</update>
+	
+	<!-- 更新通notify的执行次数  -->
+	<update id="updateFileGenReqExecCountBySubject" parameterType="java.util.Map">
+		update hpeapm.busi_model_notify 
+		<set>  
+			exec_count=exec_count+1
+		</set> 
+		<where>
+		     aud_trm=#{audTrm} 
+			 <if test="prvdId>0">  
+		           and prvd_id=#{prvdId}
+		     </if>
+			 <if test="subjectId != null and subjectId != '' ">  
+		           and subject_id=#{subjectId}  
+		     </if>
+		    <if test="ids!= null"> 
+		      and id in 
+		      		<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+					</foreach>
+		     </if>
+		</where>
+	</update>
+	
+	<!-- 记录已经生成的文件信息 -->
+	<select id="selectReportFileNum" resultType="int" parameterType="java.util.Map">
+		select count(aud_trm) as num from hpeapm.monitor_report_infos where aud_trm=#{aud_trm} and prvd_id = #{prvd_id}  and subject_id=#{subject_id}  
+	</select>
+	<delete id="deleteReportFile" parameterType="java.util.Map">
+		delete from hpeapm.monitor_report_infos where aud_trm=#{aud_trm} and prvd_id = #{prvd_id}  and subject_id=#{subject_id}  
+	</delete>
+	<insert id="insertReportFile" parameterType="java.util.Map">
+		insert into hpeapm.monitor_report_infos 
+		(id,aud_trm,subject_id,subject_name,prvd_id,report_path,report_name,report_create_persons,report_create_date)
+		values 
+		(#{id},#{aud_trm},#{subject_id},#{subject_name},#{prvd_id},#{report_path},#{report_name},#{report_create_persons},#{report_create_date})
+	</insert>
+	
+	<!-- 根据busi_report_file判断同一审计周期已生成文件的数量，=62为全国都生成文件 
+	<select id="selectFileCompletedCount" resultType="int" parameterType="java.util.Map">
+		SELECT count(distinct aduitor) totalCount
+		FROM hpeapm.busi_report_file
+		where audit_monthly=#{auditMonthly} and audit_subject=#{auditSubject} and audit_concern=#{auditConcern}
+	</select>
+	-->
+	
+	<!-- 根据busi_model_notify表判断同一审计周期已生成文件的数量 ，=31为全国都生成文件-->
+	<select id="selectFileCompletedCount" resultType="int" parameterType="java.util.Map">
+		SELECT count(distinct prvd_id) totalCount
+		FROM hpeapm.busi_model_notify
+		where aud_trm=#{audTrm} 
+			 <if test="subjectId != null and subjectId != '' ">  
+		           and subject_id=#{subjectId}  
+		     </if>
+			 <if test="focusCd != null and focusCd != '' ">  
+		           and focus_cd=#{focusCd}  
+		     </if>
+			 <if test="status>0">  
+		           and status=#{status}
+		     </if>
+	</select>
+	
+	<!-- 根据busi_model_notify表判断同一审计周期某个省已经执行完毕的关注点的数量-->
+	<select id="selectFinishedConcerns" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT distinct focus_cd as focusCd
+		FROM hpeapm.busi_model_notify
+		where aud_trm=#{audTrm}
+			 <if test="prvdId != null and prvdId != '' ">  
+		            and prvd_id=#{prvdId} 
+		     </if>
+			 <if test="subjectId != null and subjectId != '' ">  
+		           and subject_id=#{subjectId}  
+		     </if>
+			  <if test="status != null and status>0"> 
+		           and status=#{status}
+		     </if>
+	</select>
+	
+	<select id="selectFinishedConcernsByIds" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT distinct focus_cd as focusCd
+		FROM hpeapm.busi_model_notify
+		where aud_trm=#{audTrm}
+			 <if test="prvdId != null and prvdId != '' ">  
+		            and prvd_id=#{prvdId} 
+		     </if>
+		      <if test="ids!= null"> 
+		      and subject_id in 
+		      		<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+					</foreach>
+		     </if>
+			  <if test="status != null and status>0"> 
+		           and status=#{status}
+		     </if>
+	</select>
+	
+		<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="fileConfig">
+		<result column="id" property="id"/>
+		<result column="subject_id" property="subjectId"/>
+		<result column="focus_cd" property="focusCd"/>
+		<result column="doc_template_path" property="docTemplatePath"/>
+		<result column="doc_template" property="docTemplate"/>
+		<result column="processor" property="processor"/>
+		<result column="config" property="config"/>
+		<result column="create_time" property="createTime"/>
+	</resultMap>
+	
+	<!-- 根据subjectId和concernId查询对应的文件输出配置信息-->
+	<select id="selectFileConfig" resultMap="fileConfig" parameterType="java.util.Map">
+		SELECT * 
+		FROM hpeapm.busi_report_file_config 
+		where subject_id=#{subjectId} or id = #{subjectId}
+	</select>
+	
+	
+	
+	<!-- 查询已生成的文件信息，用于打包32份审计报告和31个省明细文件   全公司10000的审计报告不存在数据库里，生成后直接打包生成 32省doc.zip  20161019 add by GuoXY-->
+	<select id="selectAuditResultFile" resultType="java.lang.String" parameterType="java.util.Map">
+		SELECT file_name
+		FROM hpeapm.busi_report_file 
+		where audit_monthly=${audTrm} and <![CDATA[ aduitor<>10000 ]]>
+		 <if test="subjectId != null and subjectId != '' ">  
+	          and audit_subject=${subjectId}  
+	     </if>
+		 <if test="focusCd != null and focusCd != '' ">  
+	          and audit_concern='${focusCd}'  
+	     </if>
+		 <if test="fileType != null and fileType != '' ">  
+	          and file_type='${fileType}'  
+	     </if>
+	</select>
+</mapper>

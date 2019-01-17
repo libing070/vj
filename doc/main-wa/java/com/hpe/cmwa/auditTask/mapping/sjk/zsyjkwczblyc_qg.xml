@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zsyjkwczblyc_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select * from (select  
+			sum(offer_num) sum_offer_num,cmcc_prov_prvd_id,short_name
+		from hpeapb.sum_yjkzscz_3101_prvd 
+		where 1=1 
+				and  RANGE_NO>=4  
+				and aud_trm=(SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_prvd
+							 WHERE pres_bg =#{currSumBeginDate} AND pres_ed = #{currSumEndDate})
+				and pres_bg =#{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		GROUP BY cmcc_prov_prvd_id
+		order by sum_offer_num desc,cmcc_prov_prvd_id) as t
+		 where 1=1  order by sum_offer_num desc,cmcc_prov_prvd_id
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select * from (select  
+			sum(offer_num) sum_offer_num,cmcc_prov_prvd_id,short_name
+		from hpeapb.sum_yjkzscz_3101_prvd 
+		where 1=1 
+				and  RANGE_NO>=4  
+				and aud_trm=(SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_prvd
+							 WHERE pres_bg =#{currSumBeginDate} AND pres_ed = #{currSumEndDate})
+				and pres_bg =#{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		GROUP BY cmcc_prov_prvd_id
+		order by sum_offer_num desc,cmcc_prov_prvd_id) as t
+		 where 1=1 and sum_offer_num!=0 order by sum_offer_num desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select  
+			sum(offer_num) sum_offer_num,aud_trm
+		from hpeapb.sum_yjkzscz_3101_prvd 
+		where 1=1 
+				and  RANGE_NO>=4  
+				and aud_trm=(SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_prvd
+							WHERE pres_bg =#{currSumBeginDate} AND pres_ed =#{currSumEndDate})
+				and pres_bg =#{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		GROUP BY aud_trm
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			gen_date,
+			aud_trm,
+			pres_bg,
+			pres_ed,
+			cmcc_prov_prvd_id,
+			short_name,
+			RANGE_NO,
+			per_range,
+			offer_num,
+			zsyjk_num,
+			zsyjk_amt,
+			zsyjk_nopay_num,
+			zsyjk_nopay_amt,
+			(per_nopay*100) as per_nopay
+
+ 		from 
+ 			hpeapb.sum_yjkzscz_3101_prvd 
+		where 1=1 and 
+			aud_trm = (SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_prvd
+					   WHERE pres_bg =#{params.currSumBeginDate} AND pres_ed =#{params.currSumEndDate})
+			and pres_bg =#{params.currSumBeginDate} AND pres_ed =#{params.currSumEndDate}
+		order by aud_trm desc,cmcc_prov_prvd_id,range_no desc
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			gen_date,
+			aud_trm,
+			pres_bg,
+			pres_ed,
+			cmcc_prov_prvd_id,
+			short_name,
+			RANGE_NO,
+			per_range,
+			offer_num,
+			zsyjk_num,
+			zsyjk_amt,
+			zsyjk_nopay_num,
+			zsyjk_nopay_amt,
+			(per_nopay*100) as per_nopay
+
+ 		from 
+ 			hpeapb.sum_yjkzscz_3101_prvd 
+		where 1=1 
+		and aud_trm = (SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_prvd
+					   WHERE pres_bg =#{currSumBeginDate} AND pres_ed =#{currSumEndDate})
+		and pres_bg =#{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		order by aud_trm desc,cmcc_prov_prvd_id,range_no desc LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

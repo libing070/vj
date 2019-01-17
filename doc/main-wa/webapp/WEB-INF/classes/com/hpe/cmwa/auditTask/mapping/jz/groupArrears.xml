@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="groupArrearsMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<!-- 清单明细 -->
+	<resultMap type="java.util.Map"  id="detJtqfMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short"/>
+		<result property="acctPrdYtm" column="acct_prd_ytm"/>
+		<result property="minAcctPrdYtm" column="min_acct_prd_ytm"/>
+		<result property="orgCustLvl" column="org_cust_lvl"/>
+		<result property="custStatTypCd" column="cust_stat_typ_cd"/>
+		<result property="aging" column="aging"/>
+		<result property="acctId" column="acct_id"/>
+		<result property="custId" column="cust_id"/>
+		<result property="bltoCustId" column="blto_cust_id"/>
+		<result property="orgNm" column="org_nm"/>
+		<result property="comptAcctsSubjCd" column="compt_accts_subj_cd"/>
+		<result property="comptAcctsSubjNm" column="compt_accts_subj_nm"/>
+		<result property="dbtAmt" column="dbt_amt"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库  地市汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="sumJtqfCtyMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short"/>
+		<result property="acctPrdYtm" column="acct_prd_ytm"/>
+		<result property="sumCustId" column="sum_cust_id"/>
+		<result property="sumDbtAmt" column="sum_dbt_amt"/>
+	</resultMap>
+	
+	
+	<!-- 结果集映射 从实体对象到关系数据库  省汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="sumJtqfPrvdMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="acctPrdYtm" column="acct_prd_ytm"/>
+		<result property="sumCustId" column="sum_cust_id"/>
+		<result property="sumDbtAmt" column="sum_dbt_amt"/>
+	</resultMap>
+	
+	<!-- 曲线图数据-->
+	<select id="selectPersonPrvdInfo" resultMap="sumJtqfPrvdMap"  parameterType="java.util.Map">
+		select 
+		acct_prd_ytm , SUM(sum_cust_id) AS sumCustId ,  SUM(sum_dbt_amt) AS sumDbtAmt
+		FROM hpeapb.sum_jtqf_prvd where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm = #{nowDate}
+		and acct_prd_ytm &gt;=  #{currSumBeginDate} 
+		and acct_prd_ytm &lt;= #{currSumEndDate} 
+		GROUP BY acct_prd_ytm
+		ORDER BY acct_prd_ytm
+	</select>
+	
+	<!-- 地图旁边数据 -->
+	<select id="selectDataAnalysis" resultMap="sumJtqfPrvdMap"  parameterType="java.util.Map">
+		SELECT c.* FROM(SELECT a.*,(@rank:=@rank+1) as sort FROM(SELECT gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		SUM(sum_cust_id) as sumCustId,
+		SUM(sum_dbt_amt) as sumDbtAmt
+		FROM hpeapb.sum_jtqf_prvd 
+		WHERE 1=1
+		and aud_trm = #{nowDate}
+		and acct_prd_ytm &gt;=  #{currSumBeginDate} 
+		and acct_prd_ytm &lt;= #{currSumEndDate} 
+		GROUP BY cmcc_prov_prvd_id
+		ORDER BY SUM(sum_dbt_amt) DESC) a,(SELECT (@rank:=0)) b) c WHERE cmcc_prov_prvd_id = #{provinceCode}
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取地市前三的省份名称 -->
+	<select id="selectThreeCity" resultType="java.lang.String"  parameterType="java.util.Map">
+		select 
+		cmcc_prvd_nm_short  
+		FROM hpeapb.sum_jtqf_cty where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm = #{nowDate}
+		and acct_prd_ytm &gt;=  #{currSumBeginDate} 
+		and acct_prd_ytm &lt;= #{currSumEndDate} 
+		GROUP BY cmcc_prov_id
+		ORDER BY SUM(sum_dbt_amt) DESC 
+		limit 3
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取各个地市数据  （全省地图）-->
+	<select id="selectMapData" resultMap="sumJtqfCtyMap"  parameterType="java.util.Map">
+		select 
+		cmcc_prvd_nm_short,cmcc_prvd_nm_short,cmcc_prov_id,acct_prd_ytm,
+		SUM(sum_dbt_amt) AS sumDbtAmt,sum_dbt_amt/(SELECT SUM(sum_dbt_amt) FROM hpeapb.sum_jtqf_cty where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm = #{nowDate}
+		and acct_prd_ytm &gt;=  #{currSumBeginDate} 
+		and acct_prd_ytm &lt;= #{currSumEndDate} 
+		GROUP BY aud_trm) AS sumDbtAmtPer
+		FROM hpeapb.sum_jtqf_cty where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm = #{nowDate}
+		and acct_prd_ytm &gt;=  #{currSumBeginDate} 
+		and acct_prd_ytm &lt;= #{currSumEndDate} 
+		GROUP BY cmcc_prov_id ,acct_prd_ytm
+		ORDER BY SUM(sum_dbt_amt) DESC 
+	</select>
+	
+	<!-- 导出全省各个地市数据 -->
+	<select id="exportCityPerson" resultMap="sumJtqfCtyMap"  parameterType="java.util.Map">
+		select 
+		aud_trm,cmcc_prov_id, cmcc_prvd_nm_short,SUM(sum_cust_id) AS sumCustId ,  SUM(sum_dbt_amt) AS sumDbtAmt
+		FROM hpeapb.sum_jtqf_cty where 1=1 
+		 and cmcc_prov_prvd_id = #{provinceCode} 
+		 and aud_trm &gt;=  #{currSumBeginDate} 
+		 and aud_trm &lt;= #{currSumEndDate} 
+		 GROUP BY cmcc_prov_id
+		 ORDER BY SUM(sum_dbt_amt) DESC 
+	</select>
+	
+	
+	<!-- 获取全省各市 集团客户欠费 数据 -->
+	<select id="selectAllCityPerson" resultMap="sumJtqfCtyMap"  parameterType="java.util.Map">
+		SELECT a.*,(@rank:=@rank+1) AS rank 
+		FROM (
+		SELECT c.aud_trm AS audTrm,c.cmcc_prvd_nm_short AS cmccPrvdNmShort,
+		c.cmcc_prov_id AS cmccProvId,c.acct_prd_ytm AS acctPrdYtm,
+		SUM(c.sum_cust_id) AS sumCustId,
+		SUM(c.sum_dbt_amt) AS sumDbtAmt
+		FROM hpeapb.sum_jtqf_cty c WHERE 1=1 
+		AND c.cmcc_prov_prvd_id = #{params.provinceCode} 
+		and c.aud_trm = #{params.nowDate}
+		and c.acct_prd_ytm &gt;=  #{params.currSumBeginDate} 
+		and c.acct_prd_ytm &lt;= #{params.currSumEndDate} 
+		GROUP BY c.cmcc_prov_id,acct_prd_ytm
+		ORDER BY SUM(c.sum_dbt_amt) DESC) a,(SELECT (@rank:=5*(#{curPage}-1))) b
+	</select>
+	
+	<!-- 查询全国集团客户欠费清单数据 -->
+	<select id="selectAllChinaPerson" resultMap="detJtqfMap"  parameterType="java.util.Map">
+		select 
+		*
+		FROM hpeapb.det_jtqf where 1=1 
+		and cmcc_prov_prvd_id = #{params.provinceCode}
+		and aud_trm &gt;=  #{params.currDetBeginDate} 
+		and aud_trm &lt;= #{params.currDetEndDate} 
+		<if test="params.currCityType != '' and params.currCityType !=null ">
+			and cmcc_prov_id =#{params.currCityType} 
+		</if>
+		<if test="params.currKHStatus != '' and params.currKHStatus !=null ">
+			and cust_stat_typ_cd =#{params.currKHStatus} 
+		 </if>
+		 <if test="params.currKHLvl != '' and params.currKHLvl !=null ">
+			and org_cust_lvl =#{params.currKHLvl} 
+		 </if>
+		 ORDER BY dbt_amt DESC 
+	</select>
+	
+	<!-- 导出全国集团客户欠费清单数据 -->
+	<select id="exportAllChinaPerson" resultMap="detJtqfMap"  parameterType="java.util.Map">
+		select 
+		*
+		FROM hpeapb.det_jtqf where 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode}
+		 and aud_trm &gt;=  #{currDetBeginDate} 
+		 and aud_trm &lt;= #{currDetEndDate} 
+		 <if test="currCityType != '' and currCityType !=null ">
+			and cmcc_prov_id =#{currCityType} 
+		 </if>
+		 <if test="currKHStatus != '' and currKHStatus !=null ">
+			and cust_stat_typ_cd =#{currKHStatus} 
+		 </if>
+		 <if test="currKHLvl != '' and currKHLvl !=null ">
+			and org_cust_lvl =#{currKHLvl} 
+		 </if>
+		 ORDER BY dbt_amt DESC
+	</select>
+	
+	
+	<!-- 全国欠费超过1年的欠费金额占比  当前系统月份-3个月）中的“欠费账期”减去15个月对应的所有“欠费总金额”的合计值/这个审计月的“欠费中金额”合计值-->
+	<select id="getAllChinaScal" resultType="java.lang.Double"  parameterType="java.util.Map">
+		select (SELECT SUM(sum_dbt_amt) FROM hpeapb.sum_jtqf_cty WHERE 1=1 
+		AND aud_trm =#{nowDate} AND acct_prd_ytm &lt;=#{acctPrdYtm})/(SELECT SUM(sum_dbt_amt)  FROM hpeapb.sum_jtqf_cty WHERE 1=1 
+		AND aud_trm =#{nowDate})
+	</select>
+	
+</mapper>
+

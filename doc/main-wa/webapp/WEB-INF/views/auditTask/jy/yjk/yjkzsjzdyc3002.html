@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/jy/yjkyc/yjkzsjzdyc3002.js?v=2"></script>
+</head>
+<body>
+	<form id="queryParam">
+	
+		<input type="hidden" id="provId" />
+		<input type="hidden" id="yhhzCity" />
+		<input type="hidden" id="gzsqjyhCity" />
+		<input type="hidden" id="mx_cityCode" />
+		
+		<input type="hidden" id="currTab" value="hz" />
+		<!-- 汇总-->
+		<input type="hidden" id="provinceName" name="provinceName">
+
+		<!-- 国信透传条件 --> <!-- 外传参数 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<!-- 省编ID（外） -->
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth"> 
+		<input type="hidden" id="auditId" name="auditId"> 
+		<input type="hidden" id="taskCode" name="taskCode">
+	</form>
+	<div class="container-fluid">
+		<!-- 选项卡 -->
+		<div class="tab-nav">
+			<ul>
+				<li id="hz_tab" class="active">汇总分析</li>
+				<li id="mx_tab">明细数据</li>
+			</ul>
+		</div>
+
+		<!-- 选项卡info -->
+		<div class="tab-box">
+			<!-- 汇总分析 -->
+			<div class="tab-info" style="display:block">
+				<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+						<li><a href="/cmwa/yjkzsjzdyc/3001/index">有价卡赠送集中度异常</a> </li>
+						<li class="active"><a href="/cmwa/yjkzsjzdyc3002/3002/index">赠送有价卡充值集中度异常</a> </li>
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="hz_startMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i>
+							</span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input id="hz_endMonth" autocomplete="off" type="text" readonly>
+							<span class="add-on"><i class="icon-th"></i>
+							</span>
+						</dt>
+					</dl>
+					<a href="javascript:;" id="hz_search_btn"> <i class="icon icon-search"></i> 查询 </a>
+				</div>
+
+
+				<!-- mapBox -->
+				<div class="tab-mapbox">
+					<div class="col-xs-12">
+						<div class="tab-mapbox">
+							<div class="col-xs-12">
+								<div class="map">
+									<div class="title">
+										<h2>有价卡充值波动趋势</h2>
+									</div>
+									<div class="tab-map-box">
+										<div class="tab-map-info" style="display:block">
+											<div class="shuoming" id="auditConclusionSingle"></div>
+											<div id="zhexianChartSingle"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- 充值有价卡各金额区间内的用户数量统计 -->
+					<div class="col-xs-6 mr-15">
+						<div class="map">
+							<div class="title">
+								<h2>各充值区间的用户统计</h2>
+								<div class="right-info">
+									<dl>
+										<dt>
+											<input id="gzsqjyhCityText" type="text" placeholder="地市列表" readonly> 
+											<span><i class="icon icon-angle-down"></i> </span>
+										</dt>
+										<dd>
+											<ul id="gzsqjyhCitySelect"></ul>
+										</dd>
+									</dl>
+									<ol>
+										<li class="active" id="gzsqjyhChart">统计</li>
+										<li id="gzsqjyjkDetail_Table">数据表</li>
+									</ol>
+								</div>
+							</div>
+
+							<div class="tab-map-box"  id="gzsqjyhTjdiv">
+								<div class="tab-map-info" style="display:block">
+									<div class="shuoming" id="gzsqjPieCon" ></div>
+									<div id="gzsqjPieCharts"></div>
+								</div>
+
+								<div class="tab-map-info" >
+										<div class="shuoming" id="gzsqjyjkDetailTable_Con"></div>
+										<div class="table-box" id="gzsqjyjkDetailTableDiv_class">
+											<div class="table-responsive" id="sumCtyTableAjax">
+												<table id="gzsqjyjkDetailTable"></table>
+												<div id="gzsqjyjkDetailTablePageBar"></div>
+											</div>
+											<a href="javascript:;" style="background:#fff;">  </a>
+										</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- 用户充值有价卡金额统计 -->
+					<div class="col-xs-6">
+						<div class="map">
+							<div class="title">
+								<h2>用户充值有价卡金额统计</h2>
+								<!-- 条件选择按钮 -->
+								<div class="right-info">
+									<dl>
+										<dt>
+											<input id="yhhzCityText" type="text" placeholder="地市列表" readonly>
+											 <span><i class="icon icon-angle-down"></i> </span>
+										</dt>
+										<dd>
+											<ul id="yhhzCitySelect"> </ul>
+										</dd>
+									</dl>
+									<ol>
+										<li class="active" id="yhhzTop10Tel_Chart">统计</li>
+										<li id="yhhzTop10Tel_Tab">数据表1</li>
+										<li id="yhczJe_Tab">数据表2</li>
+									</ol>
+								</div>
+							</div>
+							<!-- 条件选择按钮  end-->
+							
+							<div class="tab-map-box" id="yhhzTjdiv">
+								<!-- 图形 -->
+								<div class="tab-map-info" style="display:block">
+									<div class="shuoming" id="yhhzTop10TelChart_Con"></div>
+									<div id="yhhzTop10TelCharts"></div>
+								</div>
+								<!-- 图形 end -->
+								<!-- 数据表1  -->
+								<div class="tab-map-info"  id="yhhzTop10TelTableDiv_class">
+										<div class="shuoming" id="yhhzTop10TelTable_Con"></div>
+										<div class="table-box">
+											<div class="table-responsive" id="yhhzyjkDelTableAjax">
+												<table id="yhhzTop10TelTable"></table>
+												<div id="yhhzTop10TelTablePageBar"></div>
+											</div>
+											<a href="javascript:;" id="exportYhhzTable"> 导出 </a>
+										</div>
+								</div>
+								
+								<!-- 数据表2  -->
+								<div class="tab-map-info"  id="yhczTableDiv_class">
+										<div class="shuoming" id="yhczTable_Con"></div>
+										<div class="table-box">
+											<div class="table-responsive" id="yhczDelTableAjax">
+												<table id="yhczTable"></table>
+												<div id="yhczTablePageBar"></div>
+											</div>
+											<a href="javascript:;" id="exportYhczTable"> 导出 </a>
+										</div>
+								</div>
+								
+								<div class="tab-map-info">
+									<div class="table-box">
+										<div class="table-responsive" id="">
+											<table id=""></table>
+											<div id=""></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- 数据表  end-->
+						</div>
+					</div>
+					
+				</div>
+			</div>
+
+			<!-- 明细数据 -->
+			<div class="tab-info">
+				<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+						<li><a href="/cmwa/yjkzsjzdyc/3001/index">有价卡赠送集中度异常</a> </li>
+						<li class="active"><a href="/cmwa/yjkzsjzdyc3002/3002/index">赠送有价卡充值集中度异常</a> </li>
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date ">
+						<dt>
+							<input id="mx_startMonth" autocomplete="off" type="text" readonly disabled="disabled"> 
+							<span class="add-on"> <i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date">
+						<dt>
+							<input id="mx_endMonth" autocomplete="off" type="text" readonly disabled="disabled">
+							<span class="add-on"><i class="icon-th"></i> </span>
+						</dt>
+					</dl>
+
+					<a href="javascript:;" id="mx_search_btn"> <i class="icon icon-search"></i> 查询 </a> 
+					<a class="more-btn" href="javascript:;"> 更多查询条件 </a> 
+					<a id="mx_reset_btn" class="reset-btn" href="javascript:;"> 重置 </a> 
+					<a id="exportMxDetailList" href="javascript:;"> 导出 </a>
+				</div>
+
+				<!-- moreBox -->
+				<div class="more-box">
+
+					<div class="select-box">
+						<p>
+							<input id="mx_cityCodeText" type="text" autocomplete="off" placeholder="地市名称" readonly> 
+							<span> <i class="icon icon-angle-down"></i> </span>
+						</p>
+						<ul id="mx_cityCodeSelect"> </ul>
+					</div>
+				</div>
+
+				<!-- 数据Table -->
+				<div class="shuju_box">
+					<h2></h2>
+					<div class="shuju_table">
+						<table id="cityDetailGridData"></table>
+						<div id="cityDetailGridDataPageBar"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</body>
+
+<script>
+
+</script>
+</html>

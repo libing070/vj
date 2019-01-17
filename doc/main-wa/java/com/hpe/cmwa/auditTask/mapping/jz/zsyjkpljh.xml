@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="zsyjkpljhMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_ds_sl_tj_chart" resultType="Map" parameterType="Map">
+		SELECT cmcc_prvd_nm_short, sum(zsyjk_cnt) as zsyjk_cnt,
+		sum(batch_yjk_cnt) as batch_yjk_cnt
+		FROM hpeapb.sum_zsyjk_batch_jh_cty 
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by cmcc_prov_id
+		ORDER BY sum(batch_yjk_cnt) desc
+	</select>
+	<select id="load_ds_conclusion" resultType="Map" parameterType="Map">
+		SELECT cmcc_prvd_nm_short, sum(zsyjk_cnt) as zsyjk_cnt,
+		sum(batch_yjk_cnt) as batch_yjk_cnt,
+		sum(zsyjk_amt) as zsyjk_amt,
+		sum(batch_amt_sum) as batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		limit 1
+	</select>
+	<select id="load_ds_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT cmcc_prvd_nm_short
+		FROM hpeapb.sum_zsyjk_batch_jh_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by cmcc_prov_id
+		order by sum(batch_yjk_cnt) desc
+		limit 3
+	</select>
+	
+	<select id="load_ds_conclusion_3" resultType="Map" parameterType="Map">
+		SELECT cmcc_prvd_nm_short
+		FROM hpeapb.sum_zsyjk_batch_jh_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by cmcc_prov_id
+		order by sum(batch_amt_sum) desc
+		limit 3
+	</select>
+	<select id="load_ds_je_tj_chart" resultType="Map" parameterType="Map">
+		SELECT cmcc_prvd_nm_short, 
+		sum(zsyjk_amt) as zsyjk_amt,
+		sum(batch_amt_sum) as batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by cmcc_prov_id
+		ORDER BY sum(batch_amt_sum) desc
+	</select>
+	
+	<select id="load_hz_ds_table" resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{params.currSumBeginDate},"-",#{params.currSumEndDate}) as audTrm,
+			short_name,
+			CMCC_prvd_nm_short,
+			sum(zsyjk_cnt) as zsyjk_cnt,
+			sum(zsyjk_amt) as zsyjk_amt,
+			sum(batch_yjk_cnt) as batch_yjk_cnt,
+			sum(batch_amt_sum) as batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_cty
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate} 
+		group by cmcc_prov_id
+		ORDER BY batch_amt_sum desc
+	</select>
+	<select id="export_hz_ds_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+			CONCAT(#{currSumBeginDate},"-",#{currSumEndDate}) as audTrm,
+			CMCC_prov_prvd_id,
+			short_name,
+			CMCC_prov_id,
+			CMCC_prvd_nm_short,
+			sum(zsyjk_cnt) zsyjk_cnt,
+			sum(zsyjk_amt) zsyjk_amt,
+			sum(cnt_tol) cnt_tol,
+			sum(amt_tol) amt_tol,
+			sum(batch_yjk_cnt) batch_yjk_cnt,
+			sum(batch_amt_sum) batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		group by cmcc_prov_id
+		ORDER BY batch_amt_sum desc
+	</select>
+	
+	
+	<select id="load_czy_sl_tj_chart" resultType="Map" parameterType="Map">
+		SELECT concat(left(nm,1),'**') nm, sum(cnt_tol) as cnt_tol,
+		sum(batch_yjk_cnt) as batch_yjk_cnt
+		FROM hpeapb.sum_zsyjk_batch_jh_czy
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by opr_id
+		ORDER BY sum(batch_yjk_cnt) desc
+		limit 10
+	</select>
+	
+	<select id="load_czy_je_tj_chart" resultType="Map" parameterType="Map">
+		SELECT concat(left(nm,1),'**') nm, 
+		sum(amt_tol) as amt_tol,
+		sum(batch_amt_sum) as batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_czy
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by opr_id
+		ORDER BY sum(batch_amt_sum) desc
+		limit 10
+	</select>
+	<select id="load_czy_conclusion" resultType="Map" parameterType="Map">
+		SELECT concat(left(nm,1),'**') nm,sum(batch_yjk_cnt) as batch_yjk_cnt,sum(batch_amt_sum) as batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_czy
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by opr_id
+		order by sum(batch_yjk_cnt) desc
+		limit 3
+	</select>
+	<select id="load_czy_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT concat(left(nm,1),'**') nm,sum(batch_yjk_cnt) as batch_yjk_cnt,sum(batch_amt_sum) as batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_czy
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by opr_id
+		order by sum(batch_amt_sum) desc
+		limit 3
+	</select>
+	
+	<select id="load_hz_czy_table" resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{params.currSumBeginDate},"-",#{params.currSumEndDate}) as audTrm,
+			short_name, CMCC_prvd_nm_short, opr_id,concat(left(nm,1),'**')  nm, opr_dt,opr_tm,
+		    cnt_tol, amt_tol,batch_yjk_cnt,batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_czy
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate} 
+		ORDER BY batch_amt_sum desc
+	</select>
+	<select id="export_hz_czy_mx_table" resultType="Map" parameterType="Map">
+		SELECT
+			CONCAT(#{currSumBeginDate},"-",#{currSumEndDate}) as audTrm,
+			CMCC_prov_prvd_id,
+			short_name,
+			CMCC_prov_id,
+			CMCC_prvd_nm_short,
+			opr_id,
+			concat(left(nm,1),'**') nm,
+			opr_dt,
+			opr_tm,
+			cnt_tol,
+			amt_tol,
+			batch_yjk_cnt,
+			batch_amt_sum
+		FROM hpeapb.sum_zsyjk_batch_jh_czy
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		ORDER BY batch_amt_sum desc
+	</select>
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		   Aud_trm,short_name,cmcc_prvd_nm_short,opr_id,
+		     concat(left(nm,1),'**') nm,opr_dt,opr_tm,yjk_ser_no,Yjk_amt,yjk_pres_dt, 
+		    yjk_offer_cd,offer_nm
+		FROM hpeapb.det_zsyjk_batch_jh
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		and Aud_trm &gt;=  #{params.currDetBeginDate} 
+		and Aud_trm &lt;= #{params.currDetEndDate} 
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		ORDER BY Aud_trm desc,cmcc_prvd_nm_short
+	</select>
+	
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		  Aud_trm,
+	      cmcc_prov_prvd_id,
+	      short_name,
+	      cmcc_prov_id,
+	      cmcc_prvd_nm_short,
+	      opr_dt,
+		  opr_tm,
+	      opr_id,
+	      concat(left(nm,1),'**') nm,
+		  yjk_ser_no,
+	      yjk_typ,
+	      yjk_stat,
+	      Yjk_amt,
+	      opr_typ,
+	      opr_nbr,
+	      yjk_pres_dt,
+	      user_id,
+	    (CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,
+	      yjk_offer_cd,
+	      offer_nm,
+		  offer_cls
+		FROM hpeapb.det_zsyjk_batch_jh
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate} 
+		<if test="currCityType  != '' and currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType} 
+		</if>
+		ORDER BY Aud_trm desc,cmcc_prvd_nm_short
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

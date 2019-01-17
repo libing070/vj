@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>发票上传</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  
+  <link rel="stylesheet" href="/cmwa/resource/js/cmwa/demo/layui/css/layui.css"  media="all">
+</head>
+<style type="text/css">
+   .layui-colla-content p{
+      padding-top:5px;
+   }
+</style>
+
+<body class="layui-layout-body">
+   <form id="queryParam">
+     <input type="hidden" id="fileUserIdInput" value=""/>
+     <input type="hidden" id="fileUserIdInput2" value=""/>
+     <input type="hidden" id="filePathInput" value=""/>
+     <input type="hidden" id="inoviceFileNameInput" value=""/>
+     <input type="hidden" id="uploadTypeInput" value=""/>
+   </form>
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header">
+    <div class="layui-logo">HPE报账凭证识别系统</div>
+    <!-- 头部区域（可配合layui已有的水平导航） -->
+    <ul class="layui-nav layui-layout-left">
+    </ul>
+    <ul class="layui-nav layui-layout-right">
+    </ul>
+  </div>
+  
+  <div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+      <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+      <ul class="layui-nav layui-nav-tree"  lay-filter="test" >
+        <li class="layui-nav-item layui-nav-itemed">
+          <a class="" href="javascript:;">导航</a>
+           <dl class="layui-nav-child" id="leftNavUl">
+            <dd class="layui-this"><a href="javascript:;">上传文件</a></dd>
+            <dd><a href="javascript:;">查询增值税发票</a></dd>
+            <dd><a href="javascript:;">查询火车票</a></dd>
+          </dl> 
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="layui-body"  id="uploadDivHtml">
+    <!-- 内容主体区域 -->
+    <div style="padding:5px">
+       <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend>上传报账凭证压缩文件</legend>
+       </fieldset>
+        <form class="layui-form" action="">
+         <div class="layui-form-item">
+		    <label class="layui-form-label"></label>
+		    <div class="layui-input-block" id="chooseUploadTypeId">
+		      <input type="radio" name="uploadRadio" value="1" title="上传增值税发票"  checked="" >
+		      <input type="radio" name="uploadRadio" value="2" title="上传火车票">
+		    </div>
+		  </div>
+          <div class="layui-form-item">
+           	 <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                   <button type="button" class="layui-btn layui-btn-primary" id="chooseZIPFile"><i class="layui-icon"></i>提示:上传压缩文件</button>
+              </div>
+           	 <div class="layui-form-item">
+                <label class="layui-input-block"></label>
+                    <button type="button" class="layui-btn" id="startUpload">上传</button>
+                    <button style="display:none" type="button" class="layui-btn" id="startProcessingBtn" onclick="batchProcessFile(this);">开始处理</button>
+                    <label class="layui-input-block" id="loadGifLabel" style="display:none ;margin-left:0px"><img src="/cmwa/resource/js/cmwa/demo/layui/images/face/load.gif"/>正在处理...</label>
+              </div>
+			 </div>
+			 <div class="layui-form-item">
+			   <label class="layui-form-label">任务id名称</label>
+			   <div class="layui-input-inline">
+			         <input type="text" id="showFileId" name="username" lay-verify="required" readonly placeholder="id名称" autocomplete="off" class="layui-input">
+			   </div>
+			  </div>
+         </form>
+      </div>
+  </div>
+    <div class="layui-body" style="display:none;padding:5px"  id="searchDivHtml">
+       <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend>查询操作</legend>
+       </fieldset>
+		<div class="demoTable">
+                                          搜索ID：
+               <div class="layui-inline">
+                 <input type="text"  class="layui-input" name="id" id="demoReload" autocomplete="off">
+               </div>
+              <button class="layui-btn" id="searchBtn" data-type="searchRole">搜索</button>
+              <button class="layui-btn"  data-type="exportRole">导出</button>
+         </div>
+        <table class="layui-hide" id="LAY_table_user" lay-filter="user"></table> 
+    </div>
+    
+    <div class="layui-body" style="display:none;padding:5px"  id="searchDivHtml2">
+       <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend>查询操作</legend>
+       </fieldset>
+		<div class="demoTable">
+                                          搜索ID：
+               <div class="layui-inline">
+                 <input type="text"  class="layui-input" name="id" id="demoReload2" autocomplete="off">
+               </div>
+              <button class="layui-btn" id="searchBtn2" data-type="searchRole2">搜索</button>
+              <button class="layui-btn"  data-type="exportRole2">导出</button>
+         </div>
+        <table class="layui-hide" id="LAY_table_user2" lay-filter="user2"></table> 
+    </div>
+  <div class="layui-footer" style="text-align:center">
+    <!-- 底部固定区域 -->
+    大数据智慧审计系统
+  </div>
+</div>
+<script src="/cmwa/resource/sjjk/js/plugins/jquery-1.11.1.min.js" charset="utf-8"></script>
+<script src="/cmwa/resource/js/cmwa/demo/layui/layui.js" charset="utf-8"></script>
+<script src="/cmwa/resource/js/cmwa/demo/layui/jquery.nicescroll.min.js"></script>
+<script>
+//JavaScript代码区域
+ layui.use('element', function(){
+  var element = layui.element;
+});
+
+ layui.use('upload', function(){
+   var $ = layui.jquery
+   ,upload = layui.upload;
+   upload.render({ //允许上传的文件后缀
+	    elem: '#chooseZIPFile'
+	    ,url: '/cmwa/batchProcessZipFile/upload'
+	    ,accept: 'file' //普通文件
+	    ,data:{"fileType":$("#chooseUploadTypeId input:radio:checked").val()}
+	    ,exts: 'zip|rar|7z' //只允许上传压缩文件
+	    ,bindAction: '#startUpload'
+	    //,size: 10240 //限制文件大小，单位 KB
+	    ,auto: false  //是否选完文件后自动上传
+	    ,before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+	       //index= layer.load(); //上传loading
+	     }
+	    ,done: function(res){
+	    	// layer.close(index);
+	    	 layer.msg('上传成功！');
+	      $("#showFileId").val(res.id);
+	      var fileType=$("#chooseUploadTypeId input:radio:checked").val();
+	      if("1"==fileType){
+	        $("#fileUserIdInput").val(res.id);
+	      }else if("2"==fileType){
+	        $("#fileUserIdInput2").val(res.id);
+	      }
+	      $("#filePathInput").val(res.filePath);
+	      $("#startProcessingBtn").show();
+	    }
+        ,error: function(){
+        	 layer.msg('上传失败！');
+	    }
+	  });
+     
+ });
+ 
+ function batchProcessFile(e){
+	 var postData={"fileType":$("#chooseUploadTypeId input:radio:checked").val()};
+		$.ajax({
+				url: "/cmwa/batchProcessZipFile/batchProcessFile",
+				async: true,
+				cache: false,
+				data : postData,
+				dataType: 'json',
+				beforeSend: function () {
+				        // 禁用按钮防止重复提交
+				  e.removeAttribute("onclick");
+				  $("#startUpload,#startProcessingBtn").addClass("layui-btn-disabled");
+				  $("#loadGifLabel").show();
+				// index= layer.load();
+				},
+				success: function(data) {
+					  e.setAttribute("onclick","batchProcessFile(this)");
+					  $("#startUpload,#startProcessingBtn").removeClass("layui-btn-disabled");
+					  $("#loadGifLabel").hide();
+					//layer.close(index);
+				}
+			}); 
+ }
+ $("#leftNavUl").on("click",'dd',function(){
+	 var currDdIndex=$(this).index();
+	 if(0==currDdIndex){
+		 $("#uploadDivHtml").show();
+		 $("#searchDivHtml").hide();
+		 $("#searchDivHtml2").hide();
+	 }else if(1==currDdIndex){
+		 $("#uploadDivHtml").hide();
+		 $("#searchDivHtml").show();
+		 $("#searchDivHtml2").hide();
+	 }else{
+		 $("#uploadDivHtml").hide();
+		 $("#searchDivHtml").hide();
+		 $("#searchDivHtml2").show();
+	 }
+ })
+ 
+layui.use('table', function(){
+   var table = layui.table;
+   
+   //方法级渲染
+  table.render({
+     elem: '#LAY_table_user'
+     ,cellMinWidth: 150
+     ,data:[]
+     ,cols: [[
+        {field:'FPHM', title: '发票号码' ,fixed: true,toolbar: '#barDemo'}
+       ,{field:'fileName', title: '发票图片名称'}
+       ,{field:'FPDM', title: '发票代码'}
+       ,{field:'KPRQ', title: '开票日期'}
+       ,{field:'GFMC', title: '购方名称', sort: true}
+       ,{field:'GFSBH', title: '购方识别号'}
+       ,{field:'XFMC', title: '销方名称', sort: true}
+       ,{field:'XFSBH', title: '销方识别号', sort: true}
+       ,{field:'JSHJ', title: '价税合计', sort: true}
+       ,{field:'JEHJ', title: '金额合计', sort: true}
+       ,{field:'SEHJ', title: '税额合计', sort: true}
+       ,{field:'DXJE', title: '大写金额', sort: true}
+       ,{field:'FPLX', title: '发票类型', sort: true}
+       ,{field:'GFKHHZH', title: '购方开户行账号', sort: true}
+       ,{field:'XFKHHZH', title: '销方开户行及账号', sort: true}
+       ,{field:'GFDZDH', title: '购方地址电话', sort: true}
+       ,{field:'XFDZDH', title: '销方地址电话', sort: true}
+       ,{field:'QR', title: '票据上二维码', sort: true}
+       ,{field:'DYFPDM', title: '打印发票代码', sort: true}
+       ,{field:'DYFPHM', title: '打印发票号码', sort: true}
+       ,{field:'FPLC', title: '发票联次', sort: true} 
+       ,{field:'JYM', title: '校验码', sort: true}
+       ,{field:'BZ', title: '备注', sort: true}
+       ,{field:'JQBH', title: '机器编号'}
+       ,{field:'MWSJ', title: '密文数据',sort: true}
+     ]]
+     ,id: 'testReload'
+   });
+   table.render({
+     elem: '#LAY_table_user2'
+     ,cellMinWidth: 100
+     ,data:[]
+     ,cols: [[
+        {field:'ids', title: '编号',style:'color:#01AAED',width:100 ,type:'numbers',fixed: true,event: 'setSign'}
+        ,{field:'fileName', title: '火车票图片名称',width:150}
+        ,{field:'Origin', title: '出发地'}
+       ,{field:'Destination', title: '目的地'}
+       ,{field:'Date', title: '出发日期'}
+       ,{field:'Number', title: '车次'}
+       ,{field:'Time', title: '开车时间'}
+       ,{field:'Seat', title: '座次'}
+       ,{field:'Price', title: '票价'}
+       ,{field:'Level', title: '席别'}
+       ,{field:'Name', title: '乘车人名称'}
+     ]]
+     ,id: 'testReload2'
+   }); 
+   
+   var $ = layui.$, active = {
+	searchRole:function(){
+		if($("#demoReload").val()==""||$("#demoReload").val()==null){
+			layer.msg("请输入正确的任务编码！");
+		 return;
+		 }
+		 $("#fileUserIdInput").val($("#demoReload").val());
+		 table.reload('testReload', {
+			 request: {
+		    	  pageName: 'curr' //页码的参数名称，默认：page
+		    	  ,limitName: 'nums' //每页数据量的参数名，默认：limit
+		    	}
+	         ,page: {
+	           curr: 1 //重新从第 1 页开始
+	         }
+	         ,where: {
+	          	  'taskId':$("#demoReload").val(),
+	          	  'fileType':1
+	         }
+	         ,url: '/cmwa/batchProcessZipFile/getDataById'
+		     ,page: true
+		     ,done : function(res, curr, count){
+		            var data=res.data;
+		           $('.layui-table-body tr').each(function(i){
+		           var index = $(this).attr('data-index');
+		           $(this).dblclick(function(){//双击事件
+		           console.info('dblclick');
+		             });
+		           $(this).click(function(){//单击某一行事件
+		            console.info('click');
+		               });
+		           });
+		       },
+	       });
+	},
+	
+	 exportRole:function(){
+	  if (!confirm("是否要导出？")) {
+         return;
+     }
+		window.location.href = "/cmwa/batchProcessZipFile/exportFileDetail?id=" +$("#fileUserIdInput").val()+"&fileType=1";
+	}
+	 ,exportRole2:function(){
+	  if (!confirm("是否要导出？")) {
+         return;
+     }
+		window.location.href = "/cmwa/batchProcessZipFile/exportFileDetail?id=" +$("#fileUserIdInput2").val()+"&fileType=2";
+	}
+	 ,searchRole2:function(){
+		if($("#demoReload2").val()==""||$("#demoReload2").val()==null){
+			layer.msg("请输入正确的任务编码！");
+		 return;
+		 }
+		 $("#fileUserIdInput2").val($("#demoReload2").val());
+		 table.reload('testReload2', {
+			 request: {
+		    	  pageName: 'curr' //页码的参数名称，默认：page
+		    	  ,limitName: 'nums' //每页数据量的参数名，默认：limit
+		    	}
+	         ,page: {
+	           curr: 1 //重新从第 1 页开始
+	         }
+	         ,where: {
+	          	  'taskId':$("#demoReload2").val(),
+	          	  'fileType':2
+
+	         }
+	         ,url: '/cmwa/batchProcessZipFile/getDataById'
+		     ,page: true
+		     ,done : function(res, curr, count){
+		            var data=res.data;
+		           $('.layui-table-body tr').each(function(i){
+		           var index = $(this).attr('data-index');
+		           $(this).dblclick(function(){//双击事件
+		           console.info('dblclick');
+		             });
+		           $(this).click(function(){//单击某一行事件
+		            console.info('click');
+		               });
+		           });
+		       },
+	       });
+	} 
+   };
+   
+   $('.demoTable .layui-btn').on('click', function(){
+     var type = $(this).data('type');
+     active[type] ? active[type].call(this) : '';
+   }); 
+   
+   table.on('tool(user)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+	   var data = obj.data; //获得当前行数据
+	   var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+	   var tr = obj.tr; //获得当前行 tr 的DOM对象
+	   $("#inoviceFileNameInput").val(data.fileName);
+	   $("#uploadTypeInput").val($("#chooseUploadTypeId input:radio:checked").val());
+	   var content="";
+	   $.get("/cmwa/resource/js/cmwa/demo/layerContent.html",{"currTime": new Date().getTime() ,"data":data} ,function(d){
+		   $("#LAY_layuipro").append(d);
+		   $("#inoviceFPHM").html(data.FPHM);
+		   $("#inoviceFileName").html(data.fileName);
+		   $("#getinviceImg").attr("src","/cmwa/batchProcessZipFile/getImg?filepath="+data.pathName+data.fileName);
+		   $("#inoviceFPDM").html(data.FPDM);
+		   $("#inoviceKPRQ").html(data.KPRQ);
+		   $("#inoviceJQBH").html(data.JQBH);
+		   $("#inoviceMWSJ").html(data.MWSJ);
+		   $("#inoviceGFMC").html(data.GFMC);
+		   $("#inoviceGFSBH").html(data.GFSBH);
+		   $("#inoviceXFMC").html(data.XFMC);
+		   $("#inoviceXFSBH").html(data.XFSBH);
+		   $("#inoviceJSHJ").html(data.JSHJ);
+		   $("#inoviceJEHJ").html(data.JEHJ);
+		   $("#inoviceSEHJ").html(data.SEHJ);
+		   $("#inoviceDXJE").html(data.DXJE);
+		   $("#inoviceBZ").html(data.BZ);
+		   $("#inoviceFPLX").html(data.FPLX);
+		   $("#inoviceJYM").html(data.JYM);
+		   $("#inoviceGFKHHZH").html(data.GFKHHZH);
+		   $("#inoviceXFKHHZH").html(data.XFKHHZH);
+		   $("#inoviceGFDZDH").html(data.GFDZDH);
+		   $("#inoviceXFDZDH").html(data.XFDZDH);
+		   $("#inoviceQR").html(data.QR);
+		   $("#inoviceDYFPDM").html(data.DYFPDM);
+		   $("#inoviceDYFPHM").html(data.DYFPHM);
+		   $("#inoviceFPLC").html(data.FPLC);
+		   
+		   var str=$("#inoviceQR").html();
+		   var s1=str.substring(0,str.length/2);
+		   var s2=str.substring(str.length/2,str.length);
+		   $("#inoviceQR").html(s1+'<br/>'+s2);
+		});
+	   
+	   if(layEvent === 'detail'){
+		   layer.open({
+		        type: 1
+		        ,title: false //不显示标题栏
+		        ,closeBtn: 2
+		        ,area:  ['1200px', '550px']
+		        ,shade: 0.8
+		        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+		        ,btnAlign: 'c'
+		        ,moveType: 1 //拖拽模式，0或者1
+		        ,content: $("#LAY_layuipro").html()
+		      });
+		  } 
+	 });
+   table.on('tool(user2)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+	   var data = obj.data; //获得当前行数据
+	   var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+	   var tr = obj.tr; //获得当前行 tr 的DOM对象
+	   $("#inoviceFileNameInput").val(data.fileName);
+	   $("#uploadTypeInput").val($("#chooseUploadTypeId input:radio:checked").val());
+	   var content="";
+	   $.get("/cmwa/resource/js/cmwa/demo/layerContent2.html",{"currTime": new Date().getTime() ,"data":data} ,function(d){
+		   $("#LAY_layuipro2").append(d);
+		   $("#ticketOrigin").html(data.Origin);
+		   $("#ticketFileName").html(data.fileName);
+		   $("#getticketImg").attr("src","/cmwa/batchProcessZipFile/getImg?filepath="+data.pathName+data.fileName);
+		   $("#ticketDestination").html(data.Destination);
+		   $("#ticketDate").html(data.Date);
+		   $("#ticketNumber").html(data.Number);
+		   $("#ticketTime").html(data.Time);
+		   $("#ticketSeat").html(data.Seat);
+		   $("#ticketPrice").html(data.Price);
+		   $("#ticketLevel").html(data.Level);
+		   $("#ticketName").html(data.Name);
+		});
+	   
+	   if(layEvent === 'setSign'){
+		   layer.open({
+		        type: 1
+		        ,title: false //不显示标题栏
+		        ,closeBtn: 2
+		        ,area:  ['1200px', '550px']
+		        ,shade: 0.8
+		        ,id: 'LAY_layuipro2' //设定一个id，防止重复弹出
+		        ,btnAlign: 'c'
+		        ,moveType: 1 //拖拽模式，0或者1
+		        ,content: $("#LAY_layuipro2").html()
+		      });
+		   } 
+	 });
+   
+ }); 
+
+
+
+</script>
+<script type="text/html" id="barDemo">
+<a  class="layui-table-link" lay-event="detail">{{ d.FPHM }}</a>
+</script>
+<!-- <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_30088308'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "w.cnzz.com/c.php%3Fid%3D30088308' type='text/javascript'%3E%3C/script%3E"));</script>
+ --></body>
+</html>
+ml>

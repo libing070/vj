@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js?v=1.1"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/yjk/2004/index.js?v=1.1"></script>
+</head>
+<body>
+    <form id="queryParam">
+        <input type="hidden" id="provId" />
+        <input type="hidden" id="mx_prvdId1" />
+        <input type="hidden" id="mx_prvdId2" />
+        <input type="hidden" id="hz_map_double" />
+        <input type="hidden" id="currTab" value="hz"/>
+        
+        <!-- 国信透传条件 -->
+        <input type="hidden" id="provinceCode" name="provinceCode">
+        <input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+        <input type="hidden" id="endAcctMonth" name="endAcctMonth">
+        <input type="hidden" id="auditId" name="auditId">
+        <input type="hidden" id="taskCode" name="taskCode">
+    </form>
+    <div class="container-fluid">
+        <!-- 选项卡 -->
+        <div class="tab-nav">
+            <ul>
+                <li id="hz_tab" class="active">汇总分析</li>
+                <li id="mx_tab">明细数据</li>
+            </ul>
+        </div>
+
+        <!-- 选项卡info -->
+        <div class="tab-box">
+            <!-- 汇总分析 -->
+            <div class="tab-info" style="display:block">
+                <!-- sub-nav -->
+
+                <!-- dateBox -->
+                <div class="tab-datebox">
+                    <p>时间:</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="hz_startMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+                    <p>至</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="hz_endMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+                    <a href="javascript:;" id="hz_search_btn">
+                        <i class="icon icon-search"></i>
+                        查询
+                    </a>
+                </div>
+
+                <!-- mapBox -->
+                <div class="tab-mapbox">
+                    <div class="col-xs-6 mr-15">
+                        <div class="qushi">
+                            <div class="title">
+                                <h2>跨省使用有价卡分布趋势</h2>
+                                <div class="right-info">
+                                    <a href="javascript:;">趋势图</a>
+                                </div>
+                            </div>
+							<div class="shuoming-fir" id="conclusion"></div>
+                            <div class="zhexian-map-copy" id="ranklineChart">
+                            </div>
+
+                            <div class="zoom-button">
+                                <img src="/cmwa/resource/images/icon-zoom.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>跨省使用有价卡地域分布</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_map">地图</li>
+                                        <li id="hz_table">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-4">
+                                        <div class="details">
+                                            <ul>
+                                                <li>异地充值有价卡数量：<span id="cnt"></span></li>
+                                                <li>异地充值有价卡金额（元）：<span id="tol_amt"></span></li>
+                                                <li>全国排名：<span id="rank_num"></span>
+                                                </li>
+                                                <li>异地充值数量排名前三的省份：<br> <span id="cityTops"></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <div class="map-img" id="cityMapChart">
+                                        </div>
+                                        <div class="zoom-button">
+                                            <img src="/cmwa/resource/images/icon-zoom.png" alt="">
+                                        </div>
+                                    </div>
+
+                                    <div class="map-tiplist">
+                                        <ul>
+                                            <li><span class="red"></span> 异地充值有价卡数量 &gt; <label class="yVal"></label></li>
+                                            <li><span class="blue"></span> 异地充值有价卡数量在<label class="xVal"></label> - <label class="yVal"></label>之间</li>
+                                            <li><span class="yellow"></span> 异地充值有价卡数量 &lt; <label class="xVal"></label></li>
+                                            <li><span class="gray"></span> 没有数据</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="tab-map-info" id="hz_tables_class">
+                                    <div class="table-box">
+                                        <div class="table-responsive">
+                                            <table id="citySumGridData"></table>
+                                            <div id="citySumGridDataPageBar"></div>
+                                        </div>
+                                        <a href="javascript:;" id="exportSumList"> 导出 </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 明细数据 -->
+            <div class="tab-info">
+                <!-- sub-nav -->
+                <!-- dateBox -->
+                <div class="tab-datebox mxsj-datebox">
+                    <p>时间:</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="mx_startMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+                    <p>至</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="mx_endMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+
+                    <a href="javascript:;" id="mx_search_btn"> <i class="icon icon-search"></i> 查询
+                    </a> <a class="more-btn" href="javascript:;"> 更多查询条件 </a> <a id="mx_reset_btn" class="reset-btn" href="javascript:;"> 重置 </a> <a id="exportDetailList" href="javascript:;"> 导出 </a>
+                </div>
+
+                <!-- moreBox -->
+                <div class="more-box">
+                    <div class="select-box">
+                        <p>
+                            <input id="mx_prvdId1Text" type="text" autocomplete="off" placeholder="充值省" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="mx_prvdId1Select">
+                        </ul>
+                    </div>
+                  <!--   <div class="select-box">
+                        <p>
+                            <input id="mx_prvdId2Text" type="text" autocomplete="off" placeholder="归属省" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="mx_prvdId2Select">
+                        </ul>
+                    </div> -->
+                </div>
+
+                <!-- 数据Table -->
+                <div class="shuju_box">
+                    <h2></h2>
+                    <div class="shuju_table">
+                        <table id="cityDetailGridData"></table>
+                        <div id="cityDetailGridDataPageBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 弹层 -->
+    <div class="modal-box">
+        <!-- 折线 BigMap -->
+        <div class="zhexian-bigmap">
+            <div class="close-btn">
+                <i class="icon icon-remove"></i>
+            </div>
+            <div class="info" id="ranklineChartBig"></div>
+        </div>
+
+        <!-- BigMap -->
+        <div class="bigmap">
+            <div class="close-btn">
+                <i class="icon icon-remove"></i>
+            </div>
+            <div class="info big-map-info-div" id="cityMapChartBig"></div>
+        </div>
+    </div>
+</body>
+</html>

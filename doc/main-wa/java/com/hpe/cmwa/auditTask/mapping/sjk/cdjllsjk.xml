@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="cdjllsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(LOW_GPRS_TOL_G) AS LOW_GPRS_TOL_G
+		FROM hpeapb.sum_gprs_1502_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and LOW_GPRS_TOL_G != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(LOW_GPRS_TOL_G) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(LOW_GPRS_TOL_G) AS LOW_GPRS_TOL_G
+		FROM hpeapb.sum_gprs_1502_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(LOW_GPRS_TOL_G) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(LOW_GPRS_TOL_G) AS LOW_GPRS_TOL_G
+		FROM hpeapb.sum_gprs_1502_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			GPRS_SUBS,
+			LOW_GPRS_TOL_G,
+			LOW_GPRS_FEE,
+			PER_GPRS_SUBS_M,
+			PER_GPRS_SUBS_G
+		FROM hpeapb.sum_gprs_1502_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,LOW_GPRS_TOL_G desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			GPRS_SUBS,
+			LOW_GPRS_TOL_G,
+			LOW_GPRS_FEE,
+			PER_GPRS_SUBS_M,
+			PER_GPRS_SUBS_G
+		FROM hpeapb.sum_gprs_1502_prvd
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by AUD_TRM desc,LOW_GPRS_TOL_G desc,CMCC_PROV_PRVD_ID
+	</select>
+</mapper>
+

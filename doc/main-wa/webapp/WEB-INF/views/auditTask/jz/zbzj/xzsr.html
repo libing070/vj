@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>index</title>
+<meta charset="UTF-8">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Cache" content="no-cache">
+<script type="text/javascript" src="/cmwa/resource/js/resource.js?v=2"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script> 
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/jz/zbzj/xzsr.js?v=2"></script>
+</head>
+<body>
+	<form>
+	
+		<!-- 国信透传条件 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth">
+		<input type="hidden" id="auditId" name="auditId">
+		<input type="hidden" id="taskCode" name="taskCode">
+		
+		<!-- 汇总条件 -->
+		<input type="hidden" id="currSumBeginDate" name="currSumBeginDate">
+		<input type="hidden" id="currSumEndDate" name="currSumEndDate">
+		<input type="hidden" id="currSumDown" name="currSumDown" value="0">
+		
+		
+		<!-- 明细清单条件 -->
+		<input type="hidden" id="currDetBeginDate" name="currDetBeginDate">
+		<input type="hidden" id="currDetEndDate" name="currDetEndDate">
+		
+		<!--下拉框-->
+		<input type="hidden" id="currCityName" name="currCityName">
+		<input type="hidden" id="currXzsrType" name="currXzsrType">
+		<!-- 原始时间开始结束 -->
+		<input type="hidden" id="initBeginDate">
+		<input type="hidden" id="initEndDate">
+		<input type="hidden" id="currTab" value="hz"/>
+	</form>
+	<div class="container-fluid">
+		<!-- 选项卡 -->
+		<div class="tab-nav">
+			<ul>
+				<li class="active" id="hz_tab">汇总分析</li>
+				<li id="mx_tab">明细数据</li>
+			</ul>
+		</div>
+
+		<!-- 选项卡info -->
+		<div class="tab-box">
+			<!-- 汇总分析 -->
+			<div class="tab-info" style="display:block">
+				<div class="tab-sub-nav">
+					<ul>
+						<li class="active"><a href="/cmwa/xzsr/indexAddress">虚增收入</a></li>
+						<li><a href="/cmwa/wg/indexAddress">违规对欠费停机、预销号用户订购业务</a></li>
+						<li><a href="/cmwa/jdyw/indexAddress">违规对M2M行业卡用户开通梦网业务和5类基地业务</a></li>
+					</ul>
+				</div>
+				
+				<!-- dateBox -->
+				<div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input  type="text"  readonly id="sumBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input  type="text"   id="sumEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<a href="javascript:;" id="queryHuiZongButton">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+				</div>
+				
+				<!-- 双折线-->
+				<div class="tab-mapbox">
+					
+					<div class="col-xs-12">
+						<div class="map">
+							<div class="title">
+								<h2 id="zhelinejielun"></h2>
+							</div>
+							<div class="tab-map-box">
+								<div class="shuoming" id="Brokenlinejielun"></div>
+								<div id="XzsrBrokenline" ></div>  <!-- style="padding-top:15px;" -->
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-xs-12">
+						<div class="map">
+							<div class="title"> 
+							<h2 id="zhujielun"></h2>
+								<div class="right-info">
+									<dl>
+										<dt>
+											<!-- <input type="text" placeholder="统计"  /> 
+											<span>
+												<i class="icon icon-angle-down"></i>
+											</span> -->
+										</dt>
+										<dd>
+											<!-- <ul id="SumDown">
+												<li class="active" value="0">统计</li>
+												<li value="1">养卡</li>
+												<li value="2">测试号码</li>
+												<li value="3">公免用户</li>
+												<li value="4">本省移动公司用户</li>
+											</ul> -->
+										</dd>
+									</dl>
+									<ol>
+										<li class="active"  id="tongji">统计</li>
+										<li  id="sjb">数据表</li>
+									</ol>
+								</div>
+							</div>
+							
+							<div class="clear"></div>
+							<div class="tab-map-box">
+								<div class="tab-map-info" style="display:block">
+									<div class="table-box">
+										
+										<a class="btn-daochu" href="javascript:;" id="" style="visibility:hidden">
+											导出  
+										</a>
+										<div class="table-box">
+											<div class="shuoming" id="tubufenjielun"></div>
+											<div id="tubufen"></div>
+										</div>
+									</div>	
+								</div>
+								<div class="tab-map-info">
+									<div class="table-box">
+										<div class="shuoming" id="dssjbjielun"></div>
+										<a class="btn-daochu" href="javascript:;" id="exportSumCity">
+											导出
+										</a>
+										<div class="clear"></div>
+										<div class="table-responsive"> 
+											<table id="shuchude"></table>
+											<div id="shuchudebar"></div>
+										</div>
+									</div>
+								</div>    
+							</div> 
+						</div>
+					</div> 
+				</div>
+  			</div>	
+		  			 
+			<!-- 明细数据页面 -->	
+			<div class="tab-info">
+				<div class="tab-sub-nav">
+					<ul>
+						<li class="active"><a href="/cmwa/xzsr/indexAddress">虚增收入</a></li>
+						<li><a href="/cmwa/wg/indexAddress">违规对欠费停机、预销号用户订购业务</a></li>
+						<li><a href="/cmwa/jdyw/indexAddress">违规对M2M行业卡用户开通梦网业务和5类基地业务</a></li>
+					</ul>
+				</div>
+				<!-- dateBox -->
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					
+
+					<a href="javascript:;" id="queryMxButton">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+					<a class="more-btn" href="javascript:;">
+						更多查询条件
+					</a>
+					<a class="reset-btn" href="javascript:;" id="resetMxId">
+						重置
+					</a>
+					<a href="javascript:;" id="exportDetail">
+						导出
+					</a>
+				</div>
+
+				<!-- moreBox -->
+				<div class="more-box">
+					<div class="select-box">
+						<p>
+							<input type="text" placeholder="地市名称" id="cityTypeInput" readonly>
+							<span>
+								<i class="icon icon-angle-down"></i>
+							</span>
+						</p>
+						<ul id="cityName">
+							
+						</ul>
+					</div>
+
+					<div class="select-box">
+						<p>
+							<input type="text" placeholder="虚增收入类型" readonly>
+							<span>
+								<i class="icon icon-angle-down"></i>
+							</span>
+						</p>
+						<ul id="xzsrType">
+							
+						</ul>
+					</div>
+				</div>
+				
+				<!-- 数据Table -->
+				<div class="shuju_box">
+					<!--<h2>实名制落实情况地域分布</h2>-->
+					<div class="shuju_table" >
+						<table id="detailGridData"></table>
+					 	<div id="detailGridDataPageBar"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</body>
+</html>	

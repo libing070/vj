@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="YJKZCYC3002">
+
+	<!-- 统计周期内每月累计充值有价卡金额 -->
+	<select id="getYJKZCYC3002Trend" resultType="Map" parameterType="Map">
+		select 
+			gen_date,trade_mon,cmcc_prov_prvd_id,short_name,yjk_trade_user_num,
+			yjk_trade_num,yjk_trade_amt
+		from
+			hpeapb.SUM_YJKZSJZD_3002_PRVD_MON
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and trade_mon >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and trade_mon <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		order by trade_mon
+	</select>
+	
+	
+	<!-- 统计周期内全省的平均单月累计充值有价卡金额 -->
+	<select id="getYJKZCYC3002AVGNumber" resultType="Map" parameterType="Map">
+		select
+			ifnull(avg(yjk_trade_amt),0) as avg_yjk_trade_amt
+		from
+			hpeapb.sum_yjkzsjzd_3002_prvd_mon
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and trade_mon >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and trade_mon <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+	</select>
+	
+	<!-- 充值有价卡的总金额 -->
+	<select id="getYJKZCYC3002MAXNumber" resultType="Map" parameterType="Map">
+		select
+			gen_date,trade_mon,cmcc_prov_prvd_id,short_name,yjk_trade_user_num,
+			yjk_trade_num,yjk_trade_amt as max_yjk_trade_amt
+		from
+			hpeapb.sum_yjkzsjzd_3002_prvd_mon 
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and trade_mon >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and trade_mon <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY yjk_trade_amt DESC  limit 1
+	</select>
+	
+	<!-- 各区间赠送 -->
+	<select id="getGzsqjChart" resultType="Map" parameterType="Map">
+		select 
+			SUM(CASE WHEN yjk_trade_amt &gt;=0  AND yjk_trade_amt &lt;2000 THEN yjk_trade_amt ELSE 0  END) sum_bt1_2000_tradeAmt,
+			SUM(CASE WHEN yjk_trade_amt &gt;=0  AND yjk_trade_amt &lt;2000 THEN yjk_trade_user_num ELSE 0  END) sum_je1_2000_userNum,
+		                                
+			SUM(CASE WHEN yjk_trade_amt &gt;=2000  AND yjk_trade_amt &lt;5000 THEN yjk_trade_amt ELSE 0  END) sum_bt2000_5000_tradeAmt,
+		    SUM(CASE WHEN yjk_trade_amt &gt;=2000  AND yjk_trade_amt &lt;5000 THEN yjk_trade_user_num ELSE 0  END)  sum_je2000_5000_userNum,
+		                                
+			SUM(CASE WHEN yjk_trade_amt &gt;=5000  AND yjk_trade_amt &lt;10000 THEN yjk_trade_amt ELSE 0  END) sum_bt5000_10000_tradeAmt,
+			SUM(CASE WHEN yjk_trade_amt &gt;=5000  AND yjk_trade_amt &lt;10000 THEN yjk_trade_user_num ELSE 0  END)  sum_je5000_10000_userNum,
+		                                
+			SUM(CASE WHEN yjk_trade_amt &gt;=10000  AND yjk_trade_amt &lt;20000 THEN yjk_trade_amt ELSE 0  END) sum_bt10000_20000_tradeAmt,
+			SUM(CASE WHEN yjk_trade_amt &gt;=10000  AND yjk_trade_amt &lt;20000 THEN yjk_trade_user_num ELSE 0  END)  sum_je10000_20000_userNum,
+		                                
+			SUM(CASE WHEN yjk_trade_amt &gt;=20000  AND yjk_trade_amt &lt;50000 THEN yjk_trade_amt ELSE 0  END) sum_bt20000_50000_tradeAmt,
+			SUM(CASE WHEN yjk_trade_amt &gt;=20000  AND yjk_trade_amt &lt;50000 THEN yjk_trade_user_num ELSE 0  END)  sum_je20000_50000_userNum,
+		                                
+			SUM(CASE WHEN yjk_trade_amt &gt;=50000  AND yjk_trade_amt &lt;100000 THEN yjk_trade_amt ELSE 0  END) sum_bt50000_100000_tradeAmt,
+			SUM(CASE WHEN yjk_trade_amt &gt;=50000  AND yjk_trade_amt &lt;100000 THEN yjk_trade_user_num ELSE 0  END)   sum_je50000_100000_userNum,
+		                                
+			SUM(CASE WHEN yjk_trade_amt &gt;=100000  THEN yjk_trade_amt ELSE 0  END) sum_gt100000_tradeAmt,
+			SUM(CASE WHEN yjk_trade_amt &gt;=100000 THEN yjk_trade_user_num ELSE 0  END)  sum_je100000_userNum,
+			ifnull(sum(yjk_trade_amt),0) as sum_yjk_trade_amt,
+			ifnull(sum(yjk_trade_user_num),0) as sum_yjk_trade_user_num
+		from 
+			hpeapb.sum_yjkzsjzd_3002_cty  
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm_end <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			and cmcc_prov_id = #{cityId}
+		</if>
+	</select>
+	
+	<!-- 各区间明细  -->
+	<select id="getGzsqjyhDetailTable" resultType="Map" parameterType="pager">
+		select 
+			aud_trm_begin,aud_trm_end,
+			<if test="params.cityId == '' ">
+				short_name AS short_name,
+		    </if>
+		    <if test="params.cityId ==null">
+				short_name AS short_name,
+		    </if>
+			<if test="params.cityId != '' and params.cityId !=null  ">
+			 	cmcc_prvd_nm_short  AS short_name,
+		    </if>
+			yjk_amt_range,
+			sum(yjk_trade_user_num) as yjk_trade_user_num,
+			sum(yjk_trade_num) as yjk_trade_num,
+			sum(yjk_trade_amt) as yjk_trade_amt
+		from 
+			hpeapb.sum_yjkzsjzd_3002_cty
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm_end <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		<if test="params.cityId != null and params.cityId != ''">
+			and cmcc_prov_id = #{params.cityId}
+		</if>
+		group by yjk_amt_range  order by yjk_trade_amt desc
+	</select>
+	<!-- 各区间赠送 end -->
+	
+	
+	<!-- 用户获赠有价卡金额统计  top10 -->
+	<select id="getYhhzTop10TelCharts" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_trade_amt) as sum_yjk_trade_amt,
+  			sum(yjk_trade_num) as sum_yjk_trade_num,
+			gen_date,aud_trm_begin,aud_trm_end,
+			cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			(CASE WHEN trade_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(trade_msisdn,1,(LENGTH(trade_msisdn)-4)),'****') END)AS trade_msisdn 
+		from 
+		    hpeapb.sum_yjkzsjzd_3002_user
+		where 
+		    1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm_end <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			and cmcc_prov_id = #{cityId}
+		</if>
+		group by trade_msisdn 
+		order by sum_yjk_trade_amt desc 
+		limit 10
+	
+	</select>
+	
+	<!-- 用户获赠明细 -->
+	<select id="getYhhzyjkDetailTable" resultType="Map" parameterType="pager">
+		select 
+			sum(yjk_trade_amt) as yjk_trade_amt,
+  			sum(yjk_trade_num) as yjk_trade_num,
+			gen_date,aud_trm_begin,aud_trm_end,
+			cmcc_prov_prvd_id,
+			<if test="params.cityId == '' ">
+				short_name AS short_name,
+		    </if>
+		    <if test="params.cityId ==null">
+				short_name AS short_name,
+		    </if>
+			<if test="params.cityId != '' and params.cityId !=null  ">
+			 	cmcc_prvd_nm_short  AS short_name,
+		    </if>
+			cmcc_prov_id,
+			(CASE WHEN trade_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(trade_msisdn,1,(LENGTH(trade_msisdn)-4)),'****') END)AS trade_msisdn 
+		from 
+		    hpeapb.sum_yjkzsjzd_3002_user
+		where 
+		    1=1
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm_end <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		<if test="params.cityId != null and params.cityId != ''">
+			and cmcc_prov_id = #{params.cityId}
+		</if>
+		group by trade_msisdn 
+		order by yjk_trade_amt desc 
+	</select>
+	<!-- 用户获赠导出 -->
+	<select id="exportYhhzDetail" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_trade_amt) as yjk_trade_amt,
+  			sum(yjk_trade_num) as yjk_trade_num,
+			gen_date,aud_trm_begin,aud_trm_end,
+			cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			(CASE WHEN trade_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(trade_msisdn,1,(LENGTH(trade_msisdn)-4)),'****') END)AS trade_msisdn
+		from 
+		    hpeapb.sum_yjkzsjzd_3002_user
+		where 
+		    1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm_end <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			and cmcc_prov_id = #{cityId}
+		</if>
+		group by trade_msisdn 
+		order by yjk_trade_amt desc 
+	</select>
+	
+	<!-- 用户获赠  地市 明细 -->
+	<select id="getYhhzyjkCityDetailTable" resultType="Map" parameterType="pager">
+		select 
+			sum(yjk_trade_amt) as yjk_trade_amt,
+  			sum(yjk_trade_num) as yjk_trade_num,
+			gen_date,aud_trm_begin,aud_trm_end,
+			cmcc_prov_prvd_id,cmcc_prov_id,
+			cmcc_prvd_nm_short as short_name,(CASE WHEN trade_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(trade_msisdn,1,(LENGTH(trade_msisdn)-4)),'****') END)AS trade_msisdn
+		from 
+		    hpeapb.sum_yjkzsjzd_3002_user
+		where 
+		    1=1
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm_end <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		<if test="params.cityId != null and params.cityId != ''">
+			and cmcc_prov_id = #{params.cityId}
+		</if>
+		group by trade_msisdn 
+		order by yjk_trade_amt desc 
+	</select>
+	
+	<!-- 用户获赠明细导出  数据表2-->
+	<select id="getYhczDetailTable" resultType="Map" parameterType="pager">
+		select 
+			aud_trm,cmcc_prov_prvd_id,cmcc_prov_id,
+			trade_mon,
+			<if test="params.cityId == '' ">
+				short_name AS short_name,
+		    </if>
+		    <if test="params.cityId ==null">
+				short_name AS short_name,
+		    </if>
+			<if test="params.cityId != '' and params.cityId !=null  ">
+			 	cmcc_prvd_nm_short  AS short_name,
+		    </if>
+			charge_user as charge_msisdn,
+			sum(IFNULL(yjk_num,0)) as yjk_num,
+			sum(IFNULL(yjk_amt,0)) as yjk_amt
+
+		from 
+			hpeapb.sum_zsyjk_msisdn_focus_phone 
+
+		where 1=1 and  (yjk_num>'10' or yjk_amt>'1000')
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		<if test="params.cityId != null and params.cityId != ''">
+			and cmcc_prov_id = #{params.cityId}
+		</if>
+		GROUP BY charge_user ORDER BY aud_trm desc,yjk_amt desc
+	</select>
+	
+	<!-- 用户获赠明细导出  数据表2-->
+	<select id="exportYhczDetail" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+			cmcc_prvd_nm_short,trade_mon,charge_user charge_msisdn,
+			sum(IFNULL(yjk_num,0)) as yjk_num,
+			sum(IFNULL(yjk_amt,0)) as yjk_amt
+
+		from sum_zsyjk_msisdn_focus_phone 
+
+		where 1=1  and  (yjk_num>'10' or yjk_amt>'1000')
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			and cmcc_prov_id = #{cityId}
+		</if>
+		GROUP BY charge_user ORDER BY aud_trm desc,yjk_amt desc  LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	<!-- 明细页面 -->
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+		select 
+			gen_date, 			
+			aud_trm_begin, 		
+			aud_trm_end, 		
+			cmcc_prov_prvd_id,	
+			short_name,			
+			cmcc_prov_id, 		
+			cmcc_prvd_nm_short,	
+			yjk_ser_no, 		
+			countatal,			
+			cardflag, 			
+			tradedate,			
+			tradetype, 			
+			(CASE WHEN trade_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(trade_msisdn,1,(LENGTH(trade_msisdn)-4)),'****') END)AS trade_msisdn,		
+			supplycardkind,		
+			yjk_pres_dt, 		
+			user_id, 			
+			yjk_typ, 			
+			(CASE WHEN pres_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(pres_msisdn,1,(LENGTH(pres_msisdn)-4)),'****') END)AS pres_msisdn,		
+			yjk_offer_cd, 		
+			yjk_offer_nm, 		
+			cor_chnl_typ,		
+			cor_chnl_nm, 		
+			yjk_end_dt		
+		
+		 from hpeapb.det_yjkzsjzd_3002
+		where 1=1 
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin = #{params.mx_startMonth} ]]>
+		</if>
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and aud_trm_end = #{params.mx_endMonth} ]]>
+		</if>
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+			and cmcc_prov_id = #{params.mx_cityCode}
+		</if>
+		order by aud_trm_begin desc,cmcc_prvd_nm_short asc
+	</select>
+	
+	
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+    
+       select 
+       		gen_date, 			
+			aud_trm_begin, 		
+			aud_trm_end, 		
+			cmcc_prov_prvd_id,	
+			short_name,			
+			cmcc_prov_id, 		
+			cmcc_prvd_nm_short,	
+			yjk_ser_no, 		
+			countatal,			
+			cardflag, 			
+			tradedate,			
+			tradetype, 			
+			(CASE WHEN trade_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(trade_msisdn,1,(LENGTH(trade_msisdn)-4)),'****') END)AS trade_msisdn,	
+			supplycardkind,		
+			yjk_pres_dt, 		
+			user_id, 			
+			yjk_typ, 			
+			(CASE WHEN pres_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(pres_msisdn,1,(LENGTH(pres_msisdn)-4)),'****') END)AS pres_msisdn,
+			yjk_offer_cd, 		
+			yjk_offer_nm, 		
+			cor_chnl_typ,		
+			cor_chnl_nm, 		
+			yjk_end_dt	
+        from hpeapb.det_yjkzsjzd_3002
+		where 1=1 
+        
+        <if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and aud_trm_begin = #{mx_startMonth} ]]>
+		</if>
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and aud_trm_end = #{mx_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+			and cmcc_prov_id = #{mx_cityCode}
+		</if>
+    	order by aud_trm_begin desc,cmcc_prvd_nm_short asc LIMIT #{pageStar},#{pageEnd}
+    </select>
+	
+</mapper>

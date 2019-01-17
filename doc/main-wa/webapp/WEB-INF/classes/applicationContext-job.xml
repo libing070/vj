@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	classpath:/org/springframework/beans/factory/xml/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/context
+    classpath:/org/springframework/context/config/spring-context-3.1.xsd 
+    http://www.springframework.org/schema/tx
+    classpath:/org/springframework/transaction/config/spring-tx-3.1.xsd
+    http://www.springframework.org/schema/aop 
+    classpath:/org/springframework/aop/config/spring-aop-3.1.xsd 
+    http://www.springframework.org/schema/mvc
+    classpath:/org/springframework/web/servlet/config/spring-mvc-3.1.xsd"
+	default-autowire="byName" default-lazy-init="false">
+	
+	<bean id="smsJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="smsJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+	
+	<bean id="smsJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="smsJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0 0/1 * * ?</value>
+		</property>
+	</bean>
+
+	<bean id="modelConclusionJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="modelConclusionJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="modelConclusionJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="modelConclusionJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0/5 * * * ?</value>
+		</property>
+	</bean>
+	
+	<bean id="taskCodeJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="modelConclusionJob" />
+		</property>
+		<property name="targetMethod">
+			<value>taskWork</value>
+		</property>
+	</bean>
+
+	<bean id="taskCodeJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="taskCodeJob" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0/2 * * * ?</value>
+		</property>
+	</bean>
+	<!--数据监控概览推送  -->
+	<bean id="monitorViewJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="monitorViewJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="monitorViewJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="monitorViewJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0/1 * * * ?</value>
+		</property>
+	</bean>
+	
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+	<bean id="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!-- 模型结论  和 短信告警-->
+				<!-- <ref local="modelConclusionJobTime" />
+				<ref local="taskCodeJobTime" /> 
+				
+				<ref local="smsJobTime" />   
+				<ref local="monitorViewJobTime" />  -->
+			</list>
+		</property>
+	</bean>
+	
+	
+</beans>

@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="YJK2006">
+	<!-- 获取赠送真实性有价卡信息 -->
+	<select id="getYJKRealInfo" resultType="Map" parameterType="Map">
+	SELECT
+	gen_date,
+	aud_trm,
+	cmcc_prov_prvd_id,
+	short_name,
+	exist_word,
+	ifnull(sum(yjk_num),0) as sum_yjk_num,
+	ifnull(sum(yjk_amt),0) as sum_yjk_amt
+	FROM
+	hpeapb.sum_yjk_2006_02_prvd
+	where 1=1 
+	<if test="hz_startMonth != null and hz_startMonth != ''">
+        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+	</if>
+
+	<if test="hz_endMonth != null and hz_endMonth != ''">
+        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+	</if>
+
+	<if test="provId != null and provId != ''">
+		and cmcc_prov_prvd_id = #{provId}
+	</if>
+	group by exist_word
+	order by exist_word
+	</select>
+	
+	<!-- 获取赠送赠送集中度分析-->
+	<select id="getYJKFocus" resultType="Map" parameterType="Map">
+		SELECT
+		ifnull(sum(case when yjk_amt&lt;10000 then yjk_amt else 0 end),0) as sum_yjk_amt_10000,
+		ifnull(sum(case when yjk_amt&gt;10000 and yjk_amt &lt;=20000 then yjk_amt else 0 end),0) as sum_yjk_amt_20000,
+		ifnull(sum(case when yjk_amt&gt;20000 and yjk_amt &lt;=50000 then yjk_amt else 0 end),0) as sum_yjk_amt_50000,
+		ifnull(sum(case when yjk_amt&gt;50000 and yjk_amt &lt;=100000 then yjk_amt else 0 end),0) as sum_yjk_amt_100000,
+		ifnull(sum(case when yjk_amt&gt;100000  then yjk_amt else 0 end),0) as sum_yjk_amt_other,
+		ifnull(count(yjk_amt &lt;10000 or null),0) as count_yjk_amt_10000,
+		ifnull(count(yjk_amt&gt;10000 and yjk_amt&lt;=20000 or null),0) as count_yjk_amt_20000,
+		ifnull(count(yjk_amt&gt;20000 and yjk_amt&lt;=50000 or null ),0) as count_yjk_amt_50000,
+		ifnull(count(yjk_amt&gt;50000 and yjk_amt&lt;=100000 or null),0) as count_yjk_amt_100000,
+		ifnull(count(yjk_amt&gt;100000 or null),0) as count_yjk_amt_other,
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		msisdn,
+		user_type,
+		org_nm,
+		yjk_num
+		FROM
+		hpeapb.sum_yjk_2006_03_msisdn 
+		
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+	</select>
+	
+	<!--获取赠送赠送集中度分析明细信息  -->
+	<select id="getYJKFocusInfo" resultType="Map" parameterType="pager">
+		SELECT
+			gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			msisdn,
+			user_type,
+			org_nm,
+			yjk_num,
+			yjk_amt
+			FROM
+			hpeapb.sum_yjk_2006_03_msisdn 
+			
+			where 1=1 
+			<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+			</if>
+		
+			<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+			</if>
+		
+			<if test="params.provId != null and params.provId != ''">
+				and cmcc_prov_prvd_id = #{params.provId}
+			</if>
+			order by yjk_amt desc
+	</select>
+	
+	
+	<!--获取赠送赠送集中度分析明细信息  -->
+	<select id="getYJKFocusInfoAll" resultType="Map" parameterType="Map">
+		SELECT
+			gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			msisdn,
+			user_type,
+			org_nm,
+			yjk_num,
+			yjk_amt
+			FROM
+			hpeapb.sum_yjk_2006_03_msisdn 
+			
+			where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+			order by yjk_amt desc
+	</select>
+	
+	<!--获取赠送非中高非集团客户 的有价卡金额-->
+	<select id="getZsfzgfjtCustomerCon" resultType="Map" parameterType="Map">
+			SELECT
+			gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			offer_num,
+			ifnull(sum(yjk_num),0) as sum_yjk_num,
+			yjk_amt,
+			yjk_user,
+			tol_yjk_num,
+			tol_yjk_amt,
+			tol_yjk_user,
+			per_yjk_num,
+			per_yjk_amt,
+			per_yjk_user
+			FROM
+			hpeapb.sum_yjk_2006_04_prvd
+			where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+			group by cmcc_prov_prvd_id
+	</select>
+	
+	<!--获取赠送非中高非集团客户 的有价卡金额-->
+	<select id="getZsfzgfjtCustomer" resultType="Map" parameterType="Map">
+			SELECT
+			gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_offer_cd,
+			yjk_offer_nm,
+			yjk_num,
+			ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+			yjk_user,
+			tol_yjk_num,
+			tol_yjk_amt,
+			tol_yjk_user,
+			per_yjk_num,
+			per_yjk_amt,
+			per_yjk_user
+			FROM
+			hpeapb.sum_yjk_2006_04_offerprvd
+			where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+			group by yjk_offer_cd
+			order by sum_yjk_amt desc 
+			limit 5 
+	</select>
+	
+	<!--获取赠送非中高非集团客户 的有价卡金额-->
+	<select id="getZsfzgfjtCustomerInfo" resultType="Map" parameterType="pager">
+			SELECT
+			gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_offer_cd,
+			yjk_offer_nm,
+			yjk_num,
+			ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+			yjk_user,
+			tol_yjk_num,
+			tol_yjk_amt,
+			tol_yjk_user,
+			per_yjk_num,
+			per_yjk_amt,
+			per_yjk_user
+			FROM
+			hpeapb.sum_yjk_2006_04_offerprvd
+			where 1=1 
+			<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+			</if>
+		
+			<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+			</if>
+		
+			<if test="params.provId != null and params.provId != ''">
+				and cmcc_prov_prvd_id = #{params.provId}
+			</if>
+			group by yjk_offer_cd
+			order by sum_yjk_amt desc 
+	</select>
+	
+	<!--获取赠送非中高非集团客户 的有价卡金额-->
+	<select id="getZsfzgfjtCustomerExport" resultType="Map" parameterType="Map">
+			SELECT
+			gen_date,
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_offer_cd,
+			yjk_offer_nm,
+			yjk_num,
+			ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+			yjk_user,
+			tol_yjk_num,
+			tol_yjk_amt,
+			tol_yjk_user,
+			per_yjk_num,
+			per_yjk_amt,
+			per_yjk_user
+			FROM
+			hpeapb.sum_yjk_2006_04_offerprvd
+			where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+			group by yjk_offer_cd
+			order by sum_yjk_amt desc 
+	</select>
+	
+	<!-- 获取赠送用途汇总 -->
+	<select id="getSumPurpose" resultType="Map" parameterType="Map">
+		SELECT
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		yjk_offer_cd,
+		yjk_offer_nm,
+		ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+		yjk_purpose
+		FROM
+		sum_yjk_2006_05_offerprvd
+
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+		group by yjk_purpose
+	
+	</select>
+	
+	<!-- 获取赠送员工分析-->
+	<select id="getSumStaff" resultType="Map" parameterType="Map">
+		SELECT
+		ifnull(sum(case when yjk_amt&lt;10000 then yjk_amt else 0 end),0) as sum_yjk_amt_10000,
+		ifnull(sum(case when yjk_amt&gt;10000 and yjk_amt &lt;=20000 then yjk_amt else 0 end),0) as sum_yjk_amt_20000,
+		ifnull(sum(case when yjk_amt&gt;20000 and yjk_amt &lt;=50000 then yjk_amt else 0 end),0) as sum_yjk_amt_50000,
+		ifnull(sum(case when yjk_amt&gt;50000 and yjk_amt &lt;=100000 then yjk_amt else 0 end),0) as sum_yjk_amt_100000,
+		ifnull(sum(case when yjk_amt&gt;100000  then yjk_amt else 0 end),0) as sum_yjk_amt_other,
+		ifnull(count(yjk_amt &lt;10000 or null),0) as count_yjk_amt_10000,
+		ifnull(count(yjk_amt&gt;10000 and yjk_amt&lt;=20000 or null),0) as count_yjk_amt_20000,
+		ifnull(count(yjk_amt&gt;20000 and yjk_amt&lt;=50000 or null ),0) as count_yjk_amt_50000,
+		ifnull(count(yjk_amt&gt;50000 and yjk_amt&lt;=100000 or null),0) as count_yjk_amt_100000,
+		ifnull(count(yjk_amt&gt;100000 or null),0) as count_yjk_amt_other
+	
+		FROM
+		hpeapb.sum_yjk_2006_06_emp 
+		
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+	</select>
+	
+	<!-- 获取赠送员工信息 -->
+	<select id="getStaffInfo" resultType="Map" parameterType="pager">
+		SELECT
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		user_id,
+		cust_id,
+		msisdn,
+		yjk_num,
+		ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+		emp_name,
+		emp_id,
+		emp_gender,
+		emp_typ,
+		emp_dept,
+		emp_post,
+		emp_stat,
+		emp_leave_dt
+		FROM
+		hpeapb.sum_yjk_2006_06_emp
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+			</if>
+		
+			<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+			</if>
+		
+			<if test="params.provId != null and params.provId != ''">
+				and cmcc_prov_prvd_id = #{params.provId}
+			</if>
+		GROUP BY emp_id
+		order by sum_yjk_amt desc 
+	</select>
+	
+	<!-- 导出赠送员工信息 -->
+	<select id="getStaffInfoAll" resultType="Map" parameterType="Map">
+		SELECT
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		user_id,
+		cust_id,
+		msisdn,
+		yjk_num,
+		ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+		emp_name,
+		emp_id,
+		emp_gender,
+		emp_typ,
+		emp_dept,
+		emp_post,
+		emp_stat,
+		emp_leave_dt
+		FROM
+		hpeapb.sum_yjk_2006_06_emp
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+		GROUP BY emp_id
+		order by sum_yjk_amt desc 
+	</select>
+	
+	<!-- 赠送金额汇总分析 -->
+	<select id="getSumMoney" resultType="Map" parameterType="Map">
+		SELECT
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		ifnull(sum(yjk_num),0) as sum_yjk_num,
+		ifnull(sum(yjk_amt),0) as sum_yjk_amt,
+		yjk_user
+		FROM
+		hpeapb.sum_yjk_2006_01_prvd 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+		GROUP BY cmcc_prov_prvd_id
+		order by sum_yjk_amt desc 
+	</select>
+	
+	
+	<!-- 获取ods小于201406月份的赠送金额汇总分析 -->
+	<select id="getSumOdsMoneyMin" resultType="Map" parameterType="Map">
+			SELECT
+			KJQJ,
+			prov_code,
+			QYDM,
+			QYMC,
+			ifnull(sum(yjk_51142723_sum),0) as yjk_51142723_sum,
+			ifnull(sum(yjk_51142724_sum),0) as yjk_51142724_sum,
+			ifnull(sum(yjk_51142730_sum),0) as yjk_51142730_sum,
+			ifnull(sum(yjk_51142731_sum),0) as yjk_51142731_sum
+			FROM
+			ods_yjk_cw_sum
+			where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	       	 	<![CDATA[ and KJQJ >= #{hz_startMonth} ]]>
+			</if>
+		
+		    <![CDATA[ and KJQJ < '201406' ]]>
+		
+			<if test="provId != null and provId != ''">
+				and prov_code = #{provId}
+			</if>
+		GROUP BY prov_code
+	</select>
+	
+	
+	<!-- 获取ods大于等于201406月份的赠送金额汇总分析 -->
+	<select id="getSumOdsMoneyMax" resultType="Map" parameterType="Map">
+			SELECT
+			KJQJ,
+			prov_code,
+			QYDM,
+			QYMC,
+			ifnull(sum(yjk_51142723_sum),0) as yjk_51142723_sum,
+			ifnull(sum(yjk_51142724_sum),0) as yjk_51142724_sum,
+			ifnull(sum(yjk_51142730_sum),0) as yjk_51142730_sum,
+			ifnull(sum(yjk_51142731_sum),0) as yjk_51142731_sum
+			FROM
+			ods_yjk_cw_sum
+			where 1=1 
+	       	<![CDATA[ and KJQJ >= '201406' ]]>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and KJQJ <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and prov_code = #{provId}
+			</if>
+		GROUP BY prov_code
+	</select>
+	
+	<!-- 获取大明细列表信息 -->
+	<select id="getFzgFjtDetail" resultType="Map" parameterType="pager">
+		SELECT
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		yjk_ser_no,
+		yjk_pres_dt,
+		yjk_typ,
+		yjk_amt,
+		yjk_end_dt,
+		user_id,
+		cust_id,
+		msisdn,
+		send_mon_arpu,
+		send_lastm_arpu,
+		send_last2m_arpu,
+		send_avg_arpu,
+		yjk_dependency,
+		yjk_offer_cd,
+		yjk_offer_nm,
+		offer_word,
+		cor_chnl_typ,
+		cor_chnl_nm
+		FROM
+		hpeapb.det_yjk_2006_04
+		where 1=1 
+			<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+			</if>
+		
+			<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+			</if>
+		
+			<if test="params.provId != null and params.provId != ''">
+				and cmcc_prov_prvd_id = #{params.provId}
+			</if>
+			<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+				and cmcc_prov_id = #{params.mx_cityCode}
+			</if>
+			
+			order by aud_trm 
+	</select>
+	<!-- 获取大明细列表信息 -->
+	<select id="getFzgFjtDetailAll" resultType="Map" parameterType="Map">
+		SELECT
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		yjk_ser_no,
+		yjk_pres_dt,
+		yjk_typ,
+		yjk_amt,
+		yjk_end_dt,
+		user_id,
+		cust_id,
+		msisdn,
+		send_mon_arpu,
+		send_lastm_arpu,
+		send_last2m_arpu,
+		send_avg_arpu,
+		yjk_dependency,
+		yjk_offer_cd,
+		yjk_offer_nm,
+		offer_word,
+		cor_chnl_typ,
+		cor_chnl_nm
+		FROM
+		hpeapb.det_yjk_2006_04
+		where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	       	 	<![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				and cmcc_prov_prvd_id = #{provId}
+			</if>
+			<if test="mx_cityCode != null and mx_cityCode != ''">
+				and cmcc_prov_id = #{mx_cityCode}
+			</if>
+			order by aud_trm 
+	</select>
+</mapper>
+

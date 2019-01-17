@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="grkhcqqfwtj">
+
+	<!-- chart -->
+	<select id="getGrkhcqqfwtjChart" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,IFNULL(sum(acct_cnt),0) as acct_cnt
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_prvd  
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+		GROUP BY aud_trm 
+		ORDER BY aud_trm asc
+	</select>
+	<!-- avg -->
+	<select id="getGrkhcqqfwtjAVGNum" resultType="Map" parameterType="Map">
+		select 
+			IFNULL(AVG(acct_cnt),0) as avg_acc_cnt
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_prvd  
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+	</select>
+	<!-- max -->
+	<select id="getGrkhcqqfwtjMAXNum" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,acct_cnt as max_acc_cnt 
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_prvd  
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+		ORDER BY acct_cnt desc limit 1
+	</select>
+	
+	<!-- 数据表1 -->
+	<select id="loadCqqfwtjzhs_sf_TabDetailTable" resultType="Map" parameterType="pager">
+
+	    select 
+	   		CONCAT(#{params.hz_startMonth},"-",#{params.hz_endMonth}) as aud_trm,
+	   		t1.short_name as short_name,sum(t1.dbt_amt) as sum_dbt_amt,
+	   		count(distinct t1.acct_id) as count_acct_id
+	    from 
+	   		hpeapb.sox_sum_cqqfwtj_1301_acct t1
+	    inner join
+		(select 
+			 acct_id,max(aud_trm) max_mon
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_acct
+		where 1=1 
+			and	cmcc_prov_prvd_id=#{params.provId} 
+			and aud_trm between #{params.hz_startMonth} and #{params.hz_endMonth}
+		group by 1) t2
+		on t1.acct_id=t2.acct_id
+		and t1.aud_trm=t2.max_mon
+		
+	</select>
+	
+	<!-- 数据表1 导出-->
+	<select id="exportCqqfwtjzhs_sf_Detail" resultType="Map" parameterType="Map">
+
+	    select 
+	   		CONCAT(#{hz_startMonth},"-",#{hz_endMonth}) as aud_trm,cmcc_prov_prvd_id,
+	   		t1.short_name as short_name,sum(t1.dbt_amt) as sum_dbt_amt,
+	   		count(distinct t1.acct_id) as count_acct_id
+	    from 
+	   		hpeapb.sox_sum_cqqfwtj_1301_acct t1
+	    inner join
+		(select 
+			 acct_id,max(aud_trm) max_mon
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_acct
+		where 1=1 
+			and	cmcc_prov_prvd_id=#{provId} 
+			and aud_trm between #{hz_startMonth} and #{hz_endMonth}
+		group by 1) t2
+		on t1.acct_id=t2.acct_id
+		and t1.aud_trm=t2.max_mon
+		
+	</select>
+	
+	<!-- 数据表2 -->
+	<select id="loadCqqfwtjzhs_zh_TabDetailTable" resultType="Map" parameterType="pager">
+		select 
+			aud_trm,short_name,
+			acct_id,cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			subs_id,cust_id,acct_prd_cnt,dbt_amt
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_acct
+		where 1=1 
+			and	cmcc_prov_prvd_id=#{params.provId} 
+			and aud_trm between #{params.hz_startMonth} and #{params.hz_endMonth}
+		GROUP BY aud_trm,acct_id,msisdn 
+		ORDER BY aud_trm desc,acct_id, acct_prd_cnt
+	</select>
+	
+	<!-- 数据表2  导出-->
+	<select id="exportCqqfwtjzhs_zh_Detail" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,short_name,
+			acct_id,cmcc_prov_prvd_id,cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			subs_id,cust_id,acct_prd_cnt,dbt_amt
+		from 
+			hpeapb.sox_sum_cqqfwtj_1301_acct
+		where 1=1 
+			and	cmcc_prov_prvd_id=#{provId} 
+			and aud_trm between #{hz_startMonth} and #{hz_endMonth}
+		GROUP BY aud_trm,acct_id,msisdn 
+		ORDER BY aud_trm desc,acct_id, acct_prd_cnt LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	<!-- 明细数据表 -->
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="map">
+		select 
+			aud_trm, 					
+			cmcc_prov_prvd_id, 			
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,					
+			acct_id, 					
+			subs_id, 					
+			cust_id,					
+			compt_accts_subj_nm, 		
+			acct_prd_ytm, 				
+			dbt_amt
+		from 
+			hpeapb.sox_det_cqqfwtj_1301_debt
+		where 1=1 
+			<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        		<![CDATA[ and aud_trm >= #{params.mx_startMonth} ]]>
+			</if>
+	
+			<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+		        	<![CDATA[ and aud_trm <= #{params.mx_endMonth} ]]>
+			</if>
+			<if test="params.provId != null and params.provId != ''">
+				 	<![CDATA[ and cmcc_prov_prvd_id = #{params.provId} ]]>
+			</if>
+		ORDER BY aud_trm desc,acct_id ,acct_prd_ytm   
+	</select>
+	
+	<!-- 明细数据表  导出-->
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+		select 
+			aud_trm, 					
+			cmcc_prov_prvd_id, 			
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,					
+			acct_id, 					
+			subs_id, 					
+			cust_id,					
+			compt_accts_subj_nm, 		
+			acct_prd_ytm, 				
+			dbt_amt
+		from 
+			hpeapb.sox_det_cqqfwtj_1301_debt
+		where 1=1 
+			<if test="mx_startMonth != null and mx_startMonth != ''">
+	        		<![CDATA[ and aud_trm >= #{mx_startMonth} ]]>
+			</if>
+	
+			<if test="mx_endMonth != null and mx_endMonth != ''">
+		        	<![CDATA[ and aud_trm <= #{mx_endMonth} ]]>
+			</if>
+			<if test="provId != null and provId != ''">
+				 	<![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+			</if>
+		ORDER BY aud_trm desc,acct_id ,acct_prd_ytm   LIMIT #{pageStar},#{pageEnd}
+	</select>
+
+</mapper>

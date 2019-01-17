@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="cjydjssjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(yc_imei_num) AS yc_imei_num
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and yc_imei_num != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(yc_imei_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(yc_imei_num) AS yc_imei_num
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(yc_imei_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(yc_imei_num) AS yc_imei_num
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			Aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			subs_num,
+			yc_imei_num,
+			per_imei*100 as per_imei,
+			yc_amt
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,yc_imei_num desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			Aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			subs_num,
+			yc_imei_num,
+			per_imei*100 as per_imei,
+			yc_amt
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,yc_imei_num desc,cmcc_prov_prvd_id
+	</select>
+</mapper>
+

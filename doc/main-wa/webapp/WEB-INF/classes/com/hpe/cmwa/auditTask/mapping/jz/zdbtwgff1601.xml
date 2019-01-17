@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="zdbtwgff1601Mapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="hz_qgpm_tongji_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		SUM(TOL_ALLOW_COST) AS tolAllowCost,
+		SUM(TRMNL_NUM)AS trmnlNum,
+		SUM(TEL_NUM) AS telNum,
+		SUM(CARD_NUM) AS cardNum
+		FROM hpeapb.sum_zdbt_1601_prvd
+		WHERE CARD_NUM>0
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PROV_PRVD_ID
+		ORDER BY SUM(TOL_ALLOW_COST) DESC ,CMCC_PROV_PRVD_ID DESC
+	</select>
+	<select id="hz_qgpm_tongji_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		SUM(TOL_ALLOW_COST) AS tolAllowCost,
+		SUM(TRMNL_NUM)AS trmnlNum,
+		SUM(TEL_NUM) AS telNum,
+		SUM(CARD_NUM) AS cardNum
+		FROM hpeapb.sum_zdbt_1601_prvd
+		WHERE CARD_NUM>0
+		AND AUD_TRM BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		GROUP BY CMCC_PROV_PRVD_ID
+		ORDER BY SUM(TOL_ALLOW_COST) DESC ,CMCC_PROV_PRVD_ID DESC
+	</select>
+	
+	<select id="getThreeChnlNm" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		CHNL_NM AS chnlNm	
+		FROM hpeapb.sum_zdbt_1601_chnl
+		WHERE TRMNL_NUM>0
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CHNL_ID
+		ORDER BY SUM(TOL_ALLOW_COST) DESC LIMIT 3
+	</select>
+	
+	<select id="getCityThreeChnlNm" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		CHNL_NM AS chnlNm,
+		SUM(TRMNL_NUM) AS trmnlNum,
+		ifnull(SUM(TOL_ALLOW_COST),0) AS tolAllowCost
+		FROM hpeapb.sum_zdbt_1601_chnl
+		WHERE TRMNL_NUM>0
+		AND CMCC_PROV_ID = #{cmccProvId} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CHNL_ID
+		ORDER BY SUM(TOL_ALLOW_COST) DESC LIMIT 3
+	</select>
+	
+	<select id="hz_dqfb_sjb_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(TOL_ALLOW_COST) AS tolAllowCost,
+		SUM(TRMNL_NUM) AS trmnlNum
+		FROM hpeapb.sum_zdbt_1601_cty
+		WHERE TRMNL_NUM>0
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		GROUP BY CMCC_PROV_ID
+		ORDER BY tolAllowCost DESC
+	</select>
+	
+	<select id="hz_dqfb_sjb_export" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(TOL_ALLOW_COST) AS tolAllowCost,
+		SUM(TRMNL_NUM) AS trmnlNum
+		FROM hpeapb.sum_zdbt_1601_cty
+		WHERE TRMNL_NUM>0
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PROV_ID
+		ORDER BY AUD_TRM DESC ,TOL_ALLOW_COST DESC
+	</select>
+	
+	<select id="hz_dqfb_tongji_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(TOL_ALLOW_COST) AS tolAllowCost,
+		SUM(TRMNL_NUM) AS trmnlNum
+		FROM hpeapb.sum_zdbt_1601_cty
+		WHERE TRMNL_NUM>0
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PROV_ID
+		ORDER BY SUM(TOL_ALLOW_COST) DESC
+	</select>
+	
+	<select id="mx_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		AUD_TRM AS audTrm,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		CHNL_ID AS chnlId,
+		CHNL_NM AS chnlNm,
+		USER_ID AS userId,
+		IMEI AS IMEI,
+		SELL_DAT AS sellDat,
+		ACTL_SHOP_AMT AS actlShopAMT,
+		ACUM_EXCH_VAL AS acumExchVal,
+		USD_ACUM_EXCH_AMT AS usdAcumExchAmt,
+		SHOP_COST AS shopCost,
+		UNLOCKED_RETL_PRC AS unlockedRetlPrc,
+		TRMNL_ALLOW_COST AS trnmlAllowCost,
+		FEE_ALLOW_COST AS feeAllowCost,
+		CUST_PPAY_FEE AS custPpayFee,
+		CUST_ACTL_FEE_SUM AS custActlFeeSum,
+		CUST_PRMS_MON_LEAST_CONSM AS custPrmsMonLeastConsm,
+		CUST_BND_CONTRT_TYP AS CustBndContrtTyp,
+		PROD_TYP_NM AS prodTypNm,
+		TRMNL_FORM AS trmnlForm,
+		TRMNL_BRAND AS trmnlBrand,
+		BRAND_ID AS brandId,
+		TRMNL_STYLE AS irmnlStyle,
+		TRMNL_EQPMT_ID AS trmnlEqpmt		
+		FROM hpeapb.det_zdbt_1601
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM BETWEEN #{params.currDetBeginDate} AND #{params.currDetEndDate}
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		    	AND CMCC_PROV_ID = #{params.currCityType} 
+	    </if>
+	    <if test="params.currTrmnlForm != '' and params.currTrmnlForm !=null  ">
+		    	AND TRMNL_FORM = #{params.currTrmnlForm} 
+	    </if>
+	    order by AUD_TRM desc,CMCC_PROV_ID
+	</select>
+	
+	<select id="mx_export_btn" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID as cmccProvPrvdId,
+		SHORT_NAME as shortName,
+		CMCC_PROV_ID AS cmccPrvdId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		CHNL_ID AS chnlId,
+		CHNL_NM AS chnlNm,
+		USER_ID AS userId,
+		IMEI AS IMEI,
+		SELL_DAT AS sellDat,
+		ACTL_SHOP_AMT AS actlShopAMT,
+		ACUM_EXCH_VAL AS acumExchVal,
+		USD_ACUM_EXCH_AMT AS usdAcumExchAmt,
+		SHOP_COST AS shopCost,
+		UNLOCKED_RETL_PRC AS unlockedRetlPrc,
+		TRMNL_ALLOW_COST AS trnmlAllowCost,
+		FEE_ALLOW_COST AS feeAllowCost,
+		CUST_PPAY_FEE AS custPpayFee,
+		CUST_ACTL_FEE_SUM AS custActlFeeSum,
+		CUST_PRMS_MON_LEAST_CONSM AS custPrmsMonLeastConsm,
+		CUST_BND_CONTRT_TYP AS custBndContrtTyp,
+		PROD_TYP_NM AS prodTypNm,
+		TRMNL_FORM AS trmnlForm,
+		TRMNL_BRAND AS trmnlBrand,
+		BRAND_ID AS brandId,
+		TRMNL_STYLE AS irmnlStyle,
+		TRMNL_EQPMT_ID AS trmnlEqpmt
+		FROM hpeapb.det_zdbt_1601
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currDetBeginDate} AND #{currDetEndDate}
+		<if test="currCityType != '' and currCityType !=null  ">
+		    	AND CMCC_PROV_ID = #{currCityType} 
+	    </if>
+		<if test="currTrmnlForm != '' and currTrmnlForm !=null  ">
+		    	AND TRMNL_FORM = #{currTrmnlForm} 
+	    </if>
+	    order by AUD_TRM desc,CMCC_PROV_ID
+	    LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

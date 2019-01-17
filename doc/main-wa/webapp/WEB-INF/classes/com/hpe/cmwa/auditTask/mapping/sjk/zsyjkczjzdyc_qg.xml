@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zsyjkczjzdyc_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+	
+		select * from (
+			select 
+					short_name,cmcc_prov_prvd_id,
+					SUM(	
+						 (CASE WHEN yjk_amt_range_id&lt;'4' THEN yjk_trade_user_num*0  
+							ELSE yjk_trade_user_num
+							end)
+							)as sum_yjk_trade_user_num
+				from 
+					hpeapb.sum_yjkzsjzd_3002_prvd_range 
+				where 
+					aud_trm_end =#{currSumEndDate}
+				group by cmcc_prov_prvd_id
+				order by cmcc_prov_prvd_id) as t
+		where 1=1  group by t.cmcc_prov_prvd_id 
+		order by t.sum_yjk_trade_user_num desc,t.cmcc_prov_prvd_id
+		
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select * from (
+			select 
+					sum(yjk_trade_user_num) as sum_yjk_trade_user_num,short_name,
+					cmcc_prov_prvd_id
+				from 
+					hpeapb.sum_yjkzsjzd_3002_prvd_range 
+				where 
+					aud_trm_end =#{currSumEndDate} 
+				and yjk_amt_range_id>=4 
+				group by cmcc_prov_prvd_id 
+				order by yjk_trade_user_num desc,cmcc_prov_prvd_id) as t
+		where 1=1 and t.sum_yjk_trade_user_num!=0 group by t.cmcc_prov_prvd_id 
+		order by t.sum_yjk_trade_user_num desc,t.cmcc_prov_prvd_id
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_trade_user_num) as sum_yjk_trade_user_num,aud_trm_end
+		from 
+				hpeapb.sum_yjkzsjzd_3002_prvd_range
+		where 1=1 
+		and aud_trm_end =#{currSumEndDate}
+		and yjk_amt_range_id>=4 
+		group by aud_trm_end 
+		order by aud_trm_end asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm_begin,
+			aud_trm_end,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_amt_range_id,
+			yjk_amt_range,
+			yjk_trade_user_num,
+			yjk_trade_num,
+			yjk_trade_amt
+ 		from 
+ 			hpeapb.sum_yjkzsjzd_3002_prvd_range 
+		where 
+			aud_trm_begin =#{params.currSumBeginDate} and aud_trm_end =#{params.currSumEndDate} 
+		order by cmcc_prov_prvd_id, yjk_amt_range_id desc
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm_begin,
+			aud_trm_end,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_amt_range_id,
+			yjk_amt_range,
+			yjk_trade_user_num,
+			yjk_trade_num,
+			yjk_trade_amt
+ 		from 
+ 			hpeapb.sum_yjkzsjzd_3002_prvd_range 
+		where 
+			aud_trm_begin =#{currSumBeginDate} and aud_trm_end =#{currSumEndDate} 
+		order by cmcc_prov_prvd_id, yjk_amt_range_id desc  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

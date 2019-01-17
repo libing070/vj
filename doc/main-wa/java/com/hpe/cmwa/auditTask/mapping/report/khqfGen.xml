@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="khqfGenMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+<!--违规将测试号维护成免催免停 begin  -->
+	<select id="select_totalInfo01" resultType="Map" parameterType="Map">
+		select format(COUNT(DISTINCT cmcc_prov_prvd_id),0) as prov_num,
+				format(sum(wg_subs_num),0) as wg_num,
+				format(sum(wg_dbt_amt),2) as wg_amt
+		from hpeapb.dm_sum_khqf_1001_prvd
+		where aud_trm = #{audTrm}
+		<if test="provinceCode!=10000">
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	
+	<select id="select_khqf11_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(wg_subs_num,0) as wgSubsNum,
+				format(test_subs_num,0) as testSubsNum,
+				format(per_wg_subs*100,2) as perWgSubs,
+				format(wg_dbt_amt,2) as wgDbtAmt
+			FROM
+				hpeapb.dm_sum_khqf_1001_prvd
+			where aud_trm = #{audTrm}
+			order by wg_subs_num desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				format(wg_subs_num,0) as wgSubsNum,
+				format(test_subs_num,0) as testSubsNum,
+				format(per_wg_subs*100,2) as perWgSubs,
+				format(wg_dbt_amt,2) as wgDbtAmt
+			FROM
+				hpeapb.dm_sum_khqf_1001_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by wg_subs_num desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+	</select>
+	
+	<select id="select_khqf12_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(wg_subs_num,0) as wgSubsNum,
+				format(test_subs_num,0) as testSubsNum,
+				format(per_wg_subs*100,2) as perWgSubs,
+				format(wg_dbt_amt,2) as wgDbtAmt
+			FROM
+				hpeapb.dm_sum_khqf_1001_prvd
+			where aud_trm = #{audTrm}
+			order by wg_dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				format(wg_subs_num,0) as wgSubsNum,
+				format(test_subs_num,0) as testSubsNum,
+				format(per_wg_subs*100,2) as perWgSubs,
+				format(wg_dbt_amt,2) as wgDbtAmt
+			FROM
+				hpeapb.dm_sum_khqf_1001_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by wg_dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!--违规将测试号维护成免催免停 end  -->
+	
+	<!-- （二）免催免停用户占比 begin -->
+	<select id="select_totalInfo02" resultType="Map" parameterType="Map">
+		
+		<if test="provinceCode==10000">
+			select 
+			format(sum(mcmt_subs_num),0) as wg_num,
+			format(sum(mcmt_subs_num)/(case when sum(online_subs_num) !=0 then sum(online_subs_num) else 1 end)*100,2) as wg_num_per,
+			format(sum(mcmt_dbt_amt),2) as wg_amt,
+			format(sum(mcmt_dbt_amt)/(case when sum(tol_dbt_amt) !=0 then sum(tol_dbt_amt) else 1 end)*100,2) as wg_amt_per
+			from hpeapb.dm_sum_khqf_1002_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+				format(mcmt_subs_num,0) as wg_num,
+				format(mcmt_subs_num_per*100,2) as wg_num_per,
+				format(mcmt_dbt_amt,2) as wg_amt,
+				format(mcmt_dbt_amt_per*100,2) as wg_amt_per
+				from hpeapb.dm_sum_khqf_1002_prvd 
+				where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_khqf21_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(mcmt_subs_num,0) as mcmtSubsNum,
+				format(mcmt_subs_num_per*100,2) as mcmtSubsNumPer,
+				format(mcmt_dbt_amt,2) as mcmtDbtAmt,
+				format(mcmt_dbt_amt_per*100,2) as mcmtDbtAmtPer
+			FROM
+				hpeapb.dm_sum_khqf_1002_prvd
+			where aud_trm = #{audTrm}
+			order by mcmt_subs_num_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				format(mcmt_subs_num,0) as mcmtSubsNum,
+				format(mcmt_subs_num_per*100,2) as mcmtSubsNumPer,
+				format(mcmt_dbt_amt,2) as mcmtDbtAmt,
+				format(mcmt_dbt_amt_per*100,2) as mcmtDbtAmtPer
+			FROM
+				hpeapb.dm_sum_khqf_1002_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by mcmt_subs_num_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+	</select>
+	<select id="select_khqf22_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(mcmt_subs_num,0) as mcmtSubsNum,
+				format(mcmt_subs_num_per*100,2) as mcmtSubsNumPer,
+				format(mcmt_dbt_amt,2) as mcmtDbtAmt,
+				format(mcmt_dbt_amt_per*100,2) as mcmtDbtAmtPer
+			FROM
+				hpeapb.dm_sum_khqf_1002_prvd
+			where aud_trm = #{audTrm}
+			order by mcmt_dbt_amt_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				format(mcmt_subs_num,0) as mcmtSubsNum,
+				format(mcmt_subs_num_per*100,2) as mcmtSubsNumPer,
+				format(mcmt_dbt_amt,2) as mcmtDbtAmt,
+				format(mcmt_dbt_amt_per*100,2) as mcmtDbtAmtPer
+			FROM
+				hpeapb.dm_sum_khqf_1002_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by mcmt_dbt_amt_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- （二）免催免停用户占比 end -->
+	
+	<!-- 长期高额欠费集团客户订购新业务  begin-->
+	<select id="select_totalInfo03" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(wg_cust_num),0) as wg_cust_num,
+			format(sum(wg_busi_num),0) as wg_busi_num
+			from hpeapb.dm_sum_khqf_1003_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(wg_cust_num,0) as wg_cust_num,
+			format(wg_busi_num,0) as wg_busi_num
+			from hpeapb.dm_sum_khqf_1003_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_khqf31_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(wg_cust_num,0) as wgCustNum,
+				format(wg_busi_num,0) as wgBusiNum
+			FROM
+				hpeapb.dm_sum_khqf_1003_prvd
+			where aud_trm = #{audTrm}
+			order by wg_cust_num desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(wg_cust_num,0) as wgCustNum,
+				format(wg_busi_num,0) as wgBusiNum
+			FROM
+				hpeapb.dm_sum_khqf_1003_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by wg_cust_num desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 长期高额欠费集团客户订购新业务  end-->
+	<select id="select_totalInfo04" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select format(sum(ent_subs_num),0) as ent_subs_num,
+					format(sum(qf_subs_num),0) as qf_subs_num,
+					format(sum(qf_dbt_amt),2) as qf_dbt_amt,
+					format(sum(low_chnl_num),0) as low_chnl_num,
+					format(sum(low_chnl_num)/(case when sum(ent_chnl_num) !=0 then sum(ent_chnl_num) else 1 end)*100,2) as low_chnl_num_per
+			from hpeapb.dm_sum_khqf_1004_prvd
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+					format(ent_subs_num,0) as ent_subs_num,
+					format(qf_subs_num,0) as qf_subs_num,
+					format(qf_dbt_amt,2) as qf_dbt_amt,
+					format(low_chnl_num,0) as low_chnl_num,
+					format(low_chnl_num_per*100,2) as low_chnl_num_per
+			from hpeapb.dm_sum_khqf_1004_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode}  
+		</if>
+	</select>
+	<select id="select_khqf41_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(ent_subs_num,0) as entSubsNum,
+				format(qf_subs_num,0) as qfSubsNum,
+				format(qf_subs_per*100,2) as qfSubsPer,
+				format(qf_dbt_amt/10000,2) as qfDbtAmt,
+				format(ent_chnl_num,0) as entChnlNum,
+				format(low_chnl_num,0) as lowChnlNum,
+				format(low_chnl_num_per*100,2) as lowChnlNumPer
+			FROM
+				hpeapb.dm_sum_khqf_1004_prvd
+			where aud_trm = #{audTrm}
+			order by qf_subs_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(ent_subs_num,0) as entSubsNum,
+				format(qf_subs_num,0) as qfSubsNum,
+				format(qf_subs_per*100,2) as qfSubsPer,
+				format(qf_dbt_amt/10000,2) as qfDbtAmt,
+				format(ent_chnl_num,0) as entChnlNum,
+				format(low_chnl_num,0) as lowChnlNum,
+				format(low_chnl_num_per*100,2) as lowChnlNumPer
+			FROM
+				hpeapb.dm_sum_khqf_1004_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by qf_subs_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<select id="select_khqf42_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(ent_subs_num,0) as entSubsNum,
+				format(qf_subs_num,0) as qfSubsNum,
+				format(qf_subs_per*100,2) as qfSubsPer,
+				format(qf_dbt_amt/10000,2) as qfDbtAmt,
+				format(ent_chnl_num,0) as entChnlNum,
+				format(low_chnl_num,0) as lowChnlNum,
+				format(low_chnl_num_per*100,2) as lowChnlNumPer
+
+			FROM
+				hpeapb.dm_sum_khqf_1004_prvd
+			where aud_trm = #{audTrm}
+			order by low_chnl_num_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(ent_subs_num,0) as entSubsNum,
+				format(qf_subs_num,0) as qfSubsNum,
+				format(qf_subs_per*100,2) as qfSubsPer,
+				format(qf_dbt_amt/10000,2) as qfDbtAmt,
+				format(ent_chnl_num,0) as entChnlNum,
+				format(low_chnl_num,0) as lowChnlNum,
+				format(low_chnl_num_per*100,2) as lowChnlNumPer
+			FROM
+				hpeapb.dm_sum_khqf_1004_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by low_chnl_num_per desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<select id="select_totalInfo05" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(ent_subs_num),0) as wg_num,
+			format(sum(test_dbt_amt),2) as wg_amt
+			from hpeapb.dm_sum_khqf_1005_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(ent_subs_num,0) as wg_num,
+			format(test_dbt_amt,2) as wg_amt
+			from hpeapb.dm_sum_khqf_1005_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_khqf51_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(ent_subs_num,0) as entSubsNum,
+				format(test_dbt_amt,2) as testDbtAmt,
+				format(tol_dbt_amt,2) as tolDbtAmt,
+				format(per_test_amt*100,2) as perTestAmt
+			FROM
+				hpeapb.dm_sum_khqf_1005_prvd
+			where aud_trm = #{audTrm}
+			order by test_dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(ent_subs_num,0) as entSubsNum,
+				format(test_dbt_amt,2) as testDbtAmt,
+				format(tol_dbt_amt,2) as tolDbtAmt,
+				format(per_test_amt*100,2) as perTestAmt
+			FROM
+				hpeapb.dm_sum_khqf_1005_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by test_dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 未对已长期欠费的集团产品进行暂停或注销  begin-->
+	<select id="select_totalInfo06" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(cust_num),0) as wg_num,
+			format(sum(busn_dbt_amt),2) as wg_amt
+			from hpeapb.dm_sum_khqf_1006_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(cust_num,0) as wg_num,
+			format(busn_dbt_amt,2) as wg_amt
+			from hpeapb.dm_sum_khqf_1006_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_khqf61_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(cust_num,0) as custNum,
+				format(busn_dbt_amt,2) as busnDbtAmt,
+				format(tol_dbt_amt,2) as tolDbtAmt,
+				format(per_busn_amt*100,2) as perBusnAmt
+			FROM
+				hpeapb.dm_sum_khqf_1006_prvd
+			where aud_trm = #{audTrm}
+			order by busn_dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(cust_num,0) as custNum,
+				format(busn_dbt_amt,2) as busnDbtAmt,
+				format(tol_dbt_amt,2) as tolDbtAmt,
+				format(per_busn_amt*100,2) as perBusnAmt
+			FROM
+				hpeapb.dm_sum_khqf_1006_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by busn_dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<select id="select_khqf62_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				org_busn_typ_nm as orgBusnTypNm,
+				format(cust_num,0) as custNum,
+				format(dbt_amt,2) as dbtAmt
+			FROM
+				hpeapb.dm_sum_khqf_1006_busn_prvd
+			where aud_trm = #{audTrm}
+			order by dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				org_busn_typ_nm as orgBusnTypNm,
+				format(cust_num,0) as custNum,
+				format(dbt_amt,2) as dbtAmt
+			FROM
+				hpeapb.dm_sum_khqf_1006_busn_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			order by dbt_amt desc
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 未对已长期欠费的集团产品进行暂停或注销  end-->
+</mapper>
+

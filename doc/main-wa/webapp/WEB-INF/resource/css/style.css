@@ -1,0 +1,775 @@
+body{
+	background: #ebebed;
+}
+.container-fluid{
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 15px;
+	margin-bottom: 25px;
+}
+/*tab-nav*/
+.tab-nav{
+	border-bottom: 3px #49a0d5 solid;
+	overflow: hidden;
+}
+.tab-nav ul{}
+.tab-nav ul li{
+	float: left;
+	width: 130px;
+	height: 40px;
+	text-align: center;
+	line-height: 40px;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	color: #fff;
+	color: #595959;
+	font-size: 18px;
+	cursor: pointer;
+}
+.tab-nav ul li.active{
+	background: #49a0d5;
+	color: #fff;
+}
+
+.tab-box{
+
+}
+.tab-box .tab-info{
+	display: none;
+	position: relative;
+}
+.tab-box .tab-info .tab-sub-nav{
+	overflow: hidden;
+	background: #f6f6f6;
+	box-shadow: -2px 2px 1px #dad9db;
+}
+.tab-box .tab-info .tab-sub-nav ul li{
+	float: left;
+	padding: 0 16px;
+	margin:0 31px;
+	height: 38px;
+	line-height: 38px;
+	font-size: 16px;
+	color: #777;
+	cursor: pointer;
+}
+.tab-box .tab-info .tab-sub-nav ul li.active{
+	border-bottom: 2px #49a0d5 solid;
+}
+.tab-box .tab-info .tab-datebox{
+	height: auto;
+	background: #fff;
+	box-shadow: -2px 2px 1px #dad9db;
+	margin-top: 15px;
+	overflow: hidden;
+	padding-left: 30px;
+}
+.tab-box .tab-info .tab-datebox p{
+	float: left;
+	font-size: 18px;
+	color: #333;
+	line-height: 70px;
+	margin-right: 17px;
+}
+.tab-box .tab-info .tab-datebox dl{
+	float: left;
+	border: 1px #dfdfdf solid;
+	border-radius:4px;
+	overflow: hidden;
+	margin-top: 17px;
+	margin-right: 17px;
+}
+.tab-box .tab-info .tab-datebox dl dt{
+	float: left;
+}
+.tab-box .tab-info .tab-datebox dl dt input{
+	width: 150px;
+	height: 33px;
+	border: none;
+	outline: none;
+	padding-left: 15px;
+	float: left;
+}
+.tab-box .tab-info .tab-datebox dl dt span{
+	float: left;
+	width: 46px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center;
+	/*background: #f6f6f6;*/
+	border-left: 1px #dfdfdf solid;
+	cursor: pointer;
+	background:#f6f6f6 url(../images/icon-calendar.png) no-repeat center;
+}
+.tab-box .tab-info .tab-datebox dl dt span i{
+	visibility: hidden;
+}
+.tab-box .tab-info .tab-datebox dl dd{
+	float: left;
+	width: 46px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center;
+	background: #f6f6f6;
+	border-left: 1px #dfdfdf solid;
+	/*cursor: pointer;*/
+}
+.tab-box .tab-info .tab-datebox a{
+	float: left;
+	width: 86px;
+	height: 35px;
+	text-align: center;
+	line-height: 35px;
+	border-radius: 3px;
+	background: #49a0d5;
+	color: #fff;
+	font-size: 16px;
+	margin-right: 17px;
+	margin-top: 17px;
+}
+.tab-box .tab-info .tab-datebox a.more-btn{
+	width: 140px;
+	background: #65d3e4;
+}
+.tab-box .tab-info .tab-datebox a.reset-btn{
+	background: #fe797b;
+}
+.tab-box .tab-info .tab-datebox ul{
+	float:left;
+	border-radius:3px;
+	overflow:hidden;
+	margin-top: 17px;
+}
+.tab-box .tab-info .tab-datebox ul li{
+	float:left;
+	min-width: 86px;
+	padding:0 5px;
+	height: 35px;
+	text-align: center;
+	line-height: 35px;
+	font-size: 16px;
+	color: #fff;
+	background: #dddddd;
+	cursor: pointer;
+}
+.tab-box .tab-info .tab-datebox ul li.active{
+	background: #49a0d5;
+}
+.tab-mapbox{
+	/*overflow: hidden;*/
+}
+.tab-mapbox .col-xs-4,.tab-mapbox .col-xs-5,.tab-mapbox .col-xs-7,.tab-mapbox .col-xs-6,.tab-mapbox .col-xs-12,.tab-mapbox .col-xs-8{
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 15px;
+}
+.tab-mapbox .col-xs-5{
+	padding-right: 15px;
+}
+.tab-mapbox .col-xs-6.mr-15{
+	padding-right: 15px;
+}
+.tab-mapbox .qushi,.tab-mapbox .map{
+	min-height: 450px;
+	background: #fff;
+	box-shadow: -2px 2px 1px #dad9db;
+	padding-left: 18px;
+	padding-right: 10px;
+}
+.tab-mapbox .map-territory{
+	min-height: 486px;
+} 
+
+.tab-mapbox .title{
+	position: relative;
+}
+.tab-mapbox .title h2{
+	font-size: 16px;
+	color: #333;
+	padding-top: 22px;
+}
+.tab-mapbox .title .right-info{
+	position: absolute;
+	right: 0px;
+	top:12px;
+}
+.tab-mapbox .title .right-info dl{
+	float: left;
+	margin-right: 10px;
+	position:relative;
+}
+.tab-mapbox .title .right-info dl dt{
+	border: 1px #dfdfdf solid;
+	border-radius:4px;
+	overflow: hidden;
+	cursor: pointer;
+}
+.tab-mapbox .title .right-info dl dt input{
+	width: 85px;
+	height: 33px;
+	border: none;
+	outline: none;
+	padding-left: 15px;
+	float: left;
+	font-size: 14px;
+}
+.tab-mapbox .title .right-info dl dt span{
+	float: left;
+	width: 30px;
+	height: 34px;
+	text-align: center;
+	line-height: 34px;
+	color: #bbbdc7;
+	font-size: 18px;
+}
+.tab-mapbox .title .right-info dl dd{
+	border-radius:4px;
+	overflow: hidden;
+	/* margin-top: 5px; */
+	width:100%;
+	position:absolute;
+	top:39px;
+	z-index:888;
+}
+.tab-mapbox .title .right-info dl dd ul{
+	border: 1px #dfdfdf solid;
+	display: none;
+	background:#fff;
+	max-height:200px;
+}
+.tab-mapbox .title .right-info dl dd ul li{
+	height: 34px;
+	line-height: 34px;
+	border-bottom: 1px #efefef solid;
+	text-align: center;
+	font-size: 14px;
+	cursor: pointer;
+	color: #333;
+}
+.tab-mapbox .title .right-info dl dd ul li:last-child{
+	border-bottom: none;
+}
+.tab-mapbox .title .right-info dl dd ul li.active{
+	background: #dfdfdf;
+}
+.tab-mapbox .qushi .title .right-info a{
+	float: left;
+	width: 86px;
+	height: 35px;
+	text-align: center;
+	line-height: 35px;
+	color: #fff;
+	font-size: 16px;
+	border-radius: 4px;
+	background: #49a0d5;
+}
+.tab-mapbox .qushi .zhexian-map{
+	margin-top: 85px; 
+	text-align: center;
+}
+.tab-mapbox .qushi .zhexian-map-copy{
+	/* margin-top: 85px; */
+	text-align: center;
+}
+.tab-mapbox .zoom-button{
+	width: 28px;
+	height: 28px;
+	text-align: center;
+	line-height: 25px;
+	border: 2px #49a0d5 solid;
+	border-radius: 3px;
+	position: absolute;
+	right: 21px;
+	bottom: 21px;
+	cursor: pointer;
+}
+.tab-mapbox .title .right-info ol{
+	overflow: hidden;
+	border-radius: 3px;
+	float:left;
+}
+.tab-mapbox .title .right-info ol li{
+	float: left;
+	min-width: 86px;
+	padding:0 5px;
+	height: 35px;
+	text-align: center;
+	line-height: 35px;
+	font-size: 16px;
+	color: #fff;
+	background: #dddddd;
+	cursor: pointer;
+}
+.tab-mapbox .title .right-info ol li.active{
+	background: #49a0d5;
+}
+
+.tab-mapbox .map .tab-map-box{
+	overflow: hidden;
+	margin-top: 28px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info{
+	display: none;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .details{
+	background: #f8f8f8;
+	height: 328px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .details ul{
+	padding-left: 17px;
+	padding-top: 20px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .details ul li{
+	font-size: 14px;
+	color: #777;
+	line-height: 27px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .details ul li span{
+	color: #49a0d5;
+}
+.tab-mapbox .map .tab-map-box .shuoming{
+	font-size:14px;
+	line-height:1.5;
+}
+.tab-info .tab-mapbox .shuoming-fir{
+	height:55px; 
+	margin-top: 13px;
+	margin-bottom: 5px;
+	font-size:14px;
+	line-height:1.5;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-img{
+	height: 328px;
+	text-align: center;
+	line-height: 328px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .zoom-button{
+	right: 10px;
+	bottom: 0;
+	margin-bottom:15px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist{
+	width: 100%;
+	min-height: 30px;
+	background: #f3f3f3;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul{
+	margin-left: 17px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li{
+	float: left;
+	color: #666;
+	font-size: 12px;
+	line-height: 30px;
+	margin-right: 10px;
+}
+@media screen and (max-width:1200px){
+	.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li{
+		line-height: 20px;
+	}
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li span{
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin-right: 6px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li span.yellow{
+	background: #f2ca68;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li span.red{
+	background: #ff7979;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li span.blue{
+	background: #65d3e3;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .map-tiplist ul li span.gray{
+	background: #dddddd;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table{
+	width: 100%;
+	border:1px #ddd solid;
+	border-collapse: collapse;
+	border-spacing: 1;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr,
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr th,
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr td{
+	text-align:center;
+	vertical-align: middle;
+	border:1px #ddd solid;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr{
+	height: 29px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr:nth-child(odd){
+    background: #f7f7f7;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr th{
+	color: #343434;
+	font-size: 14px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box table tr td{
+	color: #777;
+	font-size: 14px;
+	height: 35px;
+}
+.tab-mapbox .map .tab-map-box .tab-map-info .table-box a{
+	float: right;
+	width: 86px;
+	height: 36px;
+	text-align: center;
+	line-height: 36px;
+	font-size: 16px;
+	color: #fff;
+	border-radius: 3px;
+	background: #49a0d5;
+	margin-top: 25px;
+	margin-bottom:6px;
+}
+
+.tab-box .tab-info .more-box{
+	position: absolute;
+	left: 0;
+	/*top:71px;*/
+	width: 100%;
+	min-height: 80px;
+	background: #65d3e4;
+	box-shadow: 0px 0px 0px #ababab,
+				0px 0px 0px #ababab,
+				0px 3px 3px #ababab,
+				0px 0px 0px #ababab;
+	z-index: 666;
+	display: none;
+	overflow:visible !important;
+}
+.tab-box .tab-info .more-box dl{
+	float: left;
+	border: 1px #dfdfdf solid;
+	border-radius:4px;
+	overflow: hidden;
+	margin-top: 22px;
+	background: #fff;
+}
+.tab-box .tab-info .more-box dl:first-child{
+	margin-left: 22px;
+}
+.tab-box .tab-info .more-box dl dt{
+	float: left;
+}
+.tab-box .tab-info .more-box dl dt input{
+	width: 150px;
+	height: 33px;
+	border: none;
+	outline: none;
+	padding-left: 15px;
+	float:left;
+}
+.tab-box .tab-info .more-box dl dt span{
+	float: left;
+	width: 46px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center;
+	/*background: #f6f6f6;*/
+	border-left: 1px #dfdfdf solid;
+	cursor: pointer;
+	background:#f6f6f6 url(../images/icon-calendar.png) no-repeat center;
+}
+.tab-box .tab-info .more-box dl dt span i{
+	visibility: hidden;
+}
+.tab-box .tab-info .more-box dl dd{
+	float: left;
+	width: 46px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center;
+	background: #f6f6f6;
+	border-left: 1px #dfdfdf solid;
+	/*cursor: pointer;*/
+}
+.tab-box .tab-info .more-box b{
+	float: left;
+	color: #fff;
+	line-height: 80px;
+	margin: 0 5px;
+}
+.tab-box .tab-info .more-box .select-box{
+	width: 182px;
+	float: left;
+	margin-top: 22px;
+	margin-left: 16px;
+	position: relative;
+}
+.tab-box .tab-info .more-box .select-box p{
+	border: 1px #dfdfdf solid;
+	border-radius:4px;
+	overflow: hidden;
+	background: #fff;
+}
+.tab-box .tab-info .more-box .select-box p input{
+	width: 152px;
+	height: 34px;
+	border: none;
+	outline: none;
+	padding-left: 15px;
+	float: left;
+	font-size: 14px;
+}
+.tab-box .tab-info .more-box .select-box p span{
+	float: left;
+	width: 28px;
+	height: 34px;
+	text-align: center;
+	line-height: 34px;
+	color: #bbbdc7;
+	font-size: 18px;
+	cursor: pointer;
+}
+.tab-box .tab-info .more-box .select-box ul{
+	width: 100%;
+	border-radius: 4px;
+	background: #fff;
+	margin-top: 5px;
+	display: none;
+	position: absolute;
+	z-index: 666;
+	border: 1px #dfdfdf solid;
+	max-height:260px;
+	overflow:hidden;
+	overflow-y:scroll;
+}
+.tab-box .tab-info .more-box .select-box ul li{
+	height: 34px;
+	line-height: 34px;
+	border-bottom: 1px #dfdfdf solid;
+	text-align: center;
+	font-size: 14px;
+	cursor: pointer;
+}
+.tab-box .tab-info .more-box .select-box ul li:last-child{
+	border-bottom: none;
+}
+.tab-box .tab-info .more-box .select-box ul li.active{
+	background: #dfdfdf;
+}
+.tab-box .tab-info .shuju_box{
+  	background: #fff;
+  	margin-top: 15px;
+  	padding: 20px;
+  	padding-bottom: 75px;
+  	box-shadow: -2px 2px 1px #dad9db;
+  	position: relative;
+}
+.tab-box .tab-info .shuju_box h2{
+	font-size: 16px;
+	color: #333;
+}
+.tab-box .tab-info .shuju_box .shuju_table{
+	margin-top: 27px;
+}
+.tab-box .tab-info .shuju_box .shuju_table table{
+	width: 100%;
+	border:1px #ddd solid;
+	border-collapse: collapse;
+	border-spacing: 1;
+}
+.tab-box .tab-info .shuju_box .shuju_table table tr,
+.tab-box .tab-info .shuju_box .shuju_table table tr th,
+.tab-box .tab-info .shuju_box .shuju_table table tr td{
+	border: 1px #ddd solid;
+	text-align:center;
+	vertical-align: middle;
+}
+.tab-box .tab-info .shuju_box .shuju_table table tr{
+	height: 29px;
+}
+.tab-box .tab-info .shuju_box .shuju_table table tr th{
+	color: #343434;
+	font-size: 14px;
+}
+.tab-box .tab-info .shuju_box .shuju_table table tr td{
+	color: #777;
+	font-size: 14px;
+	height: 35px;
+}
+.tab-box .tab-info .shuju_box .shuju_table table tr:nth-child(odd){
+	background: #f7f7f7;
+}
+.tab-box .tab-info .shuju_box .pager-box{
+	position: absolute;
+	right: 20px;
+	bottom: 20px;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show{
+	float: left;
+	display: inline-block;
+	margin-right: 40px;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show p,
+.tab-box .tab-info .shuju_box .pager-box .more-show dl{
+	float: left;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show p{
+	font-size: 14px;
+	color: #333;
+	line-height: 30px;
+	margin-right: 10px;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl{
+	width: 100px;
+	position: relative;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dt{
+	height: 28px;
+	border: 1px #ddd solid;
+	overflow: hidden;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dt input{
+	width: 52px;
+	height: 100%;
+	border: none;
+	outline: none;
+	float: left;
+	text-align: right;
+	padding-right: 10px;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dt b{
+	float: left;
+	font-size: 14px;
+	color: #333;
+	line-height: 28px;
+	margin-right: 4px;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dt span{
+	float: left;
+	width: 28px;
+	height: 28px;
+	text-align: center;
+	line-height: 28px;
+	font-size: 14px;
+	color: #49a0d5;
+	background: #f6f6f6;
+	border-left:1px #ddd solid;
+	cursor: pointer;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dd{
+	width: 100%;
+	position: absolute;
+	border: 1px #ddd solid;
+	background: #fff;
+	margin-top: 5px;
+	display: none;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dd ul li{
+	height: 28px;
+	line-height: 28px;
+	text-align: center;
+	border-bottom: 1px #ddd solid;
+	font-size: 14px;
+	cursor: pointer;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dd ul li:last-child{
+	border-bottom: none;
+}
+.tab-box .tab-info .shuju_box .pager-box .more-show dl dd ul li.active{
+	background: #dfdfdf;
+}
+.tab-box .tab-info .shuju_box .pager-box #kkpager{
+  	display: inline-block;
+}
+
+
+.modal-box{
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.2);
+	position: fixed;
+	top:0;
+	left: 0;
+	z-index: 999;
+	display: none;
+}
+.modal-box .close-btn{
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 32px;
+	color: #66aad3;
+	font-size: 18px;
+	border: 1px #66aad3 solid;
+	background: rgba(255,255,255,0.8);
+	position: absolute;
+	right: -12px;
+	top:-12px;
+	cursor: pointer;
+	z-index:666;
+}	
+.modal-box .zhexian-bigmap{
+	/*width: 1204px;*/
+	height: 100%;
+	background: rgba(255,255,255,0.8);
+	/*position: absolute;
+	top:32px;
+	left: 50%;
+	margin-left: -603px;*/
+	margin: 0 70px;
+	margin-top: 32px;
+	border: 1px #66aad3 solid;
+	display: none;
+	position: relative;
+}
+.modal-box .zhexian-bigmap .info{
+	height: 85%;
+	width:80%;
+	margin: 20px auto;
+}
+.modal-box .bigmap{
+	width: 80%;
+	height: 100%;
+	margin:0 auto;
+	background: rgba(255,255,255,0.8);
+	position: absolute;
+	top:32px;
+	/* left: 50%;
+	margin-left: -438px; */
+	border: 1px #66aad3 solid;
+	display: none;
+	position: relative;
+}
+.modal-box .bigmap .big-map-info-div{
+	height: 85%;
+	width:80%;
+	margin: 25px auto;
+}
+
+.shuju_box .title .right-info ol{
+	overflow: hidden;
+	border-radius: 3px;
+	float:left;
+}
+
+.shuju_box .title .right-info ol li{
+	float: left;
+	min-width: 86px;
+	padding:0 5px;
+	height: 35px;
+	text-align: center;
+	line-height: 35px;
+	font-size: 16px;
+	color: #fff;
+	background: #dddddd;
+	cursor: pointer;
+}
+
+.shuju_box .title .right-info ol li.active{
+	background: #49a0d5;
+}
+
+
+

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="khqf04Mapper">
+
+	<!--获取全国的省份  -->
+	<select id="getIfQgHaveData" resultType="Map" parameterType="Map">
+		SELECT count(*) as dataNum
+		from hpeapb.dm_sum_khqf_1004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+	</select>
+
+	<!--获取有数据的省份  -->
+	<select id="getResultByProvinceCode" resultType="Map" parameterType="Map">
+		SELECT DISTINCT cmcc_prov_prvd_id as cmccProvPrvdId ,short_name as shortName
+		from hpeapb.dm_sum_khqf_1004_prvd  
+		where cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach> 
+		and aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+	</select>
+<!-- 左侧图形  Start -->
+	<!-- 左上侧柱图数据  全国平均 -->
+	<select id="getFirColumnDataQg" resultType="Map" parameterType="Map">
+		select 
+			'全国平均' as areaName ,
+			(((sum(qf_subs_num)/(case when sum(ent_subs_num)!=0 then sum(ent_subs_num) else 1 end))))*100 as qfSubsPer,
+			10000 as areaCode
+		from 
+			hpeapb.dm_sum_khqf_1004_prvd 
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		
+	</select>
+	<!-- 各省左上侧柱图数据  各省数据-->
+	<select id="getFirColumnDataProvince" resultType="Map" parameterType="Map">
+		select 
+			short_name as areaName,
+  			(sum(qf_subs_num)/(case when sum(ent_subs_num)!=0 then sum(ent_subs_num) else 1 end))*100 as qfSubsPer,
+  			cmcc_prov_prvd_id as areaCode
+		from 
+			hpeapb.dm_sum_khqf_1004_prvd 
+		where 1=1 and 
+			aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		<if test="provinceCode!='10000'">
+			and cmcc_prov_prvd_id in 
+			<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+			</foreach>
+		</if>
+		GROUP BY cmcc_prov_prvd_id ORDER BY qfSubsPer desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<!-- 左上侧柱图数据  全省平均数据 -->
+	<select id = "getFirColumnAvgCity" resultType="Map" parameterType="Map"> 
+		SELECT "全省平均" as areaName, 
+			(((sum(qf_subs_num)/(case when sum(ent_subs_num)!=0 then sum(ent_subs_num) else 1 end))))*100 as qfSubsPer,
+			cmcc_prov_prvd_id as areaCode 
+		from hpeapb.dm_sum_khqf_1004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id= #{provinceCode}  
+	</select>
+	
+	<!-- 左上侧柱图数据  各地市数据 -->
+	<select id = "getFirColumnDataCity" resultType="Map" parameterType="Map"> 
+		SELECT 
+			cmcc_prvd_nm_short as areaName, 
+			((sum(qf_subs_num)/(case when sum(ent_subs_num)!=0 then sum(ent_subs_num) else 1 end)))*100 as qfSubsPer,
+			cmcc_prov_id as areaCode 
+		from 
+			hpeapb.dm_sum_khqf_1004_cty  
+		where 1=1 
+			and cmcc_prov_prvd_id= #{provinceCode}  
+			and aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		group by cmcc_prov_id 
+		order by qfSubsPer desc,cmcc_prov_id
+	</select>
+	
+	
+	<!-- 左下侧折线数据  全国平均 -->
+	<select id="getFirLineDataQG" resultType="Map" parameterType="Map">
+		select 
+			aud_trm as audTrm,(((sum(qf_subs_num)/(case when sum(ent_subs_num)!=0 then sum(ent_subs_num) else 1 end))))*100 as qfSubsPer
+		from 
+			hpeapb.dm_sum_khqf_1004_prvd 
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<!-- 单个地市数据折线 -->
+	<select id = "getFirLineDataCity" resultType="Map" parameterType="Map"> 
+		select 
+			aud_trm as audTrm, (qf_subs_per)*100 as qfSubsPer
+		from 
+			hpeapb.dm_sum_khqf_1004_cty  
+		where 
+			aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			and cmcc_prov_id = #{cityId}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<!-- 单个省折线  -->
+	<select id = "getFirLineDataProvince" resultType="Map" parameterType="Map"> 
+		select 
+			aud_trm as audTrm, (qf_subs_per)*100 as qfSubsPer 
+		from 
+			hpeapb.dm_sum_khqf_1004_prvd  
+		where 
+			aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+		group by aud_trm
+		order by aud_trm
+	</select>
+<!-- 左侧图形  end -->
+
+
+<!-- 右侧图形  Start -->
+	<!-- 右上侧柱图数据  全国平均 -->
+	<select id="getSecColumnDataQg" resultType="Map" parameterType="Map">
+		select 
+			'全国平均' as areaName ,
+			(((sum(low_chnl_num)/(case when sum(ent_chnl_num)!=0 then sum(ent_chnl_num) else 1 end))))*100 as lowChnlNumPer,
+			10000 as areaCode
+		from 
+			dm_sum_khqf_1004_prvd 
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		
+	</select>
+	<!-- 各省左上侧柱图数据  各省数据-->
+	<select id="getSecColumnDataProvince" resultType="Map" parameterType="Map">
+		select 
+			short_name as areaName,
+  			(sum(low_chnl_num)/(case when sum(ent_chnl_num)!=0 then sum(ent_chnl_num) else 1 end))*100 as lowChnlNumPer,
+  			cmcc_prov_prvd_id as areaCode
+		from 
+			dm_sum_khqf_1004_prvd 
+		where 1=1 and 
+			aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		<if test="provinceCode!='10000'">
+			and cmcc_prov_prvd_id in 
+			<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+			</foreach>
+		</if>
+		GROUP BY cmcc_prov_prvd_id ORDER BY lowChnlNumPer desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<!--右上侧柱图数据  全省平均数据 -->
+	<select id = "getSecColumnAvgCity" resultType="Map" parameterType="Map"> 
+		SELECT "全省平均" as areaName,
+			(((sum(low_chnl_num)/(case when sum(ent_chnl_num)!=0 then sum(ent_chnl_num) else 1 end))))*100 as lowChnlNumPer,
+			cmcc_prov_prvd_id as areaCode 
+		from hpeapb.dm_sum_khqf_1004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id= #{provinceCode}  
+	</select>
+	
+	<!-- 右上侧柱图数据  各地市数据 -->
+	<select id = "getSecColumnDataCity" resultType="Map" parameterType="Map"> 
+		SELECT 
+			cmcc_prvd_nm_short as areaName,
+			(((sum(low_chnl_num)/(case when sum(ent_chnl_num)!=0 then sum(ent_chnl_num) else 1 end))))*100 as lowChnlNumPer,
+			cmcc_prov_id as areaCode 
+		from 
+			hpeapb.dm_sum_khqf_1004_cty  
+		where 1=1 
+			and cmcc_prov_prvd_id= #{provinceCode}  
+			and aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		group by cmcc_prov_id 
+		order by lowChnlNumPer desc,cmcc_prov_id
+	</select>
+	
+	
+	<!-- 右下侧折线数据  全国平均 -->
+	<select id="getSeclineDataQg" resultType="Map" parameterType="Map">
+		select 
+			aud_trm as audTrm,(((sum(low_chnl_num)/(case when sum(ent_chnl_num)!=0 then sum(ent_chnl_num) else 1 end))))*100 as lowChnlNumPer
+		from 
+			hpeapb.dm_sum_khqf_1004_prvd 
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<!-- 单个地市数据折线 -->
+	<select id = "getSecLineDataCity" resultType="Map" parameterType="Map"> 
+		select 
+			aud_trm as audTrm, (low_chnl_num_per)*100 as lowChnlNumPer
+		from 
+			hpeapb.dm_sum_khqf_1004_cty  
+		where 
+			aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			and cmcc_prov_id = #{cityId}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<!-- 单个省折线  -->
+	<select id = "getSecLineDataProvince" resultType="Map" parameterType="Map"> 
+		select 
+			aud_trm as audTrm, (low_chnl_num_per)*100 as lowChnlNumPer 
+		from 
+			hpeapb.dm_sum_khqf_1004_prvd  
+		where 
+			aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+		group by aud_trm
+		order by aud_trm
+	</select>
+<!-- 右侧图形  end -->
+	<!--汇总数据表  start -->
+	<select id = "getTableDataProv" resultType="Map" parameterType="Map"> 
+			SELECT
+				aud_trm,	 		
+				cmcc_prov_prvd_id,
+				short_name, 		
+				ent_subs_num, 	
+				qf_subs_num,  		
+				(qf_subs_per)*100 as qf_subs_per,  		
+				qf_dbt_amt, 		
+				ent_chnl_num,  	
+				low_chnl_num,  	
+				(low_chnl_num_per)*100 as  low_chnl_num_per
+			from hpeapb.dm_sum_khqf_1004_prvd  
+			where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+				<if test="provinceCode!='10000'">
+				and cmcc_prov_prvd_id in
+				<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+				#{item}
+				</foreach>
+				</if>
+			order by aud_trm desc,qf_subs_per desc,cmcc_prov_prvd_id
+	</select>
+	<!--汇总数据表  地市  -->
+	<select id = "getTableDataCty" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm, 			
+			cmcc_prov_prvd_id, 
+			short_name, 		
+			cmcc_prov_id,  	
+			cmcc_prvd_nm_short,
+			ent_subs_num,  	
+			qf_subs_num,  		
+			(qf_subs_per)*100 as qf_subs_per,  		
+			qf_dbt_amt, 		
+			ent_chnl_num,  	
+			low_chnl_num,  	
+			(low_chnl_num_per)*100 as low_chnl_num_per
+
+		from hpeapb.dm_sum_khqf_1004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		order by aud_trm desc,qf_subs_per desc,cmcc_prov_id
+	</select>
+<!--汇总数据表  end -->
+
+	<select id = "exportMxTable" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm, 			
+			cmcc_prov_prvd_id, 
+			short_name,		
+			cmcc_prov_id,  	
+			cmcc_prvd_nm_short,
+			ent_chnl_id, 		
+			ent_chnl_nm, 		
+			ent_subs_num,  	
+			qf_subs_num,  		
+			(qf_subs_per*100) as qf_subs_per,  		
+			qf_dbt_amt 		
+
+		from 
+			hpeapb.dm_sum_khqf_1004_chnl 
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		<if test="provinceCode!='10000'">
+		and cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach>
+		</if>
+		and qf_subs_per>0.5
+		order by aud_trm desc
+	</select>
+
+</mapper>

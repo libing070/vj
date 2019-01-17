@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtzhqf1002Mapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_qst_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		aud_trm,
+		sum(acct_cnt) as acct_cnt
+		FROM hpeapb.sox_sum_qfyck_1002_prvd
+		WHERE 
+		cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_qst_sjb_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		aud_trm,short_name,acct_cnt
+		FROM hpeapb.sox_sum_qfyck_1002_prvd
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		AND aud_trm BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		ORDER BY aud_trm desc
+	</select>
+	<select id="hz_qst_sjb_export" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		aud_trm,cmcc_prov_prvd_id,short_name,acct_cnt
+		FROM hpeapb.sox_sum_qfyck_1002_prvd
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		ORDER BY aud_trm desc
+	</select>
+	
+	<select id="load_tj_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		aud_trm,
+		count(1) as zhnum,
+		sum(dbt_amt) as dbt_amt,
+		sum(acct_bk_acum_amt) as acct_bk_acum_amt,
+		sum(diff_amt) as diff_amt
+		FROM hpeapb.sox_sum_qfyck_1002_acct
+		WHERE 
+		cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	
+	<select id="load_tj_sjb_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_id,
+			cust_id,
+			org_nm,
+			dbt_amt,
+			acct_bk_acum_amt,
+			diff_amt
+		FROM hpeapb.sox_sum_qfyck_1002_acct
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		AND aud_trm BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		ORDER BY aud_trm desc,diff_amt desc
+	</select>
+	
+	<select id="hz_tj_sjb_export" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_id,
+			cust_id,
+			org_nm,
+			dbt_amt,
+			acct_bk_acum_amt,
+			diff_amt
+		FROM hpeapb.sox_sum_qfyck_1002_acct
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		ORDER BY aud_trm desc,diff_amt desc
+	</select>
+	
+	<select id="load_mx_table_qf" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_id,
+			cust_id,
+			org_nm,
+			cust_stat_typ_nm,
+			org_cust_lvl,
+			acct_prd_ytm,
+			org_busn_nm,
+			dbt_amt
+		FROM hpeapb.sox_det_qfyck_1002_debt
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and aud_trm &gt;=  #{params.currDetBeginDate} 
+		and aud_trm &lt;= #{params.currDetEndDate}
+		order by aud_trm desc,acct_id,acct_prd_ytm desc
+	</select>
+	<select id="export_mx_table_qf" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_id,
+			cust_id,
+			org_nm,
+			cust_stat_typ_nm,
+			org_cust_lvl,
+			acct_prd_ytm,
+			org_busn_nm,
+			dbt_amt
+		FROM hpeapb.sox_det_qfyck_1002_debt
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		and aud_trm &gt;=  #{currDetBeginDate} 
+		and aud_trm &lt;= #{currDetEndDate}
+		order by aud_trm desc,acct_id,acct_prd_ytm desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	<select id="load_mx_table_zb" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_id,
+			cust_id,
+			org_nm,
+			cust_stat_typ_nm,
+			org_cust_lvl,
+			acct_bk_subj_nm,
+			acct_bk_acum_amt
+		FROM hpeapb.sox_det_qfyck_1002_book
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and aud_trm &gt;=  #{params.currDetBeginDate} 
+		and aud_trm &lt;= #{params.currDetEndDate}
+		order by aud_trm desc,acct_id
+	</select>
+	<select id="export_mx_table_zb" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_id,
+			cust_id,
+			org_nm,
+			cust_stat_typ_nm,
+			org_cust_lvl,
+			acct_bk_subj_nm,
+			acct_bk_acum_amt
+		FROM hpeapb.sox_det_qfyck_1002_book
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		and aud_trm &gt;=  #{currDetBeginDate} 
+		and aud_trm &lt;= #{currDetEndDate}
+		order by aud_trm desc,acct_id
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

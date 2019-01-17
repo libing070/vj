@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="shqdsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(SOC_CHNL_NUM) AS SOC_CHNL_NUM
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE AUD_TRM_END = #{currSumEndDate} and VAR_WAVE_RANGE_ID > 5 
+		and SOC_CHNL_NUM != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(SOC_CHNL_NUM) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(SOC_CHNL_NUM) AS SOC_CHNL_NUM
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE AUD_TRM_END = #{currSumEndDate} and VAR_WAVE_RANGE_ID > 5
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(SOC_CHNL_NUM) DESC,cmcc_prov_prvd_id  
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM_END as aud_trm,SUM(SOC_CHNL_NUM) AS SOC_CHNL_NUM
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE AUD_TRM_END = #{currSumEndDate}  and VAR_WAVE_RANGE_ID > 5
+		group by AUD_TRM_END
+		ORDER BY AUD_TRM_END
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM_BEGIN,
+			AUD_TRM_END,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			VAR_WAVE_RANGE_ID,
+			VAR_WAVE_RANGE,
+			SOC_CHNL_NUM,
+			RWD_AMT
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE 
+		AUD_TRM_END =  #{params.currSumEndDate}
+		order by cmcc_prov_prvd_id,VAR_WAVE_RANGE_ID desc
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM_BEGIN,
+			AUD_TRM_END,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			VAR_WAVE_RANGE_ID,
+			VAR_WAVE_RANGE,
+			SOC_CHNL_NUM,
+			RWD_AMT
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE 
+		AUD_TRM_END =  #{currSumEndDate}
+		order by CMCC_PROV_PRVD_ID,VAR_WAVE_RANGE_ID desc
+	</select>
+</mapper>
+

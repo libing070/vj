@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="integralMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<!-- 结果集映射 从实体对象到关系数据库  地市汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="integralCityMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="cmccProvId" column="cmcc_prov_id"/>
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short"/>
+		<result property="curmonQtyTol" column="curmon_qty_tol"/>
+		<result property="curmonScoreTol" column="curmon_score_tol"/>
+		<result property="merTotFeeTol" column="mer_tot_fee_tol"/>
+		<result property="perJfhk" column="per_jfhk"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库  省汇总表映射关系-->
+	<resultMap type="java.util.Map"  id="integralPrvdMap">
+		<result property="genDate" column="gen_date"/>
+		<result property="audTrm" column="aud_trm"/>
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>
+		<result property="shortName" column="short_name"/>
+		<result property="curmonQtyTol" column="curmon_qty_tol"/>
+		<result property="curmonScoreTol" column="curmon_score_tol"/>
+		<result property="merTotFeeTol" column="mer_tot_fee_tol"/>
+		<result property="perJfhk" column="per_jfhk"/>
+	</resultMap>
+	
+	<!-- 根据省份代码、开始时间、结束时间查询该省这段时间内的积分回馈率信息-->
+	<select id="selectIntegralPrvdInfo" resultMap="integralPrvdMap"  parameterType="java.util.Map">
+		select 
+		aud_trm,curmon_qty_tol,curmon_score_tol,mer_tot_fee_tol,per_jfhk
+		FROM hpeapb.sum_jfhk_prvd where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm &gt;=  #{currSumBeginDate} 
+		AND aud_trm &lt;= #{currSumEndDate} 
+		ORDER BY aud_trm DESC
+		LIMIT 1
+	</select>
+
+	<!-- 根据省份代码、审计时间查询该省这段时间内的信息-->
+	<select id="selectDataAnalysis" resultMap="integralPrvdMap"  parameterType="java.util.Map">
+		SELECT c.* FROM(SELECT A.*,(@rank:=@rank+1) AS sort  
+		FROM(
+		SELECT 
+		gen_date,
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,curmon_qty_tol,
+		curmon_score_tol,
+		per_jfhk
+		FROM hpeapb.sum_jfhk_prvd 
+		WHERE 1=1
+		AND aud_trm = (SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_prvd  WHERE 
+			aud_trm &gt;=  #{currSumBeginDate} 
+			AND aud_trm &lt;= #{currSumEndDate}
+			AND cmcc_prov_prvd_id = #{provinceCode})
+		GROUP BY cmcc_prov_prvd_id
+		ORDER BY per_jfhk DESC) a ,(SELECT (@rank:=0)) b) c WHERE cmcc_prov_prvd_id = #{provinceCode} 
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取地市前三的地市名称 -->
+	<select id="selectThreeCity" resultType="java.lang.String"  parameterType="java.util.Map">
+		select 
+		cmcc_prvd_nm_short 
+		FROM hpeapb.sum_jfhk_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm = (SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_cty  WHERE 
+		    aud_trm &gt;=  #{currSumBeginDate} 
+			AND aud_trm &lt;= #{currSumEndDate}
+			AND cmcc_prov_prvd_id = #{provinceCode})
+		GROUP BY cmcc_prov_id
+		ORDER BY per_jfhk DESC 
+		limit 3
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取各个地市数据 -->
+	<select id="selectAllPrvdCity" resultMap="integralCityMap"  parameterType="java.util.Map">
+		select 
+		aud_trm,curmon_qty_tol,curmon_score_tol,mer_tot_fee_tol,per_jfhk <!-- SUM(curmon_score_tol)/ SUM(mer_tot_fee_tol) as perJfhk -->
+		FROM hpeapb.sum_jfhk_prvd where 1=1 
+		 AND cmcc_prov_prvd_id = #{params.provinceCode} 
+		 AND aud_trm in <foreach collection="paramsList" item="item" open="(" separator="," close=")">
+		 (SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_prvd  WHERE 
+			aud_trm &gt;=  ${item.currSumBeginDate} 
+			AND aud_trm &lt;= ${item.currSumEndDate}
+			AND cmcc_prov_prvd_id = ${item.provinceCode})
+		 </foreach>
+		 ORDER BY per_jfhk DESC 
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取各个地市数据 -->
+	<select id="PrvdCityMap" resultMap="integralCityMap"  parameterType="java.util.Map">
+		select 
+		aud_trm, cmcc_prov_id, curmon_qty_tol,curmon_score_tol,mer_tot_fee_tol,per_jfhk <!-- SUM(curmon_score_tol)/ SUM(mer_tot_fee_tol) as perJfhk -->
+		FROM hpeapb.sum_jfhk_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm = 
+		(SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_cty  WHERE 
+			aud_trm &gt;=  #{currSumBeginDate} 
+			AND aud_trm &lt;= #{currSumEndDate}
+			AND cmcc_prov_prvd_id = #{provinceCode})
+		GROUP BY cmcc_prov_id
+		ORDER BY per_jfhk DESC 
+	</select>
+	<!-- 根据省份代码、审计时间获取各个地市数据 -->
+	<select id="exportAllPrvdCity" resultMap="integralCityMap"  parameterType="java.util.Map">
+		select 
+		aud_trm, curmon_qty_tol,curmon_score_tol,mer_tot_fee_tol,per_jfhk
+		FROM hpeapb.sum_jfhk_prvd where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm in 
+		<foreach collection="timeMapList" item="item" open="(" separator="," close=")">
+		(SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_prvd  WHERE 
+			aud_trm &gt;=  ${item.currSumBeginDate} 
+			AND aud_trm &lt;= ${item.currSumEndDate}
+			AND cmcc_prov_prvd_id = ${item.provinceCode})
+		</foreach>
+		ORDER BY per_jfhk DESC 
+	</select>
+	
+	<select id="selectAllCity" resultMap="integralCityMap"  parameterType="java.util.Map">
+		select 
+		*
+		FROM hpeapb.sum_jfhk_cty where 1=1 
+		 AND cmcc_prov_prvd_id = #{params.provinceCode} 
+		 AND aud_trm in 
+		 <foreach collection="paramsList" item="item" open="(" separator="," close=")">
+		 (SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_cty  WHERE 
+			aud_trm &gt;=  ${item.currDetBeginDate} 
+			AND aud_trm &lt;= ${item.currDetEndDate}
+			AND cmcc_prov_prvd_id = ${item.provinceCode})
+		 </foreach>
+		 <if test="params.currCityType != '' and params.currCityType !=null ">
+			AND cmcc_prov_id =#{params.currCityType} 
+		</if>
+		 ORDER BY aud_trm desc,per_jfhk DESC 
+	</select>
+	
+	<select id="exportAllCity" resultMap="integralCityMap"  parameterType="java.util.Map">
+		select 
+		*
+		FROM hpeapb.sum_jfhk_cty where 1=1 
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		AND aud_trm in 
+		<foreach collection="timeMapList" item="item" open="(" separator="," close=")">
+		(SELECT MAX(aud_trm) FROM hpeapb.sum_jfhk_cty  WHERE 
+			aud_trm &gt;=  ${item.currDetBeginDate} 
+			AND aud_trm &lt;= ${item.currDetEndDate}
+			AND cmcc_prov_prvd_id = ${item.provinceCode})
+		</foreach>
+		 <if test="currCityType != '' and currCityType !=null ">
+			AND cmcc_prov_id =#{currCityType} 
+		 </if>
+		 ORDER BY aud_trm desc, per_jfhk DESC 
+		 LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	<select id="selectIntegralPrvdInfolimit" resultMap="integralPrvdMap"  parameterType="java.util.Map">
+		select 
+		per_jfhk
+		FROM hpeapb.sum_jfhk_prvd where 1=1 
+		 AND cmcc_prov_prvd_id = #{provinceCode} 
+		 AND aud_trm &gt;=  #{currSumBeginDate} 
+		 AND aud_trm &lt;= #{currSumEndDate} 
+		 ORDER BY aud_trm
+		 limit 1
+	</select>
+	
+	
+	
+</mapper>
+

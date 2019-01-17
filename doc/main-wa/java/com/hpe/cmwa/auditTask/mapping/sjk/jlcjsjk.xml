@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jlcjsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(INCEN_RWD_SUM) AS INCEN_RWD_SUM
+		FROM hpeapb.sum_jlcj_1901_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and INCEN_RWD_SUM != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(INCEN_RWD_SUM) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(INCEN_RWD_SUM) AS INCEN_RWD_SUM
+		FROM hpeapb.sum_jlcj_1901_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(INCEN_RWD_SUM) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(INCEN_RWD_SUM) AS INCEN_RWD_SUM
+		FROM hpeapb.sum_jlcj_1901_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			Aud_trm,
+			short_name,
+			INCEN_RWD_SUM,
+			TOL_FEE,
+			PER_INCEN*100 as PER_INCEN
+		FROM hpeapb.sum_jlcj_1901_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,INCEN_RWD_SUM desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			Aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			INCEN_RWD_SUM,
+			OUT_NBR_RWD_SUM,
+			BASIC_BUSN_SVC_AGC_RWD_SUM,
+			VALUE_ADDED_BUSN_AGC_RWD_SUM,
+			TRMNL_RWD_SUM,
+			HOUSE_FEE_SUM,
+			TOL_FEE,
+			PER_INCEN*100 as PER_INCEN
+		FROM hpeapb.sum_jlcj_1901_prvd
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by AUD_TRM desc,INCEN_RWD_SUM desc,CMCC_PROV_PRVD_ID
+	</select>
+</mapper>
+

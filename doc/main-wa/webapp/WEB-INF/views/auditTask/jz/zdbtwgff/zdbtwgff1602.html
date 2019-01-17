@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>终端补贴违规发放—违规对无线座机、数据卡发放补贴</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+	<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+	<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+	<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/jz/zdbtwgff/zdbtwgff1602.js"></script>
+</head>
+<body>
+    <form id="queryParam">
+
+        <!-- 国信透传条件 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth">
+		<input type="hidden" id="auditId" name="auditId">
+		<input type="hidden" id="taskCode" name="taskCode">
+		
+		<!-- 汇总条件 -->
+		<input type="hidden" id="currSumBeginDate" name="currSumBeginDate">
+		<input type="hidden" id="currSumEndDate" name="currSumEndDate">
+		<input type="hidden" id="provinceName" name="provinceName">
+		
+		<input type="hidden" id="currSumTimes" name="currSumTimes">
+		
+		<!-- 清单条件 -->
+		<input type="hidden" id="currDetBeginDate" name="currDetBeginDate">
+		<input type="hidden" id="currDetEndDate" name="currDetEndDate">
+		<input type="hidden" id="currCityType" name="currCityType">
+		<!-- <input type="hidden" id="currCityList" name="currCityList"> -->
+	
+		<!-- 原始时间开始结束 -->
+		<input type="hidden" id="initBeginDate">
+		<input type="hidden" id="initEndDate">
+		
+		<input type="hidden" id="currTab" value="hz"/>  
+        
+    </form>
+    <div class="container-fluid">
+        <!-- 选项卡 -->
+        <div class="tab-nav">
+            <ul>
+                <li id="hz_tab" class="active">汇总分析</li>
+                <li id="mx_tab">明细数据</li>
+            </ul>
+        </div>
+
+        <!-- 选项卡info -->
+        <div class="tab-box">
+            <!-- 汇总分析 -->
+            <div class="tab-info" style="display:block">
+				<!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul id="sumType">
+                        <li><a href="/cmwa/zdbtwgff1601/index">违规对无线座机、数据卡发放补贴</a></li>
+                        <li class="active"><a href="/cmwa/zdbtwgff1602/index">违规对非4G定制终端发放补贴</a></li>
+                    </ul>
+                </div>
+                <!-- dateBox -->
+                <div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input value="2016-02" type="text" autocomplete="off" readonly id="sumBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input value="2016-04" type="text"  readonly id="sumEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<a href="javascript:;" id="hz_search_btn">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+				</div>
+                
+                <!-- mapBox -->
+                <div class="tab-mapbox">
+                    
+                     <div class="col-xs-12">
+                        <div class="map">
+                            <div class="title">
+                                <h2><span id="prvdNameId"></span>向非4G定制终端发放补贴金额全国排名</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_qgpm_tongji">统计图</li>
+                                        <li id="hz_qgpm_sjb">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="shuoming" id="hz_qgpm_tongji_conclusion">
+                                        
+                                    </div>
+                                    <div id="hz_qgpm_tongji_chart" style="width:100%;">
+                                    
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-map-info">
+	                                <div class="table-box">
+									 	<div class="shuoming" id="hz_qgpm_sjb_conclusion">
+	                                        
+	                                    </div>
+	                                     <a class="btn-daochu" href="javascript:;" id="hz_qgpm_sjb_export">
+												导出
+										</a>
+										<div class="clear"></div>
+	                                     <div class="table-box">
+	                                        <div class="table-responsive" >
+	                                            <table id="hz_qgpm_sjb_table"></table>
+	                                            <div id="hz_qgpm_sjb_pageBar"></div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        
+                   <div class="col-xs-12">
+                        <div class="map">
+                        	
+                            <div class="title">
+                                <h2><span id="prvdNameIdtwo"></span>向非4G定制终端发放补贴金额地市分布</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_dqfb_tongji">统计图</li>
+                                        <li id="hz_dqfb_sjb">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="shuoming" id="hz_dqfb_tongji_conclusion">
+                                        
+                                    </div>
+                                    <div id="hz_dqfb_tongji_chart" style="width:100%;">
+                                    
+                                    </div>
+                                </div>
+                                
+								<div class="tab-map-info">
+									<div class="table-box">
+									 	<div class="shuoming" id="hz_dqfb_sjb_conclusion">
+	                                        
+	                                    </div>
+	                                     <a class="btn-daochu" href="javascript:;" id="hz_dqfb_sjb_export">
+												导出
+										</a>
+										<div class="clear"></div>
+	                                     <div class="table-box">
+	                                        <div class="table-responsive" >
+	                                            <table id="hz_dqfb_sjb_table"></table>
+	                                            <div id="hz_dqfb_sjb_pageBar"></div>
+	                                        </div>
+	                                    </div>
+	                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                  
+                </div>
+            </div>
+
+            <!-- 明细数据 -->
+            <div class="tab-info">
+           		 <!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul id="detType">
+                        <li><a href="/cmwa/zdbtwgff1601/index">违规对无线座机、数据卡发放补贴</a></li>
+                        <li class="active"><a href="/cmwa/zdbtwgff1602/index">违规对非4G定制终端发放补贴</a></li>
+                    </ul>
+                </div>
+                <!-- dateBox -->
+                <div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+
+                    <a href="javascript:;" id="mx_search_btn"> <i class="icon icon-search"></i> 查询
+                    </a> <a class="more-btn" href="javascript:;"> 更多查询条件 </a> 
+                    <a id="mx_reset_btn" class="reset-btn" href="javascript:;"> 重置 </a> 
+                    <a id="mx_export_btn" href="javascript:;"> 导出 </a>
+                </div>
+
+                <!-- moreBox -->
+                <div class="more-box">
+                  
+                    <div class="select-box">
+                        <p>
+                            <input id="mx_cityCodeText" type="text" autocomplete="off" placeholder="地市名称" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="cityType"></ul>
+                    </div>
+                </div>
+
+                <!-- 数据Table -->
+                <div class="shuju_box">
+                    <h2></h2>
+                    <div class="shuju_table">
+                        <table id="mx_table"></table>
+                        <div id="mx_pageBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

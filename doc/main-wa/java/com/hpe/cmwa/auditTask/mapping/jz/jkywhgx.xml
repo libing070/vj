@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtywhgxMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<!-- 虚假开通家庭宽带波动趋势图  -->
+	<select id="hz_bdqs_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		WEIGUI_NUM AS weiguiNum,AUD_TRM AS audTrm
+		FROM hpeapb.SUM_JTKD_1201_PRVD
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+		GROUP BY AUD_TRM
+	</select>
+	
+	<!-- 平均值 -->
+	<select id="hz_bdqs_ChartAVGNumber" resultType="Map" parameterType="Map">
+		select 
+  			ifnull(avg(weigui_num),0) as avg_weigui_num
+		from 
+			hpeapb.sum_jtkd_1201_prvd
+		where 1=1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM &gt;= #{currSumBeginDate} 
+		AND AUD_TRM &lt;= #{currSumEndDate}
+		
+	</select>
+
+	<!-- 疑似虚假开通家庭宽带X笔（省汇总表统计周期内单月疑似虚假办理宽带用户数的最大值）  -->
+	<select id="hz_bdqs_conclusion_max" resultType="Map" parameterType="Map">
+		SELECT 
+		a.WEIGUI_NUM AS weiguiNum,a.AUD_TRM AS audTrm
+		FROM hpeapb.SUM_JTKD_1201_PRVD a,
+		(SELECT AUD_TRM, MAX(WEIGUI_NUM) AS weiguiNum
+		FROM  hpeapb.SUM_JTKD_1201_PRVD 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}) b 
+		WHERE a.WEIGUI_NUM = b.weiguiNum 
+		limit 1
+	</select>
+	
+	<select id="hz_tjfx_tj_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(WEIGUI_NUM) AS weiguiNum,
+		SUM(TOL_NUM) AS tolNum,
+		SUM(WEIGUI_NUM)/(SUM(TOL_NUM)*1.00)*100 AS perWeigui
+		FROM hpeapb.SUM_JTKD_1201_CTY
+		WHERE 1 = 1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PROV_ID
+		ORDER BY SUM(WEIGUI_NUM) desc
+	</select>
+	
+	<select id="hz_tjfx_tj_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT 
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(WEIGUI_NUM)/(SUM(TOL_NUM)*1.00) as NumPer,
+		sum(WEIGUI_NUM) AS weiguiNum
+		FROM 
+		hpeapb.SUM_JTKD_1201_CTY
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PRVD_NM_SHORT
+		ORDER BY SUM(WEIGUI_NUM)/(SUM(TOL_NUM)*1.00) DESC
+		LIMIT 3
+	</select>
+	<select id="hz_tjfx_tj_conclusion" resultType="Map" parameterType="Map">
+		SELECT 
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		sum(WEIGUI_NUM) AS weiguiNum
+		FROM 
+		hpeapb.SUM_JTKD_1201_CTY
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PRVD_NM_SHORT
+		ORDER BY sum(WEIGUI_NUM) DESC
+		LIMIT 3
+	</select>
+	
+	<select id="hz_tjfx_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		WEIGUI_NUM AS weiguiNum,
+		TOL_NUM AS tolNum,
+		PER_WEIGUI*100 AS perWeigui
+		FROM 
+		hpeapb.SUM_JTKD_1201_CTY
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		ORDER BY AUD_TRM DESC,WEIGUI_NUM DESC
+	</select>
+	
+	<select id="export_hz_tjfx_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		WEIGUI_NUM AS weiguiNum,
+		TOL_NUM AS tolNum,
+		PER_WEIGUI*100 AS perWeigui
+		FROM 
+		hpeapb.SUM_JTKD_1201_CTY
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		ORDER BY AUD_TRM DESC,WEIGUI_NUM DESC
+	</select>
+	
+	<select id="mx_table" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM AS audTrm,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		BRDBD_SUBS_ID AS brdbdSubsId,
+		CHNL_NM AS chnlNm,
+		CRT_DT AS crtDt,
+		CELL_NM AS cellNm,
+		INSTALL_ADDR AS instaLLAddr,
+		(CASE WHEN CNTCT_PH= '' THEN '' ELSE CONCAT(SUBSTR(CNTCT_PH,1,(LENGTH(CNTCT_PH)-4)),'****') END)AS cntctPh
+		FROM hpeapb.DET_JTKD_1201
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM BETWEEN #{params.currDetBeginDate} AND #{params.currDetEndDate}
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		    	AND CMCC_PROV_ID = #{params.currCityType} 
+	    </if>
+		ORDER BY AUD_TRM DESC, CMCC_PROV_ID,CRT_DT
+	</select>
+	
+	<select id="mx_export_btn" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		BRDBD_SUBS_ID AS brdbdSubsId,
+		PROC_CHNL AS procChnl,
+		CHNL_NM AS chnlNm,
+		ORDER_TYP AS crderTyp,
+		ACCT_NBR AS acctNbr,
+		EFF_DT AS effDt,
+		END_DT AS endDt,
+		CRT_DT AS crtDt,
+		CELL_NM AS cellNm,
+		INSTALL_ADDR AS instaLLAddr,
+		(CASE WHEN CNTCT_PH= '' THEN '' ELSE CONCAT(SUBSTR(CNTCT_PH,1,(LENGTH(CNTCT_PH)-4)),'****') END)AS cntctPh
+		FROM hpeapb.DET_JTKD_1201
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currDetBeginDate} AND #{currDetEndDate}
+		<if test="currCityType != '' and currCityType !=null  ">
+		    	AND CMCC_PROV_ID = #{currCityType} 
+	    </if>
+		ORDER BY AUD_TRM DESC, CMCC_PROV_ID,CRT_DT
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>demo页面</title>
+	<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+	<link rel="stylesheet" href="/cmwa/resource/css/css.css">
+	<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+	<script type="text/javascript" src="/cmwa/resource/js/cmwa/demo/highCharts.js"></script>
+</head>
+<body style="background-color:#ebebed;">
+<form id="queryParam">
+    <input type="hidden" id="audTrm"/>
+    <input type="hidden" id="prvdIds"/>
+    <input type="hidden" id="ctyIds"/>
+    <input type="hidden" id="chartType"/>
+    <input type="hidden" id="changeSetId"/>
+</form>
+
+<div class="warp">
+    <div style="display:none;">
+        <div style="text-align: center;margin: 10px;">highcharts图表案例</div>
+        <div id="highChartsDemo" style="width: 100%; height: 400px"></div>
+    </div>
+
+    <div class="selects" style="">
+        <div style="text-align: center; color:#000; padding-top:10px;font-size: 20px">
+            选择生成图表条件
+        </div>
+        <div style="font-size:14px;margin: 0 0 0 10px">
+            <table>
+                <tr>
+                    <td>布局：
+                        <select id="bjSelect">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </td>
+                    <!--<td id="chooseType"  style="display:none;">选择类型：-->
+                    <!--<select id=stackTypeId>-->
+                    <!--<option value="normal">数据量</option>-->
+                    <!--<option value="percent">百分比</option>-->
+                    <!--</select>-->
+                    <!--</td>-->
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td>选择表现形式：
+                        <select id="chooseStyleId">
+                            <option value="1">柱状图或者折线图</option>
+                            <option value="2">纵向分段柱形</option>
+                            <option value="3">横行的柱/分段柱</option>
+                            <option value="4">饼图+环图</option>
+                        </select>
+                    </td>
+                    <!--<td id="chooseType"  style="display:none;">选择类型：-->
+                    <!--<select id=stackTypeId>-->
+                    <!--<option value="normal">数据量</option>-->
+                    <!--<option value="percent">百分比</option>-->
+                    <!--</select>-->
+                    <!--</td>-->
+                </tr>
+            </table>
+            <table>
+                <!--<tr style="display:none;">-->
+                <!--<td>-->
+                <!--<input type="text" id="changeSetId" value=""/>-->
+                <!--</td>-->
+                <!--</tr>-->
+                <tr>
+                    <td>数据表选择：</td>
+                    <td>
+                        <select id="sjTableValueId">
+                            <option value="hpeapb.sum_jtkd_1201_cty">地市汇总SUM_JTKD_1201_CTY</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>X轴名称：</td>
+                    <td>
+                        <input type="text" id="XNameId"/>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td>X轴字段：</td>
+                    <td>
+                        <select id="XValueId">
+                            <option value="AUD_TRM">审计月份</option>
+                            <option value="CMCC_PRVD_NM_SHORT">城市名称</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table id="yNameArray">
+                <tr>
+                    <td>左侧y轴名称：</td>
+                    <td><input type="text" id="YName1"/></td>
+                </tr>
+
+                <tr>
+                    <td>右侧y轴名称：</td>
+                    <td><input type="text" id="YName2"/></td>
+                </tr>
+            </table>
+            <table id="changYzhou">
+              <tr>
+                    <td>名称：</td>
+                    <td><input type="text" id="YNameId1"/></td>
+                </tr>
+                <tr>
+                    <td>Y轴字段：</td>
+                    <td>
+                        <select id="YValueId1">
+                            <option value="">--请选择--</option>
+                            <option value="TOL_NUM">办理宽带用户数</option>
+                            <option value="PER_WEIGUI">违规办理用户数占比</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Y轴函数：</td>
+                    <td>
+                        <select id="YFunctionId1">
+                            <option value="">--请选择--</option>
+                            <option value="sum">累加sum</option>
+                            <option value="avg">平均值avg</option>
+                            <option value="count">共有count</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Y轴展现形式：</td>
+                    <td>
+                        <select id="YStyleId1">
+                            <option value="">--请选择--</option>
+                            <option value="column">柱状图</option>
+                            <option value="spline">折线图</option>
+                            <option value="bar">横向分段柱状图</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>从属Y轴：</td>
+                    <td>
+                        <select id="YInId1">
+                            <option value="">--请选择--</option>
+                            <option value="0">左侧y轴</option>
+                            <option value="1">右侧y轴</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <a id="addYzhou" style="color:red;">添加Y轴</a>
+            <table>
+                <tr>
+                    <td>条件：</td>
+                    <td>
+                        <input type="text" id="whereId"/>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>GROUP BY：</td>
+                    <td>
+                        <select id="groupById">
+                            <option value="">--请选择--</option>
+                            <option value="AUD_TRM">审计月份</option>
+                            <option value="CMCC_PRVD_NM_SHORT">城市名称</option>
+                        </select>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>ORDER BY：</td>
+                    <td>
+                        <select id="orderById">
+                            <option value="">--请选择--</option>
+                            <option value="TOL_NUM">办理宽带用户数</option>
+                            <option value="PER_WEIGUI">违规办理用户数占比</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ORDER BY函数：</td>
+                    <td>
+                        <select id="orderByFunctionId">
+                            <option value="">--请选择--</option>
+                            <option value="sum">累加sum</option>
+                            <option value="avg">平均值avg</option>
+                            <option value="count">共有count</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ORDER BY排序：</td>
+                    <td>
+                        <select id="orderByPaiXuId">
+                            <option value="">--请选择--</option>
+                            <option value="asc">正序</option>
+                            <option value="desc">倒序</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button type="submit" id="btn_submit" style="width: 60px;height: 30px;"> 提交</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="aear1" id="aear1">
+        <div  class="aear1_lft">
+        	<span  class="rqcheck"></span>
+        	<div id="chartsLeftId"  style="height:280px;"></div>
+        </div>
+        <div class="aear1_rit">
+          <span  class="rqcheck"></span>
+          <div id="chartsRightId"  style="height:280px;"></div>
+        </div>
+        <div class="aear1_cen">
+            <span  class="rqcheck"></span>
+            <div id="chartCenId"  style="height:280px;"></div>
+        </div>
+    </div>
+    <div class="aear2 GMnone" id="aear2">
+        <div class="aear2_lft col-xs-12">
+            <span  class="rqcheck"></span>
+            <div id="chartTopId"  style="height:280px;"></div>
+        </div>
+        <div class="aear2_rit col-xs-12">
+            <span  class="rqcheck"></span>
+            <div id="chartLowId"  style="height:280px;"></div>
+        </div>
+    </div>
+
+
+    <div style="display:none;">
+        <br/>
+        <br/>
+        点击按钮切换图表：
+        <br/>
+        <input id="button1" type="button" value="line"/>
+        <input id="button2" type="button" value="spline"/>
+        <input id="button3" type="button" value="pie"/>
+        <input id="button4" type="button" value="area"/>
+        <input id="button5" type="button" value="column"/>
+        <input id="button6" type="button" value="areaspline"/>
+        <input id="button7" type="button" value="bar"/>
+        <input id="button8" type="button" value="scatter"/>
+        <div id="showinfo">
+            <font size="6">您当前的查询条件是:</font><font id="tips" color="red" size="6"></font>
+        </div>
+
+        <div id="container" style="width: 100%; height: 400px"></div>
+    </div>
+</div>
+
+</body>
+</html>

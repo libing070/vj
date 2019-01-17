@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>社会渠道酬金</title>
+<script type="text/javascript" src="/cmwa/resource/sjjk/js/resource.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+</head>
+<body class="light_style" id="shjkLightStyleBody">
+	<div class="wrapper" id="wrapper">
+		<!-- 公共头部 -->
+        <form id="queryParam">
+        <input type="hidden" id="currLeftBtnId" value="qianfeiBtn" />
+        <input type="hidden" id="khqf01LeftType" value="1" />
+        <input type="hidden" id="khqf01RightType" value="1" />
+        <input type="hidden" id="currBeginDate" />
+        <input type="hidden" id="currEndDate" />
+        <input type="hidden" id="currEndDate2" />
+        <input type="hidden" id="preProvinceCode" provinceCode="10000"  fieldName="全国" />
+        <input type="hidden" id="provinceCode" provinceCode="10000"  fieldName="全国" />
+        <input type="hidden" id="preProvinceCode2" provinceCode="10000"  fieldName="全国" />
+        <input type="hidden" id="provinceCode2" provinceCode="10000"  fieldName="全国" />
+        <input type="hidden" id="currKhqfTab" value="tabkhqf01" />
+        <input type="hidden" id="navbarInput" value="1" />
+        
+        <!-- 用来存放点击柱图加载折现的信息 -->
+        <input type="hidden" id="cityIdLeft" value="" />
+        <input type="hidden" id="cityIdRight" value="" />
+        <input type="hidden" id="provIdLeft" value="" />
+        <input type="hidden" id="provIdRight" value="" />
+        <input type="hidden" id="cityNameLeft" value="" />
+        <input type="hidden" id="cityNameRight" value="" />
+        <input type="hidden" id="chartSizeType" value="small" />
+      
+        </form>
+		<!-- 公共主体 -->
+		<div class="public_main">
+			<!-- 主体展示内容 -->
+			<div class="main_content">
+				<!-- 主体顶部搜索 -->
+				<div class="row main_title_search">
+					<nav class="navbar navbar-default" role="navigation">
+						<div class="container-fluid">
+							<div class="navbar-header">
+								<a class="navbar-brand" href="#">市场营销监控</a>
+							</div>
+							<ul class="nav navbar-nav navbar-right" id="navbarRightUl">
+								<li num="1" class="actives" style="border-bottom:3px solid #42b3f9;color:#333"><a href="#">监控结果</a></li>
+								<li num="2"><a href="#"> 统计分析</a></li>
+								<li num="3"><a href="#"> 监控报告</a></li>
+							</ul>
+						</div>
+					</nav>
+				</div>
+
+				<div class="row main_show_wrap">
+					<!-- 主体左侧 -->
+					<div class="main_l fl" id="mainLeftShow" style="width: 30%;">
+						<button class="btn l_btn public_btn" id="mainLeftBtn">
+							<span class="caret_left"></span>
+						</button>
+						<div class="l_show_wrap">
+							<ul id="myLeftTabUl" class="nav nav-tabs">
+								<li ><a href="#home" data-toggle="tab">
+										客户欠费 </a></li>
+								<li><a href="#home2" data-toggle="tab">有价卡赠送</a></li>
+								<li class="active"><a href="#home3" data-toggle="tab">社会渠道酬金</a></li>
+
+							</ul>
+							<div id="myTabContent" class="tab-content">
+								<div class="tab-pane fade in active" id="home">
+									<div class="graph cycle_wrap" id="cycleWrap">
+										<div id="leftBackgroundBtn" class="left-background">
+											<img src="/cmwa/resource/sjjk/images/left_background.png" class="img-responsive">
+										</div>
+										<div id="qianfeiBtn" class="cycle_item qianfei">
+											<img imgnum="1" src="/cmwa/resource/sjjk/images/qdcj.png" class="cycle_wrap_hide imghide">
+											<img imgnum="2" src="/cmwa/resource/sjjk/images/qdcj_active.png" class="imgshow">
+										</div>
+										<div id="xingyongguanliBtn" class="cycle_item xingyongguanli">
+											<img imgnum="1" src="/cmwa/resource/sjjk/images/qdcjbz.png" class=" imghide">
+											<img imgnum="2" src="/cmwa/resource/sjjk/images/qdcjbz_active.png" class="imgshow cycle_wrap_hide">
+										</div>
+										<div id="qianfeiyufangBtn" class="cycle_item qianfeiyufang">
+											<img imgnum="1" src="/cmwa/resource/sjjk/images/qdcjjl.png" class="imghide">
+											<img imgnum="2" src="/cmwa/resource/sjjk/images/qdcjjl_active.png" class="imgshow cycle_wrap_hide">
+										</div>
+										<div id="qianfeiguanliBtn" class="cycle_item qianfeiguanli">
+											<img imgnum="1" src="/cmwa/resource/sjjk/images/qdcjxc.png" class="imghide">
+											<img imgnum="2" src="/cmwa/resource/sjjk/images/qdcjxc_active.png" class="imgshow cycle_wrap_hide">
+										</div>
+									</div>
+									<div class="arrearage-info">
+										<p>
+											<b>社会渠道服务费占收入比重：</b> <span>社会渠道服务费占总收入比重，集团业务服务费占集团业务收入比重，家庭业务服务费占家庭业务收入比重</span>
+										</p>
+										<p>
+											<b>激励酬金占总酬金比重：</b> <span>激励酬金占总酬金比重</span>
+										</p>
+										<p>
+											<b>社会渠道服务费业财一致性：</b> <span>社会渠道服务费业财一致性</span>
+										</p>
+									</div>
+								</div>
+								<div class="tab-pane fade" id="home2"></div>
+								<div class="tab-pane fade" id="home3"></div>
+							</div>
+						</div>
+					</div>
+					<!-- 主体右侧 -->
+					<div class="main_r fr" id="mainRightShow" style="width: 70%;">
+						<button class="btn public_btn r_btn " id="mainRightBtn"
+							style="display: none;">
+							<span class="caret_right"></span>
+						</button>
+						<div class="tab-content main_r_title_search">
+							<!--  -->
+							<form class="form-inline top_search">
+								<!-- <div class="form-group form-group_1024">
+									<label class="col-xs-1 top_search_label" for="chooseSpecial">监控周期</label>
+									<div class="col-xs-3 dropdown_con">
+										<div class="">
+											<input type="text" class="dropdown_con_input form-control datetimepicker_input" value="" id="datetimepickerStart" style="text-align:center"
+												data-date="" data-date-format="yyyy-mm"
+												readonly="readonly">
+										</div>
+									</div>
+									<div class="col-xs-3 dropdown_con">
+										<div class="">
+											<input type="text" data-date="" class="dropdown_con_input form-control datetimepicker_input" value="" id="datetimepickerEnd" style="text-align:center"
+												readonly="readonly">
+										</div>
+									</div>
+									<label class="col-xs-1 top_search_label" for="chooseProvice">选择省份
+									</label>
+									<div class="col-xs-3 dropdown_con choose-provice-div">
+										<div class="input_wrap">
+											<input type="text" class="dropdown_con_input" value="" id="chooseProvice" style="text-align:center">
+										</div>
+										后台获取
+									<div id="listProviceContent" class="list-provice-content"
+										style="display: none;"></div>
+								</div>
+
+								</div>
+								
+
+								<div class="form-group fr">
+									<button class="btn btn-primary" id="searchSjbgBtn"
+										type="button">查询</button>
+								</div> -->
+								
+								<div class="form-group form-group_1024">
+                                    <label class="col-xs-1 top_search_label" id="formLabelJkzq" for="chooseSpecial">监控周期</label>
+ 									<label class="col-xs-1 top_search_label" id="formLabelJky" for="chooseSpecial" style="display:none">监控月</label>
+ 																		<div class="col-xs-3 dropdown_con" id="datetimepickerStartDiv">
+										<div class="">
+											<input type="text" class="dropdown_con_input form-control datetimepicker_input" value="" id="datetimepickerStart" style="text-align:center"
+												data-date="" data-date-format="yyyy-mm"
+												readonly="readonly">
+										</div>
+									</div>
+									<div class="col-xs-3 dropdown_con" id="datetimepickerEndDiv">
+										<div class="">
+											<input type="text" data-date="" class="dropdown_con_input form-control datetimepicker_input" value="" id="datetimepickerEnd" style="text-align:center"
+												readonly="readonly">
+										</div>
+									</div>
+									<div class="col-xs-3 dropdown_con" id="datetimepickerEndDiv2" style="display:none">
+										<div class="">
+											<input type="text" data-date="" class="dropdown_con_input form-control datetimepicker_input" value="" id="datetimepickerEnd2" style="text-align:center"
+												readonly="readonly">
+										</div>
+									</div>
+									<label class="col-xs-1 top_search_label" for="chooseProvice">选择省份
+									</label>
+									<div class="col-xs-3 dropdown_con choose-provice-div" id="dropdownConChooseProviceChecked">
+										<div class="input_wrap">
+											<input type="text" class="dropdown_con_input" value="" id="chooseProvice" style="text-align:center">
+										</div>
+										<!-- 后台获取 -->
+									<div id="listProviceContent" class="list-provice-content list-provice-content-checkbox" style="display: none;"></div>
+								   </div>
+									<div class="col-xs-3 dropdown_con choose-provice-div" id="dropdownConChooseProviceRadio" style="display:none;">
+										<div class="input_wrap">
+											<input type="text" class="dropdown_con_input" value="" id="chooseProvice2" style="text-align:center">
+										</div>
+										<!-- 后台获取 -->
+									<div id="listProviceContent2" class="list-provice-content list-provice-content-radio" style="display: none;"></div>
+								   </div>
+
+								</div>
+								
+
+								<div class="form-group fr">
+									<button class="btn btn-primary" id="searchSjbgBtn"
+										type="button">查询</button>
+									<button class="btn btn-primary" id="searchSjbgDownloadBtn" style="display: none;"
+										type="button">审计报告下载</button>
+								</div>
+							</form>
+							<div class="bottom_search"  id="editorTabsDiv">
+								<div class="row">
+									<div class="col-md-12">
+										<div class="nth-tabs" id="editor-tabs"></div>
+										<!--使用时只需此标签，class固定,id自定义-->
+									</div>
+								</div>
+							</div>
+
+							<!-- chart开始-->
+							<div id="mainShowChart">
+								<div id="mainShow1" class="col-xs-12 "
+									style="padding: 10px 0 0 0">
+									<div class="row component1">
+										<!-- 图形展示 -->
+										<!-- 控件1 -->
+										<div class="chart_item col-xs-6 show_item" id="chartItemsjbg1">
+											<div class="title clear_float">
+												<p class="fl" id="chart01Title"></p>
+												<!-- <div class="btn-group fr">
+													<button class="btn active_btn" id="khqf01LeftType1" currBtn="1">
+														<span class="fa fa-bar-chart""></span>
+													</button>
+													<button class="btn" id="khqf01LeftType2" currBtn="2">
+														<span class="glyphicon glyphicon-stats"></span>
+													</button>
+												</div> -->
+											</div>
+											<div class="chart_wrap" id="contentShowWrap1">
+												<div class="chart content_show" id="contentShow1"
+													style="height: 100%;"></div>
+											</div>
+										</div>
+										<!-- 控件2 -->
+										<div class="chart_item col-xs-6 show_item" id="chartItemsjbg2">
+											<div class="title clear_float">
+												<p class="fl" id="chart02Title"></p>
+												<!-- <div class="btn-group fr">
+													<button class="btn active_btn" id="khqf01RightType1" currBtn="1">
+														<span class="fa fa-bar-chart""></span>
+													</button>
+													<button class="btn" id="khqf01RightType2" currBtn="2">
+														<span class="glyphicon glyphicon-stats"></span>
+													</button>
+												</div> -->
+												<!-- <div class="btn-group fr">
+													<button class="btn active_btn" id="">
+														<span class="fa fa-bar-chart"></span>
+													</button>
+													<button class="btn" id="numAmtOrderBtn">
+														<span class="glyphicon glyphicon-stats"></span>
+													</button>
+												</div> -->
+											</div>
+											<!-- <div class="panel panel-default">
+												<div class="panel-heading light_default_heading">
+													<div class="panel-title">
+														<h6 class="text-left">违规测试用户欠费金额</h6>
+														 <button class="btn btn-defalut sjbg-btn-style" id="searchBtn" type="button">专题汇总</button>
+                                                    <button class="btn btn-defalut sjbg-btn-style" id="searchBtn" type="button">分专题统计</button>
+													</div>
+												</div>
+												<div class="panel-body">
+													<div class="chart_wrap" id="contentShowWrap2">
+														<div class="chart content_show" id="contentShow2"
+															style="width: 250%; height: 100%"></div>
+													</div>
+												</div>
+											</div> -->
+											<div class="chart_wrap" id="contentShowWrap2">
+												<div class="chart content_show" id="contentShow2"
+													style="height: 100%"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div id="mainShow2" class="col-xs-12 " style="padding: 0 0 0 0">
+									<div class="row component2">
+										<!-- 图形展示 -->
+										<!-- 控件1 -->
+										<div class="chart_item col-xs-6 show_item" id="chartItemsjbg3">
+											<!-- <div class="panel panel-default">
+												<div class="panel-heading light_default_heading">
+													<div class="panel-title">
+														<h6 class="text-left">浙江违规测试用户数趋势</h6>
+													</div>
+												</div>
+												<div class="panel-body">
+													<div class="chart_wrap" id="contentShowWrap3">
+														<div class="chart content_show" id="contentShow3"
+															style="width: 120%; height: 100%;"></div>
+													</div>
+												</div>
+											</div> -->
+											<div class="title clear_float">
+												<p class="fl" id="chart03Title"></p>
+												<!-- <div class="btn-group fr">
+													<button class="btn active_btn" id="">
+														<span class="fa fa-area-chart"></span>
+													</button>
+													<button class="btn" id="numAmtOrderBtn">
+														<span class="fa fa-line-chart"></span>
+													</button>
+												</div> -->
+											</div>
+											<div class="chart_wrap" id="contentShowWrap3">
+												<div class="chart content_show" id="contentShow3"
+													style="width: 100%; height: 100%;"></div>
+											</div>
+										</div>
+										<!-- 控件2 -->
+										<div class="chart_item col-xs-6 show_item" id="chartItemsjbg4">
+											<!-- <div class="panel panel-default">
+												<div class="panel-heading light_default_heading">
+													<div class="panel-title">
+														<h6 class="text-left">浙江违规测试用户欠费金额趋势</h6>
+														 <button class="btn btn-defalut sjbg-btn-style" id="searchBtn" type="button">专题汇总</button>
+                                                    <button class="btn btn-defalut sjbg-btn-style" id="searchBtn" type="button">分专题统计</button>
+													</div>
+												</div>
+												<div class="panel-body">
+													<div class="chart_wrap" id="contentShowWrap4">
+														<div class="chart content_show" id="contentShow4"
+															style="width: 120%; height: 100%"></div>
+													</div>
+												</div>
+											</div> -->
+											<div class="title clear_float">
+												<p class="fl" id="chart04Title"></p>
+												<!-- <div class="btn-group fr">
+													<button class="btn active_btn" id="">
+														<span class="fa fa-area-chart"></span>
+													</button>
+													<button class="btn" id="numAmtOrderBtn">
+														<span class="fa fa-line-chart"></span>
+													</button>
+												</div> -->
+											</div>
+											<div class="chart_wrap" id="contentShowWrap4">
+												<div class="chart content_show" id="contentShow4"
+													style="width: 100%; height: 100%"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- chart结束-->
+
+
+							<!-- 表格开始 -->
+							<div id="mainShowTable" style="display: none">
+								<div id="mainShow3" class="col-xs-12"
+									style="padding: 10px 0 10px 0">
+									<div class="row component3">
+										<!-- 图形展示 -->
+										<!-- 控件1 -->
+										<div class="col-xs-12 table_wrap"
+											id="fenxiFourNav1FiveNav1Con">
+											<table id="rankingAllTable"
+												class="table table-bodered table-striped"></table>
+										</div>
+									</div>
+								</div>
+								<div class="form-group fr">
+									<a href="javascript:;"  class="btn btn-primary" id="exportHzTable" >汇总数据下载</a>
+<!-- 									<a href="javascript:;"  class="btn btn-primary" id="exportMxTable" >明细数据下载</a>
+ -->								</div>
+							</div>
+							<!-- 表格结束 -->
+                               <!-- word预览开始 -->
+							<div class="div-main-show-proWord" id="mainShowProWord" style="display: none;">
+								
+							 	<iframe src="" currEndDate="" provinceCode="" fieldName=""  subjectId="2001" frameborder="1" id="pdfContainer" style="width:100%;height:80%"
+										name="pdfContainer"></iframe>
+							</div>
+							<!-- word预览结束 -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- 模态框（Modal） -->
+	<div class="modal fade  sjjkModal1" id="khqfModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			
+				<div class="modal-body">
+					<form class="form-horizontal" role="form">
+						<h4 style="" id="khqfFocusName">违规将测试号维护成免催免停</h4>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">监控点风险分析:</label>
+							<div class="col-sm-9">
+								<p class="form-control-static" id="khqfModalP01"></p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">模型逻辑:</label>
+							<div class="col-sm-9">
+								<p class="form-control-static" id="khqfModalP02"></p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据来源系统:</label>
+							<div class="col-sm-9">
+								<p class="form-control-static" id="khqfModalP03"></p>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">数据来源表:</label>
+							<div class="col-sm-9">
+								<p class="form-control-static" id="khqfModalP04"></p>
+							</div>
+						</div>
+                         <div class="form-group">
+							<label class="col-sm-3 control-label">其他说明:</label>
+							<div class="col-sm-9">
+								<p class="form-control-static" id="khqfModalP05"></p>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<!-- <button type="button" class="btn btn-primary">
+					
+				</button> -->
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
+</body>
+<script type="text/javascript" src="/cmwa/resource/sjjk/js/common.js"></script>
+<script type="text/javascript" language="JavaScript" src="/cmwa/resource/sjjk/js/qdcj.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/cmwa/resource/sjjk/js/qdcjData.js"></script>
+<script type="text/javascript">
+
+</script>
+</html>

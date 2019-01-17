@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="yjk200301Mapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(infraction_num) AS yjk_cnts
+		FROM hpeapb.sum_yjk_2003_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and infraction_num != 0
+		group by short_name
+		ORDER BY SUM(infraction_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(infraction_num) AS yjk_cnts
+		FROM hpeapb.sum_yjk_2003_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by short_name
+		ORDER BY SUM(infraction_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(infraction_num) AS yjk_cnts
+		FROM hpeapb.sum_yjk_2003_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		infraction_num,
+		tol_num,
+		per_weigui_cnt*100 as per_weigui_cnt,
+		infraction_amt,
+		tol_amt
+		FROM hpeapb.sum_yjk_2003_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,infraction_num desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		infraction_num,
+		tol_num,
+		per_weigui_cnt*100 as per_weigui_cnt,
+		infraction_amt,
+		tol_amt
+		FROM hpeapb.sum_yjk_2003_prvd
+		WHERE 
+		aud_trm between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,infraction_num desc,cmcc_prov_prvd_id
+	</select>
+</mapper>
+

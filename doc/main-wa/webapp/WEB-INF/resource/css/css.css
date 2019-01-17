@@ -1,0 +1,141 @@
+
+html, body, div, span, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, menu {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+    /*font-family: "YouYuan","Microsoft YaHei",'arial';*/
+    font-family: "Microsoft YaHei";
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:focus, a:hover {
+    text-decoration: none;
+}
+
+input:focus {
+    border-color: #f8a900;
+}
+
+a, button, input {
+    outline: none;
+}
+
+button:focus {
+    outline: none !important;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+input,
+select {
+    vertical-align: middle;
+}
+
+img {
+    display: block;
+    border: 0;
+}
+
+.GMnone {
+    display: none;
+}
+
+.warp{
+    min-width: 1024px;
+    height: 650px;
+    overflow: hidden;
+}
+.selects {
+    float: left;
+    width: 28%;
+    margin: 10px;
+    padding: 0 0 10px 0 ;
+    height: 605px;
+    background-color: #fff;
+    box-shadow: -2px 2px 1px #dad9db;
+}
+
+.aear1 {
+    float: left;
+    width: 69%;
+    height: 606px;
+    margin: 10px 0 10px 10px;
+    overflow: hidden;
+}
+
+.aear2 {
+    float: left;
+    width: 69%;
+    height: 606px;
+    margin: 10px 0 10px 10px;
+    overflow: hidden;
+}
+
+.aear1_lft {
+    float: left;
+    width: 48.4%;
+    height: 297px;
+    background-color: #fff;
+    box-shadow: -2px 2px 1px #dad9db;
+}
+
+.aear1_rit {
+    float: left;
+    width: 48.4%;
+    height: 297px;
+    margin-left: 10px;
+    background-color: #fff;
+    box-shadow: -2px 2px 1px #dad9db;
+}
+
+.aear1_cen {
+    float: left;
+    width: 98%;
+    height: 297px;
+    margin: 10px 10px 0 0;
+    background-color: #fff;
+    box-shadow: -2px 2px 1px #dad9db;
+}
+
+.aear2_lft {
+    float: left;
+    height: 297px;
+    margin: 0 0 10px 0;
+    background-color: #fff;
+    box-shadow: -2px 2px 1px #dad9db;
+}
+
+.aear2_rit {
+    float: left;
+    height: 297px;
+    background-color: #fff;
+    box-shadow: -2px 2px 1px #dad9db;
+}
+
+.rqcheck{
+	width:14px;
+	height:14px;
+	background:#ccc;
+	display:inline-block;
+	margin:10px 0 0 10px
+}

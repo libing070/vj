@@ -1,0 +1,259 @@
+/*首页*/
+.index_body{
+	behavior: url(/cmca/resource/css/backgroundsize.min.htc);
+}
+/*养卡套利*/
+.yangka_body{
+	behavior: url(/cmca/resource/css/backgroundsize.min.htc);
+}
+/*终端套利*/
+.zd_body{
+	behavior: url(/cmca/resource/css/backgroundsize.min.htc);
+}
+/*审计报告*/
+.baogao_body{
+	behavior: url(/cmca/resource/css/backgroundsize.min.htc);
+}
+
+.content-info .content_zhuanti .zhuanti_box .zhuanti_tu_box{
+	-pie-background:rgba(0,0,0,0);/*IE6-8*/ 
+	behavior: url(/cmca/resource/css/pie.htc);
+}
+
+/*header*/
+.header{
+	-pie-background:rgba(0,0,0,.2);/*IE6-8*/ 
+	behavior: url(/cmca/resource/css/pie.htc);
+}
+.header .logo{
+	-pie-background:rgba(0,0,0,.4);/*IE6-8*/
+	behavior:url(/cmca/resource/css/pie.htc);
+	overflow:hidden;
+}
+.header .nav{
+
+}
+.yangka_slider{
+	-pie-background:rgba(0,0,0,.2);/*IE6-8*/ 
+	behavior: url(/cmca/resource/css/pie.htc);
+}
+.yangka_slider.fixed{
+	
+}
+.yangka_slider .top ul li .sheng_list{
+	background:#000\9;
+	filter:alpha(opacity=80);
+	z-index:999;
+}
+.yangka_slider .top ul li.active{
+	-pie-background:rgba(255,255,255,0.25);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_slider .bottom dl{
+	-pie-background:rgba(255,255,255,0.25);
+	behavior:url(/cmca/resource/css/pie.htc);
+	position:relative;
+}
+.yangka_slider .bottom dl dt{
+	-pie-background:rgba(255,255,255,0.25);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_checked_sheng dl dt{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_checked_sheng dl dd{
+	background:#889ea9;
+	filter:alpha(opacity=50);
+	behavior:url(/cmca/resource/css/pie.htc);
+	position:static;
+}
+.yangka_checked_sheng dl dd span{
+	position:relative;
+}
+.yangka_checked_sheng dl dd i{
+	position:relative;
+}
+.ui-widget-content,.ui-widget-header{
+	-pie-background: rgba(255,255,255,0.6);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+
+.zd_summary li{
+	background:#6b5b6d;
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_right_box{
+	-pie-background:rgba(0,0,0,0.2);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.zd_items{
+	-pie-background:rgba(0,0,0,0.03);
+	behavior:url(/cmca/resource/css/pie.htc);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#00000000,endColorstr=#33000000);
+}
+.zd_item{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.zd_map{
+	-pie-background:rgba(0,0,0,0.3);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.zd_btlist{
+	-pie-background:rgba(0,0,0,0.3);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.zd_bottom p.zd_bz span{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.zd_btlist .zd_taoli,.zd_btlist .zd_abnormal{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.zd_btlist .zd_taoli h3,.zd_btlist .zd_abnormal h3{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yjk_top .yjk_menu .yjk_left .yjk_ul li p:first-child{
+	margin-top: 30px;
+	margin-bottom: 8px;
+}
+.yjk_top .yjk_menu .yjk_left .yjk_ul p.yjk_monp{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yjk_top .yjk_menu .yjk_left .yjk_ul p.yjk_num{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item{
+	filter:Alpha(opacity=60);
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item.active{
+	filter:Alpha(opacity100);
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item:first-child{
+	background: url(../images/youjiaka/bg2.png) no-repeat;
+	width:235px;
+	height: 68px;
+	margin-top: 19px;
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item:first-child + .yjk_item{
+	background: url(../images/youjiaka/bg3.png) no-repeat;
+	width:173px;
+	height: 68px;
+	margin-top: 25px;
+	margin-left: 119px;
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item:first-child + .yjk_item + .yjk_item{
+	background: url(../images/youjiaka/bg4.png) no-repeat;
+	width: 158px;
+	height: 68px;
+	margin-top: 25px;
+	margin-left: 162px;
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item:first-child + .yjk_item + .yjk_item + .yjk_item{
+	background: url(../images/youjiaka/bg5.png) no-repeat;
+	width: 167px;
+	height: 68px;
+	margin-top: 25px;
+	margin-left: 154px;
+}
+.yjk_top .yjk_menu .yjk_right .yjk_item:first-child + .yjk_item + .yjk_item + .yjk_item + .yjk_item{
+	background: url(../images/youjiaka/bg6.png) no-repeat;
+	width: 197px;
+	height: 67px;
+	margin-top: 25px;
+	margin-left: 97px;
+}
+.yjk_itemprompt{
+	-pie-background:rgba(0,0,0,0.6);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yjk_table thead {
+	-pie-background: rgba(51,157,190,.15);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yjk_table th.line{
+	behavior: url(/cmca/resource/css/backgroundsize.min.htc);
+}
+.yjk_life .yjk_lifetop .yjk_table td span{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yjk_bottom .yjk_botright .yjk_brul li{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.paiming_sjzq{
+	-pie-background: rgba(0,0,0,0.2) url(../images/paiming/bg-xian.png) no-repeat center bottom;
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.paiming_sjzq .year dl dt input{
+	line-height:26px;
+}
+.paiming_sjzq .year dl dd ul li:last-child{
+ 	border-bottom: none;
+}
+.paiming_sjzq .months dl{
+	margin-right:9px;
+}
+.paiming_sjzq .months dl:first-child{
+	margin-right: 0;
+}
+.paiming_sjzq .months dl dt em{
+	-pie-background: rgba(255,255,255,0.4);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.paiming_sjzq .months dl dt em b{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.baogao_content .bagao_info{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.bg_pink{
+	-pie-background:rgba(199,107,209,0.7);
+}	
+.bg_yellow{
+	-pie-background:rgba(255,184,63,0.7);
+}
+.bg_blue{
+	-pie-background: rgba(75,155,254,0.6);
+}
+.bg_green{
+	-pie-background: rgba(4,190,177,0.6);
+}
+.bg_red{
+	-pie-background: rgba(250,100,109,0.6);
+}
+.baogao_content .bagao_info .info .down a{
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.baogao_content .bagao_info .info dl dt{
+	color:#efefef;
+}
+
+
+
+/*弹层*/
+.yangka_modal{
+	-pie-background:rgba(0,0,0,0);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_modal .table_modal{
+	-pie-background:rgba(0,0,0,.95);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_modal .yjk_tantable{
+	-pie-background:rgba(0,0,0,.95);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_modal .yjk_tantable .yjk_table{
+	-pie-background:rgba(0,0,0,.95);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_modal_tips .table_modal_tips{
+	-pie-background:rgba(0,0,0,.95);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_modal .baogao_modal{
+	-pie-background: rgba(0,0,0,0.95);
+	behavior:url(/cmca/resource/css/pie.htc);
+}
+.yangka_modal .baogao_modal dl{
+	-pie-background: rgba(255,255,255,1);
+	behavior:url(/cmca/resource/css/pie.htc);
+}

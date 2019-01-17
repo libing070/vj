@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+    
+	<!-- 自动扫描 1 -->
+	<context:component-scan base-package="com.hpe.cmwa" >
+		 <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+	<!-- 引入配置文件 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:jdbc.properties" />
+	</bean>
+
+	<bean id="propertyUtil" class="com.hpe.cmwa.common.FilePropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:other.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!--创建jdbc数据源 -->
+	<bean id="dataSourceMysql" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="autoCommitOnClose" value="true" />
+		<property name="checkoutTimeout" value="${cpool.checkoutTimeout}" />
+		<property name="initialPoolSize" value="${cpool.minPoolSize}" />
+		<property name="minPoolSize" value="${cpool.minPoolSize}" />
+		<property name="maxPoolSize" value="${cpool.maxPoolSize}" />
+		<property name="maxIdleTime" value="${cpool.maxIdleTime}" />
+		<property name="acquireIncrement" value="${cpool.acquireIncrement}" />
+		<property name="maxIdleTimeExcessConnections" value="${cpool.maxIdleTimeExcessConnections}" />
+
+	</bean>
+	
+	<!--创建jdbc数据源 -->
+	<bean id="dataSourceGBase" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc2.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc2.url}" />
+		<property name="user" value="${jdbc2.username}" />
+		<property name="password" value="${jdbc2.password}" />
+		<property name="autoCommitOnClose" value="true" />
+		<property name="checkoutTimeout" value="${cpool.checkoutTimeout}" />
+		<property name="initialPoolSize" value="${cpool.minPoolSize}" />
+		<property name="minPoolSize" value="${cpool.minPoolSize}" />
+		<property name="maxPoolSize" value="${cpool.maxPoolSize}" />
+		<property name="maxIdleTime" value="${cpool.maxIdleTime}" />
+		<property name="acquireIncrement" value="${cpool.acquireIncrement}" />
+		<property name="maxIdleTimeExcessConnections" value="${cpool.maxIdleTimeExcessConnections}" />
+
+	</bean>
+
+    <bean id="multipleDataSource" class="com.hpe.cmwa.common.datasource.MultipleDataSource">
+        <property name="targetDataSources">
+            <map>     
+                <!-- 注意这里的value是和上面的DataSource的id对应，key要和下面的CustomerContextHolder中的常量对应 -->
+                <entry value-ref="dataSourceMysql" key="dataSourceMysql"/>
+                <entry value-ref="dataSourceGBase" key="dataSourceGBase"/>
+            </map>   
+        </property>
+        <property name="defaultTargetDataSource" ref="dataSourceMysql"/>
+    </bean>
+
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+
+		<property name="dataSource" ref="multipleDataSource" />
+		<!-- 自动扫描mapping.xml文件 -->
+		<property name="mapperLocations" value="classpath:com/hpe/**/mapping/**/*.xml">
+		</property>
+		<property name="typeAliases">
+			<array>
+				<value type="java.lang.Class">com.hpe.cmwa.common.Pager</value>
+			</array>
+		</property>
+		<property name="configLocation" value="classpath:mybatis-config.xml">
+		</property>
+		<!-- <property name="configurationProperties"> <props> <prop key="useColumnLabel">true</prop> </props> </property> -->
+		<!--
+		 <property name="plugins">  
+            <array>  
+                <bean class="com.hpe.cmwa.filter.PageInterceptor">  
+                    <property name="properties">  
+                        <value>  
+                            databaseType=mysql  
+                        </value>  
+                    </property>  
+                </bean>  
+            </array>  
+        </property> 
+        --> 
+	</bean>
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hpe.cmwa.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="multipleDataSource" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" order="2"/> 
+	
+	<!-- 数据读写Jdbc模板 -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="multipleDataSource" />
+	</bean>
+
+    <!-- 配置一个拦截器对象，处理具体的切换数据源的业务 -->
+    <bean id="manyDataSourceAspect" class="com.hpe.cmwa.common.datasource.DataSourceAspect" />  
+    <aop:config>  
+        <aop:aspect id="simpleAspect" ref="manyDataSourceAspect" order="1">  
+            <aop:pointcut id="simplePointcut" expression="execution(* com.hpe.cmwa..*.service..*.*(..))"/>  
+            <aop:before pointcut-ref="simplePointcut" method="intercept"/>  
+        </aop:aspect>  
+    </aop:config>
+    
+</beans>

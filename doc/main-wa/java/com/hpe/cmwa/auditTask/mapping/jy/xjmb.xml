@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="xjmbMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_qst_chart" resultType="Map" parameterType="Map">
+		SELECT cmcc_prov_id,cmcc_prvd_nm_short,sum(weigui_subs_cnt) weiguiCnt,
+		sum(weigui_subs_cnt)/sum(tol_subs_cnt) *100 as zper
+		FROM hpeapb.sum_jtkd_1102_cty
+		WHERE prvd_id = #{provinceCode}
+		AND aud_trm = #{currSumEndDate}
+		GROUP BY cmcc_prov_id,cmcc_prvd_nm_short
+		order by 3 desc
+	</select>
+	<select id="load_hz_conclusion" resultType="Map" parameterType="Map">
+	SELECT sum(weigui_subs_cnt) weiguiCnt,
+		sum(weigui_subs_cnt)/sum(tol_subs_cnt) *100 as zper
+		FROM hpeapb.sum_jtkd_1102_cty
+		WHERE prvd_id = #{provinceCode}
+		AND aud_trm = #{currSumEndDate}
+	</select>
+	
+	
+	<select id="load_hz_czy_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm as  aud_trm_end,
+			prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			weigui_subs_cnt,
+			tol_subs_cnt,
+			per*100 as per
+		FROM hpeapb.sum_jtkd_1102_cty
+		WHERE prvd_id = #{params.provinceCode}
+		and aud_trm = #{params.currSumEndDate}
+		order by weigui_subs_cnt desc,cmcc_prov_id
+	</select>
+	
+	
+	<select id="export_hz_czy_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm as  aud_trm_end,
+			prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			weigui_subs_cnt,
+			tol_subs_cnt,
+			per*100 as per
+		FROM hpeapb.sum_jtkd_1102_cty
+		WHERE prvd_id = #{provinceCode}
+		and aud_trm = #{currSumEndDate}
+		order by weigui_subs_cnt desc,cmcc_prov_id
+	</select>
+
+</mapper>
+

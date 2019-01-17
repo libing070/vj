@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jksrtjfxMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_tj_chart" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm, sum(sun_bill_amt) as amt
+		FROM hpeapb.sum_jtkd_inc
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by AUD_TRM
+		ORDER BY AUD_TRM
+	</select>
+	
+	<select id="maxAmt_audTrm" resultType="Map" parameterType="Map">
+		SELECT aud_trm AS aud_trm, sum(sun_bill_amt) as amt
+		FROM hpeapb.sum_jtkd_inc
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate} 
+		group by aud_trm
+		ORDER BY amt desc limit 1;
+	</select>
+	
+	<select id="minAmt_audTrm" resultType="Map" parameterType="Map">
+		SELECT aud_trm AS aud_trm, sum(sun_bill_amt) as amt
+		FROM hpeapb.sum_jtkd_inc
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate} 
+		group by aud_trm
+		ORDER BY amt asc limit 1;
+	</select>
+	
+	<select id="sum_amt" resultType="Map" parameterType="Map">
+		SELECT sum(sun_bill_amt) as amt
+		FROM hpeapb.sum_jtkd_inc
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		and aud_trm &gt;=  #{currSumBeginDate} 
+		and aud_trm &lt;= #{currSumEndDate} 
+		ORDER BY amt asc limit 1;
+	</select>
+	
+	
+	<select id="load_hz_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		Aud_trm, cmcc_prov_prvd_id, short_name,
+		subs_num, busn_typ, sun_bill_amt
+		FROM hpeapb.sum_jtkd_inc
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate} 
+		ORDER BY Aud_trm desc,busn_typ
+	</select>
+	<select id="export_hz_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		Aud_trm, cmcc_prov_prvd_id, short_name,
+		subs_num, busn_typ, sun_bill_amt
+		FROM hpeapb.sum_jtkd_inc
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		ORDER BY Aud_trm desc,busn_typ
+	</select>
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		Aud_trm, cmcc_prov_prvd_id, short_name,
+		brdbd_subs_id, subs_id, busn_typ,bill_amt
+		FROM hpeapb.det_jtkd_inc
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		and Aud_trm &gt;=  #{params.currDetBeginDate} 
+		and Aud_trm &lt;= #{params.currDetEndDate} 
+		<if test="params.currYwType != '' and params.currYwType !=null ">
+			AND busn_typ = #{params.currYwType}
+		</if> 
+		ORDER BY Aud_trm desc,brdbd_subs_id
+	</select>
+	
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		Aud_trm, cmcc_prov_prvd_id, short_name,
+		brdbd_subs_id, subs_id, busn_typ,bill_amt
+		FROM hpeapb.det_jtkd_inc
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate} 
+		<if test="currYwType != '' and currYwType !=null ">
+			AND busn_typ = #{currYwType}
+		</if> 
+		ORDER BY Aud_trm desc,brdbd_subs_id
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

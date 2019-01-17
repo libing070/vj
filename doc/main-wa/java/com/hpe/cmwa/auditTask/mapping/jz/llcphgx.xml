@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="llcphgxMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_qst_chart" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm, INFRAC_PACK_NUM AS infracPackNum,NEW_PACK_NUM as newPackNum,
+				((NEW_PACK_NUM)-(INFRAC_PACK_NUM)) AS fuheNum,PACK_USER_NUM AS packUserNum
+		FROM hpeapb.sum_zftc_1401_prvd
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		ORDER BY AUD_TRM
+	</select>
+	<select id="load_hz_qst_conclusion" resultType="Map" parameterType="Map">
+	
+		select c.infracPackNum,c.newPackNum,c.packUserNum,c.maxPackUserNum,c.maxAudTrm,c.avgnum,c.maxinfracPackNum,d.AUD_TRM AS maxAt
+		from hpeapb.sum_zftc_1401_prvd d,
+		(SELECT b.infracPackNum,b.newPackNum,b.packUserNum,b.maxPackUserNum,a.AUD_TRM as maxAudTrm,b.avgnum,b.maxinfracPackNum
+		from  hpeapb.sum_zftc_1401_prvd a,
+		(SELECT SUM(INFRAC_PACK_NUM) AS infracPackNum,max(INFRAC_PACK_NUM) AS maxinfracPackNum,
+		SUM(NEW_PACK_NUM) as newPackNum,sum(PACK_USER_NUM) AS packUserNum,avg(PACK_USER_NUM) as avgnum,
+		MAX(PACK_USER_NUM) AS maxPackUserNum
+		FROM hpeapb.sum_zftc_1401_prvd
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}) b
+		WHERE a.PACK_USER_NUM = b.maxPackUserNum
+		and CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		limit 1) c
+		WHERE d.INFRAC_PACK_NUM = c.maxinfracPackNum
+		and CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		limit 1
+		
+		
+		
+	</select>
+	
+	<select id="load_hz_city_chart" resultType="Map" parameterType="Map">
+		SELECT CMCC_PRVD_NM_SHORT as cmccPrvdNmShort,SUM(INFRAC_PACK_NUM) as infracPackNum,sum(NEW_PACK_NUM) as newPackNum,
+				SUM(NEW_PACK_NUM)-SUM(INFRAC_PACK_NUM) as fuheNum,SUM(PACK_USER_NUM) as packUserNum
+		FROM hpeapb.sum_zftc_1401_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY CMCC_PRVD_NM_SHORT
+		ORDER BY infracPackNum desc,cmcc_prov_id 
+	</select>
+	<select id="load_hz_city_conclusion" resultType="Map" parameterType="Map">
+		SELECT CMCC_PRVD_NM_SHORT as cmccPrvdNmShort,SUM(INFRAC_PACK_NUM) as infracPackNum
+		FROM hpeapb.sum_zftc_1401_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY CMCC_PRVD_NM_SHORT
+		ORDER BY infracPackNum desc,cmcc_prov_id
+		LIMIT 3
+	</select>
+	<select id="load_hz_city_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT CMCC_PRVD_NM_SHORT as cmccPrvdNmShort,SUM(PACK_USER_NUM) as packUserNum
+		FROM hpeapb.sum_zftc_1401_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY CMCC_PRVD_NM_SHORT
+		ORDER BY packUserNum desc
+		LIMIT 3
+	</select>
+	<select id="load_hz_mx_table" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm,SHORT_NAME as shortName,CMCC_PRVD_NM_SHORT as cmccPrvdNmShort,
+				INFRAC_PACK_NUM as infracPackNum,NEW_PACK_NUM as newPackNum, PACK_USER_NUM as packUserNum
+		FROM hpeapb.sum_zftc_1401_cty
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		ORDER BY AUD_TRM desc,PACK_USER_NUM desc
+	</select>
+	<select id="export_hz_mx_table" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm,SHORT_NAME as shortName,CMCC_PRVD_NM_SHORT as cmccPrvdNmShort,
+				INFRAC_PACK_NUM as infracPackNum,NEW_PACK_NUM as newPackNum, PACK_USER_NUM as packUserNum
+		FROM hpeapb.sum_zftc_1401_cty
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		ORDER BY AUD_TRM desc,PACK_USER_NUM desc
+	</select>
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm,SHORT_NAME as shortName,CMCC_PRVD_NM_SHORT as cmccPrvdNmShort,
+				FEE_PACK_UNIT_CD as feePackUnitCd,FEE_PACK_NM as feePackNm,
+				FEE_PACK_STAT as feePackStat,ONLN_DT as OnlyDt,
+				PACK_TOT_PRC as packTotPrc,PACK_USER_NUM as packUserNum
+		FROM hpeapb.det_zftc_1401
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currDetBeginDate} 
+		and AUD_TRM &lt;= #{params.currDetEndDate}
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		ORDER BY audTrm DESC,cmcc_prov_id 
+	</select>
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT * 
+		FROM hpeapb.det_zftc_1401
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate}
+		<if test="currCityType  != '' and currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType} 
+		</if>
+		ORDER BY AUD_TRM DESC,cmcc_prov_id  
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	
+</mapper>
+

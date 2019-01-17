@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="shqdMapper">
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	
+	<select id="hb_chart" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin,
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		RELA_RAT_RANGE AS relaRatRange,
+		RELA_RAT_RANGE_ID AS relaRatRangeId,
+		SUM(SOC_CHNL_NUM) AS socChnlNum,
+		SUM(RWD_AMT) AS rwdAmt
+		FROM hpeapb.sum_shqdfwfyc_3801_relaratwave
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY RELA_RAT_RANGE
+		ORDER BY RELA_RAT_RANGE_ID
+	</select>
+	
+	<select id="hb_table" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin,
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		RELA_RAT_RANGE AS relaRatRange,
+		RELA_RAT_RANGE_ID AS relaRatRangeId,
+		SUM(SOC_CHNL_NUM) AS socChnlNum,
+		SUM(RWD_AMT) AS rwdAmt
+		FROM hpeapb.sum_shqdfwfyc_3801_relaratwave
+		WHERE AUD_TRM_END  = #{params.currSumEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		GROUP BY RELA_RAT_RANGE
+		ORDER BY RELA_RAT_RANGE_ID
+	</select>
+	
+	<select id="fc_chart" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin,
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		VAR_WAVE_RANGE AS varWaveRange,
+		VAR_WAVE_RANGE_ID AS varWaveRangeId,
+		SUM(SOC_CHNL_NUM) AS socChnlNum,
+		SUM(RWD_AMT) AS rwdAmt
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY VAR_WAVE_RANGE
+		ORDER BY VAR_WAVE_RANGE_ID
+	</select>
+	
+	<select id="fc_table" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin,
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		VAR_WAVE_RANGE AS varWaveRange,
+		VAR_WAVE_RANGE_ID AS varWaveRangeId,
+		SUM(SOC_CHNL_NUM) AS socChnlNum,
+		SUM(RWD_AMT) AS rwdAmt
+		FROM hpeapb.sum_shqdfwfyc_3801_varwave
+		WHERE AUD_TRM_END  = #{params.currSumEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		GROUP BY VAR_WAVE_RANGE
+		ORDER BY VAR_WAVE_RANGE_ID
+	</select>
+	
+	<select id="five_qd" resultType="Map" parameterType="Map">
+		SELECT SOC_CHNL_ID AS socChnlId,SOC_CHNL_NM AS socChnlNm, MAX(ABS(RELA_RAT))*100 AS relaRatMax
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY SOC_CHNL_ID
+		ORDER BY relaRatMax DESC LIMIT 5
+	</select>
+	
+	<select id="five_qd_chart" resultType="Map" parameterType="Map">
+		SELECT
+		MON AS mon,
+		RWD_AMT AS rwdAmt,
+		ABS(RELA_RAT)*100 AS relaRat,
+		VAR_WAVE*100 AS varWave,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		AND SOC_CHNL_ID IN
+		<foreach collection="socChnlIds" item="socChnlId" index="index" open="(" close=")" separator=",">
+            #{socChnlId}
+        </foreach>
+	</select>
+	
+	<select id="five_table" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin, 
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm,
+		MON AS mon,
+		RWD_AMT AS rwdAmt,
+		RELA_RAT*100 AS relaRat
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{params.currSumEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		ORDER BY ABS(RELA_RAT) DESC
+		
+	</select>
+	
+	<select id="five_export" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin, 
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm,
+		MON AS mon,
+		RWD_AMT AS rwdAmt,
+		RELA_RAT*100 AS relaRat	
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		ORDER BY ABS(RELA_RAT) DESC
+	</select>
+	
+	<select id="ten_qd" resultType="Map" parameterType="Map">
+		SELECT SOC_CHNL_ID AS socChnlId,SOC_CHNL_NM AS socChnlNm, MAX(VAR_WAVE) AS varWaveMax
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY SOC_CHNL_ID
+		ORDER BY varWaveMax DESC LIMIT 10
+	</select>
+	
+	<select id="ten_qd_chart" resultType="Map" parameterType="Map">
+		SELECT
+		MON AS mon,
+		RWD_AMT AS rwdAmt,
+		ABS(RELA_RAT)*100 AS relaRat,
+		VAR_WAVE AS varWave,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		AND SOC_CHNL_ID IN
+		<foreach collection="socChnlIds" item="socChnlId" index="index" open="(" close=")" separator=",">
+            #{socChnlId}
+        </foreach>
+	</select>
+	
+	<select id="ten_table" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin, 
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm,
+		MON AS mon,
+		RWD_AMT AS rwdAmt,
+		VAR_WAVE AS varWave
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{params.currSumEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		ORDER BY varWave DESC 
+	</select>
+	
+	<select id="ten_export" resultType="Map" parameterType="Map">
+		SELECT
+		AUD_TRM_BEGIN AS audTrmBegin, 
+		AUD_TRM_END AS audTrmEnd,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm,
+		MON AS mon,
+		RWD_AMT AS rwdAmt,
+		VAR_WAVE AS varWave
+		FROM hpeapb.sum_shqdfwfyc_3801_chnl
+		WHERE AUD_TRM_END  = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		ORDER BY varWave DESC 
+	</select>
+	
+	<select id="mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM_BEGIN AS audTrmBegin,
+		AUD_TRM_END AS audTrmEnd,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		MON AS mon,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm,
+		CHNL_BASIC_TYP AS chnlBasicTyp,
+		SELL_FEE_SUBJ_NM AS sellFeeSubjNm,
+		RWD_AMT AS rwdAmt
+		FROM hpeapb.det_shqdfwfyc_3801
+		WHERE AUD_TRM_END =  #{params.currDetEndDate}
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode}	
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		 	AND CMCC_PROV_ID = #{params.currCityType} 
+	    </if>
+	    <if test="params.currMon != '' and params.currMon !=null  ">
+		 	AND MON = #{params.currMon} 
+	    </if>
+	    ORDER BY SOC_CHNL_ID,aud_trm_begin DESC
+	</select>
+
+	<select id="mx_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM_BEGIN AS audTrmBegin,
+		AUD_TRM_END AS audTrmEnd,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		MON AS mon,
+		SOC_CHNL_ID AS socChnlId,
+		SOC_CHNL_NM AS socChnlNm,
+		CHNL_BASIC_TYP AS chnlBasicTyp,
+		SELL_FEE_SUBJ AS sellFeeSubj,
+		SELL_FEE_SUBJ_NM AS sellFeeSubjNm,
+		RWD_AMT AS rwdAmt,
+		RWD_STLMNT_MON AS rwdStlmntMon
+		FROM hpeapb.det_shqdfwfyc_3801
+		WHERE AUD_TRM_END =  #{currDetEndDate}
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}	
+		<if test="currCityType != '' and currCityType !=null  ">
+		 	AND CMCC_PROV_ID = #{currCityType} 
+	    </if>
+		<if test="currMon != '' and currMon !=null  ">
+		 	AND MON = #{currMon} 
+	    </if>
+	    ORDER BY SOC_CHNL_ID,aud_trm_begin DESC
+	    LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

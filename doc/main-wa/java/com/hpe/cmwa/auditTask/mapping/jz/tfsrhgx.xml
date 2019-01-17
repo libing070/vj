@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="tfsrhgxMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="hz_hgxqs_je_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		WG_MER_AMT AS wgMerAmt
+		FROM hpeapb.sum_tfsrhgx_1301_prvd 
+		WHERE  1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY AUD_TRM
+	</select>
+	
+	<select id="hz_hgxqs_je_conclusion" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		WG_MER_AMT AS wgMerAmt
+		FROM hpeapb.sum_tfsrhgx_1301_prvd 
+		WHERE  1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY AUD_TRM
+	</select>
+	
+	<select id="hz_hgxqs_yhs_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		WG_CUST_NUM AS wgCustNum
+		FROM hpeapb.sum_tfsrhgx_1301_prvd 
+		WHERE  1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY AUD_TRM
+	</select>
+	
+	<select id="hz_hgxfx_qst_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		SUM(WG_MER_AMT) AS wgMerAmt,
+		SUM(WG_CUST_NUM) AS wgCustNum,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort
+		FROM hpeapb.sum_tfsrhgx_1301_cty
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY CMCC_PROV_ID
+		ORDER BY SUM(WG_MER_AMT) DESC
+	</select>
+	
+	<select id="hz_hgxfx_mx_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		WG_CUST_NUM AS wgCustNum,
+		WG_MER_AMT AS wgMerAmt,
+		TOL_CUST_NUM AS tolCustNum,
+		TOL_MER_AMT AS tolMerAmt,
+		WG_CUST_PER*100 AS wgCustPer,
+		WG_MER_AMT_PER*100 AS wgMerAmtPer
+		FROM hpeapb.sum_tfsrhgx_1301_cty
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode}
+		AND AUD_TRM BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		ORDER BY AUD_TRM DESC,WG_MER_AMT DESC
+	</select>
+	
+	<select id="hz_hgxfx_mx_export" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		WG_CUST_NUM AS wgCustNum,
+		WG_MER_AMT AS wgMerAmt,
+		TOL_CUST_NUM AS tolCustNum,
+		TOL_MER_AMT AS tolMerAmt,
+		WG_CUST_PER*100 AS wgCustPer,
+		WG_MER_AMT_PER*100 AS wgMerAmtPer
+		FROM hpeapb.sum_tfsrhgx_1301_cty
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		ORDER BY AUD_TRM DESC,WG_MER_AMT DESC
+	</select>
+	
+	<select id="mx_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		ORG_NM AS orgNm,
+		INDVL_SUBS_ID AS indvlSubsId,
+		ORG_ACCT_ID AS orgAcctId,
+		COMPT_ACCT_SUBJ_ID AS comptAcctSubjId,
+		COMPT_ACCTS_SUBJ_NM AS comptAcctsSubjNm,
+		MER_AMT AS merAmt
+		FROM hpeapb.det_tfsrhgx_1301
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM BETWEEN #{params.currDetBeginDate} AND #{params.currDetEndDate}
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		    	AND CMCC_PROV_ID = #{params.currCityType} 
+	    </if>
+		ORDER BY AUD_TRM DESC,CMCC_PROV_ID
+	</select>
+	
+	<select id="mx_export_btn" resultType="Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		ORG_CUST_ID AS orgCustId,
+		ORG_NM AS orgNm,
+		INDVL_SUBS_ID AS indvlSubsId,
+		ORG_ACCT_ID AS orgAcctId,
+		COMPT_ACCT_SUBJ_ID AS comptAcctSubjId,
+		COMPT_ACCTS_SUBJ_NM AS comptAcctsSubjNm,
+		VAT_RAT_NM AS vatRatNm,
+		MER_AMT AS merAmt
+		FROM hpeapb.det_tfsrhgx_1301
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currDetBeginDate} AND #{currDetEndDate}
+		<if test="currCityType != '' and currCityType !=null  ">
+		    	AND CMCC_PROV_ID = #{currCityType} 
+	    </if>
+		ORDER BY AUD_TRM DESC,CMCC_PROV_ID
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

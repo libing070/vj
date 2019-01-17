@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+	    <param name="Encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{HH:mm:ss}][%-5p][%c{1}][line:%L]:%m%n"/>
+		</layout>
+	</appender>
+
+	<appender name="cmwa.log" class="org.apache.log4j.DailyRollingFileAppender">
+	    <param name="Encoding" value="UTF-8" />
+		<param name="Append" value="true"/>
+		<param name="File" value="/home/nginx/hpweb/logs/cmwa.log"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{HH:mm:ss}][%-5p][%c{1}][line:%L]:%m%n"/>
+		</layout>
+	</appender>
+
+	<logger name="org.springframework">
+		<level value="ERROR"/>
+		<appender-ref ref="cmwa.log"/>
+	</logger>
+
+	<logger name="com.hpe">
+		<level value="DEBUG"/>
+		<appender-ref ref="cmwa.log"/>
+	</logger>
+	
+	<logger name="edu.yale">
+		<level value="ERROR"/>
+		<appender-ref ref="cmwa.log"/>
+	</logger>
+
+	<logger name="java.sql">
+		<level value="ERROR"/>
+		<appender-ref ref="CONSOLE"/>
+	</logger>
+	
+	<logger name="com.ibatis">
+		<level value="DEBUG"/>
+		<appender-ref ref="CONSOLE"/>
+	</logger>
+	
+	<root>
+		<level value="DEBUG"/>
+		<appender-ref ref="CONSOLE"/>
+	</root>
+
+</log4j:configuration>

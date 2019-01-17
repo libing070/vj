@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="yjkzsdxfx200604">
+
+	<select id="getZheXian200604Trend" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,yjk_amt
+		from
+			hpeapb.sum_yjk_2006_04_prvd
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		order by aud_trm
+	</select>
+	
+	
+	<select id="getZheXian200604AvgNumber" resultType="Map" parameterType="Map">
+		SELECT
+			ifnull(avg(yjk_amt),0) as avg_yjk_amt
+		FROM
+			hpeapb.sum_yjk_2006_04_prvd
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+	</select>
+	
+	<select id="getZheXian200604MAXNumber" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,yjk_amt as max_yjk_amt
+		from
+			hpeapb.sum_yjk_2006_04_prvd
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY yjk_amt DESC  limit 1
+	</select>
+	
+	
+	
+	<select id="loadzhuxingChart" resultType="Map" parameterType="Map">
+		select 
+			yjk_offer_nm,sum(yjk_amt) as sum_yjk_amt
+		from 
+			hpeapb.sum_yjk_2006_04_offerprvd 
+		where 1=1
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		group by yjk_offer_nm ORDER BY sum_yjk_amt DESC  limit 10
+	</select>
+	
+	<select id="getzhuxingTolAmtCon" resultType="Map" parameterType="Map">
+		select 
+			sum(yjk_amt) as sum_yjk_amt
+		from 
+			hpeapb.sum_yjk_2006_04_offerprvd 
+		where 1=1
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		
+	</select>
+	
+	<select id="loadZsfzdfjt_TabDetailTable" resultType="Map" parameterType="pager">
+		select  
+			CONCAT(#{params.hz_startMonth},"-",#{params.hz_endMonth}) as aud_trm,
+			short_name,yjk_offer_cd,yjk_offer_nm,sum(yjk_amt) as sum_yjk_amt
+		from 
+			hpeapb.sum_yjk_2006_04_offerprvd 
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		group by yjk_offer_nm order by sum_yjk_amt desc
+	</select>
+	
+	<select id="exportloadZsfzdfjt_TabDetail" resultType="Map" parameterType="Map">
+		select  
+			CONCAT(#{hz_startMonth},"-",#{hz_endMonth}) as aud_trm,
+			short_name,yjk_offer_cd,yjk_offer_nm,sum(yjk_amt) as sum_yjk_amt
+		from 
+			hpeapb.sum_yjk_2006_04_offerprvd 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		group by yjk_offer_nm order by sum_yjk_amt desc LIMIT #{pageStar},#{pageEnd}
+	</select>
+
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+		select  
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,		
+			cmcc_prvd_nm_short,yjk_ser_no,yjk_pres_dt,yjk_typ,yjk_amt,			
+			yjk_end_dt,user_id,cust_id,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,
+			send_mon_arpu,send_lastm_arpu,	
+			send_last2m_arpu,send_avg_arpu,yjk_dependency,yjk_offer_cd,		
+			yjk_offer_nm,offer_word,cor_chnl_typ,cor_chnl_nm
+		from 
+			hpeapb.det_yjk_2006_04
+		where 1=1 
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.mx_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+			and cmcc_prov_id = #{params.mx_cityCode}
+		</if>
+		ORDER BY aud_trm DESC,cmcc_prvd_nm_short 
+	</select>
+	
+	
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+		select  
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,		
+			cmcc_prvd_nm_short,yjk_ser_no,yjk_pres_dt,yjk_typ,yjk_amt,			
+			yjk_end_dt,user_id,cust_id,(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,send_mon_arpu,send_lastm_arpu,	
+			send_last2m_arpu,send_avg_arpu,yjk_dependency,yjk_offer_cd,		
+			yjk_offer_nm,offer_word,cor_chnl_typ,cor_chnl_nm			
+
+		from 
+			hpeapb.det_yjk_2006_04
+		where 1=1 
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{mx_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+			and cmcc_prov_id = #{mx_cityCode}
+		</if>
+		ORDER BY aud_trm DESC,cmcc_prvd_nm_short  LIMIT #{pageStar},#{pageEnd}
+	</select>
+
+
+</mapper>

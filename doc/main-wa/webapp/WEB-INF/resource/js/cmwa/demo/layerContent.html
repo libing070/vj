@@ -1,0 +1,191 @@
+<div id="loadLayerContent">
+	<div class="layui-row layui-col-space12" style="margin: 0px">
+		<div class="layui-col-md8">
+			<div class="grid-demo grid-demo-bg1">
+				<fieldset class="layui-elem-field layui-field-title">
+					<legend>发票单展示</legend>
+				</fieldset>
+				<div class="layui-collapse" lay-accordion="" id="layuiCollaitem"
+					style="text-align: center; margin: 10px;">
+					    <img id="getinviceImg" src='' width='100%' height='70%'>
+				</div>
+			</div>
+
+		</div>
+		<div class="layui-col-md4">
+			<!-- <fieldset class="layui-elem-field layui-field-title">
+				<legend>发票详细信息</legend>
+			</fieldset>-->
+			 <div class="layui-tab">
+				  <ul class="layui-tab-title">
+				    <li class="layui-this">发票信息</li>
+				    <li data-type="loadMXTableli">明细信息</li>
+				   
+				  </ul>
+				  <div class="layui-tab-content">
+				    <div class="layui-tab-item layui-show">
+				        <div id="viewportdiv" style="height: 450px">
+				<div id="wrapperdiv" style="height: 820px">
+					<table class="layui-table" lay-size="sm">
+						<colgroup>
+							<col width="100">
+							<col width="150">
+							<col>
+						</colgroup>
+						<tbody>
+							 <tr>
+								<td>发票号码</td>
+								<td id="inoviceFPHM"></td>
+							</tr>
+							<tr>
+								<td>发票图片名称</td>
+								<td id="inoviceFileName"></td>
+							</tr>
+							<tr>
+								<td>发票代码</td>
+								<td id="inoviceFPDM"></td>
+							</tr>
+							 <tr>
+								<td>开票日期</td>
+								<td id="inoviceKPRQ"></td>
+							</tr>
+							<tr>
+								<td>机器编号</td>
+								<td id="inoviceJQBH"></td>
+							</tr>
+							<tr>
+								<td>购方名称</td>
+								<td id="inoviceGFMC"></td>
+							</tr>
+							<tr>
+								<td>购方识别号</td>
+								<td id="inoviceGFSBH"></td>
+							</tr>
+							<tr>
+								<td>销方名称</td>
+								<td id="inoviceXFMC"></td>
+							</tr>
+							<tr>
+								<td>销方识别号</td>
+								<td id="inoviceXFSBH"></td>
+							</tr>
+							<tr>
+								<td>价税合计</td>
+								<td id="inoviceJSHJ"></td>
+							</tr>
+							<tr>
+								<td>金额合计</td>
+								<td id="inoviceJEHJ"></td>
+							</tr>
+							<tr>
+								<td>税额合计</td>
+								<td id="inoviceSEHJ"></td>
+							</tr>
+							<tr>
+								<td>大写金额</td>
+								<td id="inoviceDXJE"></td>
+							</tr>
+							<tr>
+								<td>备注</td>
+								<td id="inoviceBZ"></td>
+							</tr>
+							<tr>
+								<td>发票类型</td>
+								<td id="inoviceFPLX"></td>
+							</tr>
+							<tr>
+								<td>校验码</td>
+								<td id="inoviceJYM"></td>
+							</tr>
+							<tr>
+								<td>购方开户行账号</td>
+								<td id="inoviceGFKHHZH"></td>
+							</tr>
+							<tr>
+								<td>销方开户行及账号</td>
+								<td id="inoviceXFKHHZH"></td>
+							</tr>
+							<tr>
+								<td>购方地址电话</td>
+								<td id="inoviceGFDZDH"></td>
+							</tr>
+							<tr>
+								<td>销方地址电话</td>
+								<td id="inoviceXFDZDH"></td>
+							</tr>
+							<tr>
+								<td>打印发票代码</td>
+								<td id="inoviceDYFPDM"></td>
+							</tr>
+							<tr>
+								<td>打印发票号码</td>
+								<td id="inoviceDYFPHM"></td>
+							</tr> 
+							<tr>
+								<td>发票联次</td>
+								<td id="inoviceFPLC"></td>
+							</tr> 
+							<!-- <tr>
+								<td>密文数据</td>
+								<td id="inoviceMWSJ"></td>
+							</tr>
+							 <tr>
+								<td>票据上二维码</td>
+								<td id="inoviceQR"></td>
+							</tr> -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+				    
+				    </div>
+				    <div class="layui-tab-item" id="viewportdiv2" style="height:400px;border:1px solid  #e6e6e6">
+				        <div id="wrapperdiv2" style="width:1400px;margin: -11px 0px;">
+				          <table class="layui-hide" id="loadMxdemo" style="width:100%"></table>
+				        </div>
+				    </div>
+				  </div>
+				</div>
+		</div>
+	</div>
+</div>
+
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+  layui.use('table', function(){
+  var table = layui.table;
+  //展示已知数据
+  table.render({
+    elem: '#loadMxdemo'
+    ,cellMinWidth:150
+    ,where: {
+    	   'id':$("#demoReload").val()
+    	  ,'fileName':$("#inoviceFileNameInput").val()
+    	  ,'fileType':$("#uploadTypeInput").val()
+    } 
+    ,url: '/cmwa/batchProcessZipFile/getGoodsDetById'
+    ,cols: [[ //标题栏
+      {field: 'HWMC', title: '货物名称'}
+      ,{field: 'SLV', title: '税率'}
+      ,{field: 'JE', title: '金额'}
+      ,{field: 'SE', title: '税额'}
+      ,{field: 'XH', title: '序号'}
+      , {field: 'GGXH', title: '规格型号'}
+      ,{field: 'DJ', title: '单价'}
+      ,{field: 'DW', title: '单位'}
+      ,{field: 'SL', title: '数量'}
+     
+    ]]
+  ,id: 'loadMxdemoReload'
+  });
+}); 
+$(document).ready(function() {
+	 var h = parseInt($('#wrapperdiv').height());
+	$("#viewportdiv").niceScroll("#wrapperdiv", {
+		cursorcolor : "rgb(204, 204, 204)"
+	});
+ 	$("#viewportdiv2").niceScroll("#wrapperdiv2", {
+		cursorcolor : "rgb(204, 204, 204)"
+	});
+});
+</script>

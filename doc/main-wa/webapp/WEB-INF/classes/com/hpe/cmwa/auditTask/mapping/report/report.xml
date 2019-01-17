@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="reportMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="getReportInfor" resultType="Map" parameterType="Map">
+		SELECT 
+			id,aud_trm,subject_id,subject_name,
+			prvd_id,report_path,report_name,
+			report_create_persons,report_create_date
+		FROM hpeapm.monitor_report_infos
+		where prvd_id = #{provinceCode} 
+			AND aud_trm = #{currEndDate} 
+			AND subject_id = #{subjectId}
+	</select>
+	<select id="getDataNum" resultType="Map" parameterType="Map">
+		SELECT 
+			count(subject_id) as dataNum
+		FROM hpeapm.monitor_report_infos
+		where prvd_id = #{provinceCode} 
+			AND aud_trm = #{currEndDate} 
+			AND subject_id = #{subjectId}
+	</select>
+</mapper>
+

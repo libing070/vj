@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtqfsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(dbt_amt) AS dbt_amt
+		FROM hpeapb.sum_jtqf_4001_prvd
+		WHERE aud_trm = #{currSumEndDate}
+		and dbt_amt != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(dbt_amt) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(dbt_amt) AS dbt_amt
+		FROM hpeapb.sum_jtqf_4001_prvd
+		WHERE aud_trm = #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(dbt_amt) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(dbt_amt) AS dbt_amt
+		FROM hpeapb.sum_jtqf_4001_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_num,
+			acct_num_mom*100 as acct_num_mom,
+			dbt_amt,
+			dbt_amt_mom*100 as dbt_amt_mom
+		FROM hpeapb.sum_jtqf_4001_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,dbt_amt desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_num,
+			acct_num_mom*100 as acct_num_mom,
+			dbt_amt,
+			dbt_amt_mom*100 as dbt_amt_mom
+		FROM hpeapb.sum_jtqf_4001_prvd
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,dbt_amt desc,cmcc_prov_prvd_id
+	</select>
+</mapper>
+

@@ -1,0 +1,312 @@
+ <link rel="stylesheet" type="text/css"href="/cmwa/resource/sjjk/css/plugins/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css"href="/cmwa/resource/sjjk/css/preview.css" />
+<!-------------------------------------- 客户欠费 ----------------------------------------->
+<div class="main-preview khqf-main-preview" id="khqf_main_preview">
+	<div class="container-fluid">
+		<h2 class="title">监控报告</h2>
+		<div class="row title_1">
+			<div class="col-xs-3"></div>
+			<div class="col-xs-3"><p class="title-key">监控事项：</p></div>
+			<div class="col-xs-3"><p class="title-value" id="title_value_1">客户欠费</p></div>
+			<div class="col-xs-3"></div>
+		
+		</div>
+		<div class="row title_1">
+			<div class="col-xs-3"></div>
+			<div class="col-xs-3"><p class="title-key">被监控单位：</p></div>
+			<div class="col-xs-3"><p class="title-value" id="title_value_2"></p></div>
+			<div class="col-xs-3"></div>
+		  </div>
+		<div class="row title_1">
+			<div class="col-xs-3"></div>
+			<div class="col-xs-3"><p class="title-key">监控期间：</p></div>
+			<div class="col-xs-3"><p class="title-value" id="title_value_3"></p></div>
+			<div class="col-xs-3"></div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>对<span class="titleDescHtml"></span>截止到<span class="khqfDateAll"></span>的欠费相关情况进行全量核查分析，识别欠费管理相关的高风险问题。现将数据监控结果报告如下：</div>
+		</div>
+	</div>
+	<div class="container-fluid" id="">
+		<h4 class="main-container-titles">一、 信用管理</h4>
+		<div class="row main-container-title">
+			<div class="col-xs-12"><p>（一） 违规将测试号维护成免催免停</p></div>
+		</div>
+		<div id="totalInfo01HaveData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo01_html"></span>个测试 号维护成免催免停，涉及欠费金额<span id="totalInfo01_wg_amt"></span> 元。 </div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>违规将测试号维护成免催免停数量TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>违规测试用户数</th>
+			        <th>测试用户总数</th>
+			        <th>违规测试用户占比</th>
+			        <th>涉及欠费金额（元）</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf11Top5Data">
+			    </tbody>
+            </table>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>违规测试号涉及欠费金额TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>违规测试用户数</th>
+			        <th>测试用户总数</th>
+			        <th>违规测试用户占比</th>
+			        <th>涉及欠费金额（元）</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf12Top5Data">
+			    </tbody>
+            </table>
+		  </div>
+		</div>
+		<div id="totalInfo01NoData" style="display:none">
+		  <div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo01NoDataDesc"></span>  </div>
+		  </div>
+		</div>
+		<div class="row main-container-title">
+			<div class="col-xs-12"><p>（二） 免催免停用户占比</p></div>
+		</div>
+		<div id="totalInfo02HaveData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo02_html"></span></div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>免催免停用户数占比TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>免催免停用户数</th>
+			        <th>免催免停用户数占比</th>
+			        <th>免催免停用户欠费金额（元）</th>
+			        <th>免催免停用户欠费金额占比</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf21Top5Data">
+			    </tbody>
+            </table>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>免催免停用户欠费金额占比TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>免催免停用户数</th>
+			        <th>免催免停用户数占比</th>
+			        <th>免催免停用户欠费金额（元）</th>
+			        <th>免催免停用户欠费金额占比</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf22Top5Data">
+			    </tbody>
+            </table>
+		</div>
+		</div>
+		<div id="totalInfo02NoData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span id="totalInfo02NoDataDesc"></span></div>
+		</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<h4 class="main-container-titles">二、 欠费预防</h4>
+		<div class="row main-container-title">
+			<div class="col-xs-12"><p>（一） 长期高额欠费集团客户订购新业务</p></div>
+		</div>
+		<div id="totalInfo03HaveData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo03_html"></span> </div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>违规订购新业务的集团客户数量TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>长期高额欠费集团订购新业务笔数</th>
+			        <th>涉及集团客户数</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf31Top5Data">
+			      
+			    </tbody>
+            </table>
+		 </div>
+		</div>
+		<div id="totalInfo03NoData" style="display:none">
+		  <div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo03NoDataDesc"></span>未发现长期高额欠费集团客户违规订购新业务的情况。</div>
+		 </div>
+		</div>
+		<div class="row main-container-title">
+			<div class="col-xs-12"><p>（二） 渠道放号质量低</p></div>
+		</div>
+		<div id="totalInfo04HaveData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span><span id="totalInfo04_html"></span> </div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>新入网用户中欠费用户占比TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>新入网用户数</th>
+			        <th>其中欠费用户数</th>
+			        <th>欠费用户占比</th>
+			        <th>欠费金额（万元）</th>
+			        <th>入网涉及渠道数量</th>
+			        <th>放号质量低的渠道数量</th>
+			        <th>放号质量低渠道占比</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf41Top5Data">
+			    </tbody>
+            </table>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>放号质量低渠道数量占比TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		  <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>新入网用户数</th>
+			        <th>其中欠费用户数</th>
+			        <th>欠费用户占比</th>
+			        <th>欠费金额（万元）</th>
+			        <th>入网涉及渠道数量</th>
+			        <th>放号质量低的渠道数量</th>
+			        <th>放号质量低渠道占比</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf42Top5Data">
+			    </tbody>
+            </table>
+		 </div>
+		</div>
+		<!-- <div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="titleDescFieldName"></span>不存在无数据情况 </div>
+		</div> -->
+	</div>
+	<div class="container-fluid">
+		<h4 class="main-container-titles">三、 欠费管理</h4>
+		<div class="row main-container-title">
+			<div class="col-xs-12"><p>（一） 测试号费用列入欠费</p></div>
+		</div>
+	 <div id="totalInfo05HaveData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo05_html"></span></div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>测试号欠费金额TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>列入欠费的测试号码数量</th>
+			        <th>涉及欠费金额（元）</th>
+			        <th>总欠费（元）</th>
+			        <th>测试号码欠费占比</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf51Top5Data">
+			    </tbody>
+            </table>
+		</div>
+		</div>
+		<div id="totalInfo05NoData" style="display:none">
+		  <div class="row title_desc">
+			 <div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo05NoDataDesc"></span>  </div>
+		  </div>
+		</div>
+		<div class="row main-container-title">
+			<div class="col-xs-12"><p>（二）  未对已长期欠费的集团产品进行暂停或注销</p></div>
+		</div>
+		<div id="totalInfo06HaveData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo06_html"></span>  </div>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>欠费金额TOP5<span class="titleDescTopFieldName"></span>： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>涉及集团客户数</th>
+			        <th>涉及欠费金额（元）</th>
+			        <th>欠费总金额（元）</th>
+			        <th>占比</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf61Top5Data">
+			    </tbody>
+            </table>
+		</div>
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span>欠费金额TOP5集团产品： </div>
+		</div>
+		<div class="row main-table">
+		   <table class="table table-bordered">
+			    <thead>
+			      <tr>
+			        <th>排名</th>
+			        <th class="tablethFieldName">省公司</th>
+			        <th>未及时暂停或注销的集团产品名称</th>
+			        <th>涉及集团客户数</th>
+			        <th>涉及欠费金额（元）</th>
+			      </tr>
+			    </thead>
+			    <tbody id="khqf62Top5Data">
+			    </tbody>
+            </table>
+		  </div>
+	     </div>
+		<div id="totalInfo06NoData" style="display:none">
+		<div class="row title_desc">
+			<div class="col-xs-12"><span class="nbsp-span"></span><span class="khqfDateAll"></span>，<span id="totalInfo06NoDataDesc"></span>  </div>
+		</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="/cmwa/resource/sjjk/js/plugins/jquery-1.11.1.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/cmwa/resource/sjjk/js/preview.js" charset="UTF-8"></script>

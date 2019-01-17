@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="XEFZSCZ2304">
+
+	<select id="getZheXian2304Trend" resultType="Map" parameterType="Map">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,
+			short_name,pay_msisdn_num,pay_num,pay_amt
+		from
+			hpeapb.sum_ygyccz_2304_prvd
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		order by aud_trm
+	</select>
+	
+	<select id="getZheXian2304AVGNumber" resultType="Map" parameterType="Map">
+		SELECT
+			ifnull(avg(pay_num),0) as avg_pay_num
+		FROM
+			hpeapb.sum_ygyccz_2304_prvd
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+	</select>
+	
+	<select id="getZheXian2304MAXNumber" resultType="Map" parameterType="Map">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,
+			short_name,pay_msisdn_num,pay_num as max_pay_num,pay_amt
+		from
+			hpeapb.sum_ygyccz_2304_prvd
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY pay_num DESC  limit 1
+	</select>
+	
+	
+	
+	<select id="loadXefzscz_TabDetailTable" resultType="Map" parameterType="pager">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,
+			short_name,pay_msisdn_num,pay_num,pay_amt
+		from
+			hpeapb.sum_ygyccz_2304_prvd
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		ORDER BY aud_trm DESC,pay_num DESC
+	</select>
+	
+	<select id="exportXefzsczDetail" resultType="Map" parameterType="Map">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,
+			short_name,pay_msisdn_num,pay_num,pay_amt
+		from
+			hpeapb.sum_ygyccz_2304_prvd
+		where 1=1  
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY aud_trm DESC,pay_num DESC
+	</select>
+	
+	
+	<select id="loadzhuxingChart" resultType="Map" parameterType="Map">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,
+			cmcc_prov_id,cmcc_prvd_nm_short,
+			sum(pay_msisdn_num) as sum_pay_msisdn_num,sum(pay_num) as sum_pay_num,sum(pay_amt) as sum_pay_amt
+		from 
+			hpeapb.sum_ygyccz_2304_cty 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		GROUP  BY cmcc_prov_id  ORDER BY sum_pay_num DESC 
+	</select>
+	
+	<select id="getzhuxing2304Top3Con" resultType="Map" parameterType="Map">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,
+			cmcc_prov_id,cmcc_prvd_nm_short,
+			sum(pay_msisdn_num) as sum_pay_msisdn_num,sum(pay_num) as sum_pay_num,sum(pay_amt) as sum_pay_amt
+		from 
+			hpeapb.sum_ygyccz_2304_cty 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		GROUP  BY cmcc_prov_id  ORDER BY sum_pay_num DESC limit 3
+	</select>
+	
+	
+	<select id="loadDsxefzcz_TabDetailTable" resultType="Map" parameterType="pager">
+		select  
+			gen_date,CONCAT(#{params.hz_startMonth},"-",#{params.hz_endMonth}) as aud_trm,cmcc_prov_prvd_id,short_name,
+			cmcc_prov_id,cmcc_prvd_nm_short,sum(pay_msisdn_num) as pay_msisdn_num,
+			sum(pay_num)as pay_num,sum(pay_amt) as pay_amt
+		from 
+			hpeapb.sum_ygyccz_2304_cty
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		group by cmcc_prov_id  order by pay_num desc,cmcc_prov_id asc
+	</select>
+	
+	
+	<select id="exportDsxefzczDetail" resultType="Map" parameterType="Map">
+		select  
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,
+			cmcc_prov_id,cmcc_prvd_nm_short,sum(pay_msisdn_num) as pay_msisdn_num,
+			sum(pay_num)as pay_num,sum(pay_amt) as pay_amt
+		from 
+			hpeapb.sum_ygyccz_2304_cty
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		group by cmcc_prov_id  order by pay_num desc,cmcc_prov_id asc
+	</select>
+	
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+		select  
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			CMCC_prvd_nm_short,
+			user_id,
+			pay_type,
+			pay_type_nm,
+			pay_date,
+			pay_amt,
+			chnl_id,
+			chnl_nm
+
+		from 
+			hpeapb.det_ygyccz_2304
+		where 1=1 
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.mx_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+			and cmcc_prov_id = #{params.mx_cityCode}
+		</if>
+		<if test="params.mx_czTypeSelect != null and params.mx_czTypeSelect != ''">
+			and val_mthd = #{params.mx_czTypeSelect}
+		</if>
+		ORDER BY aud_trm DESC,cmcc_prvd_nm_short 
+	</select>
+	
+	
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+		select  
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			CMCC_prvd_nm_short,
+			user_id,
+			pay_type,
+			pay_type_nm,
+			pay_date,
+			pay_amt,
+			chnl_id,
+			chnl_nm
+		from 
+			hpeapb.det_ygyccz_2304
+		where 1=1 
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{mx_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+			and cmcc_prov_id = #{mx_cityCode}
+		</if>
+		<if test="mx_czTypeSelect != null and mx_czTypeSelect != ''">
+			and val_mthd = #{mx_czTypeSelect}
+		</if>
+		ORDER BY aud_trm DESC,cmcc_prvd_nm_short  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

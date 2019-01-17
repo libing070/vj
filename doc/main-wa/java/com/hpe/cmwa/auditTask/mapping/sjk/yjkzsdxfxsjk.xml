@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="yjkzsdxfxsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(yjk_amt) AS yjk_amt
+		FROM hpeapb.sum_yjk_2006_04_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and yjk_amt != 0
+		group by short_name
+		ORDER BY SUM(yjk_amt) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(yjk_amt) AS yjk_amt
+		FROM hpeapb.sum_yjk_2006_04_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by short_name
+		ORDER BY SUM(yjk_amt) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(yjk_amt) AS yjk_amt
+		FROM hpeapb.sum_yjk_2006_04_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			offer_num,
+			yjk_amt,
+			tol_yjk_amt,
+			per_yjk_amt*100 as per_yjk_amt
+		FROM hpeapb.sum_yjk_2006_04_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,yjk_amt desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			offer_num,
+			yjk_num,
+			yjk_amt,
+			yjk_user,
+			tol_yjk_num,
+			tol_yjk_amt,
+			tol_yjk_user,
+			per_yjk_num*100 as per_yjk_num,
+			per_yjk_amt*100 as per_yjk_amt,
+			per_yjk_user*100 as per_yjk_user
+		FROM hpeapb.sum_yjk_2006_04_prvd
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,yjk_amt desc,cmcc_prov_prvd_id
+	</select>
+</mapper>
+

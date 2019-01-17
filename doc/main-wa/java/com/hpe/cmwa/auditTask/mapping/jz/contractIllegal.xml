@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="contractIllegalMapper">
+
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="detailMap">
+		<result property="genDate" column="Gen_date" />
+		<result property="audTrm" column="Aud_trm" />
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id" />
+		<result property="shortName" column="short_name" />
+		<result property="cmccProvId" column="cmcc_prov_id" />
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short" />
+		<result property="imel" column="IMEL" />
+		<result property="salsTm" column="sals_tm" />
+		<result property="custPromMonCnsm" column="cust_prom_mon_cnsm" />
+		
+		<result property="fstPayAmt" column="fst_pay_amt" />
+		<result property="secPayAmt" column="sec_pay_amt" />
+		<result property="thrPayAmt" column="thr_pay_amt" />
+		<result property="tolPayAmt" column="tol_pay_amt" />
+		<result property="perPaySals" column="per_pay_sals" />
+		
+		<result property="perFstCnsm" column="per_fst_cnsm" />
+		<result property="perSecCnsm" column="per_sec_cnsm" />
+		<result property="perThrCnsm" column="per_thr_cnsm" />
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="sumCityMap">
+		<result property="genDate" column="Gen_date" />
+		<result property="audTrm" column="Aud_trm" />
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id" />
+		<result property="shortName" column="short_name" />
+		<result property="cmccProvId" column="cmcc_prov_id" />
+		<result property="cmccPrvdNmShort" column="cmcc_prvd_nm_short" />
+		<result property="errNum" column="errNum" />
+		<result property="tolNum" column="tolNum" />
+		<result property="numPer" column="numPer" />
+		
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="sumPrvdinceMap">
+		<result property="genDate" column="Gen_date" />
+		<result property="audTrm" column="Aud_trm" />
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id" />
+		<result property="shortName" column="short_name" />
+
+		<result property="errNum" column="errNum" />
+		<result property="tolNum" column="tolNum" />
+		<result property="numPer" column="numPer" />
+		<result property="errPayAmt" column="err_pay_amt" />
+		
+	</resultMap>
+	
+	<select id="selectSumPrvdinceCon" resultMap="sumPrvdinceMap" parameterType="java.util.HashMap">
+		select Aud_trm,(numPer)*100 numPer,err_pay_amt,errNum from hpeapb.sum_zdfwfhgx_6002_prvd
+				where 1=1 
+				 AND cmcc_prov_prvd_id = #{provinceCode}
+				 AND aud_trm &gt;=#{currSumBeginDate}
+				 AND aud_trm &lt;=#{currSumEndDate} 
+		ORDER BY numPer desc limit 1
+	</select>
+	
+	<!-- 折线图数据 -->
+	<select id="selectSumPrvdince" resultMap="sumPrvdinceMap" parameterType="java.util.HashMap">
+	SELECT
+	Gen_date,
+	Aud_trm,
+	cmcc_prov_prvd_id,
+	short_name,
+	errNum,
+	tolNum,
+	numPer,
+	err_pay_amt
+	FROM
+	hpeapb.sum_zdfwfhgx_6002_prvd 
+	where 1=1 
+	<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+	</if>
+	<if test="currSumBeginDate!=null and currSumEndDate!=null">
+		and  Aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+	</if>
+	<if test="currSumBeginDate!=null and currSumEndDate==null">
+		and Aud_trm &gt;=#{currSumBeginDate}
+	</if>
+	<if test="currSumBeginDate==null and currSumEndDate!=null">
+		and Aud_trm &lt;=#{currSumEndDate}
+	</if>
+	order by Aud_trm
+	</select>
+	
+	<!-- 获取全国违规终端数量占比 -->
+	<select id="selectErrNumPer" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select sum(errNum) as errNum,sum(tolNum) as tolNum from hpeapb.sum_zdfwfhgx_6002_prvd where 1=1 
+		<if test="currSumBeginDate!=null and currSumBeginDate!='' and currSumEndDate!=null and currSumEndDate!=''">
+			and  Aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+		</if>
+		<if test="currSumBeginDate!=null and currSumBeginDate!='' and currSumEndDate==null">
+			and Aud_trm &gt;=#{currSumBeginDate}
+		</if>
+		<if test="currSumBeginDate==null and currSumEndDate!=null and currSumEndDate!=''">
+			and Aud_trm &lt;=#{currSumEndDate}
+		</if>
+	</select>
+	<!-- 查询全国排名 -->
+	<select id="selectSumSort" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	select a.* ,@rank:=@rank+1 as sort from (
+		SELECT
+		Gen_date,
+		Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		ifnull(sum(errNum),0) as errNum,
+		ifnull(sum(tolNum),0) as tolNum,
+		ifnull(sum(err_pay_amt),0) as errPayAmt
+		FROM
+		hpeapb.sum_zdfwfhgx_6002_prvd
+		where 1=1
+		
+		<if test="currSumBeginDate!=null and currSumBeginDate!='' and currSumEndDate!=null and currSumEndDate!=''">
+			and  Aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+		</if>
+		<if test="currSumBeginDate!=null and currSumBeginDate!='' and currSumEndDate==null">
+			and Aud_trm &gt;=#{currSumBeginDate}
+		</if>
+		<if test="currSumBeginDate==null and currSumEndDate!=null and currSumEndDate!=''">
+			and Aud_trm &lt;=#{currSumEndDate}
+		</if>
+		
+		GROUP BY cmcc_prov_prvd_id
+		order by Aud_trm,errNum desc
+		
+	) a ,(SELECT @rank:=0) b
+	</select>
+	
+	<!-- 查询前三城市 -->
+	<select id="selectTop3City" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT
+		Gen_date,
+		Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		ifnull(sum(errNum),0) as errNum,
+		ifnull(sum(tolNum),0) as tolNum,
+		ifnull(avg(numPer),0) as numPer
+		FROM
+		hpeapb.sum_zdfwfhgx_6002_cty 
+		where 1=1 
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate!=null and currSumBeginDate!='' and currSumEndDate!=null and currSumEndDate!=''">
+			and  Aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+		</if>
+		<if test="currSumBeginDate!=null and currSumBeginDate!='' and currSumEndDate==null">
+			and Aud_trm &gt;=#{currSumBeginDate}
+		</if>
+		<if test="currSumBeginDate==null and currSumEndDate!=null and currSumEndDate!=''">
+			and Aud_trm &lt;=#{currSumEndDate}
+		</if>
+		GROUP BY cmcc_prov_id
+		order by numPer desc
+		limit 3
+	
+	</select>
+	<!-- 查询地市汇总信息分页 -->
+	<select id="selectSumCityPager" resultMap="sumCityMap" parameterType="pager">
+	SELECT
+	Gen_date,
+	Aud_trm,
+	cmcc_prov_prvd_id,
+	short_name,
+	cmcc_prov_id,
+	cmcc_prvd_nm_short,
+	ifnull(sum(errNum),0) as errNum,
+	ifnull(sum(tolNum),0) as tolNum,
+	avg(numPer) as numPer,
+	ifnull(sum(err_pay_amt),0) as errPayAmt
+	
+	FROM
+	hpeapb.sum_zdfwfhgx_6002_cty 
+	where 1=1 
+	<if test="params.provinceCode!=null">
+		and cmcc_prov_prvd_id =#{params.provinceCode}
+	</if>
+	<if test="params.currSumBeginDate!=null and params.currSumEndDate!=null">
+		and  Aud_trm between #{params.currSumBeginDate} and #{params.currSumEndDate} 
+	</if>
+	<if test="params.currSumBeginDate!=null and params.currSumEndDate==null">
+		and Aud_trm &gt;=#{params.currSumBeginDate}
+	</if>
+	<if test="params.currSumBeginDate==null and params.currSumEndDate!=null">
+		and Aud_trm &lt;=#{params.currSumEndDate}
+	</if>
+
+	GROUP BY cmcc_prov_id 
+	order by numPer desc 
+	</select>
+	
+	<!-- 查询所有地市汇总信息做导出 -->
+	<select id="selectSumCityAll" resultMap="sumCityMap" parameterType="java.util.HashMap">
+		SELECT
+		Gen_date,
+		Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		ifnull(sum(errNum),0) as errNum,
+		ifnull(sum(tolNum),0) as tolNum,
+		avg(numPer) as numPer,
+		ifnull(sum(err_pay_amt),0) as errPayAmt
+		FROM
+		hpeapb.sum_zdfwfhgx_6002_cty 
+		where 1=1 
+		<if test="provinceCode!=null">
+			and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currSumBeginDate!=null and currSumEndDate!=null">
+			and  Aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+		</if>
+		<if test="currSumBeginDate!=null and currSumEndDate==null">
+			and Aud_trm &gt;=#{currSumBeginDate}
+		</if>
+		<if test="currSumBeginDate==null and currSumEndDate!=null">
+			and Aud_trm &lt;=#{currSumEndDate}
+		</if>
+		GROUP BY cmcc_prov_id 
+		order by numPer desc 
+	</select>
+	
+	<!-- 查询地市汇总信息 做地图数据 -->
+	<select id="selectSumCity" resultMap="sumCityMap" parameterType="java.util.HashMap">
+	SELECT
+		Gen_date,
+		Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		ifnull(sum(errNum),0) as errNum,
+		ifnull(sum(tolNum),0) as tolNum,
+		ifnull(avg(numPer),0) as numPer
+	
+
+	FROM
+	hpeapb.sum_zdfwfhgx_6002_cty
+	
+	where 1=1 
+	
+	<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+	</if>
+	<if test="currSumBeginDate!=null and currSumEndDate!=null">
+		and  Aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+	</if>
+	<if test="currSumBeginDate!=null and currSumEndDate==null">
+		and Aud_trm &gt;=#{currSumBeginDate}
+	</if>
+	<if test="currSumBeginDate==null and currSumEndDate!=null">
+		and Aud_trm &lt;=#{currSumEndDate}
+	</if>
+		GROUP BY cmcc_prov_id
+		order by numPer desc
+	</select>
+	<!-- 查询明细信息分页 -->
+	<select id="selectDetailList" resultMap="detailMap" parameterType="pager">
+		SELECT
+		Gen_date,
+		Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		IMEI,
+		sals_tm,
+		fst_pay_amt,
+		sec_pay_amt,
+		thr_pay_amt,
+		tol_pay_amt,
+		per_pay_sals,
+		cust_prom_mon_cnsm,
+		per_fst_cnsm,
+		per_sec_cnsm,
+		per_thr_cnsm
+		FROM
+		hpeapb.det_zdfwfhgx_6002
+		where 1=1 
+		<if test="params.provinceCode!=null">
+		and cmcc_prov_prvd_id =#{params.provinceCode}
+		</if>
+		<!-- 审计月 -->
+		<if test="params.currDetBeginDate!=null and params.currDetBeginDate!='' and params.currDetEndDate!=null and params.currDetEndDate!=''">
+			and  Aud_trm between #{params.currDetBeginDate} and #{params.currDetEndDate} 
+		</if>
+		<if test="params.currDetBeginDate!=null and params.currDetBeginDate!='' and params.currDetEndDate==null">
+			and Aud_trm &gt;=#{params.currDetBeginDate}
+		</if>
+		<if test="params.currDetBeginDate==null and params.currDetEndDate!=null and params.currDetEndDate!=''">
+			and Aud_trm &lt;=#{params.currDetEndDate}
+		</if>
+		<!-- 地市 -->
+		<if test="params.currCityType!=null and params.currCityType!=''">
+			and cmcc_prov_id =#{params.currCityType}
+		</if>
+		order by Aud_trm desc ,cmcc_prov_id,per_pay_sals desc
+	</select>
+	<!-- 查询所有明细信息做导出 -->
+	<select id="selectDetailAll" resultMap="detailMap" parameterType="java.util.HashMap">
+	SELECT
+		Gen_date,
+		Aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		cmcc_prvd_nm_short,
+		IMEI,
+		sals_tm,
+		fst_pay_amt,
+		sec_pay_amt,
+		thr_pay_amt,
+		tol_pay_amt,
+		per_pay_sals,
+		cust_prom_mon_cnsm,
+		per_fst_cnsm,
+		per_sec_cnsm,
+		per_thr_cnsm
+		FROM
+		hpeapb.det_zdfwfhgx_6002
+		where 1=1 
+		<if test="provinceCode!=null">
+		and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<!-- 审计月 -->
+		<if test="currDetBeginDate!=null and currDetBeginDate!='' and currDetEndDate!=null and currDetEndDate!=''">
+			and  Aud_trm between #{currDetBeginDate} and #{currDetEndDate} 
+		</if>
+		<if test="currDetBeginDate!=null and currDetBeginDate!='' and currDetEndDate==null">
+			and Aud_trm &gt;=#{currDetBeginDate}
+		</if>
+		<if test="currDetBeginDate==null and currDetEndDate!=null and currDetEndDate!=''">
+			and Aud_trm &lt;=#{currDetEndDate}
+		</if>
+		<!-- 地市 -->
+		<if test="currCityType!=null and currCityType!=''">
+			and cmcc_prov_id =#{currCityType}
+		</if>
+		order by Aud_trm desc ,cmcc_prov_id,per_pay_sals desc  LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

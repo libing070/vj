@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="ycsdblywMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_qst_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audtrm,sum(busi_num) as busi_num
+		FROM hpeapb.sox_sum_ywslhgx_1401_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+			AND AUD_TRM &gt;=  #{currSumBeginDate} 
+			AND AUD_TRM &lt;= #{currSumEndDate}
+		GROUP BY aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_hz_qst_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			short_name,
+			busi_num,
+			staff_num
+		from hpeapb.sox_sum_ywslhgx_1401_prvd
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		order by aud_trm desc,busi_num desc
+	</select>
+	
+	<select id="export_hz_qst_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			busi_num,
+			staff_num
+		from hpeapb.sox_sum_ywslhgx_1401_prvd
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		order by aud_trm desc,busi_num desc
+	</select>
+	
+	
+	
+	
+	<select id="load_hz_city_chart" resultType="Map" parameterType="Map">
+		select busi_typ_nm,sum(busi_num) as busi_num,sum(staff_num) as staff_num
+		from hpeapb.sox_sum_ywslhgx_1401_ywlx 
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		group by busi_typ_no,busi_typ_nm
+		order by sum(busi_num) desc
+	</select>
+	
+	<select id="load_hz_city_table" resultType="Map" parameterType="Map">
+		select
+			aud_trm,
+			short_name,
+			busi_typ_no,
+			busi_typ_nm,
+			busi_num,
+			staff_num
+		from hpeapb.sox_sum_ywslhgx_1401_ywlx
+		where CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate}
+		order by aud_trm desc,busi_num desc
+	</select>
+	<select id="export_hz_city_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			busi_typ_no,
+			busi_typ_nm,
+			busi_num,
+			staff_num
+		from hpeapb.sox_sum_ywslhgx_1401_ywlx
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		order by aud_trm desc,busi_num desc
+	</select>
+	<select id="load_hz_city_conclusion" resultType="Map" parameterType="Map">
+		SELECT sum(busi_num) as busi_num,sum(staff_num) as staff_num
+		FROM hpeapb.sox_sum_ywslhgx_1401_ywlx
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+	</select>
+	
+	<select id="load_hz_city_conclusion_2" resultType="Map" parameterType="Map">
+		SELECT busi_typ_nm,sum(busi_num) as busi_num,sum(staff_num) as staff_num
+		FROM hpeapb.sox_sum_ywslhgx_1401_ywlx
+		where CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate}
+		group by 1
+		order by 2 desc
+		limit 3
+	</select>
+	
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+	
+		SELECT 
+		aud_trm,
+		short_name,
+		opr_ser_no,
+		busi_acce_typ_nm,
+		subs_id,
+		busi_typ_nm,
+		busi_opr_tm,
+		busi_chnl_nm,
+		staff_id
+		FROM hpeapb.sox_det_ywslhgx_1401
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currDetBeginDate} 
+		and AUD_TRM &lt;= #{params.currDetEndDate}
+		ORDER BY aud_trm desc,staff_id desc,opr_ser_no desc 
+	</select>
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT  
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		opr_ser_no,
+		busi_acce_typ,
+		busi_acce_typ_nm,
+		subs_id,
+		busi_typ_no,
+		busi_typ_nm,
+		busi_opr_tm,
+		order_stat,
+		busi_eff_dt,
+		busi_end_dt,
+		busi_chnl_id,
+		busi_chnl_nm,
+		staff_id
+		FROM hpeapb.sox_det_ywslhgx_1401
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currDetBeginDate} 
+		and AUD_TRM &lt;= #{currDetEndDate}
+		ORDER BY aud_trm desc,staff_id desc,opr_ser_no desc 
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	
+</mapper>
+

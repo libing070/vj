@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="tyghyepkyc_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(opr_num) as opr_num,cmcc_prov_prvd_id,
+			short_name
+		from 
+			hpeapb.sum_pkyc_2101_oprid_busi_cty 
+		where 
+			aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by opr_num desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(opr_num) as opr_num,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_pkyc_2101_oprid_busi_cty 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and opr_num !=0 
+		group by cmcc_prov_prvd_id 
+		order by opr_num desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(opr_num) as opr_num,
+			aud_trm 
+		from 
+			hpeapb.sum_pkyc_2101_oprid_busi_cty 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,
+			sum(opr_num) as opr_num,
+			sum(opr_days) as opr_days
+
+ 		from 
+ 			hpeapb.sum_pkyc_2101_oprid_busi_cty 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		GROUP BY cmcc_prov_prvd_id,aud_trm
+		order by aud_trm desc,opr_num desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			staff_id,
+			staff_nm,
+			emp_post,
+			busi_typ_no,
+			busi_typ_nm,
+			opr_num,
+			opr_days
+ 		from 
+ 			hpeapb.sum_pkyc_2101_oprid_busi_cty 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,opr_num desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="jtkhcqqfwtj_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+			select 
+				COUNT(t1.acct_id) as count_acct_id,
+				t1.cmcc_prov_prvd_id,t1.aud_trm,t1.short_name
+			from		
+				(select 
+						 acct_id,max(aud_trm) aud_trm,
+						 cmcc_prov_prvd_id,short_name
+					from 
+						hpeapb.sox_sum_cqqfwtj_1302_acct
+					where 1=1 and 
+						aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+					group by cmcc_prov_prvd_id,acct_id) t1
+			GROUP BY t1.cmcc_prov_prvd_id 
+			order by count_acct_id desc,cmcc_prov_prvd_id
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+			select 
+				COUNT(t1.acct_id) as count_acct_id,
+				t1.cmcc_prov_prvd_id,t1.aud_trm,t1.short_name
+			from		
+				(select 
+						 acct_id,max(aud_trm) aud_trm,
+						 cmcc_prov_prvd_id,short_name
+					from 
+						hpeapb.sox_sum_cqqfwtj_1302_acct
+					where 1=1 and 
+						aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+					group by cmcc_prov_prvd_id,acct_id) t1
+			GROUP BY t1.cmcc_prov_prvd_id
+			order by count_acct_id desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(acct_cnt) as sum_acct_cnt,aud_trm
+		from 
+			hpeapb.sox_sum_cqqfwtj_1302_prvd  
+		where 1=1 and 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		GROUP BY aud_trm ORDER BY aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,	
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_cnt,			
+			dbt_amt
+ 		from 
+ 			hpeapb.sox_sum_cqqfwtj_1302_prvd 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,acct_cnt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,	
+			cmcc_prov_prvd_id,
+			short_name,
+			acct_cnt,			
+			dbt_amt
+ 		from 
+ 			hpeapb.sox_sum_cqqfwtj_1302_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,acct_cnt desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

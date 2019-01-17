@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jlcj">
+	
+	<resultMap type="java.util.Map" id="sumDetailMap">
+		<result property="Gen_date" column="Gen_date" />
+		<result property="auditMonth" column="Aud_trm" />
+		<result property="cmcc_prov_prvd_id" column="cmcc_prov_prvd_id" />
+		<result property="short_name" column="short_name" />
+		<result property="cmcc_prov_id" column="cmcc_prov_id" />
+		<result property="cmcc_prvd_nm_short" column="cmcc_prvd_nm_short" />
+		<result property="COR_CHNL_ID" column="COR_CHNL_ID" />
+		<result property="CHNL_NM" column="CHNL_NM" />
+		<result property="INCEN_RWD_SUM" column="INCEN_RWD_SUM" />
+		<result property="OUT_NBR_RWD_SUM" column="OUT_NBR_RWD_SUM" />
+		<result property="BASIC_BUSN_SVC_AGC_RWD_SUM" column="BASIC_BUSN_SVC_AGC_RWD_SUM" />
+		<result property="VALUE_ADDED_BUSN_AGC_RWD_SUM" column="VALUE_ADDED_BUSN_AGC_RWD_SUM" />
+		<result property="TRMNL_RWD_SUM" column="TRMNL_RWD_SUM" />
+		<result property="HOUSE_FEE_SUM" column="HOUSE_FEE_SUM" />	
+		<result property="TOL_FEE" column="TOL_FEE" />	
+	</resultMap>
+	
+	
+	<select id="selectMingXi" resultType="java.util.HashMap" parameterType="pager">
+	 	SELECT
+	 		Gen_date,
+			Aud_trm  as auditMonth,
+			cmcc_prvd_nm_short,
+			COR_CHNL_ID,
+			CHNL_NM,
+			INCEN_RWD_SUM,
+			OUT_NBR_RWD_SUM,
+			BASIC_BUSN_SVC_AGC_RWD_SUM,
+			VALUE_ADDED_BUSN_AGC_RWD_SUM,
+			TRMNL_RWD_SUM,
+			HOUSE_FEE_SUM,
+			TOL_FEE
+		FROM hpeapb.det_jlcj_1901
+		where 1=1  
+		<if test="params.provinceCode!=null and params.provinceCode!=''">
+		and cmcc_prov_prvd_id =#{params.provinceCode}
+		</if>
+		<if test="params.currDetBeginDate !=null and params.currDetBeginDate!=''">
+			and Aud_trm &gt;=#{params.currDetBeginDate }
+		</if>
+		<if test="params.currDetEndDate !=null and params.currDetEndDate!='' ">
+			and Aud_trm &lt;=#{params.currDetEndDate }
+		</if>
+		<if test="params.currCityType !=null and params.currCityType!='' ">
+			and cmcc_prov_id =#{params.currCityType }
+		</if>
+		order by Aud_trm desc,cmcc_prov_id,TOL_FEE desc
+		</select>
+		
+	<select id="selectDaoChuDetailAll" resultMap="sumDetailMap" parameterType="java.util.Map">
+	 	SELECT
+	 		Gen_date,
+			Aud_trm as auditMonth,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			COR_CHNL_ID,
+			CHNL_NM,
+			INCEN_RWD_SUM,
+			OUT_NBR_RWD_SUM,
+			BASIC_BUSN_SVC_AGC_RWD_SUM,
+			VALUE_ADDED_BUSN_AGC_RWD_SUM,
+			TRMNL_RWD_SUM,
+			HOUSE_FEE_SUM,
+			TOL_FEE
+		FROM hpeapb.det_jlcj_1901
+		where 1=1  
+		<if test="provinceCode!=null and provinceCode!=''">
+			and cmcc_prov_prvd_id =#{provinceCode}
+		</if>
+		<if test="currDetBeginDate !=null and currDetBeginDate!=''">
+			and Aud_trm &gt;=#{currDetBeginDate }
+		</if>
+		<if test="currDetEndDate !=null and currDetEndDate!='' ">
+			and Aud_trm &lt;=#{currDetEndDate }
+		</if>
+		<if test="currCityType !=null and currCityType!='' ">
+			and cmcc_prov_id =#{currCityType }
+		</if>
+		order by Aud_trm desc,cmcc_prov_id,TOL_FEE desc  LIMIT #{pageStar},#{pageEnd}
+		
+	</select> 
+	<select id="getgstongji" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  select    
+	  			sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.short_name,
+				a.BURGET AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when a.BURGET = 0 or a.BURGET is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / a.BURGET end AS zhexian2
+ 			from  (SELECT
+						left(Aud_trm, 4)  AS Aud_trm,
+						INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+						TOL_FEE as SUM_TOL_FEE,
+						cmcc_prov_prvd_id
+  			from 	sum_jlcj_1901_prvd ) b
+			LEFT JOIN  chnl_burget_1901_prvd  a
+			on a.AUD_YEAR = b.Aud_trm 
+			and a.CMCC_prov_prvd_id=b.cmcc_prov_prvd_id
+			where 1=1 
+				and a.AUD_YEAR between #{beginYear} and #{endYear} 
+				and a.CMCC_prov_prvd_id =#{provinceCode}
+				GROUP BY AUD_YEAR,a.CMCC_prov_prvd_id
+	</select>
+	
+	<select id="getgssjbtongji" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select    
+	  			sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.short_name,
+				a.BURGET AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when a.BURGET = 0 or a.BURGET is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / a.BURGET end AS zhexian2
+		from  (SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id
+ 		from 	sum_jlcj_1901_prvd ) b
+		LEFT JOIN  chnl_burget_1901_prvd  a
+		on a.AUD_YEAR = b.Aud_trm 
+		and a.CMCC_prov_prvd_id=b.cmcc_prov_prvd_id
+			where 1=1 
+			and a.AUD_YEAR between #{params.beginYear} and #{params.endYear} 
+			and a.CMCC_prov_prvd_id = #{params.provinceCode}
+			GROUP BY AUD_YEAR,a.CMCC_prov_prvd_id
+	</select>
+	
+	<select id="selectSumGsAll" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select    
+	  			sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.short_name,
+				a.BURGET AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when a.BURGET = 0 or a.BURGET is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / a.BURGET end AS zhexian2
+		from  (SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id
+ 		from 	sum_jlcj_1901_prvd ) b
+		LEFT JOIN  chnl_burget_1901_prvd  a
+		on a.AUD_YEAR = b.Aud_trm 
+		and a.CMCC_prov_prvd_id=b.cmcc_prov_prvd_id
+			where 1=1 
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.CMCC_prov_prvd_id = #{provinceCode}
+			GROUP BY AUD_YEAR,a.CMCC_prov_prvd_id
+	</select>
+	
+	<select id="getdstongji" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+	 			sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id
+  		from    sum_jlcj_1901_cty ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm 
+		and a.cmcc_prov_id=b.cmcc_prov_id
+			where 1=1 
+			and a.CMCC_prov_prvd_id=#{provinceCode}
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.cmcc_prov_id = #{currCityLb}
+		GROUP BY a.AUD_YEAR,a.cmcc_prov_id
+		
+	</select>
+	
+	<select id="getdssjbtongji" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		 select  
+	 			sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id
+  		from    sum_jlcj_1901_cty ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm 
+		and a.cmcc_prov_id=b.cmcc_prov_id
+			where 1=1 
+			and a.CMCC_prov_prvd_id=#{params.provinceCode}
+			and a.AUD_YEAR between #{params.beginYear} and #{params.endYear} 
+			and a.cmcc_prov_id = #{params.currCityLb}
+			GROUP BY AUD_YEAR
+	</select>
+	
+	<select id="selectSumDsAll" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+	 			sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id
+  		from    sum_jlcj_1901_cty ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm 
+		and a.cmcc_prov_id=b.cmcc_prov_id
+			where 1=1 
+			and a.CMCC_prov_prvd_id=#{provinceCode}
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.cmcc_prov_id = #{currCityLb}
+			GROUP BY AUD_YEAR
+	</select>
+	
+	
+	<select id="gettndtongji" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+				sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id 
+  		from   sum_jlcj_1901_cty   ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm
+		and a.cmcc_prov_id= b.cmcc_prov_id 
+			where 1=1 
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.AUD_YEAR = #{currTimeLb}
+			and a.CMCC_prov_prvd_id=#{provinceCode}
+			GROUP BY AUD_YEAR,a.cmcc_prov_id
+	</select>
+	
+	<select id="selectQianTndJieLun" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+				sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id 
+  		from   sum_jlcj_1901_cty   ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm
+		and a.cmcc_prov_id= b.cmcc_prov_id 
+			where 1=1 
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.AUD_YEAR = #{currTimeLb}
+			and a.CMCC_prov_prvd_id=#{provinceCode}
+			GROUP BY AUD_YEAR,a.cmcc_prov_id
+			order by zhexian1 DESC
+			limit 3
+	</select>
+	
+	<select id="selectHouTndJieLun" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+				sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id 
+  		from   sum_jlcj_1901_cty   ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm
+		and a.cmcc_prov_id= b.cmcc_prov_id 
+			where 1=1 
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.AUD_YEAR = #{currTimeLb}
+			and a.CMCC_prov_prvd_id=#{provinceCode}
+			GROUP BY AUD_YEAR,a.cmcc_prov_id
+			order by zhexian2 DESC
+			limit 3
+	</select>
+	<select id="gettndsjbtongji" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+				sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id 
+  		from   sum_jlcj_1901_cty   ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm
+		and a.cmcc_prov_id= b.cmcc_prov_id 
+				where 1=1 
+				and a.CMCC_prov_prvd_id=#{params.provinceCode}
+				and a.AUD_YEAR between #{params.beginYear} and #{params.endYear} 
+				and a.AUD_YEAR = #{params.currTimeLb}
+				GROUP BY AUD_YEAR,a.cmcc_prov_id
+	</select>
+	
+	<select id="selectSumTndAll" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select  
+				sum(SUM_INCEN_RWD_SUM) as SUM_INCEN_RWD_SUM,
+				sum(SUM_TOL_FEE) as SUM_TOL_FEE ,
+				a.AUD_YEAR,
+				a.CMCC_prov_prvd_id,
+				a.cmcc_prov_id,
+				a.CMCC_prvd_nm_short,
+				a.short_name,
+				IFNULL(sum(a.BURGET), 0) AS SUM_BURGET,
+				case when SUM_TOL_FEE = 0 or SUM_TOL_FEE is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(SUM_TOL_FEE) end AS zhexian1,
+				case when sum(a.BURGET) = 0 or sum(a.BURGET) is null then 0.00
+					else sum(SUM_INCEN_RWD_SUM) / sum(a.BURGET) end AS zhexian2
+		 from 	(SELECT
+					left(Aud_trm, 4)  AS Aud_trm,
+					INCEN_RWD_SUM AS SUM_INCEN_RWD_SUM,
+					TOL_FEE as SUM_TOL_FEE,
+					cmcc_prov_prvd_id,
+					cmcc_prov_id 
+  		from   sum_jlcj_1901_cty   ) b
+		LEFT JOIN   chnl_burget_1901_cty  a
+		on a.AUD_YEAR = b.Aud_trm
+		and a.cmcc_prov_id= b.cmcc_prov_id 
+		  	where 1=1 
+		  	and a.CMCC_prov_prvd_id=#{provinceCode}
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.AUD_YEAR = #{currTimeLb}
+			GROUP BY AUD_YEAR,a.cmcc_prov_id
+		<!-- SELECT
+			a.AUD_YEAR,
+			a.CMCC_prov_prvd_id,
+			a.cmcc_prov_id,
+			a.CMCC_prvd_nm_short,
+			a.short_name,
+			sum(a.BURGET) as SUM_BURGET,
+			SUM(b.INCEN_RWD_SUM) AS SUM_INCEN_RWD_SUM,
+			sum(b.TOL_FEE) as SUM_TOL_FEE,
+			SUM(b.INCEN_RWD_SUM)/sum(b.TOL_FEE) as zhexian1,
+			SUM(b.INCEN_RWD_SUM)/sum(a.BURGET) as zhexian2
+		FROM   chnl_burget_1901_cty  a
+		RIGHT JOIN sum_jlcj_1901_cty  b
+		on a.cmcc_prov_id= b.cmcc_prov_id 
+			where 1=1 
+			and a.AUD_YEAR between #{beginYear} and #{endYear} 
+			and a.AUD_YEAR = #{currTimeLb}
+			GROUP BY AUD_YEAR,a.cmcc_prov_id -->
+	</select>
+</mapper>
+

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="gprs1501">
+	<!-- 获取省汇总信息 -->
+	<select id="getSumGprsPrvd" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		SUBS_NUM,
+		OVER_GPRS,
+		TOL_GPRS,
+		PER_SUBS_MON
+		FROM 
+		sum_gprs_1501_prvd
+		where 1=1 
+	
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		order by AUD_TRM  
+	</select>
+	
+	<!-- 获取省汇总信息分页 -->
+	<select id="getSumGprsPrvdPager" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		SUBS_NUM,
+		OVER_GPRS,
+		TOL_GPRS,
+		PER_SUBS_MON,
+		IFNULL(OVER_GPRS/TOL_GPRS,0) as PER_OVER_GPRS
+		FROM 
+		sum_gprs_1501_prvd
+		where 1=1 
+	
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{params.provId}]]>
+		</if>
+		order by AUD_TRM desc,SUBS_NUM desc  
+	</select>
+	
+	<!-- 获取地市汇总 -->
+	<select id="getSumGprsCty" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		ifnull(sum(SUBS_NUM),0) as SUM_SUBS_NUM,
+		ifnull(AVG(PER_SUBS_MON),0) as AVG_PER_SUBS_MON,
+		ifnull(sum(OVER_GPRS),0) as SUM_OVER_GPRS,
+		ifnull(sum(TOL_GPRS),0) as SUM_TOL_GPRS,
+		IFNULL(sum(OVER_GPRS)/sum(TOL_GPRS),0) AS PER_OVER_GPRS
+		
+		FROM
+		sum_gprs_1501_cty
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		GROUP BY CMCC_PROV_ID
+		
+		ORDER BY  PER_OVER_GPRS desc 
+	</select>
+	
+	<!-- 获取地市汇总分页 -->
+	<select id="getSumGprsCtyPager" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		ifnull(sum(SUBS_NUM),0) as SUM_SUBS_NUM,
+		ifnull(AVG(PER_SUBS_MON),0) as AVG_PER_SUBS_MON,
+		ifnull(sum(OVER_GPRS),0) as SUM_OVER_GPRS,
+		ifnull(sum(TOL_GPRS),0) as SUM_TOL_GPRS,
+		IFNULL(sum(OVER_GPRS)/sum(TOL_GPRS),0) AS PER_OVER_GPRS
+		
+		FROM
+		sum_gprs_1501_cty
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{params.provId}]]>
+		</if>
+		GROUP BY CMCC_PROV_ID
+		
+		ORDER BY  SUM_OVER_GPRS desc 
+	</select>
+	
+	<!-- 获取大明细信息分页 -->
+	<select id="getGprsDetailPager" resultType="Map" parameterType="pager">
+			SELECT
+			GEN_DATE,
+			AUD_TRM,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			CMCC_PROV_ID,
+			CMCC_PRVD_NM_SHORT,
+			SUBS_ID,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS MSISDN,
+			SUM_STRM_AMT,
+			SUBS_STAT_TYP_CD,
+			SUBS_BUSN_TYP_CD,
+			MER_AMT,
+			BUSI_ACCE_TYP,
+			BUSI_OPR_TM,
+			BASIC_PACK_ID,
+			BASIC_PACK_NAME
+			FROM
+			hpeapb.det_gprs_1501 c 
+			where 1=1 
+	 	  <if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{params.mx_startMonth} ]]> 
+            </if>
+            
+            <if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{params.mx_endMonth} ]]> 
+            </if>
+            
+            <if test="params.provId != null and params.provId != ''">
+                and c.cmcc_prov_prvd_id = #{params.provId}
+            </if>
+            
+            <if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+                and c.cmcc_prov_id = #{params.mx_cityCode}
+            </if>
+            order by AUD_TRM desc,CMCC_PROV_ID
+	</select>
+	
+	<!-- 获取大明细信息分页 -->
+	<select id="getGprsDetailAll" resultType="Map" parameterType="Map">
+			SELECT
+			GEN_DATE,
+			AUD_TRM,
+			CMCC_PROV_PRVD_ID,
+			SHORT_NAME,
+			CMCC_PROV_ID,
+			CMCC_PRVD_NM_SHORT,
+			SUBS_ID,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS MSISDN,
+			SUM_STRM_AMT,
+			SUBS_STAT_TYP_CD,
+			SUBS_BUSN_TYP_CD,
+			MER_AMT,
+			BUSI_ACCE_TYP,
+			BUSI_OPR_TM,
+			BASIC_PACK_ID,
+			BASIC_PACK_NAME
+			FROM
+			hpeapb.det_gprs_1501 c 
+			where 1=1 
+	 	  <if test="mx_startMonth != null and mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{mx_startMonth} ]]> 
+            </if>
+            
+            <if test="mx_endMonth != null and mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{mx_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+            
+            <if test="mx_cityCode != null and mx_cityCode != ''">
+                and c.cmcc_prov_id = #{mx_cityCode}
+            </if>
+            order by AUD_TRM desc,CMCC_PROV_ID LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

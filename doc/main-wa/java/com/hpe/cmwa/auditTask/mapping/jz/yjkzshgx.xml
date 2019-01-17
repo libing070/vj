@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="yjkzshgxMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	
+		<select id="load_hz_je_chart" resultType="Map" parameterType="Map">
+			SELECT 
+			ifnull(SUM(CASE WHEN KJQJ &gt;= 201406 
+						THEN ((CASE WHEN MXKMDM LIKE '51142723%' OR MXKMDM LIKE '51142724%' THEN JFJE ELSE 0 END)*1.11+
+							(CASE WHEN MXKMDM LIKE '51142730%' OR MXKMDM LIKE '51142731%' THEN JFJE ELSE 0 END)*1.06)
+				ELSE JFJE END),0) as yjkmz
+			FROM audit_db.ods_yjk_cw_sum
+			WHERE  KJQJ BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND prov_code = #{provinceCode}
+		</select>
+		
+		<select id="load_hz_je_chart_1" resultType="Map" parameterType="Map">
+			SELECT 
+			ifnull(sum(yjk_amt),0) as yjkamt
+			FROM hpeapb.sum_yjk_2006_01_prvd
+			WHERE  aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		</select>
+		<select id="load_hz_je_table" resultType="Map" parameterType="Map">
+			
+			SELECT KJQJ,(CASE WHEN MXKMDM LIKE '51142723%' THEN "基础业务有价卡折扣"
+								 WHEN MXKMDM LIKE '51142724%' THEN "基础业务有价卡赠送"
+									WHEN MXKMDM LIKE '51142730%' THEN "增值业务有价卡折扣"
+									WHEN MXKMDM LIKE '51142731%' THEN "增值业务有价卡赠送"
+								END
+								) AS kemu,
+						SUM(CASE WHEN MXKMDM LIKE '51142723%' THEN JFJE
+								 WHEN MXKMDM LIKE '51142724%' THEN JFJE
+									WHEN MXKMDM LIKE '51142730%' THEN JFJE
+									WHEN MXKMDM LIKE '51142731%' THEN JFJE 
+								ELSE 0 END)AS yjkamt,
+						SUM(CASE WHEN KJQJ &lt;201406 THEN((CASE WHEN MXKMDM LIKE '51142723%' THEN JFJE
+								 WHEN MXKMDM LIKE '51142724%' THEN JFJE
+									WHEN MXKMDM LIKE '51142730%' THEN JFJE
+									WHEN MXKMDM LIKE '51142731%' THEN JFJE 
+								ELSE 0 END))
+								ELSE(CASE WHEN MXKMDM LIKE '51142723%' THEN JFJE*1.11
+								 WHEN MXKMDM LIKE '51142724%' THEN JFJE*1.11
+									WHEN MXKMDM LIKE '51142730%' THEN JFJE*1.06
+									WHEN MXKMDM LIKE '51142731%' THEN JFJE *1.06
+								ELSE 0 END) END) AS yjkmz
+			FROM audit_db.ods_yjk_cw_sum
+			WHERE  KJQJ BETWEEN  #{params.currSumBeginDate} AND #{params.currSumEndDate}
+			AND prov_code = #{params.provinceCode}
+			and MXKMDM like '511427%'
+			GROUP BY KJQJ,left(MXKMDM,8)
+			order by KJQJ desc,left(MXKMDM,8)
+		</select>
+		<select id="export_hz_je" resultType="Map" parameterType="Map">
+			SELECT KJQJ,(CASE WHEN MXKMDM LIKE '51142723%' THEN "基础业务有价卡折扣"
+								 WHEN MXKMDM LIKE '51142724%' THEN "基础业务有价卡赠送"
+									WHEN MXKMDM LIKE '51142730%' THEN "增值业务有价卡折扣"
+									WHEN MXKMDM LIKE '51142731%' THEN "增值业务有价卡赠送"
+								END
+								) AS kemu,
+						SUM(CASE WHEN MXKMDM LIKE '51142723%' THEN JFJE
+								 WHEN MXKMDM LIKE '51142724%' THEN JFJE
+									WHEN MXKMDM LIKE '51142730%' THEN JFJE
+									WHEN MXKMDM LIKE '51142731%' THEN JFJE 
+								ELSE 0 END)AS yjkamt,
+						SUM(CASE WHEN KJQJ &lt;201406 THEN((CASE WHEN MXKMDM LIKE '51142723%' THEN JFJE
+								 WHEN MXKMDM LIKE '51142724%' THEN JFJE
+									WHEN MXKMDM LIKE '51142730%' THEN JFJE
+									WHEN MXKMDM LIKE '51142731%' THEN JFJE 
+								ELSE 0 END))
+								ELSE(CASE WHEN MXKMDM LIKE '51142723%' THEN JFJE
+								 WHEN MXKMDM LIKE '51142724%' THEN JFJE
+									WHEN MXKMDM LIKE '51142730%' THEN JFJE
+									WHEN MXKMDM LIKE '51142731%' THEN JFJE 
+								ELSE 0 END)*1.11 END) AS yjkmz
+			FROM audit_db.ods_yjk_cw_sum
+			WHERE  KJQJ BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND prov_code = #{provinceCode}
+			AND MXKMDM like '511427%'
+			GROUP BY KJQJ,left(MXKMDM,8)
+			order by KJQJ desc,left(MXKMDM,8)
+
+		</select>
+		<select id="load_hz_zsx_chart" resultType="Map" parameterType="Map">
+			SELECT 
+			CONCAT( #{currSumBeginDate},"-",#{currSumEndDate}) AS audtrm,
+			cast(SUM(CASE WHEN EXIST_WORD ="有公文号" THEN yjk_amt ELSE 0  END) as decimal(20,2)) ygwh_sum,
+			cast(SUM(CASE WHEN EXIST_WORD ="无公文号" THEN yjk_amt ELSE 0  END) as decimal(20,2)) wgwh_sum,
+			cast(sum(yjk_amt) as decimal(20,2)) as total,
+			sum(1)
+			FROM hpeapb.sum_yjk_2006_02_prvd
+			WHERE  aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		</select>
+		<select id="export_hz_zsx_table" resultType="Map" parameterType="Map">
+			SELECT 
+			CONCAT( #{currSumBeginDate},"-",#{currSumEndDate}) AS audtrm,
+			ifnull(SUM(CASE WHEN EXIST_WORD ="有公文号" THEN yjk_amt ELSE 0  END),0) ygwh_sum,
+			ifnull(SUM(CASE WHEN EXIST_WORD ="无公文号" THEN yjk_amt ELSE 0  END),0) wgwh_sum,
+			ifnull(sum(yjk_amt),0) as total,
+			sum(1)
+			FROM hpeapb.sum_yjk_2006_02_prvd
+			WHERE  aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		</select>
+		<select id="load_hz_jzd_chart_1" resultType="Map" parameterType="Map">
+			SELECT 
+			ifnull(sum(CASE when a.yjkAmt &lt; 10000 then a.yjkAmt end),0) as yjkamt1,
+			ifnull(sum(CASE when a.yjkAmt &gt;= 10000 and a.yjkAmt &lt; 20000 then a.yjkAmt end),0) as yjkamt2,
+			ifnull(sum(CASE when a.yjkAmt &gt;= 20000 and a.yjkAmt &lt; 50000 then a.yjkAmt end),0) as yjkamt3,
+			ifnull(sum(CASE when a.yjkAmt &gt;= 50000 and a.yjkAmt &lt; 100000 then a.yjkAmt end),0) as yjkamt4,
+			ifnull(sum(CASE when a.yjkAmt &gt;= 100000 then a.yjkAmt end),0) as yjkamt5,
+			ifnull(count(CASE when a.yjkAmt &lt; 10000 then a.yjkAmt end),0) as yjknum1,
+			ifnull(count(CASE when a.yjkAmt &gt;= 10000 and a.yjkAmt &lt; 20000 then a.yjkAmt end),0) as yjknum2,
+			ifnull(count(CASE when a.yjkAmt &gt;= 20000 and a.yjkAmt &lt; 50000 then a.yjkAmt end),0) as yjknum3,
+			ifnull(count(CASE when a.yjkAmt &gt;= 50000 and a.yjkAmt &lt; 100000 then a.yjkAmt end),0) as yjknum4,
+			ifnull(count(CASE when a.yjkAmt &gt;= 100000 then a.yjkAmt end),0) as yjknum5
+			from (SELECT SUM(yjk_amt) as yjkAmt FROM hpeapb.sum_yjk_2006_03_msisdn 
+			where aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+			GROUP BY msisdn) a
+			
+			
+		</select>
+		
+		<!-- 有价卡赠送集中度右侧柱状图  -->
+		<select id="load_hz_jzd_chart_2" resultType="Map" parameterType="Map">
+			SELECT (CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,sum(yjk_amt) AS sum_yjk_amt
+			FROM hpeapb.sum_yjk_2006_03_msisdn
+			WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+			GROUP BY msisdn
+			ORDER BY sum_yjk_amt DESC
+			LIMIT 10
+		</select>
+		<select id="load_hz_jzd_table_1" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{params.currSumBeginDate},"-",#{params.currSumEndDate}) AS audtrm,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,user_type,org_nm,sum(yjk_amt) AS yjkamt
+			FROM hpeapb.sum_yjk_2006_03_msisdn
+			WHERE  CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+			and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+			and AUD_TRM &lt;= #{params.currSumEndDate}
+			GROUP BY msisdn
+			ORDER BY sum(yjk_amt) desc
+		</select>
+		<select id="export_hz_jzd_1" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{currSumBeginDate},"-",#{currSumEndDate}) AS audtrm,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,user_type,org_nm,sum(yjk_amt) AS yjkamt
+			FROM hpeapb.sum_yjk_2006_03_msisdn
+			WHERE  CMCC_PROV_PRVD_ID = #{provinceCode} 
+			and AUD_TRM &gt;=  #{currSumBeginDate} 
+			and AUD_TRM &lt;= #{currSumEndDate}
+			GROUP BY msisdn
+			ORDER BY sum(yjk_amt) desc
+		</select>
+		<select id="load_hz_yg_chart" resultType="Map" parameterType="Map">
+			SELECT 
+			ifnull(sum(CASE when yjk_amt &lt; 10000 then yjk_amt end),0) as yjkamt1,
+			ifnull(sum(CASE when yjk_amt &gt;= 10000 and yjk_amt &lt; 20000 then yjk_amt end),0) as yjkamt2,
+			ifnull(sum(CASE when yjk_amt &gt;= 20000 and yjk_amt &lt; 50000 then yjk_amt end),0) as yjkamt3,
+			ifnull(sum(CASE when yjk_amt &gt;= 50000 and yjk_amt &lt; 100000 then yjk_amt end),0) as yjkamt4,
+			ifnull(sum(CASE when yjk_amt &gt;= 100000 then yjk_amt  end),0) as yjkamt5,
+			ifnull(sum(CASE when yjk_amt &gt;= 10000 then yjk_amt  end),0) as yjkamt6,
+			ifnull(count(CASE when yjk_amt &lt; 10000 then yjk_amt end),0) as yjknum1,
+			ifnull(count(CASE when yjk_amt &gt;= 10000 and yjk_amt &lt; 20000 then yjk_amt end),0) as yjknum2,
+			ifnull(count(CASE when yjk_amt &gt;= 20000 and yjk_amt &lt; 50000 then yjk_amt end),0) as yjknum3,
+			ifnull(count(CASE when yjk_amt &gt;= 50000 and yjk_amt &lt; 100000 then yjk_amt end),0) as yjknum4,
+			ifnull(count(CASE when yjk_amt &gt;= 100000 then yjk_amt end),0) as yjknum5,
+			ifnull(count(CASE when yjk_amt &gt;= 10000 then yjk_amt end),0) as yjknum6
+			from hpeapb.sum_yjk_2006_06_emp
+			where aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+			
+		</select>
+		
+		<select id="load_hz_yg_table" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{params.currSumBeginDate},"-",#{params.currSumEndDate}) AS audtrm,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,concat(left(emp_name,1),'**') emp_name,emp_dept,emp_stat,sum(yjk_amt) AS yjkamt
+			FROM hpeapb.sum_yjk_2006_06_emp
+			WHERE  CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+			and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+			and AUD_TRM &lt;= #{params.currSumEndDate}
+			GROUP BY msisdn
+			ORDER BY sum(yjk_amt) desc
+		</select>
+		
+		<select id="export_yg_jzd" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{currSumBeginDate},"-",#{currSumEndDate}) AS audtrm,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,concat(left(emp_name,1),'**') emp_name,emp_dept,emp_stat,sum(yjk_amt) AS yjkamt
+			FROM hpeapb.sum_yjk_2006_06_emp
+			WHERE  CMCC_PROV_PRVD_ID = #{provinceCode} 
+			and AUD_TRM &gt;=  #{currSumBeginDate} 
+			and AUD_TRM &lt;= #{currSumEndDate}
+			GROUP BY msisdn
+			ORDER BY sum(yjk_amt) desc
+		</select>
+		
+		<select id="load_mx_table" resultType="Map" parameterType="Map">
+			SELECT   
+			  aud_trm,short_name,
+			  cmcc_prvd_nm_short,yjk_ser_no, yjk_pres_dt, user_id, 
+			  cust_id,(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,yjk_dependency,yjk_offer_cd,
+			  yjk_offer_nm, yjk_amt,chnl_id,
+			  chnl_nm,yjk_purpose
+			FROM hpeapb.det_yjk_2006_05
+			WHERE  CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+			and AUD_TRM &gt;=  #{params.currDetBeginDate} 
+			and AUD_TRM &lt;= #{params.currDetEndDate}
+			<if test="params.currCityType  != '' and params.currCityType  !=null ">
+				and cmcc_prov_id = #{params.currCityType } 
+			</if>
+			ORDER BY aud_trm desc,cmcc_prvd_nm_short
+		</select>
+		<select id="export_mx_table" resultType="Map" parameterType="Map">
+			SELECT   
+			  aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+			  cmcc_prvd_nm_short,yjk_ser_no, yjk_pres_dt, user_id, 
+			  cust_id,yjk_typ,(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,yjk_dependency,yjk_offer_cd,
+			  yjk_offer_nm,offer_word,yjk_end_dt, yjk_amt,chnl_id,
+			  chnl_nm,yjk_purpose
+			FROM hpeapb.det_yjk_2006_05
+			WHERE  CMCC_PROV_PRVD_ID = #{provinceCode} 
+			and AUD_TRM &gt;=  #{currDetBeginDate} 
+			and AUD_TRM &lt;= #{currDetEndDate}
+			<if test="currCityType  != '' and currCityType  !=null ">
+				and cmcc_prov_id = #{currCityType} 
+			</if>
+			ORDER BY aud_trm desc,cmcc_prvd_nm_short
+			 LIMIT #{pageStar},#{pageEnd}
+		</select>
+		<!-- 有价卡赠送集中度右侧数据表  -->
+		<select id="load_hz_jzd_table_2" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{params.currSumBeginDate},"-",#{params.currSumEndDate}) AS audtrm,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,user_type,org_nm,sum(yjk_amt) AS yjkamt
+			FROM hpeapb.sum_yjk_2006_03_msisdn
+			WHERE  CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+			and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+			and AUD_TRM &lt;= #{params.currSumEndDate}
+			GROUP BY msisdn
+			ORDER BY sum(yjk_amt) desc
+		</select>
+		
+		<!-- 导出有价卡赠送集中度右侧数据表  -->
+		<select id="export_hz_jzd_table_2" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{currSumBeginDate},"-",#{currSumEndDate}) AS audtrm,
+			(CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS msisdn,user_type,org_nm,sum(yjk_amt) AS yjkamt
+			FROM hpeapb.sum_yjk_2006_03_msisdn
+			WHERE  CMCC_PROV_PRVD_ID = #{provinceCode} 
+			and AUD_TRM &gt;=  #{currSumBeginDate} 
+			and AUD_TRM &lt;= #{currSumEndDate}
+			GROUP BY msisdn
+			ORDER BY sum(yjk_amt) desc
+		</select>
+		
+		<!-- 有价卡赠送用途柱状图 -->
+		<select id="load_hz_zsyt_chart" resultType="Map" parameterType="Map">
+			SELECT IFNULL(SUM(CASE WHEN yjk_purpose = '租金' THEN  yjk_amt end),0) AS rent_amt,
+						IFNULL(SUM(CASE WHEN yjk_purpose = '渠道酬金' THEN  yjk_amt end),0) AS chnl_amt,
+						IFNULL(SUM(CASE WHEN yjk_purpose = '员工福利' THEN  yjk_amt end),0) AS emp_amt,
+						IFNULL(SUM(yjk_amt),0) AS total_amt
+			FROM hpeapb.sum_yjk_2006_05_prvd
+			WHERE  CMCC_PROV_PRVD_ID = #{provinceCode} 
+			AND AUD_TRM &gt;=  #{currSumBeginDate} 
+			AND AUD_TRM &lt;= #{currSumEndDate}
+		</select>
+		
+		<!-- 有价卡赠送用途数据表 -->
+		<select id="load_hz_zsyt_table" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{params.currSumBeginDate},"-",#{params.currSumEndDate}) AS audtrm,
+			 			yjk_offer_cd,yjk_offer_nm,yjk_purpose,SUM(yjk_amt) AS total_amt
+			FROM hpeapb.sum_yjk_2006_05_offerprvd
+			WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+			AND aud_trm BETWEEN #{params.currSumBeginDate}  AND #{params.currSumEndDate}
+			GROUP BY yjk_offer_cd,yjk_offer_nm,yjk_purpose
+			ORDER BY total_amt DESC
+		</select>
+		
+		<!-- 导出有价卡赠送用途数据表 -->
+		<select id="export_hz_zsyt_table" resultType="Map" parameterType="Map">
+			SELECT CONCAT( #{currSumBeginDate},"-",#{currSumEndDate}) AS audtrm,
+			 			yjk_offer_cd,yjk_offer_nm,yjk_purpose,SUM(yjk_amt) AS total_amt
+			FROM hpeapb.sum_yjk_2006_05_offerprvd
+			WHERE cmcc_prov_prvd_id = #{provinceCode} 
+			AND aud_trm BETWEEN #{currSumBeginDate}  AND #{currSumEndDate}
+			GROUP BY yjk_offer_cd,yjk_offer_nm,yjk_purpose
+			ORDER BY total_amt DESC
+		</select>
+		
+</mapper>
+

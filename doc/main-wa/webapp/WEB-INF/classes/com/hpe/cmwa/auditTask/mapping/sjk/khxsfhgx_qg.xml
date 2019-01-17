@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="khxsfhgx_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(out_nbr_rwd) as out_nbr_rwd,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_khff_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by out_nbr_rwd desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(out_nbr_rwd) as out_nbr_rwd,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_khff_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and out_nbr_rwd !=0 
+		group by cmcc_prov_prvd_id 
+		order by out_nbr_rwd desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(out_nbr_rwd) as out_nbr_rwd,short_name,
+			aud_trm,cmcc_prov_prvd_id 
+		from 
+			hpeapb.sum_khff_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,out_nbr_rwd,
+			(per_out_nbr_rwd*100) as per_out_nbr_rwd,
+			chou_jin_tol
+ 		from 
+ 			hpeapb.sum_khff_prvd 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,out_nbr_rwd desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prov_prvd_id,short_name,out_nbr_rwd,
+			(per_out_nbr_rwd*100) as per_out_nbr_rwd,
+			chou_jin_tol
+ 		from 
+ 			hpeapb.sum_khff_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,out_nbr_rwd desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

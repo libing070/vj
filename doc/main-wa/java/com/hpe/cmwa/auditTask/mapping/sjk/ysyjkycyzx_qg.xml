@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="ysyjkycyzx_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+	
+	  select 
+			t3.short_name,t3.cmcc_prov_prvd_id,t3.sum_yjk_amt,
+			IFNULL(t3.prov_id,t3.short_name) as prov_id,
+  		IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.short_name,t1.cmcc_prov_prvd_id,t1.sum_yjk_amt,t2.prov_id,t2.sum_dfje from 
+					(select cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1 and  aud_trm between #{currSumBeginDate}  and #{currSumEndDate} 
+				GROUP BY cmcc_prov_prvd_id) as t1 
+ 			LEFT JOIN
+				(select prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1 
+				  and kjqj between #{currSumBeginDate}  and #{currSumEndDate} 
+				  and  mxkmdm like'213102%' GROUP BY prov_id) as t2
+ 			ON t1.short_name=t2.prov_id 
+ 		) as t3 ORDER BY cyje desc,t3.cmcc_prov_prvd_id
+ 		
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select short_name,cmcc_prov_prvd_id,sum_yjk_amt,prov_id,sum_dfje,cyje from (select 
+			t3.short_name,t3.cmcc_prov_prvd_id,t3.sum_yjk_amt,
+			IFNULL(t3.prov_id,t3.short_name) as prov_id,
+  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.short_name,t1.cmcc_prov_prvd_id,t1.sum_yjk_amt,t2.prov_id,t2.sum_dfje from 
+					(select cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1 and  aud_trm between #{currSumBeginDate}  and #{currSumEndDate} 
+				GROUP BY cmcc_prov_prvd_id) as t1 
+ 			LEFT JOIN
+				(select prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1 
+				  and kjqj between #{currSumBeginDate}  and #{currSumEndDate} 
+				  and  mxkmdm like'213102%' GROUP BY prov_id) as t2
+ 			ON t1.short_name=t2.prov_id 
+ 		) as t3 where 1=1  ORDER BY cyje desc ) as t4 
+ 		where 1=1 and t4.cyje!=0 ORDER BY t4.cyje desc,t4.cmcc_prov_prvd_id
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		 select 
+			t3.aud_trm,t3.sum_yjk_amt,
+			IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+  		IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.aud_trm,t1.sum_yjk_amt,t2.kjqj,t2.sum_dfje from 
+					(select aud_trm,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1  
+					and  aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				GROUP BY aud_trm ) as t1 
+ 			LEFT JOIN
+				(select kjqj,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1  
+					and kjqj between #{currSumBeginDate}  and #{currSumEndDate} 
+					and mxkmdm like'213102%' GROUP BY kjqj) as t2
+ 			ON  t1.aud_trm=t2.kjqj 
+ 		) as t3 ORDER BY t3.aud_trm 
+
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+	
+		select 
+			t3.aud_trm,t3.cmcc_prov_prvd_id,t3.short_name,t3.sum_yjk_amt,
+			IFNULL(t3.prov_id,t3.short_name) as prov_id,
+			IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.aud_trm,t1.cmcc_prov_prvd_id,t1.short_name,t1.sum_yjk_amt,t2.kjqj,t2.prov_id,t2.sum_dfje from 
+					(select aud_trm,cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1  
+					and aud_trm between #{params.currSumBeginDate} and #{params.currSumEndDate}
+				GROUP BY cmcc_prov_prvd_id,aud_trm ) as t1 
+ 			LEFT JOIN
+				(select kjqj,prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1  
+					and kjqj between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+					and mxkmdm like'213102%' GROUP BY prov_id,kjqj) as t2
+ 			ON t1.short_name=t2.prov_id and t1.aud_trm=t2.kjqj 
+ 		) as t3 ORDER BY t3.aud_trm desc,cyje desc,t3.cmcc_prov_prvd_id
+ 		
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			t3.aud_trm,t3.cmcc_prov_prvd_id,t3.short_name,t3.sum_yjk_amt,
+			IFNULL(t3.prov_id,t3.short_name) as prov_id,
+			IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.aud_trm,t1.cmcc_prov_prvd_id,t1.short_name,t1.sum_yjk_amt,t2.kjqj,t2.prov_id,t2.sum_dfje from 
+					(select aud_trm,cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1  
+					and aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				GROUP BY cmcc_prov_prvd_id,aud_trm ) as t1 
+ 			LEFT JOIN
+				(select kjqj,prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1  
+					and kjqj between #{currSumBeginDate} and  #{currSumEndDate}
+					and mxkmdm like'213102%' GROUP BY prov_id,kjqj) as t2
+ 			ON t1.short_name=t2.prov_id and t1.aud_trm=t2.kjqj 
+ 		) as t3 ORDER BY t3.aud_trm desc,cyje desc,t3.cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

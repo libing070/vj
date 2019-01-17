@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="modelNotifyGenMapper">
+
+
+    <select id="getExistsAudTrm" resultType="String" parameterType="Map">
+        SELECT DISTINCT aud_trm FROM hpeapm.busi_model_notify
+    </select>
+    
+    <insert id="insertNewData" parameterType="List">
+    	insert into hpeapm.busi_model_notify (aud_trm,subject_id,prvd_id,status,subject_name) 
+		values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+		(#{item.audTrm},#{item.subjectId},#{item.prvdId},#{item.status},#{item.subjectNm}) 
+		</foreach> 
+    </insert>
+</mapper>

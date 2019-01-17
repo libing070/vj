@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jfqlsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,bili_value*100 AS zero_pres_per
+		FROM hpeapb.sum_jfbdyc_2902_prvd
+		WHERE  LEFT(aud_trm_begin,4) = #{currSumBeginDate}
+		and bili_value !=0
+		group by cmcc_prov_prvd_id
+		ORDER BY bili_value DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,bili_value*100 AS zero_pres_per
+		FROM hpeapb.sum_jfbdyc_2902_prvd
+		WHERE LEFT(aud_trm_begin,4) = #{currSumBeginDate}  
+		group by cmcc_prov_prvd_id
+		ORDER BY bili_value DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT CONCAT(aud_trm_begin,'-',aud_trm_end) as aud_trm,SUM(zero_value)/SUM(pres_value)*100 AS zero_pres_per
+		FROM hpeapb.sum_jfbdyc_2902_prvd
+		WHERE LEFT(aud_trm_begin,4) = #{currSumBeginDate}
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm_end,
+            short_name,
+            pres_value,
+            zero_value,
+            bili_value*100 as zero_pres_per
+		FROM hpeapb.sum_jfbdyc_2902_prvd
+		WHERE 
+		LEFT(aud_trm_begin,4) = #{params.currSumBeginDate}  
+		group by CMCC_prov_prvd_id
+		order by bili_value desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm_end,
+			CMCC_prov_prvd_id,
+			short_name,
+			pres_value,
+			zero_value
+		FROM hpeapb.sum_jfbdyc_2902_prvd
+		WHERE 
+		LEFT(aud_trm_begin,4) = #{currSumBeginDate}  
+		order by cmcc_prov_prvd_id
+	</select>
+</mapper>
+

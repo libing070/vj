@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/grqf/grqf.js"></script>
+</head>
+<body>
+    <form>
+        <!-- 国信透传条件 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth">
+		<input type="hidden" id="auditId" name="auditId">
+		<input type="hidden" id="taskCode" name="taskCode">
+		
+		<!-- 汇总条件 -->
+		<input type="hidden" id="currSumBeginDate" name="currSumBeginDate">
+		<input type="hidden" id="currSumEndDate" name="currSumEndDate">
+		<input type="hidden" id="provinceName" name="provinceName">
+		
+		
+		<!-- 清单条件 -->
+		<input type="hidden" id="currDetBeginDate" name="currDetBeginDate">
+		<input type="hidden" id="currDetEndDate" name="currDetEndDate">
+		<input type="hidden" id="currCityType" name="currCityType">
+		<input type="hidden" id="currCityList" name="currCityList">
+	
+		<!-- 原始时间开始结束 -->
+		<input type="hidden" id="initBeginDate">
+		<input type="hidden" id="initEndDate">
+        
+    </form>
+    <div class="container-fluid">
+        <!-- 选项卡 -->
+        <div class="tab-nav">
+            <ul>
+                <li class="active">汇总分析</li>
+                <li>明细数据</li>
+            </ul>
+        </div>
+
+        <!-- 选项卡info -->
+        <div class="tab-box">
+            <!-- 汇总分析 -->
+            <div class="tab-info" style="display:block">
+                <!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul>
+                        <li class="active"><a href="/cmwa/grqf/index">总部欠费数据分析</a></li>
+                        <li><a href="/cmwa/grqf/index">引入省公司信控数据分析</a></li>
+                    </ul>
+                </div>
+
+                <!-- dateBox -->
+				<div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input value="2016-02" type="text" autocomplete="off" readonly id="sumBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input value="2016-04" type="text"  readonly id="sumEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					<a href="javascript:;" id="hzfxclick">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+				</div>
+                
+
+                <!-- mapBox -->
+                <div class="tab-mapbox">
+                   
+
+					     <div class="col-xs-12">
+                        <div class="map">
+                            <div class="title">
+                                <h2>欠费波动趋势</h2>
+                                <div class="right-info">
+                                	                                   
+                                    <ol>
+                                        <li class="active">欠费账户数</li>
+                                        <li>欠费金额</li>
+                                        <li id="bodongsjbBtn">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="bodongzhsjielun">
+                                        
+                                        </div>
+                                        
+                                        <div id="qfboqszhsId" style="margin-top:10px;">
+                                        	
+                                        </div>
+                                    </div>
+                                </div>
+								
+								<div class="tab-map-info">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="bodongjejielun">
+                                        
+                                        </div>
+                                        
+                                        <div id="qfboqsjeId" style="margin-top:10px;">
+                                        	
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                    	<div class="shuoming" id="bodongsjbjielun">
+                                        
+                                        </div>
+                                    	<a class="btn-daochu" href="javascript:;" id="bodongexport">
+											导出
+										</a>
+                                    	<div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="qfboqsGridData"></table>
+                                            <div id="qfboqsGridDataPageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>欠费账龄分布</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active">欠费账户数</li>
+										<li>欠费金额</li>
+                                        <li id="zhanglingsjb">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                       <div class="shuoming" id="zhanglingzhsId">
+                                       
+                                        </div>
+                                        
+                                        <div id="zlzhsId" style="height:290px; margin-top:10px;">
+                                        	
+                                        </div>
+                                    </div>
+                                </div>
+								<div class="tab-map-info">
+                                    <div class="col-xs-12">
+	                                   <div class="shuoming" id="zhanglingjeId">
+	                                   
+	                                   </div>
+	                                   
+	                                   <div id="zljeId" style="height:290px; margin-top:10px;">
+                                   	
+                                       </div>
+                                    </div>
+                                </div>
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+	                                   <div class="shuoming" id="zhanglingsjbId">
+	                                   	
+	                                   </div>
+                                   		<a class="btn-daochu" href="javascript:;" id="zhanglingexport">
+											导出
+										</a>
+										<div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="zhanglingGridData"></table>
+                                            <div id="zhanglingGridDataPageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>欠费规模分布</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active">欠费账户数</li>
+										<li>欠费金额</li>
+                                        <li id="guimosjbId">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="guimozhsjielunId">
+                                       
+                                        </div>
+                                        
+                                        <div id="guimozhsId" style="height:290px; margin-top:10px;">
+                                        	
+                                        </div>
+                                    </div>
+                                </div>
+
+								<div class="tab-map-info">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="guimojejielunId">
+	                                   
+	                                   </div>
+	                                   
+	                                   <div id="guimojeId" style="height:290px; margin-top:10px;">
+                                   	
+                                       </div>
+                                    </div>
+                                </div>									
+	
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="shuoming" id="guimosjbjielunId">
+	                                   	
+	                                   </div>
+                                   		<a class="btn-daochu" href="javascript:;" id="guimoexport">
+											导出
+										</a>
+										<div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="guimoGridData"></table>
+                                            <div id="guimoGridDataPageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+					<div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>长期欠费管控风险地域分布</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active">地域分布图</li>
+                                        <li>数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        AAAAA
+                                    </div>
+                                </div>
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="table-responsive">
+                                            <table id=""></table>
+                                            <div id=""></div>
+                                        </div>
+                                        <a href="javascript:;" id=""> 导出 </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>高额欠费管控风险地域分布</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active">地域分布图</li>
+                                        <li>数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        AAAA
+                                    </div>
+                                </div>					
+	
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="table-responsive">
+                                            <table id=""></table>
+                                            <div id=""></div>
+                                        </div>
+                                        <a href="javascript:;" id=""> 导出 </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+
+            <!-- 明细数据 -->
+            <div class="tab-info">
+                <!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul>
+                        <li class="active"><a href="/cmwa/grqf/index">总部欠费数据分析</a></li>
+                        <li><a href="/cmwa/grqf/index">引入省公司信控数据分析</a></li>
+                    </ul>
+                </div>
+                <!-- dateBox -->
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					
+					<a href="javascript:;" id="queryButton">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+					<a class="more-btn" id="moreConditions" href="javascript:;">
+						更多查询条件
+					</a>
+					<a class="reset-btn" id="resetMxId" href="javascript:;">
+						重置
+					</a>
+					<a href="javascript:;" id="exportAllCity">
+						导出
+					</a>
+				</div>
+
+                <!-- moreBox -->
+                <div class="more-box">
+                    <div class="select-box">
+                        <p>
+                            <input id="" type="text" autocomplete="off" placeholder="是否对应营销案" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="">
+                            <li code="Y">是</li>
+                            <li code="N">否</li>
+                        </ul>
+                    </div>
+                    <div class="select-box">
+                        <p>
+                            <input id="" type="text" autocomplete="off" placeholder="地市名称" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 数据Table -->
+                <div class="shuju_box">
+                    <h2></h2>
+                    <div class="shuju_table">
+                        <table id="cityDetailGridData"></table>
+                        <div id="cityDetailGridDataPageBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 弹层 -->
+    <!-- <div class="modal-box">
+        折线 BigMap
+        <div class="zhexian-bigmap">
+            <div class="close-btn">
+                <i class="icon icon-remove"></i>
+            </div>
+            <div class="info"></div>
+            <span id="ranklineChartBig"></span>
+        </div>
+
+        BigMap
+        <div class="bigmap">
+            <div class="close-btn">
+                <i class="icon icon-remove"></i>
+            </div>
+            <div class="info"></div>
+            <span id="cityMapChartBig"></span>
+        </div>
+    </div> -->
+</body>
+</html>

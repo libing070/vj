@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="hyzdbthgx1702">
+	<!-- 获取重复办理统计 -->
+	<select id="getSumRepeat" resultType="Map" parameterType="Map">
+		SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,
+		MAX(CASE WHEN flag = 1 THEN usr_num ELSE 0 END) AS count_1,
+		MAX(CASE WHEN flag = 2 THEN usr_num ELSE 0 END) AS count_2,
+		MAX(CASE WHEN flag = 3 THEN usr_num ELSE 0 END) AS count_3,		
+		MAX(CASE WHEN flag = 4 THEN usr_num ELSE 0 END) AS count_4,
+		MAX(CASE WHEN flag = 5 THEN usr_num ELSE 0 END) AS count_5
+		FROM 
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag,COUNT(SUBS_ID2) usr_num
+		FROM
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,
+		CASE WHEN cnt = 1 THEN 1
+						 WHEN cnt = 2 THEN 2
+						 WHEN cnt = 3 THEN 3
+						 WHEN cnt = 4 THEN 4
+				ELSE 5 END AS flag	
+		FROM 
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,COUNT(*) AS cnt
+			FROM
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,OFFER_ID
+		FROM
+		hpeapb.det_hyzdbthgx_1702 where 1=1 
+		
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+		        <![CDATA[ and  AUD_TRM >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and AUD_TRM <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+			</if>
+		group by OFFER_ID,CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T1
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T2
+		) T3
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag) T4
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT
+	</select>
+	<!-- 获取前三地市 -->
+	<select id="getRepeatTop3City" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		sum(SUB_NUM) as SUB_NUM,
+		sum(IMEI_NUM) as IMEI_NUM,
+		sum(TOL_IMEI) as TOL_IMEI,
+		WEIGUI_PER 
+		FROM
+		sum_hyzdbthgx_1702_cty 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+		        <![CDATA[ and  AUD_TRM >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and AUD_TRM <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+			</if>
+			group by CMCC_PROV_ID
+			order by IMEI_NUM desc 
+			limit 3 
+	</select>
+	
+	<!-- 获取总重复办理合约计划终端数 -->
+	<select id="getSumImeiNum" resultType="Map" parameterType="Map">
+		SELECT
+		 sum(IMEI_NUM) as SUM_IMEI_NUM,
+		 sum(SUB_NUM) as SUM_SUB_NUM
+		FROM
+		sum_hyzdbthgx_1702_cty 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+		        <![CDATA[ and  AUD_TRM >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and AUD_TRM <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+			</if>
+	</select>
+	<!-- 获取重复办理统计数据表 -->
+	<select id="getSumRepeatTable" resultType="Map" parameterType="pager">
+		SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag,COUNT(SUBS_ID2) usr_num
+		FROM
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,
+		CASE WHEN cnt = 1 THEN 1
+						 WHEN cnt = 2 THEN 2
+						 WHEN cnt = 3 THEN 3
+						 WHEN cnt = 4 THEN 4
+				ELSE 5 END AS flag	
+		FROM 
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,COUNT(*) AS cnt
+			FROM
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,OFFER_ID
+		FROM
+		det_hyzdbthgx_1702 where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+		        <![CDATA[ and  AUD_TRM >= #{params.hz_startMonth} ]]>
+			</if>
+		
+			<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+		        <![CDATA[ and AUD_TRM <= #{params.hz_endMonth} ]]>
+			</if>
+		
+			<if test="params.provId != null and params.provId != ''">
+				<![CDATA[ and cmcc_prov_prvd_id = #{params.provId}]]>
+			</if>
+		group by OFFER_ID,CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T1
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T2
+		) T3
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag
+		order by CMCC_PRVD_NM_SHORT,flag
+	</select>
+	
+	<!-- 获取重复办理统计数据表不分页 -->
+	<select id="getSumRepeatTableAll" resultType="Map" parameterType="Map">
+		SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag,COUNT(SUBS_ID2) usr_num
+		FROM
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,
+		CASE WHEN cnt = 1 THEN 1
+						 WHEN cnt = 2 THEN 2
+						 WHEN cnt = 3 THEN 3
+						 WHEN cnt = 4 THEN 4
+				ELSE 5 END AS flag	
+		FROM 
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,COUNT(*) AS cnt
+			FROM
+		(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,OFFER_ID
+		FROM
+		det_hyzdbthgx_1702 where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+		        <![CDATA[ and  AUD_TRM >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and AUD_TRM <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+			</if>
+		group by OFFER_ID,CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T1
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T2
+		) T3
+		GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag
+	</select>
+	<!-- 获取饼图数据 -->
+	<select id="getSumPieCharts" resultType="Map" parameterType="Map">
+	SELECT 
+	sum(CASE WHEN flag = 1 THEN usr_num ELSE 0 END) AS count_1,
+	sum(CASE WHEN flag = 2 THEN usr_num ELSE 0 END) AS count_2,
+	sum(CASE WHEN flag = 3 THEN usr_num ELSE 0 END) AS count_3,
+	sum(CASE WHEN flag = 4 THEN usr_num ELSE 0 END) AS count_4,
+	sum(CASE WHEN flag = 5 THEN usr_num ELSE 0 END) AS count_5
+	FROM
+	(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag,COUNT(SUBS_ID2) usr_num
+	FROM
+	(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,
+	CASE WHEN cnt = 1 THEN 1
+	WHEN cnt = 2 THEN 2
+	WHEN cnt = 3 THEN 3
+	WHEN cnt = 4 THEN 4
+	ELSE 5 END AS flag
+	FROM
+	(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,COUNT(*) AS cnt
+	FROM
+	(SELECT CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2,OFFER_ID
+	FROM
+	hpeapb.det_hyzdbthgx_1702 where 1=1
+	and AUD_TRM &gt;= #{hz_startMonth}
+	and AUD_TRM &lt;= #{hz_endMonth}
+	and cmcc_prov_prvd_id = #{provId}
+	group by OFFER_ID,CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T1
+	GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,SUBS_ID2) T2
+	) T3
+	GROUP BY CMCC_PROV_ID,CMCC_PRVD_NM_SHORT,flag) T4
+	</select>
+	<!-- 获取饼图审计结论数据 -->
+	<select id="getSumPieCon" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		SUB_NUM,
+		sum(IMEI_NUM) as SUM_IMEI_NUM,
+		sum(TOL_IMEI) as SUM_TOL_IMEI,
+		WEIGUI_PER
+		FROM
+		hpeapb.sum_hyzdbthgx_1702_prvd 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+		        <![CDATA[ and  AUD_TRM >= #{hz_startMonth} ]]>
+			</if>
+		
+			<if test="hz_endMonth != null and hz_endMonth != ''">
+		        <![CDATA[ and AUD_TRM <= #{hz_endMonth} ]]>
+			</if>
+		
+			<if test="provId != null and provId != ''">
+				<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+			</if>
+	</select>
+	<!-- 获取详情列表 分页 -->
+	<select id="getDetailListPager" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		OFFER_ID2,
+		OFFER_NM2,
+		SELL_DAT2,
+		SELL_CHNL_ID2,
+		CHNL_NM2,
+		EMP_ID2,
+		SUBS_ID2,
+		TRMNL_IMEI2,
+		BND_PRD2,
+		END_DT,
+		OFFER_ID,
+		OFFER_NM,
+		SELL_DAT,
+		TRMNL_IMEI,
+		SELL_CHNL_ID,
+		CHNL_NM,
+		EMP_ID,
+		ACTL_SHOP_AMT,
+		ACUM_EXCH_VAL,
+		USD_ACUM_EXCH_AMT,
+		SHOP_COST,
+		UNLOCKED_RETL_PRC,
+		TRMNL_ALLOW_COST,
+		FEE_ALLOW_COST,
+		CUST_PPAY_FEE,
+		CUST_ACTL_FEE_SUM,
+		CUST_PRMS_MON_LEAST_CONSM,
+		BND_PRD,
+		CUST_BND_CONTRT_NM,
+		PROD_TYP_NM
+		FROM
+		det_hyzdbthgx_1702
+		where 1=1
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and  AUD_TRM >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and AUD_TRM <= #{params.mx_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{params.provId}]]>
+		</if>
+		
+		 <if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+                and  cmcc_prov_id = #{params.mx_cityCode}
+        </if>
+        order by AUD_TRM desc,CMCC_PROV_ID
+	
+	</select>
+	<!-- 获取详情列表 分页 -->
+	<select id="getDetailList" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		OFFER_ID2,
+		OFFER_NM2,
+		SELL_DAT2,
+		SELL_CHNL_ID2,
+		CHNL_NM2,
+		EMP_ID2,
+		SUBS_ID2,
+		TRMNL_IMEI2,
+		BND_PRD2,
+		END_DT,
+		OFFER_ID,
+		OFFER_NM,
+		SELL_DAT,
+		TRMNL_IMEI,
+		SELL_CHNL_ID,
+		CHNL_NM,
+		EMP_ID,
+		ACTL_SHOP_AMT,
+		ACUM_EXCH_VAL,
+		USD_ACUM_EXCH_AMT,
+		SHOP_COST,
+		UNLOCKED_RETL_PRC,
+		TRMNL_ALLOW_COST,
+		FEE_ALLOW_COST,
+		CUST_PPAY_FEE,
+		CUST_ACTL_FEE_SUM,
+		CUST_PRMS_MON_LEAST_CONSM,
+		BND_PRD,
+		CUST_BND_CONTRT_NM,
+		PROD_TYP_NM
+		FROM
+		det_hyzdbthgx_1702
+		where 1=1
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and  AUD_TRM >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and AUD_TRM <= #{mx_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		
+		 <if test="mx_cityCode != null and mx_cityCode != ''">
+                and  cmcc_prov_id = #{mx_cityCode}
+        </if>
+		order by AUD_TRM desc,CMCC_PROV_ID LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

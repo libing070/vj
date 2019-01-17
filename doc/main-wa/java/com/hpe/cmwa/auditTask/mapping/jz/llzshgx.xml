@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="llzshgx">
+
+	<!--超量赠送区间分布情况     获取最大最小审计月 -->
+	<select id="getMaxAndMinAud_trm" resultType="Map" parameterType="Map">
+		select 
+				MAX(aud_trm) as max_aud_trm,MIN(aud_trm) as min_aud_trm
+		from 
+			hpeapb.sum_zftc_1402_range 
+
+		where aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;= #{hz_endMonth}
+
+		and cmcc_prov_prvd_id=#{provId}
+		
+		<if test="cityId != null and cityId != ''">
+			and cmcc_prov_id = #{cityId}
+		</if>
+	
+	</select>
+
+	<!--超量赠送区间分布情况     获取最大最小审计月 -->
+	<select id="getUserCon" resultType="Map" parameterType="Map">
+		select  
+		sum(pres_user_num) as pres_user_num
+		from hpeapb.sum_zftc_1402_prvd
+		where aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;= #{hz_endMonth}
+		and cmcc_prov_prvd_id=#{provId}
+	</select>
+	
+	<select id="getFbqjChart" resultType="Map" parameterType="Map">
+		select 
+				aud_trm,short_name,cmcc_prvd_nm_short,
+				strm_range_id,strm_range_nm,sum(pres_strm_tol) as pres_strm_tol,
+				sum(pres_user_num) as pres_user_num
+		from 
+			hpeapb.sum_zftc_1402_range 
+
+		where  aud_trm = #{hz_endMonth}
+
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>		
+		<if test="cityId != null and cityId != ''">
+			and cmcc_prov_id = #{cityId}
+		</if>
+		group by strm_range_id order by strm_range_id desc
+	</select>
+	<!--超量赠送区间分布情况   end -->
+	
+	
+	<!-- 年度累计赠送流量用户统计     获取最大最小审计月 -->
+	<select id="getZsllyhMaxAndMinAud_trm" resultType="Map" parameterType="Map">
+		select 
+				MAX(aud_trm) as max_aud_trm,MIN(aud_trm) as min_aud_trm
+		from 
+			hpeapb.sum_zftc_1402_user 
+
+		where aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;= #{hz_endMonth}
+
+		and cmcc_prov_prvd_id=#{provId}
+		
+	</select>
+	
+	<select id="getZsllyhChart" resultType="Map" parameterType="Map">
+		select 
+				aud_trm,short_name,cmcc_prvd_nm_short,user_id,
+				sum(pres_strm_tol) as pres_strm_tol
+		from 
+			  hpeapb.sum_zftc_1402_user
+		where 
+			  aud_trm=#{hz_endMonth} 
+		 and  cmcc_prov_prvd_id=#{provId}
+		
+		group by user_id order by pres_strm_tol desc limit 10
+	
+	</select>
+	
+	<select id="getZsllyhCon" resultType="Map" parameterType="Map">
+		select 
+		 	 count(DISTINCT(user_id)) count_user_num,aud_trm
+		from 
+		     hpeapb.sum_zftc_1402_user
+		where 	
+		 	 aud_trm=#{hz_endMonth} and cmcc_prov_prvd_id=#{provId} and pres_strm_tol>6
+	</select>
+	
+	<select id="loadZsllyDetailTable" resultType="map" parameterType="pager">
+		
+		select 
+				CONCAT(#{params.hz_startMonth},"-",#{params.hz_endMonth}) as aud_trm,
+				short_name,cmcc_prvd_nm_short,user_id,
+				sum(pres_strm_tol) as pres_strm_tol
+		from 
+			  hpeapb.sum_zftc_1402_user
+		where 
+			  aud_trm=#{params.hz_endMonth} 
+		 and  cmcc_prov_prvd_id=#{params.provId}
+		
+		group by user_id order by pres_strm_tol desc
+	
+	</select>
+	
+	<select id="exportZsllyhDetail" resultType="map" parameterType="map">
+		
+		select 
+				CONCAT(#{hz_startMonth},"-",#{hz_endMonth}) as aud_trm,
+				cmcc_prov_prvd_id,cmcc_prov_id,
+				short_name,cmcc_prvd_nm_short,user_id,
+				sum(pres_strm_tol) as pres_strm_tol
+		from 
+			  hpeapb.sum_zftc_1402_user
+		where 
+			  aud_trm=#{hz_endMonth} 
+		 and  cmcc_prov_prvd_id=#{provId}
+		
+		group by user_id order by pres_strm_tol desc  LIMIT #{pageStar},#{pageEnd}
+	 
+	</select>
+	<!-- 年度累计赠送流量用户统计    end -->
+	
+	<!-- 年度累计赠送流量营销案统计    Start -->
+	<select id="getLlyxzMaxAndMinAud_trm" resultType="Map" parameterType="Map">
+		select 
+				MAX(aud_trm) as max_aud_trm,MIN(aud_trm) as min_aud_trm
+		from 
+			hpeapb.sum_zftc_1402_offer 
+
+		where aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;= #{hz_endMonth}
+
+		and cmcc_prov_prvd_id=#{provId}
+		
+	</select>
+	
+	<select id="getLlyxzCharts" resultType="Map" parameterType="Map">
+		select 
+		 	aud_trm,count(DISTINCT(user_id)) as count_user_num,offer_cd,offer_nm
+		from 
+			hpeapb.sum_zftc_1402_offer 
+		where 
+			  aud_trm=#{hz_endMonth} 
+		 and  cmcc_prov_prvd_id=#{provId}
+		
+		group by offer_cd order by count_user_num desc limit 10
+	
+	</select>
+	
+	<select id="getLlyxzCon" resultType="Map" parameterType="Map">
+		select 
+			COUNT(DISTINCT(offer_cd)) as count_offer_cd_num,aud_trm
+		from 
+			hpeapb.sum_zftc_1402_offer 
+		where 
+			aud_trm=#{hz_endMonth} and cmcc_prov_prvd_id=#{provId} 
+	</select>
+	
+	<select id="loadLlyxzDetailTable" resultType="map" parameterType="pager">
+		select 
+		 	CONCAT(#{params.hz_startMonth},"-",#{params.hz_endMonth}) as aud_trm,
+		 	offer_cd,offer_nm,user_id,cmcc_prvd_nm_short,short_name,chnl_nm
+		from 
+			hpeapb.sum_zftc_1402_offer 
+
+		where 
+			  aud_trm=#{params.hz_endMonth} 
+		 and  cmcc_prov_prvd_id=#{params.provId}
+		group by user_id order by cmcc_prvd_nm_short asc, user_id desc
+	</select>
+	
+	
+	<select id="exportLlyxzDetail" resultType="map" parameterType="map">
+		
+		select 
+		 	CONCAT(#{hz_startMonth},"-",#{hz_endMonth}) as aud_trm,
+		 	cmcc_prov_prvd_id,
+		 	short_name,cmcc_prov_id,cmcc_prvd_nm_short,
+		 	user_id,offer_cd,offer_nm,chnl_id,chnl_nm
+		from 
+			hpeapb.sum_zftc_1402_offer 
+		where 
+			  aud_trm=#{hz_endMonth} 
+		 and  cmcc_prov_prvd_id=#{provId}
+		
+		group by user_id order by cmcc_prvd_nm_short asc  LIMIT #{pageStar},#{pageEnd}
+	 
+	</select>
+	
+	<!-- 年度累计赠送流量营销案统计    end -->
+	
+	
+	<select id="getCityDetailMaxAndMinAud_trm" resultType="Map" parameterType="Map">
+		select 
+				MAX(aud_trm) as max_aud_trm,MIN(aud_trm) as min_aud_trm
+		from 
+			hpeapb.det_zftc_1402 
+
+		where aud_trm &gt;=#{mx_startMonth} and aud_trm &lt;= #{mx_endMonth}
+
+		and cmcc_prov_prvd_id=#{provId}
+		
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+			and cmcc_prov_id = #{mx_cityCode}
+		</if>
+	</select>
+	
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+		select 
+				aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+				cmcc_prvd_nm_short,user_id,statis_mon,
+				pres_strm_tol,pres_strm_use
+		from 
+				hpeapb.det_zftc_1402 
+	
+		where 
+		    aud_trm &gt;= #{params.mx_startMonth} 
+		and	aud_trm &lt;= #{params.mx_endMonth} 
+		and cmcc_prov_prvd_id=#{params.provId}
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+				and cmcc_prov_id = #{params.mx_cityCode}
+		</if>
+		order by aud_trm desc,cmcc_prvd_nm_short asc
+	</select>
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+		select 
+				aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+				cmcc_prvd_nm_short,user_id,statis_mon,
+				pres_strm_tol,pres_strm_use
+		from 
+			   hpeapb.det_zftc_1402 
+	
+		where 1=1 
+		
+		and    aud_trm &gt;=#{mx_startMonth} 
+		and    aud_trm &lt;=#{mx_endMonth} 
+		and    cmcc_prov_prvd_id=#{provId}
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+				and cmcc_prov_id = #{mx_cityCode}
+		</if>
+		order by aud_trm desc,cmcc_prvd_nm_short asc LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>

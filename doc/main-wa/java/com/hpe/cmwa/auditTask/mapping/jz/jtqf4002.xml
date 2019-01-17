@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtqf4002Mapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<!-- 信控等级数据表 -->
+	<select id="getXinkongPagerList" resultType="Map" parameterType="Map">
+		SELECT ORG_CUST_LVL as orgCustLvl, CR_LVL_CD as crLvlCd,
+				CR_LVL_NM as crLvlNm, DEL_MON as delMon,
+				TOL_ORG_ACCT_NUM as tolOrgAcctNum,ORG_ACCT_QF_NUM as orgAcctQfNum
+		FROM hpeapb.sum_jtqf_4002_cr_lvl
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM = #{params.currSumEndDate}
+	</select>
+	<!-- 信控等级审计结论 -->
+	<select id="getXinkongjielun" resultType="Map" parameterType="Map">
+		SELECT 
+		SUM(case when CR_LVL_NM = '未匹配到信控等级' then ORG_ACCT_QF_NUM end) AS noLvlNum,
+		SUM(ORG_ACCT_QF_NUM) AS orgAcctQfNum
+		FROM hpeapb.sum_jtqf_4002_cr_lvl where 1=1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM = #{currSumEndDate}
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中  数据表-->
+	<select id="getxkzhanglingPagerList" resultType="Map" parameterType="Map">
+		SELECT 
+		  a.OUT_OF_MON AS outOfMon,
+		  a.ACCT_NUM AS acctNum,
+		  IFNULL(p.dbtAmt,0)AS dbtAmt
+		  FROM
+		  hpeapb.sum_jtqf_4002_aging a 
+		  LEFT JOIN 
+		    (SELECT 
+		      SUM(DBT_AMT) AS dbtAmt ,OUT_OF_MON
+		    FROM
+		      hpeapb.sum_jtqf_4002_aging_prd 
+		      WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		      AND AUD_TRM = #{params.currSumEndDate} 
+		      AND ACCT_PRD_YTM between #{params.currSumBeginDate} and #{params.currSumEndDate} 
+		    GROUP BY OUT_OF_MON) AS p 
+		    ON p.OUT_OF_MON = a.OUT_OF_MON 
+		WHERE 1 = 1 
+		  AND a.CMCC_PROV_PRVD_ID = #{params.provinceCode}
+		  AND a.AUD_TRM = #{params.currSumEndDate} 
+		GROUP BY a.OUT_OF_MON 
+	</select>
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中  导出账龄数据表-->
+	<select id="exportxkZhangLingList" resultType="Map" parameterType="Map">
+		SELECT 
+		  a.OUT_OF_MON AS outOfMon,
+		  a.ACCT_NUM AS acctNum,
+		  IFNULL(p.dbtAmt,0)AS dbtAmt
+		  FROM
+		  hpeapb.sum_jtqf_4002_aging a 
+		  LEFT JOIN 
+		    (SELECT 
+		      SUM(DBT_AMT) AS dbtAmt ,OUT_OF_MON
+		    FROM
+		      hpeapb.sum_jtqf_4002_aging_prd 
+		      WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		      AND AUD_TRM = #{currSumEndDate} 
+		      AND ACCT_PRD_YTM between #{currSumBeginDate} and #{currSumEndDate} 
+		    GROUP BY OUT_OF_MON) AS p 
+		    ON p.OUT_OF_MON = a.OUT_OF_MON 
+		WHERE 1 = 1 
+		  AND a.CMCC_PROV_PRVD_ID = #{provinceCode}
+		  AND a.AUD_TRM = #{currSumEndDate} 
+		GROUP BY a.OUT_OF_MON 
+	</select>
+	<select id="getxkzhanglingzhs" resultType="Map" parameterType="Map">
+		SELECT 
+		  SUM(CASE WHEN OUT_OF_MON &gt;=1  AND OUT_OF_MON &lt;=6 THEN ACCT_NUM  END)/SUM(ACCT_NUM)*100 AS numPer1,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=7  AND OUT_OF_MON &lt;=12 THEN ACCT_NUM  END)/SUM(ACCT_NUM)*100 AS numPer2,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=13  AND OUT_OF_MON &lt;=18 THEN ACCT_NUM END)/SUM(ACCT_NUM)*100 AS numPer3,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=19  AND OUT_OF_MON &lt;=24 THEN ACCT_NUM END)/SUM(ACCT_NUM)*100 AS numPer4,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=25 THEN ACCT_NUM END)/SUM(ACCT_NUM)*100 AS numPer5
+		  FROM
+		  hpeapb.sum_jtqf_4002_aging 
+		WHERE 1 = 1 
+		  AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		  AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate} 
+	</select>
+	
+	<select id="getxkzhanglingje" resultType="Map" parameterType="Map">
+		SELECT 
+		  SUM(CASE WHEN OUT_OF_MON &gt;=1  AND OUT_OF_MON &lt;=6 THEN DBT_AMT  END)/SUM(DBT_AMT)*100 AS amtPer1,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=7  AND OUT_OF_MON &lt;=12 THEN DBT_AMT  END)/SUM(DBT_AMT)*100 AS amtPer2,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=13  AND OUT_OF_MON &lt;=18 THEN DBT_AMT END)/SUM(DBT_AMT)*100 AS amtPer3,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=19  AND OUT_OF_MON &lt;=24 THEN DBT_AMT END)/SUM(DBT_AMT)*100 AS amtPer4,
+		  SUM(CASE WHEN OUT_OF_MON &gt;=25 THEN DBT_AMT END)/SUM(DBT_AMT)*100 AS amtPer5
+		  FROM
+		  hpeapb.sum_jtqf_4002_aging_prd 
+		WHERE 1 = 1 
+		  AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		  AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate} 
+		  AND ACCT_PRD_YTM between #{currSumBeginDate} and #{currSumEndDate} 
+	</select>
+	
+	<select id="getxkzhanglingjielun" resultType="Map" parameterType="Map">
+		SELECT 
+		  IFNULL(SUM(a.ACCT_NUM),0) AS acctNum,
+		  IFNULL(SUM(CASE WHEN OUT_OF_MON &gt;12 THEN ACCT_NUM WHEN OUT_OF_MON &lt;=12 THEN 0 END),0) AS moreThanOneYearAcctNum,
+		  IFNULL(p.dbtAmt,0)AS dbtAmt,
+		  IFNULL(p.moreThanOneYearDbtAmt,0) AS moreThanOneYearDbtAmt
+		  FROM
+		  hpeapb.sum_jtqf_4002_aging a 
+		  LEFT JOIN 
+		    (SELECT 
+		      SUM(DBT_AMT) AS dbtAmt ,
+		      CMCC_PROV_PRVD_ID,
+		      SUM(CASE WHEN OUT_OF_MON &gt;12 THEN DBT_AMT WHEN OUT_OF_MON &lt;=12 THEN 0 END) AS moreThanOneYearDbtAmt
+		    FROM
+		      hpeapb.sum_jtqf_4002_aging_prd 
+		      WHERE  CMCC_PROV_PRVD_ID = #{provinceCode}
+		      AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate} 
+		      AND ACCT_PRD_YTM between #{currSumBeginDate} and #{currSumEndDate}) AS p
+		    ON p.CMCC_PROV_PRVD_ID = a.CMCC_PROV_PRVD_ID
+		WHERE 1 = 1 
+		  AND a.AUD_TRM between #{currSumBeginDate} and #{currSumEndDate} 
+	</select>
+	
+	<select id="getDetList" resultType="Map" parameterType="Map">
+	    SELECT 
+	    	AUD_TRM AS audTrm,
+	    	CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+	    	SHORT_NAME AS shortName,
+	    	CMCC_PROV_ID AS cmccProvId,
+	    	CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+	    	ACCT_PRD_YTM AS acctPrdYtm,
+			OUT_OF_CR_DAT AS outOfCrDat,
+			OUT_OF_MON AS outOfMon,
+			ACCT_ID AS acctId,
+			BLTO_CUST_ID AS bltoCustId,
+			ORG_NM AS orgNm,
+			ORG_CUST_LVL AS orgCustLvl,
+			CUST_STAT_TYP_NM AS custStatTypNm,
+			CR_LVL_CD AS crLvlCd,
+			CR_LVL_NM AS crLvlNm,
+			DEL_MON AS delMon,
+			DBT_AMT AS dbtAmt
+		 FROM
+		    hpeapb.det_jtqf_4002 
+		    WHERE 1 = 1 
+		    AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		    AND AUD_TRM &gt;= #{params.currDetBeginDate}
+		    AND AUD_TRM &lt;= #{params.currDetEndDate}
+		    <if test="params.currCityType != '' and params.currCityType !=null ">
+				AND CMCC_PROV_ID = #{params.currCityType} 
+			</if>
+		  	<if test="params.minOutOfMon != '' and params.minOutOfMon !=null  ">
+		    	AND OUT_OF_MON &gt;= #{params.minOutOfMon}
+			</if>
+		    <if test="params.maxOutOfMon != '' and params.maxOutOfMon !=null  ">
+				AND OUT_OF_MON &lt;=  #{params.maxOutOfMon}
+			</if>
+			ORDER BY AUD_TRM desc,CMCC_PROV_ID
+	</select>
+	
+	<select id="exprotDetList" resultType="Map" parameterType="Map">
+	    SELECT 
+	    	AUD_TRM AS audTrm,
+	    	CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+	    	SHORT_NAME AS shortName,
+	    	CMCC_PROV_ID AS cmccProvId,
+	    	CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+	    	ACCT_PRD_YTM AS acctPrdYtm,
+			OUT_OF_CR_DAT AS outOfCrDat,
+			OUT_OF_MON AS outOfMon,
+			ACCT_ID AS acctId,
+			BLTO_CUST_ID AS bltoCustId,
+			ORG_NM AS orgNm,
+			ORG_CUST_LVL AS orgCustLvl,
+			CUST_STAT_TYP_NM AS custStatTypNm,
+			CR_LVL_CD AS crLvlCd,
+			CR_LVL_NM AS crLvlNm,
+			DEL_MON AS delMon,
+			DBT_AMT AS dbtAmt
+		 FROM
+		    hpeapb.det_jtqf_4002 
+		    WHERE 1 = 1 
+		    AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		    AND AUD_TRM &gt;= #{currDetBeginDate}
+		    AND AUD_TRM &lt;= #{currDetEndDate}
+		    <if test="currCityType != '' and currCityType !=null ">
+				AND CMCC_PROV_ID = #{currCityType} 
+			</if>
+		  	<if test="minOutOfMon != '' and minOutOfMon !=null  ">
+		    	AND OUT_OF_MON &gt;= #{minOutOfMon}
+			</if>
+		    <if test="maxOutOfMon != '' and maxOutOfMon !=null  ">
+				AND OUT_OF_MON &lt;=  #{maxOutOfMon}
+			</if>
+			ORDER BY AUD_TRM desc,CMCC_PROV_ID
+	</select>
+</mapper>
+

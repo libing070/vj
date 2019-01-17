@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="SmsJobMapper">
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="smsReqList">
+		<result column="id" property="id" />
+		<result column="phone" property="phone" />
+		<result column="content" property="content" />
+		<result column="send_flag" property="sendFlag" />
+		<result column="send_count" property="sendCount" />
+		<result column="sms_src" property="smsSrc" />
+		<result column="create_time" property="createTime" />
+		<result column="send_time" property="sendTime" />
+	</resultMap>
+
+	<!-- 查询待发送短信的请求列表 -->
+	<select id="selectSmsRequest" resultMap="smsReqList" parameterType="java.util.Map">
+		SELECT * FROM hpeapb.busi_sms_notify where send_flag='N'
+	</select>
+
+	<!-- 更新短信发送状态 -->
+	<update id="updateSmsCountAndTime" parameterType="java.util.Map">
+		update hpeapb.busi_sms_notify set send_flag=#{sendFlag} , send_count=send_count+1 , send_time=current_timestamp(6)
+		where id=#{id}
+	</update>
+
+</mapper>

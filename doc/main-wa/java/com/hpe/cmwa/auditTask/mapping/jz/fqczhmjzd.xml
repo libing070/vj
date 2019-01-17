@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="fqczhmjzdMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_city_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		cmcc_prvd_nm_short,
+		sum(charge_yjk_cnt) as charge_yjk_cnts,
+		sum(charge_amt) as charge_amts
+		FROM hpeapb.sum_fqsjh_jzd_cty
+		WHERE 
+		cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		group by cmcc_prvd_nm_short
+		ORDER BY charge_amts desc
+	</select>
+	<select id="load_city_conclusion" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		sum(callnumber_cnt) as callnumber_cnts,
+		sum(charge_yjk_cnt) as charge_yjk_cnts,
+		sum(charge_amt) as charge_amts
+		FROM hpeapb.sum_fqsjh_jzd_cty
+		WHERE 
+		cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		limit 1
+	</select>
+	<select id="load_city_conclusion_top3" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		cmcc_prvd_nm_short,sum(charge_amt) as charge_amts
+		FROM hpeapb.sum_fqsjh_jzd_cty
+		WHERE 
+		cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		group by cmcc_prvd_nm_short
+		order by sum(charge_amt) desc
+		limit 3
+	</select>
+	<select id="load_city_sjb_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		CONCAT(#{params.currSumBeginDate},"-",#{params.currSumEndDate}) as aud_trm,
+		short_name,cmcc_prvd_nm_short,sum(callnumber_cnt) as callnumber_cnt,
+		sum(charge_amt) as charge_amt,sum(charge_yjk_cnt) as charge_yjk_cnt,
+		sum(charge_msisdn_cnt) as charge_msisdn_cnt
+		FROM hpeapb.sum_fqsjh_jzd_cty
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		AND aud_trm BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		GROUP BY cmcc_prvd_nm_short
+		ORDER BY charge_amt desc
+	</select>
+	<select id="hz_city_sjb_export" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		CONCAT(#{currSumBeginDate},"-",#{currSumEndDate}) as aud_trm,
+		short_name,cmcc_prvd_nm_short,sum(callnumber_cnt) as callnumber_cnt,
+		sum(charge_amt) as charge_amt,sum(charge_yjk_cnt) as charge_yjk_cnt,
+		sum(charge_msisdn_cnt) as charge_msisdn_cnt
+		FROM hpeapb.sum_fqsjh_jzd_cty
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		GROUP BY cmcc_prvd_nm_short
+		ORDER BY charge_amt desc
+	</select>
+	
+	<select id="load_msisdn_chart" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+		(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+		ifnull(sum(ys_charge_yjk_cnt),0) as ys_charge_yjk_cnt,
+		ifnull(sum(ys_charge_amt),0) as ys_charge_amt,
+		ifnull(sum(bs_charge_yjk_cnt),0) as bs_charge_yjk_cnt,
+		ifnull(sum(bs_charge_amt),0) as bs_charge_amt
+		FROM hpeapb.sum_fqsjh_jzd_msisdn
+		WHERE 
+		cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		group by callnumber
+		ORDER BY sum(charge_amt) desc
+		limit 10
+	</select>
+	
+	<select id="load_msisdn_sjb_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			CONCAT(#{params.currSumBeginDate},"-",#{params.currSumEndDate}) as aud_trm,
+			short_name,
+			cmcc_prvd_nm_short,
+			(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+			sum(charge_msisdn_cnt) as charge_msisdn_cnt,
+			sum(charge_amt) as charge_amt,
+			sum(charge_yjk_cnt) as charge_yjk_cnt,
+			sum(ys_charge_msisdn_cnt) as ys_charge_msisdn_cnt,
+			sum(ys_charge_amt) as ys_charge_amt,
+			sum(ys_charge_yjk_cnt) as ys_charge_yjk_cnt
+		FROM hpeapb.sum_fqsjh_jzd_msisdn
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		AND aud_trm BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		group by cmcc_prvd_nm_short,callnumber
+		order by sum(charge_amt) desc
+	</select>
+	
+	<select id="hz_msisdn_sjb_export" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			CONCAT(#{currSumBeginDate},"-",#{currSumEndDate}) as aud_trm,
+			short_name,
+			cmcc_prvd_nm_short,
+			(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+			sum(charge_msisdn_cnt) as charge_msisdn_cnt,
+			sum(charge_amt) as charge_amt,
+			sum(charge_yjk_cnt) as charge_yjk_cnt,
+			sum(ys_charge_msisdn_cnt) as ys_charge_msisdn_cnt,
+			sum(ys_charge_amt) as ys_charge_amt,
+			sum(ys_charge_yjk_cnt) as ys_charge_yjk_cnt
+		FROM hpeapb.sum_fqsjh_jzd_msisdn
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		group by cmcc_prvd_nm_short,callnumber
+		order by sum(charge_amt) desc
+	</select>
+	
+	<select id="load_mx_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			Aud_trm,
+		    short_name,
+		    cmcc_prvd_nm_short,
+			yjk_ser_no,
+			TradeDate,
+			TradeTime,
+			Yjk_amt,
+			(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+			(CASE WHEN charge_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(charge_msisdn,1,(LENGTH(charge_msisdn)-4)),'****') END)AS charge_msisdn,
+			charge_prov,
+		    yjk_pres_dt,
+		    (CASE WHEN pres_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(pres_msisdn,1,(LENGTH(pres_msisdn)-4)),'****') END)AS pres_msisdn
+		FROM hpeapb.det_fqsjh_jzd
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+		and aud_trm &gt;=  #{params.currDetBeginDate} 
+		and aud_trm &lt;= #{params.currDetEndDate}
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		 	AND cmcc_prov_id = #{params.currCityType} 
+	    </if>
+		order by callnumber,Aud_trm desc
+	</select>
+	<select id="export_mx_table" resultType="Map"  parameterType="java.util.Map">
+		SELECT
+			Aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,
+			yjk_ser_no,TradeDate,TradeTime, Yjk_amt,TradeType,
+			(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+			(CASE WHEN charge_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(charge_msisdn,1,(LENGTH(charge_msisdn)-4)),'****') END)AS charge_msisdn,
+			charge_prov, yjk_typ,yjk_pres_dt,user_id,
+			(CASE WHEN pres_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(pres_msisdn,1,(LENGTH(pres_msisdn)-4)),'****') END)AS pres_msisdn,yjk_offer_cd,
+			offer_nm,offer_cls
+		FROM hpeapb.det_fqsjh_jzd
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+		and aud_trm &gt;=  #{currDetBeginDate} 
+		and aud_trm &lt;= #{currDetEndDate}
+		<if test="currCityType != '' and currCityType !=null  ">
+		 	AND cmcc_prov_id = #{currCityType} 
+	    </if>
+		order by callnumber,Aud_trm desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

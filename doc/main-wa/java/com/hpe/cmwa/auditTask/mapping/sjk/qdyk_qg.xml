@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="qdyk_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(qdyk_subs_num) as qdyk_subs_num,short_name,
+			aud_trm,cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_qdyk_2401_prvd 
+		where 1=1 and chnl_class='0' and 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by qdyk_subs_num desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(qdyk_subs_num) as qdyk_subs_num,short_name,
+			aud_trm,cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_qdyk_2401_prvd 
+		where 1=1 and chnl_class='0' and 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and qdyk_subs_num !=0 
+		group by cmcc_prov_prvd_id 
+		order by qdyk_subs_num desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(qdyk_subs_num) as qdyk_subs_num,short_name,
+			aud_trm,cmcc_prov_prvd_id 
+		from 
+			hpeapb.sum_qdyk_2401_prvd 
+		where 1=1 and chnl_class='0' and 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			chnl_class,
+			chnl_class_nm,
+			city_num,
+			chnl_num,
+			qdyk_chnl_num,
+			(qdyk_chnl_perc*100) as qdyk_chnl_perc,
+			qdyk_subs_num,
+			qdyk_subs_num_rank,
+			ent_num,
+			(qdyk_num_perc*100) as qdyk_num_perc,
+			qdyk_num_perc_rank,
+			nation_qdyk_subs_num,
+			nation_ent_num,
+			(nation_qdyk_num_perc*100) as nation_qdyk_num_perc,
+			(prov_qdyk_num_nation_perc*100) as prov_qdyk_num_nation_perc
+ 		from 
+ 			hpeapb.sum_qdyk_2401_prvd 
+		where 1=1 and chnl_class='0' and 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,qdyk_subs_num desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			chnl_class,
+			chnl_class_nm,
+			city_num,
+			chnl_num,
+			qdyk_chnl_num,
+			(qdyk_chnl_perc*100) as qdyk_chnl_perc,
+			qdyk_subs_num,
+			qdyk_subs_num_rank,
+			ent_num,
+			(qdyk_num_perc*100) as qdyk_num_perc,
+			qdyk_num_perc_rank,
+			nation_qdyk_subs_num,
+			nation_ent_num,
+			(nation_qdyk_num_perc*100) as nation_qdyk_num_perc,
+			(prov_qdyk_num_nation_perc*100) as prov_qdyk_num_nation_perc
+ 		from 
+ 			hpeapb.sum_qdyk_2401_prvd 
+		where 1=1 and chnl_class='0' and 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,qdyk_subs_num desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

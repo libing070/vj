@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="QDYK2401">
+
+	<select id="getQdykyhslChart" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,count(distinct aud_trm) as count_aud_trm,sum(qdyk_subs_num) sum_qdyk_subs_num
+		from 
+			hpeapb.sum_qdyk_2401_prvd
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}  ]]>
+		</if>
+		group by aud_trm order by aud_trm asc
+	</select>
+	
+	
+	<select id="getQdykyhsl2304AVGNumber" resultType="Map" parameterType="Map">
+		select 
+			count(t1.aud_trm) as count_aud_trm,sum(sum_qdyk_subs_num) as sum_qdyk_subs_num,
+			(sum(sum_qdyk_subs_num)/count(t1.aud_trm)) as avg_qdyk_num
+		from 
+			(select 
+				aud_trm,COUNT(DISTINCT aud_trm) as count_aud_trm,sum(qdyk_subs_num) sum_qdyk_subs_num
+			from sum_qdyk_2401_prvd
+			where 1=1 
+			and cmcc_prov_prvd_id=#{provId} and aud_trm &gt;= #{hz_startMonth} and aud_trm &lt;= #{hz_endMonth}
+			group by aud_trm order by aud_trm asc) as t1 ;
+	</select>
+	
+	<select id="getQdykyhsl2304MAXNumber" resultType="Map" parameterType="Map">
+		select 
+			aud_trm as max_aud_trm,sum(qdyk_subs_num) as max_qdyk_subs_num
+		from
+			hpeapb.sum_qdyk_2401_prvd
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+		group by aud_trm order by max_qdyk_subs_num desc limit 1
+	</select>
+	
+	<select id="loadQdykyhslTabDetailTable" resultType="Map" parameterType="pager">
+		select 
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,chnl_class,chnl_class_nm,
+			city_num,chnl_num,qdyk_chnl_num,qdyk_chnl_perc,qdyk_subs_num,qdyk_subs_num_rank,
+			ent_num,(qdyk_num_perc*100) as qdyk_num_perc,qdyk_num_perc_rank,nation_qdyk_subs_num,nation_ent_num,
+			nation_qdyk_num_perc,prov_qdyk_num_nation_perc
+		from
+			hpeapb.sum_qdyk_2401_prvd
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			 <![CDATA[and cmcc_prov_prvd_id = #{params.provId} ]]>
+		</if>
+		ORDER BY aud_trm DESC
+	</select>
+	
+	<select id="exportQdykyhslDetail" resultType="Map" parameterType="Map">
+		select
+			gen_date,aud_trm,cmcc_prov_prvd_id,short_name,chnl_class,chnl_class_nm,
+			city_num,chnl_num,qdyk_chnl_num,qdyk_chnl_perc,qdyk_subs_num,qdyk_subs_num_rank,
+			ent_num,(qdyk_num_perc*100) as qdyk_num_perc,qdyk_num_perc_rank,nation_qdyk_subs_num,nation_ent_num,
+			nation_qdyk_num_perc,prov_qdyk_num_nation_perc
+		from
+			hpeapb.sum_qdyk_2401_prvd
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		ORDER BY aud_trm DESC
+	</select>
+	
+	
+	<select id="dsqdykyhtjCharts" resultType="Map" parameterType="Map">
+		select 
+			sum(rase_crd_qty) as sum_rase_crd_qty,cmcc_prvd_nm_short,cmcc_prov_id
+		from hpeapb.sum_qdyk_2401_chnl
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			 <![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+        group by cmcc_prov_id order by sum_rase_crd_qty desc,cmcc_prvd_nm_short desc
+	</select>
+	
+	<select id="qdykyhslhz" resultType="Map" parameterType="Map">
+		select 
+			sum(rase_crd_qty) as sum_rase_crd_qty,chnl_nm,chnl_class_nm,chnl_id,CMCC_prvd_nm_short,CMCC_prov_prvd_id,cmcc_prov_id
+		from hpeapb.sum_qdyk_2401_chnl
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			 <![CDATA[ and cmcc_prov_prvd_id = #{provId}  ]]>
+		</if>
+		and cmcc_prov_id in
+		<foreach collection="cmccProvIds" item="cmccProvId" index="index" open="(" close=")" separator=",">
+            #{cmccProvId}
+        </foreach>
+        group by chnl_nm,cmcc_prov_id order by sum_rase_crd_qty asc
+	</select>
+	
+	
+	<select id="dsqdykyhtjCon" resultType="Map" parameterType="Map">
+		select 
+			ifnull(sum(rase_crd_qty),0) as sum_rase_crd_qty,count(distinct chnl_id) as count_chnl_id,short_name,
+			cmcc_prvd_nm_short,cmcc_prov_prvd_id,cmcc_prov_id
+		from  hpeapb.sum_qdyk_2401_chnl 
+		where 1=1
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}  ]]>
+		</if>
+		group by cmcc_prov_id order by sum_rase_crd_qty desc limit 3
+	</select>
+	
+	
+	<select id="loadDsxefzcz_TabDetailTable" resultType="Map" parameterType="pager">
+		select 
+				aud_trm,short_name,cmcc_prvd_nm_short,chnl_id,chnl_nm,
+				rase_crd_qty,tol_users,(IFNULL(rase_crd_qty/tol_users,0))*100 as ykzb
+		from   
+				hpeapb.sum_qdyk_2401_chnl
+		where 1=1 
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			 <![CDATA[ and cmcc_prov_prvd_id = #{params.provId}  ]]>
+		</if>
+		order by aud_trm desc,rase_crd_qty desc
+	</select>
+	
+	<select id="exportDsxefzczDetail" resultType="Map" parameterType="Map">
+		select 
+				aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,
+				cmcc_prvd_nm_short,chnl_id,chnl_nm,chnl_class,
+				chnl_class_nm,chal_stat,rase_crd_qty,tol_users
+		from   
+				hpeapb.sum_qdyk_2401_chnl
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			 <![CDATA[ and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+		ORDER BY aud_trm DESC
+	</select>
+	
+	<select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+		select  
+			 aud_trm,short_name,cmcc_prvd_nm_short,user_id,
+			(case when rase_crd_no= '' then '' else CONCAT(SUBSTR(rase_crd_no,1,(LENGTH(rase_crd_no)-4)),'****') end)AS rase_crd_no,
+			 chnl_nm,chnl_class_nm,chnl_type_nm,chnl_stat
+		from 
+			hpeapb.det_qdyk_2401
+		where 1=1 
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.mx_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			 <![CDATA[ and cmcc_prov_prvd_id = #{params.provId} ]]>
+		</if>
+		
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+			 <![CDATA[ and cmcc_prov_id = #{params.mx_cityCode} ]]>
+		</if>
+		<if test="params.mx_qdTypeSelect != null and params.mx_qdTypeSelect != ''">
+			  <![CDATA[ and chnl_class = #{params.mx_qdTypeSelect} ]]>
+		</if>
+		order by aud_trm desc,cmcc_prvd_nm_short desc
+	</select>
+	
+	<select id="exportMxDetailList" resultType="Map" parameterType="Map">
+		select  
+			gen_date, aud_trm, cmcc_prov_prvd_id,short_name,cmcc_prov_id,CMCC_prvd_nm_short,user_id,
+			(CASE WHEN rase_crd_no= '' THEN '' ELSE CONCAT(SUBSTR(rase_crd_no,1,(LENGTH(rase_crd_no)-4)),'****') END) AS rase_crd_no,chnl_id, 				
+			chnl_nm,chnl_class,chnl_class_nm,chnl_type,chnl_type_nm,chnl_stat,same_imei,same_bts,same_ops_nbr,same_cnsm_amt, 		
+			open_ftn,open_139mail,open_MM,open_mnews,open_mbl_wlt,open_wmc,open_stack_pack,zero_roam,less_bts_qty,less_becall_days, 		
+			less_pay_comm_qty,less_becall_cnct_pqty,zero_pay_fee,data_busn_artage,spcnsm_artage,spam_sms_artage,crank_call_artage,group_busn_artage, 	
+			pres_fee_artage, frst_ptop_sms_qty,frst_comm_days,frst_mstfrqcy_imei,frst_mstfrqcy_ops_nbr,frst_call_cntct_pqty,frst_call_tot_qty, 	
+			frst_becall_cnct_pqty,frst_roam_call_qty,frst_mstfrqcy_bts,frst_becall_days,frst_pay_comm_qty,secd_ptop_sms_qty,secd_comm_days,secd_mstfrqcy_imei, 	
+			secd_mstfrqcy_ops_nbr,secd_call_cntct_pqty,secd_call_tot_qty,secd_becall_cnct_pqty,secd_roam_call_qty,secd_mstfrqcy_bts,secd_becall_days,secd_pay_comm_qty,
+			thrd_ptop_sms_qty,thrd_comm_days, thrd_mstfrqcy_imei,thrd_mstfrqcy_ops_nbr,thrd_call_cntct_pqty,thrd_call_tot_qty, thrd_recall_cntct_pqty, 
+			thrd_roam_call_qty,thrd_mstfrqcy_bts,thrd_becall_days,thrd_pay_comm_qty
+		from 
+			hpeapb.det_qdyk_2401
+		where 1=1 
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{mx_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[and cmcc_prov_prvd_id = #{provId} ]]>
+		</if>
+		
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+		 	<![CDATA[ and cmcc_prov_id = #{mx_cityCode} ]]>
+		</if>
+		<if test="mx_qdTypeSelect != null and mx_qdTypeSelect != ''">
+			 <![CDATA[ and chnl_class = #{mx_qdTypeSelect} ]]>
+		</if>
+		order by aud_trm desc,cmcc_prvd_nm_short desc LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtsrycbdMapper">
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="hz_cj_chart" resultType="Map" parameterType="Map">
+		<if test="areaCode1 != null and areaCode1!=''">
+			select aud_trm,sum(unitpay_inc) as unitpay_inc
+			from hpeapb.sum_jtcp_3901_typcty 
+			where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+			and cmcc_prov_prvd_id = #{provinceCode}
+			and cmcc_prov_id = #{areaCode1}
+			group by aud_trm
+			order by aud_trm
+		</if>
+		<if test="areaCode1 == null or areaCode1 ==''">
+			select aud_trm,sum(unitpay_inc) as unitpay_inc
+			from hpeapb.sum_jtcp_3901_typprvd 
+			where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+			and cmcc_prov_prvd_id = #{provinceCode}
+			group by aud_trm
+			order by aud_trm
+		</if>
+	</select>
+	
+	<select id="hz_cj_table" resultType="Map" parameterType="Map">
+		
+			select 
+				aud_trm,
+				short_name,
+				CMCC_prvd_nm_short as area_name,
+				org_svc_typ,
+				org_svc_typ_nm,
+				unitpay_inc,
+				rela_rat*100 as rela_rat
+			from hpeapb.sum_jtcp_3901_typcty 
+			where aud_trm BETWEEN #{params.currSumBeginDate} AND #{params.currSumEndDate}
+			and cmcc_prov_prvd_id = #{params.provinceCode}
+			<if test="params.areaCode1 != null and params.areaCode1 !=''">
+			and cmcc_prov_id = #{params.areaCode1}
+			</if>
+			order by aud_trm desc,cmcc_prov_id
+	</select>
+
+	
+	<select id="hz_cj_table_export" resultType="Map" parameterType="Map">
+		
+			select 
+				aud_trm,
+				short_name,
+				CMCC_prvd_nm_short as area_name,
+				org_svc_typ,
+			org_svc_typ_nm,
+			unitpay_inc,
+			rela_rat*100 as rela_rat
+			from hpeapb.sum_jtcp_3901_typcty 
+			where aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			<if test="areaCode1 != null and areaCode1 !=''">
+			and cmcc_prov_id = #{areaCode1}
+			</if>
+			order by aud_trm desc,cmcc_prov_id
+	</select>
+	
+	<select id="hz_hb_chart1" resultType="Map" parameterType="Map">
+		<if test="areaCode2 != null and areaCode2 !=''">
+			select 
+				org_svc_typ,
+				org_svc_typ_nm,
+				rat_wave*100 as rat_wave
+			from hpeapb.sum_jtcp_3901_cty 
+			where aud_trm_begin = #{currSumBeginDate}
+			and	aud_trm_end = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			and cmcc_prov_id = #{areaCode2}
+			order by rat_wave desc
+			limit 12
+		</if>
+		<if test="areaCode2 == null or areaCode2 ==''">
+			select 
+				org_svc_typ,
+				org_svc_typ_nm,
+				rat_wave*100 as rat_wave
+			from hpeapb.sum_jtcp_3901_prvd
+			where aud_trm_begin = #{currSumBeginDate}
+			and	aud_trm_end = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			order by rat_wave desc
+			limit 12
+		</if>
+	</select>
+	<select id="hz_hb_chart2" resultType="Map" parameterType="Map">
+	<if test="areaCode2 != null and areaCode2 !=''">
+			select 
+				aud_trm,
+				org_svc_typ,
+				org_svc_typ_nm,
+				unitpay_inc
+			from hpeapb.sum_jtcp_3901_typcty 
+			where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+			and cmcc_prov_prvd_id = #{provinceCode}
+			AND org_svc_typ IN
+			<foreach collection="org_svc_typs" item="org_svc_typ" index="index" open="(" close=")" separator=",">
+            	#{org_svc_typ}
+        	</foreach>
+			and cmcc_prov_id = #{areaCode2}
+			order by aud_trm desc
+		</if>
+		<if test="areaCode2 == null or areaCode2 ==''">
+			select 
+				aud_trm,
+				org_svc_typ,
+				org_svc_typ_nm,
+				unitpay_inc
+			from hpeapb.sum_jtcp_3901_typprvd
+			where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+			and cmcc_prov_prvd_id = #{provinceCode}
+			AND org_svc_typ IN
+			<foreach collection="org_svc_typs" item="org_svc_typ" index="index" open="(" close=")" separator=",">
+            	#{org_svc_typ}
+        	</foreach>
+			order by aud_trm desc
+		</if>
+	</select>
+	
+	<select id="hz_hb_table" resultType="Map" parameterType="Map">
+		
+			select 
+				aud_trm_begin,
+				aud_trm_end,
+				short_name,
+				CMCC_prvd_nm_short as area_name,
+				org_svc_typ,
+				org_svc_typ_nm,
+				rat_wave*100 as rat_wave
+			from hpeapb.sum_jtcp_3901_cty 
+			where aud_trm_begin = #{params.currSumBeginDate}
+			and	aud_trm_end = #{params.currSumEndDate}
+			and cmcc_prov_prvd_id = #{params.provinceCode}
+			<if test="params.areaCode2 != null and params.areaCode2 !=''">
+			and cmcc_prov_id = #{params.areaCode2}
+			</if>
+			order by rat_wave desc
+		
+	</select>
+	<select id="hz_hb_table_export" resultType="Map" parameterType="Map">
+		
+			select 
+				aud_trm_begin,
+				aud_trm_end,
+				short_name,
+				CMCC_prvd_nm_short as area_name,
+				org_svc_typ,
+				org_svc_typ_nm,
+				rat_wave*100 as rat_wave
+			from hpeapb.sum_jtcp_3901_cty 
+			where aud_trm_begin = #{currSumBeginDate}
+			and	aud_trm_end = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			<if test="areaCode2 != null and areaCode2 !=''">
+			and cmcc_prov_id = #{areaCode2}
+			</if>
+			order by rat_wave desc
+		
+	</select>
+	
+	<select id="hz_fc_chart1" resultType="Map" parameterType="Map">
+		<if test="areaCode3 != null and areaCode3 !=''">
+			select 
+				org_svc_typ,
+				org_svc_typ_nm,
+				var_wave*100 as var_wave
+			from hpeapb.sum_jtcp_3901_cty 
+			where aud_trm_begin = #{currSumBeginDate}
+			and	aud_trm_end = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			and cmcc_prov_id = #{areaCode3}
+			order by var_wave desc
+			limit 12
+		</if>
+		<if test="areaCode3 == null or areaCode3 ==''">
+			select 
+				org_svc_typ,
+				org_svc_typ_nm,
+				var_wave*100 as var_wave
+			from hpeapb.sum_jtcp_3901_prvd
+			where aud_trm_begin = #{currSumBeginDate}
+			and	aud_trm_end = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			order by var_wave desc
+			limit 12
+		</if>
+	</select>
+	<select id="hz_fc_chart2" resultType="Map" parameterType="Map">
+	<if test="areaCode3 != null and areaCode3 !=''">
+			select 
+				aud_trm,
+				org_svc_typ,
+				org_svc_typ_nm,
+				unitpay_inc
+			from hpeapb.sum_jtcp_3901_typcty 
+			where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+			and cmcc_prov_prvd_id = #{provinceCode}
+			and cmcc_prov_id = #{areaCode3}
+			AND org_svc_typ IN
+			<foreach collection="org_svc_typs" item="org_svc_typ" index="index" open="(" close=")" separator=",">
+            	#{org_svc_typ}
+        	</foreach>
+			order by aud_trm desc
+		</if>
+		<if test="areaCode3 == null or areaCode3 ==''">
+			select 
+				aud_trm,
+				org_svc_typ,
+				org_svc_typ_nm,
+				unitpay_inc
+			from hpeapb.sum_jtcp_3901_typprvd
+			where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+			and cmcc_prov_prvd_id = #{provinceCode}
+			AND org_svc_typ IN
+			<foreach collection="org_svc_typs" item="org_svc_typ" index="index" open="(" close=")" separator=",">
+            	#{org_svc_typ}
+        	</foreach>
+			order by aud_trm desc
+		</if>
+	</select>
+	
+	<select id="hz_fc_table" resultType="Map" parameterType="Map">
+		
+			select 
+				aud_trm_begin,
+				aud_trm_end,
+				short_name,
+				CMCC_prvd_nm_short as area_name,
+				org_svc_typ,
+				org_svc_typ_nm,
+				var_wave*100 as var_wave
+			from hpeapb.sum_jtcp_3901_cty 
+			where aud_trm_begin = #{params.currSumBeginDate}
+			and	aud_trm_end = #{params.currSumEndDate}
+			and cmcc_prov_prvd_id = #{params.provinceCode}
+			<if test="params.areaCode3 != null and params.areaCode3 !=''">
+			and cmcc_prov_id = #{params.areaCode3}
+			</if>
+			order by var_wave desc
+	</select>
+	<select id="hz_fc_table_export" resultType="Map" parameterType="Map">
+		
+			select 
+				aud_trm_begin,
+				aud_trm_end,
+				short_name,
+				CMCC_prvd_nm_short as area_name,
+				org_svc_typ,
+				org_svc_typ_nm,
+				var_wave*100 as var_wave
+			from hpeapb.sum_jtcp_3901_cty 
+			where aud_trm_begin = #{currSumBeginDate}
+			and	aud_trm_end = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+			<if test="areaCode3 != null and areaCode3 !=''">
+			and cmcc_prov_id = #{areaCode3}
+			</if>
+			order by var_wave desc
+		
+	</select>
+	
+	<select id="mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		CMCC_prvd_nm_short,
+		org_cust_id,
+		org_nm,
+		org_svc_typ,
+		org_svc_typ_nm,
+		prod_subscrb_exmbl_id,
+		fee_itm_typ_cd,
+		fee_itm_typ_nm,
+		unitpay_inc
+		FROM hpeapb.det_jtcp_3901
+		WHERE aud_trm between #{params.currDetBeginDate} and  #{params.currDetEndDate}
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode}	
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		 	AND CMCC_PROV_ID = #{params.currCityType} 
+	    </if>
+	    ORDER BY aud_trm desc,CMCC_prov_id
+	</select>
+
+	<select id="mx_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm,
+		cmcc_prov_prvd_id,
+		short_name,
+		cmcc_prov_id,
+		CMCC_prvd_nm_short,
+		org_cust_id,
+		org_nm,
+		org_svc_typ,
+		org_svc_typ_nm,
+		prod_subscrb_exmbl_id,
+		fee_itm_typ_cd,
+		fee_itm_typ_nm,
+		unitpay_inc
+		FROM hpeapb.det_jtcp_3901
+		WHERE aud_trm between #{currDetBeginDate} and  #{currDetEndDate}
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}	
+		<if test="currCityType != '' and currCityType !=null  ">
+		 	AND CMCC_PROV_ID = #{currCityType} 
+	    </if>
+	    ORDER BY aud_trm desc,CMCC_prov_id
+	    LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

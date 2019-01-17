@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="yjkGenMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+<!--1 有价卡赠送未纳入业务支撑系统管理 begin  -->
+	<select id="select_totalInfo01" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+		select 
+			format(sum(case when erp_amt>0 then 1 else 0 end),0) as wg_num_1,
+			format(sum(case when diff_amt>0 then 1 else 0 end),0) as wg_num_2
+		from hpeapb.dm_sum_yjkzs_3001_prvd
+		where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+		select 
+			format(sum(case when diff_amt>0 then diff_amt else 0 end),0) as wg_num_1
+			from hpeapb.dm_sum_yjkzs_3001_prvd
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			and diff_amt>0
+		</if>
+	</select>
+	
+	<select id="select_yjk11_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			SELECT
+				short_name as area_name,
+				format(erp_amt,2) as erpAmt,
+				format(boss_amt,2) as bossAmt,
+				format(boss_yjk_cnt,0) as bossYjkCnt,
+				format(diff_amt,2) as diffAmt,
+				format(per_diff*100,2) as perDiff
+			FROM
+				hpeapb.dm_sum_yjkzs_3001_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY erp_amt DESC
+		</if>
+		
+		<if test="provinceCode!=10000">
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				format(erp_amt,2) as erpAmt,
+				format(boss_amt,2) as bossAmt,
+				format(boss_yjk_cnt,0) as bossYjkCnt,
+				format(diff_amt,2) as diffAmt,
+				format(per_diff*100,2) as perDiff
+			FROM
+				hpeapb.dm_sum_yjkzs_3001_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY erp_amt DESC
+		</if>
+	</select>
+	
+	<!--有价卡赠送未纳入业务支撑系统管理  end  -->
+	
+	<!-- （二）有价卡赠送批量激活 begin -->
+	<select id="select_totalInfo02" resultType="Map" parameterType="Map">
+		
+		<if test="provinceCode==10000">
+			select 
+			format(sum(batch_yjk_cnt),0) as wg_num,
+			format(sum(batch_amt_sum),2) as wg_amt
+			from hpeapb.sum_zsyjk_batch_jh_prvd  
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+				format(batch_yjk_cnt,0) as wg_num,
+				format(batch_amt_sum,2) as wg_amt
+				from hpeapb.sum_zsyjk_batch_jh_prvd
+				where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_yjk21_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(batch_amt_sum,2) as batchAmtSum,
+				format(batch_yjk_cnt,0) as batchYjkCnt,
+				format(batch_amt_sum/(case when amt_tol !=0 then amt_tol else 1 end)*100 ,2) as amtPer,
+				format(batch_yjk_cnt/(case when cnt_tol !=0 then cnt_tol else 1 end)*100 ,2) as cntPer
+			FROM
+				hpeapb.sum_zsyjk_batch_jh_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY batch_amt_sum DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				format(batch_amt_sum,2) as batchAmtSum,
+				format(batch_yjk_cnt,0) as batchYjkCnt,
+				format(batch_amt_sum/(case when amt_tol !=0 then amt_tol else 1 end)*100 ,2) as amtPer,
+				format(batch_yjk_cnt/(case when cnt_tol !=0 then cnt_tol else 1 end)*100 ,2) as cntPer
+			FROM
+				hpeapb.sum_zsyjk_batch_jh_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY batch_amt_sum DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		
+	</select>
+	<select id="select_yjk22_top10" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				opr_id,
+				concat(left(TRIM(nm),1),'**') as nm,
+				format(sum(batch_amt_sum),2) as batchAmtSum,
+				format(sum(batch_yjk_cnt),0) as batchYjkCnt
+			FROM
+				hpeapb.sum_zsyjk_batch_jh_czy
+			where aud_trm = #{audTrm}
+			GROUP BY opr_id
+			ORDER BY sum(batch_amt_sum) DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name ,
+				opr_id,
+				concat(left(TRIM(nm),1),'**') as nm,
+				format(sum(batch_amt_sum),2) as batchAmtSum,
+				format(sum(batch_yjk_cnt),0) as batchYjkCnt
+			FROM
+				hpeapb.sum_zsyjk_batch_jh_czy
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			GROUP BY opr_id
+			ORDER BY sum(batch_amt_sum) DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- （二）有价卡赠送批量激活 end -->
+	
+	<!-- 3  有价卡获赠客户集中度   begin-->
+	<select id="select_totalInfo03" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			COUNT(DISTINCT msisdn) AS userNum,
+			format(sum(yjk_amt),2) as yjkAmt,
+			format(sum(yjk_num),0) as yjkNum
+			from hpeapb.sum_yjk_2006_03_msisdn
+			where aud_trm = #{audTrm}
+			and (yjk_num >50 or yjk_amt>5000)
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			COUNT(DISTINCT msisdn) AS userNum,
+			format(sum(yjk_amt),2) as yjkAmt,
+			format(sum(yjk_num),0) as yjkNum
+			from hpeapb.sum_yjk_2006_03_msisdn
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			and (yjk_num >50 or yjk_amt>5000)
+		</if>
+	</select>
+	<select id="select_yjk31_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				count(DISTINCT msisdn) as msisdnNum,
+				format(sum(yjk_amt),2) as yjkAmt,
+				format(sum(yjk_num),0) as yjkNum
+			FROM
+				hpeapb.sum_yjk_2006_03_msisdn
+			where aud_trm = #{audTrm}
+			and (yjk_num >50 or yjk_amt>5000)
+			group by cmcc_prov_prvd_id
+			ORDER BY sum(yjk_amt) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				count(DISTINCT msisdn) as msisdnNum,
+				format(sum(yjk_amt),2) as yjkAmt,
+				format(sum(yjk_num),0) as yjkNum
+			FROM
+				hpeapb.sum_yjk_2006_03_msisdn
+			where aud_trm = #{audTrm}
+			and (yjk_num >50 or yjk_amt>5000)
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			group by cmcc_prvd_nm_short
+			ORDER BY sum(yjk_amt) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	
+	<select id="select_yjk32_top10" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END)AS msisdn,
+				short_name as area_name,
+				user_type,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum
+			FROM
+				hpeapb.sum_yjk_2006_03_msisdn
+			where aud_trm = #{audTrm}
+			and (yjk_num >50 or yjk_amt>5000)
+			ORDER BY yjk_amt DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END)AS msisdn,
+				cmcc_prvd_nm_short as area_name,
+				user_type,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum
+			FROM
+				hpeapb.sum_yjk_2006_03_msisdn
+			where aud_trm = #{audTrm}
+			and (yjk_num >50 or yjk_amt>5000)
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY yjk_amt DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 3 有价卡获赠客户集中度  end-->
+	
+	<!-- 4  有价卡违规赠送非集团非中高端客户  begin-->
+	<select id="select_totalInfo04" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select format(sum(yjk_num)/10000,2) as yjkNum,
+					format(sum(yjk_amt)/10000,2) as yjkAmt
+			from hpeapb.sum_yjk_2006_04_prvd
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+					format(sum(yjk_num)/10000,2) as yjkNum,
+					format(sum(yjk_amt)/10000,2) as yjkAmt
+			from hpeapb.sum_yjk_2006_04_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode}  
+		</if>
+	</select>
+	<select id="select_yjk41_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum,
+				format(per_yjk_amt*100,2) as amtPer,
+				format(per_yjk_num*100,2) as numPer
+			FROM
+				hpeapb.sum_yjk_2006_04_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY yjk_amt DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum,
+				format(per_yjk_amt*100,2) as amtPer,
+				format(per_yjk_num*100,2) as numPer
+			FROM
+				hpeapb.sum_yjk_2006_04_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY yjk_amt DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+  <!-- 4  有价卡违规赠送非集团非中高端客户  end-->
+		
+   <!-- 5 赠送有价卡发起充值号码集中度  begin-->
+	<select id="select_totalInfo05" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(callnumber_cnt),0) as misdNum,
+			format(sum(charge_yjk_cnt),0) as wgCnt,
+			format(sum(charge_amt),2) as wgAmt
+			from hpeapb.sum_fqsjh_jzd_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(sum(callnumber_cnt),0) as misdNum,
+			format(sum(charge_yjk_cnt),0) as wgCnt,
+			format(sum(charge_amt),2) as wgAmt
+			from hpeapb.sum_fqsjh_jzd_prvd
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_yjk51_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(callnumber_cnt,0) as callnumber_cnt,
+				format(charge_msisdn_cnt,0) as charge_msisdn_cnt,
+				format(charge_amt,2) as wgAmt,
+				format(charge_yjk_cnt,0) as wgCnt
+			FROM
+				hpeapb.sum_fqsjh_jzd_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY charge_amt DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(callnumber_cnt,0) as callnumber_cnt,
+				format(charge_msisdn_cnt,0) as charge_msisdn_cnt,
+				format(charge_amt,2) as wgAmt,
+				format(charge_yjk_cnt,0) as wgCnt
+			FROM
+				hpeapb.sum_fqsjh_jzd_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY charge_amt DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	
+	<select id="select_yjk52_top10" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+				short_name as area_name,
+				format(charge_msisdn_cnt,0) as charge_msisdn_cnt,
+				format(charge_amt,2) as wgAmt,
+				format(charge_yjk_cnt,0) as wgCnt
+			FROM
+				hpeapb.sum_fqsjh_jzd_msisdn
+			where aud_trm = #{audTrm}
+			ORDER BY charge_amt DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				(CASE WHEN callnumber= '' THEN '' ELSE CONCAT(SUBSTR(callnumber,1,(LENGTH(callnumber)-4)),'****') END)AS callnumber,
+				cmcc_prvd_nm_short as area_name,
+				format(charge_msisdn_cnt,0) as charge_msisdn_cnt,
+				format(charge_amt,2) as wgAmt,
+				format(charge_yjk_cnt,0) as wgCnt
+			FROM
+				hpeapb.sum_fqsjh_jzd_msisdn
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY charge_amt DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 5 赠送有价卡发起充值号码集中度  end-->
+	
+	<!--6 赠送有价卡被充值客户集中度  begin-->
+	<select id="select_totalInfo06" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(charge_msisdn_num),0) as misdNum,
+			format(sum(yjk_num),0) as wg_num,
+			format(sum(yjk_amt),2) as wg_amt
+			from hpeapb.sum_zsyjk_msisdn_focus_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(sum(charge_msisdn_num),0) as misdNum,
+			format(sum(yjk_num),0) as wg_num,
+			format(sum(yjk_amt),2) as wg_amt
+			from hpeapb.sum_zsyjk_msisdn_focus_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_yjk61_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(charge_msisdn_num,0) as misdNum,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum
+			FROM
+				hpeapb.sum_zsyjk_msisdn_focus_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY yjk_amt DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(charge_msisdn_num,0) as misdNum,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum
+			FROM
+				hpeapb.sum_zsyjk_msisdn_focus_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY yjk_amt DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<select id="select_yjk62_top10" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				charge_user,
+				short_name as area_name,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum
+			FROM
+				hpeapb.sum_zsyjk_msisdn_focus_phone
+			where aud_trm = #{audTrm}
+			ORDER BY yjk_amt DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				charge_user,
+				cmcc_prvd_nm_short as area_name,
+				format(yjk_amt,2) as yjkAmt,
+				format(yjk_num,0) as yjkNum
+			FROM
+				hpeapb.sum_zsyjk_msisdn_focus_phone
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY yjk_amt DESC
+			limit 10
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!--6  赠送有价卡被充值客户集中度  end-->
+	
+	<!-- 7 赠送有价卡为异省客户充值比例异常  begin-->
+	<select id="select_totalInfo07" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			SELECT 
+			format(sum(OFFER_ZSYJK_YS_NUM),0) as ysNum, 
+			format((sum(OFFER_ZSYJK_YS_NUM)/sum(OFFER_ZSYJK_PAY_NUM)*100),2) as numPer,
+			format(sum(OFFER_ZSYJK_YS_AMT),2) as ysAmt, 
+			format((sum(OFFER_ZSYJK_YS_AMT)/sum(FFER_ZSYJK_PAY_AMT)*100),2) as amtPer,
+	   		format(sum(case when OFFER_ZSYJK_PAY_NUM>0 then 1 else 0 end),0) as offerNum,
+		    format(sum(case when OFFER_ZSYJK_YS_AMT/FFER_ZSYJK_PAY_AMT >=0.8 then OFFER_ZSYJK_YS_NUM else 0 end ),0) as bigNum,
+			format(sum(case when OFFER_ZSYJK_YS_AMT/FFER_ZSYJK_PAY_AMT >=0.8 then OFFER_ZSYJK_YS_AMT else 0 end ),2) as bigAmt
+	        FROM hpeapb.sum_yjkzscz_3102_offer_prvd
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			SELECT 
+			format(sum(OFFER_ZSYJK_YS_NUM),0) as ysNum, 
+			format((sum(OFFER_ZSYJK_YS_NUM)/sum(OFFER_ZSYJK_PAY_NUM)*100),2) as numPer,
+			format(sum(OFFER_ZSYJK_YS_AMT),2) as ysAmt, 
+			format((sum(OFFER_ZSYJK_YS_AMT)/sum(FFER_ZSYJK_PAY_AMT)*100),2) as amtPer,
+	   		format(sum(case when OFFER_ZSYJK_PAY_NUM>0 then 1 else 0 end),0) as offerNum,
+		    format(sum(case when OFFER_ZSYJK_YS_AMT/FFER_ZSYJK_PAY_AMT >=0.8 then OFFER_ZSYJK_YS_NUM else 0 end ),0) as bigNum,
+			format(sum(case when OFFER_ZSYJK_YS_AMT/FFER_ZSYJK_PAY_AMT >=0.8 then OFFER_ZSYJK_YS_AMT else 0 end ),2) as bigAmt
+	        FROM hpeapb.sum_yjkzscz_3102_offer_prvd
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_yjk71_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(OFFER_ZSYJK_YS_AMT,2) as ysAmt,
+				format(OFFER_ZSYJK_YS_AMT/(case when FFER_ZSYJK_PAY_AMT !=0 then FFER_ZSYJK_PAY_AMT else 1 end)*100,2) as amtPer,
+				format(OFFER_ZSYJK_YS_NUM,0) as ysNum,
+				format(OFFER_ZSYJK_YS_NUM/(case when OFFER_ZSYJK_PAY_NUM !=0 then OFFER_ZSYJK_PAY_NUM else 1 end)*100,2) as numPer
+			FROM
+				hpeapb.sum_yjkzscz_3102_offer_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY OFFER_ZSYJK_YS_AMT/(case when FFER_ZSYJK_PAY_AMT !=0 then FFER_ZSYJK_PAY_AMT else 1 end) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(OFFER_ZSYJK_YS_AMT,2) as ysAmt,
+				format(OFFER_ZSYJK_YS_AMT/(case when OFFER_ZSYJK_PAY_AMT !=0 then OFFER_ZSYJK_PAY_AMT else 1 end)*100,2) as amtPer,
+				format(OFFER_ZSYJK_YS_NUM,0) as ysNum,
+				format(OFFER_ZSYJK_YS_NUM/(case when OFFER_ZSYJK_PAY_NUM !=0 then OFFER_ZSYJK_PAY_NUM else 1 end)*100,2) as numPer
+			FROM
+				hpeapb.sum_yjkzscz_3102_offer_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY OFFER_ZSYJK_YS_AMT/(case when OFFER_ZSYJK_PAY_AMT !=0 then OFFER_ZSYJK_PAY_AMT else 1 end) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<select id="select_yjk72_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				offer_cd,
+				offer_nm,
+				format(SUM(OFFER_ZSYJK_YS_AMT),2) as ysAmt,
+				format(SUM(OFFER_ZSYJK_YS_AMT)/(SUM(case when FFER_ZSYJK_PAY_AMT !=0 then FFER_ZSYJK_PAY_AMT else 1 end))*100,2) as amtPer,
+				format(SUM(OFFER_ZSYJK_YS_NUM),0) as ysNum,
+				format(SUM(OFFER_ZSYJK_YS_NUM)/(SUM(case when OFFER_ZSYJK_PAY_NUM !=0 then OFFER_ZSYJK_PAY_NUM else 1 end))*100,2) as numPer
+			FROM
+				hpeapb.sum_yjkzscz_3102_offer_prvd
+			where aud_trm = #{audTrm}
+			GROUP BY OFFER_CD
+			ORDER BY SUM(OFFER_ZSYJK_YS_AMT)/SUM(case when FFER_ZSYJK_PAY_AMT !=0 then FFER_ZSYJK_PAY_AMT else 1 end) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				offer_cd,
+				offer_nm,
+				format(SUM(OFFER_ZSYJK_YS_AMT),2) as ysAmt,
+				format(SUM(OFFER_ZSYJK_YS_AMT)/(SUM(case when OFFER_ZSYJK_PAY_AMT !=0 then OFFER_ZSYJK_PAY_AMT else 1 end))*100,2) as amtPer,
+				format(SUM(OFFER_ZSYJK_YS_NUM),0) as ysNum,
+				format(SUM(OFFER_ZSYJK_YS_NUM)/(SUM(case when OFFER_ZSYJK_PAY_NUM !=0 then OFFER_ZSYJK_PAY_NUM else 1 end))*100,2) as numPer
+			FROM
+				hpeapb.sum_yjkzscz_3102_offer_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			GROUP BY OFFER_CD
+			ORDER BY SUM(OFFER_ZSYJK_YS_AMT)/SUM(case when OFFER_ZSYJK_PAY_AMT !=0 then OFFER_ZSYJK_PAY_AMT else 1 end) DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 7 赠送有价卡为异省客户充值比例异常  end-->
+	
+	<!-- 8 充值时间早于有价卡赠送时间  begin -->
+		<select id="select_totalInfo08" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select 
+			format(sum(yjk_cnt),0) as wg_num,
+			format(sum(amt_sum),2) as wg_amt
+			from hpeapb.dm_sum_yjkzs_3008_prvd 
+			where aud_trm = #{audTrm}
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			format(sum(yjk_cnt),0) as wg_num,
+			format(sum(amt_sum),2) as wg_amt
+			from hpeapb.dm_sum_yjkzs_3008_prvd 
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+		</if>
+	</select>
+	<select id="select_yjk81_top5" resultType="Map" parameterType="Map">
+		<if test="provinceCode==10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				short_name as area_name,
+				format(amt_sum,2) as yjkAmt,
+				format(yjk_cnt,0) as yjkNum
+			FROM
+				hpeapb.dm_sum_yjkzs_3008_prvd
+			where aud_trm = #{audTrm}
+			ORDER BY amt_sum DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+		<if test="provinceCode!=10000">
+			select a.* ,@rank:=@rank+1 as sort from (
+			SELECT
+				cmcc_prvd_nm_short as area_name,
+				format(amt_sum,2) as yjkAmt,
+				format(yjk_cnt,0) as yjkNum
+			FROM
+				hpeapb.dm_sum_yjkzs_3008_cty
+			where aud_trm = #{audTrm}
+			and cmcc_prov_prvd_id = #{provinceCode} 
+			ORDER BY amt_sum DESC
+			limit 5
+			) a ,(SELECT @rank:=0) b
+		</if>
+	</select>
+	<!-- 8 充值时间早于有价卡赠送时间 end  -->
+</mapper>
+

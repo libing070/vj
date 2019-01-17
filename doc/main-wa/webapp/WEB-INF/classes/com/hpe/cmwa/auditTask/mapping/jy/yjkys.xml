@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="yjkysMapper">
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	
+	<select id="hz_bd_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt
+		FROM hpeapb.sum_yjkzscz_3102_offer_prvd
+		WHERE AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		AND CMCC_PROV_PRVD_ID =#{provinceCode}
+		group by AUD_TRM
+	</select>
+	
+	<select id="hz_yc_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) As offerZsyjkYsNum,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND  #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY OFFER_CD
+	</select>
+	
+	<select id="hz_yc_city_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) As offerZsyjkYsNum,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}
+		GROUP BY OFFER_CD
+	</select>
+	
+	<select id="hz_tj_chart" resultType="Map" parameterType="Map">
+		SELECT
+		OFFER_NM AS offerNm,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT) AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY OFFER_CD
+		ORDER BY offerAmtPer DESC ,SUM(OFFER_ZSYJK_YS_AMT) desc LIMIT 10
+	</select>
+	
+	<select id="hz_tj_city_chart" resultType="Map" parameterType="Map">
+		SELECT
+		OFFER_NM AS offerNm,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT) AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}	
+		GROUP BY OFFER_CD
+		ORDER BY offerAmtPer DESC,SUM(OFFER_ZSYJK_YS_AMT) desc LIMIT 10
+	</select>
+	
+	<select id="hz_tj_table_conclusion" resultType="Map" parameterType="Map">
+		SELECT
+		OFFER_NM AS offerNm,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(OFFER_ZSYJK_NUM) AS offerZsyjkNum,
+		SUM(OFFER_ZSYJK_AMT) AS offerZsyjkAmt,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) AS offerZsyjkYsNum,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT)*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY OFFER_CD
+		ORDER BY offerAmtPer DESC,SUM(OFFER_ZSYJK_YS_AMT) desc LIMIT 3
+	</select>
+	
+	<select id="hz_tj_city_table_conclusion" resultType="Map" parameterType="Map">
+		SELECT
+		OFFER_NM AS offerNm,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		SUM(OFFER_ZSYJK_NUM) AS offerZsyjkNum,
+		SUM(OFFER_ZSYJK_AMT) AS offerZsyjkAmt,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) AS offerZsyjkYsNum,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT)*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}	
+		GROUP BY OFFER_CD
+		ORDER BY offerAmtPer DESC, SUM(OFFER_ZSYJK_YS_AMT) desc LIMIT 3
+	</select>
+	
+	<select id="hz_tj_table" resultType="Map" parameterType="Map">
+		SELECT 
+		#{params.currSumBeginDate} AS audTrmBg,
+		#{params.currSumEndDate} AS audTrmEd,
+		SHORT_NAME AS shortName,
+		OPR_PRVD_NM AS oprPrvdNm,
+		OFFER_NM  AS offerNm,
+		SUM(OFFER_ZSYJK_PAY_NUM) AS offerZsyjkPayNum,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) AS offerZsyjkYsNum,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT)*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		GROUP BY OFFER_CD,CMCC_PROV_ID,OPR_PRVD_ID
+		ORDER BY offerAmtPer desc
+	</select>
+	
+	<select id="hz_tj_city_table" resultType="Map" parameterType="Map">
+		SELECT 
+		#{params.currSumBeginDate} AS audTrmBg,
+		#{params.currSumEndDate} AS audTrmEd,
+		SHORT_NAME AS shortName,
+		OPR_PRVD_NM AS oprPrvdNm,
+		OFFER_NM  AS offerNm,
+		SUM(OFFER_ZSYJK_PAY_NUM) AS offerZsyjkPayNum,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) AS offerZsyjkYsNum,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT)*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{params.currSumBeginDate} AND #{params.currSumEndDate}
+		AND cmcc_prov_id = #{params.cmccProvId}	
+		GROUP BY OFFER_CD,CMCC_PROV_ID,OPR_PRVD_ID
+		ORDER BY offerAmtPer DESC
+	</select>
+	
+	<select id="hz_tj_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		OPR_PRVD_ID AS oprPrvdId,
+		OPR_PRVD_NM AS oprPrvdNm,
+		OFFER_CD AS offerCd,
+		OFFER_NM  AS offerNm,
+		SUM(OFFER_ZSYJK_NUM)  AS offerZsyjkNum,
+		SUM(OFFER_ZSYJK_AMT) AS offerZsyjkAmt,
+		SUM(OFFER_ZSYJK_PAY_NUM) AS offerZsyjkPayNum,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) AS offerZsyjkYsNum,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT)*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY OFFER_CD,CMCC_PROV_ID,OPR_PRVD_ID
+		ORDER BY offerAmtPer DESC LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	<select id="hz_tj_city_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		OPR_PRVD_ID AS oprPrvdId,
+		OPR_PRVD_NM AS oprPrvdNm,
+		OFFER_CD AS offerCd,
+		OFFER_NM  AS offerNm,
+		SUM(OFFER_ZSYJK_NUM)  AS offerZsyjkNum,
+		SUM(OFFER_ZSYJK_AMT) AS offerZsyjkAmt,
+		SUM(OFFER_ZSYJK_PAY_NUM) AS offerZsyjkPayNum,
+		SUM(OFFER_ZSYJK_PAY_AMT) AS offerZsyjkPayAmt,
+		SUM(OFFER_ZSYJK_YS_NUM) AS offerZsyjkYsNum,
+		SUM(OFFER_ZSYJK_YS_AMT) AS offerZsyjkYsAmt,
+		SUM(OFFER_ZSYJK_YS_AMT)/SUM(OFFER_ZSYJK_PAY_AMT)*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3102_offer_cty
+		WHERE aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}	
+		GROUP BY OFFER_CD,CMCC_PROV_ID,OPR_PRVD_ID
+		ORDER BY offerAmtPer DESC LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+	<select id="mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		SHORT_NAME AS shortName,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		OPR_PRVD_NM AS oprPrvdNm,
+		YJK_SER_NO AS yjkSerNo,
+		COUNTATAL AS countatal,
+		CARDFLAG AS cardflag,
+		YJK_PRES_TM AS yjkPresTm,
+		(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END) AS msisdn,
+		YJK_OFFER_CD AS yjkOfferCd,
+		OFFER_NM  AS offerNm,
+		COR_CHNL_ID AS corChnlId,
+		COR_CHNL_NM AS corChnlNm,
+		CMCC_PRVD_NM_SHORT
+		FROM hpeapb.det_yjkzscz_3102
+		WHERE aud_trm BETWEEN  #{params.currDetBeginDate} AND #{params.currDetEndDate}
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode}	
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		 	AND CMCC_PROV_ID = #{params.currCityType} 
+	    </if>
+	    ORDER BY AUD_TRM DESC,OPR_PRVD_NM
+	</select>
+
+	<select id="mx_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		AUD_TRM AS audTrm,
+		CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		SHORT_NAME AS shortName,
+		CMCC_PROV_ID AS cmccProvId,
+		CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		OPR_PRVD_ID AS oprPrvdId,
+		OPR_PRVD_NM AS oprPrvdNm,
+		YJK_SER_NO AS yjkSerNo,
+		COUNTATAL AS countatal,
+		CARDFLAG AS cradflag,
+		TRADEDATE AS tradedate,
+		TRADETYPE AS tradetype,
+		(CASE WHEN OPR_MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(OPR_MSISDN,1,(LENGTH(OPR_MSISDN)-4)),'****') END) AS oprMsisdn,
+		SUPPLYCARDKIND AS supplyCardkind,
+		YJK_PRES_TM AS yjkPersTm,
+		USER_ID AS userId,
+		YJK_TYP AS yjkTyp,
+		(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END) AS msisdn,
+		YJK_OFFER_CD AS yjkOfferCd,
+		OFFER_NM AS offerNm,
+		COR_CHNL_ID AS corChnlId,
+		COR_CHNL_NM AS corChnlNm,
+		YJK_END_DT AS yjkEndDt
+		FROM hpeapb.det_yjkzscz_3102
+		WHERE aud_trm BETWEEN #{currDetBeginDate} AND  #{currDetEndDate}
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}	
+		<if test="currCityType != '' and currCityType !=null  ">
+		 	AND CMCC_PROV_ID = #{currCityType} 
+	    </if>
+	    ORDER BY AUD_TRM DESC,OPR_PRVD_NM
+	    LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

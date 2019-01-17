@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="multiDBMapper">
+
+	<select id="selectFromMysql" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT * from hpeapm.busi_workspace_org
+	</select>
+	
+	<select id="selectFromOracle" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from SYS_AUTHORITIES
+	</select>
+	
+	
+	<select id="insertIntoMysql" resultType="java.util.HashMap" parameterType="java.util.Map">
+		insert into hpeapm.model_conclusion_log(audit_id,timestamp,model_conclusion,create_time) values ('111','20170302','1000',CURRENT_TIMESTAMP)
+	</select>
+	
+	<select id="insertIntoOracle" resultType="java.util.HashMap" parameterType="java.util.Map">
+		insert into TEST_GROUP_BY(ID,NAME,DEPTNO,SALARY,CREATE_TIME) values (1,'fusz','coe','1000',sysdate)
+	</select>
+	
+</mapper>

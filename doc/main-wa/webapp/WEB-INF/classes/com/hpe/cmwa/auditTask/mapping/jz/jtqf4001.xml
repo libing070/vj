@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jtqf4001Mapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	
+
+	
+	<!-- 欠费波动趋势数据-->
+	<select id="selectBdqsInfo" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm, ACCT_NUM AS acctNum , ACCT_NUM_MOM*100 AS acctNumMom , dbt_amt AS dbtAmt ,  dbt_amt_mom*100 AS dbtAmtMom
+		FROM hpeapb.sum_jtqf_4001_prvd WHERE 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		ORDER BY AUD_TRM
+	</select>
+	
+	
+
+	<!-- 欠费波动图数据表数据-->
+	<select id="selectBdqsTableData" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+		AUD_TRM AS audTrm,ACCT_NUM AS acctNum ,  ACCT_NUM_MOM*100 AS acctNumMom, dbt_amt AS dbtAmt ,  dbt_amt_mom*100 AS dbtAmtMom
+		FROM hpeapb.sum_jtqf_4001_prvd WHERE 1=1 
+		and cmcc_prov_prvd_id = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate} 
+		ORDER BY AUD_TRM
+	</select>
+	
+	<select id="khconclusion" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+		org_nm
+		FROM hpeapb.sum_jtqf_amt WHERE 1=1 
+		and cmcc_prov_prvd_id = #{provinceCode} 
+		and AUD_TRM = #{currSumEndDate} 
+		group by blto_cust_id
+		order by sum(sum_dbt_amt) desc
+		limit 3
+	</select>
+	<!-- 欠费波动图数据表(客户)数据-->
+	<select id="khDataTable" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+			aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			CMCC_prov_id,
+			CMCC_prvd_nm_short,
+			acct_id,
+			blto_cust_id,
+			org_nm,
+			org_cust_lvl,
+			cust_stat_typ_nm,
+			sum_dbt_amt
+		FROM hpeapb.sum_jtqf_amt WHERE 1=1 
+		and cmcc_prov_prvd_id = #{params.provinceCode} 
+		and AUD_TRM = #{params.currSumEndDate} 
+		ORDER BY AUD_TRM,sum_dbt_amt desc
+	</select>
+	<select id="exportkhList" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+		aud_trm,
+		CMCC_prov_prvd_id,
+		short_name,
+		CMCC_prov_id,
+		CMCC_prvd_nm_short,
+		acct_id,
+		blto_cust_id,
+		org_nm,
+		org_cust_lvl,
+		cust_stat_typ_nm,
+		sum_dbt_amt
+		FROM  hpeapb.sum_jtqf_amt 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM = #{currSumEndDate}
+		ORDER BY AUD_TRM,sum_dbt_amt desc
+	</select>
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中  账户数环比最高-->
+	
+	<select id="selectBodongzhsMax" resultType="Map" parameterType="Map">
+		SELECT 
+		a.ACCT_NUM_MOM*100 AS acctNumMom,a.AUD_TRM AS audTrm
+		FROM hpeapb.sum_jtqf_4001_prvd a,
+		(SELECT AUD_TRM, MAX(ACCT_NUM_MOM) AS acctNumMom
+		FROM  hpeapb.sum_jtqf_4001_prvd 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		ORDER BY AUD_TRM) b 
+		WHERE a.ACCT_NUM_MOM = b.acctNumMom 
+		AND CMCC_PROV_PRVD_ID =#{provinceCode} 
+		AND a.AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate} 
+		limit 1
+	</select>
+	
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中  账户金额环比最高-->
+	<select id="selectBodongjeMax" resultType="Map" parameterType="Map">
+		SELECT 
+		a.DBT_AMT_MOM*100 AS dbtAmtMom,a.AUD_TRM AS audTrm
+		FROM hpeapb.sum_jtqf_4001_prvd a,
+		(SELECT AUD_TRM, MAX(DBT_AMT_MOM) AS dbtAmtMom
+		FROM  hpeapb.sum_jtqf_4001_prvd 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		ORDER BY AUD_TRM) b 
+		WHERE a.DBT_AMT_MOM = b.dbtAmtMom 
+		AND CMCC_PROV_PRVD_ID =#{provinceCode} 
+		AND a.AUD_TRM BETWEEN #{currSumBeginDate} AND #{currSumEndDate} 
+		limit 1
+	</select>
+	
+	
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中 欠费账龄趋势图数据-->
+	<select id="getzhanglingZhs" resultType="Map" parameterType="Map">
+	    SELECT 
+	    	    (sum(case when AGING &lt;= 6 then ACCT_NUM else '0' end)/sum(ACCT_NUM))*100 AS acctNumMom1,
+	    		sum(case when AGING &gt;= 7 AND AGING &lt;= 12 then ACCT_NUM else '0' end)/sum(ACCT_NUM)*100 AS acctNumMom2,
+	    		sum(case when AGING &gt;= 13 AND AGING &lt;= 18 then ACCT_NUM else '0' end)/sum(ACCT_NUM)*100 AS acctNumMom3,
+	    		sum(case when AGING &gt;= 19 AND AGING &lt;= 24 then ACCT_NUM else '0' end)/sum(ACCT_NUM)*100 AS acctNumMom4,
+	    		sum(case when AGING &gt;= 25  then ACCT_NUM else 0 end)/sum(ACCT_NUM)*100 AS acctNumMom5,
+	    	    sum(case when AGING &lt;= 6 then DBT_AMT else '0' end)/sum(DBT_AMT)*100 AS dbtAmtPer1,
+	    	    sum(case when AGING &gt;= 7 AND AGING &lt;= 12 then DBT_AMT else '0' end)/sum(DBT_AMT)*100 AS dbtAmtPer2,
+	    	    sum(case when AGING &gt;= 13 AND AGING &lt;= 18 then DBT_AMT else '0' end)/sum(DBT_AMT)*100 AS dbtAmtPer3,
+	    	    sum(case when AGING &gt;= 19 AND AGING &lt;= 24 then DBT_AMT else '0' end)/sum(DBT_AMT)*100 AS dbtAmtPer4,
+	    	    sum(case when AGING &gt;= 25  then DBT_AMT else 0 end)/sum(DBT_AMT)*100 AS dbtAmtPer5
+		 FROM hpeapb.sum_jtqf_4001_aging
+		 WHERE  CMCC_PROV_PRVD_ID = #{provinceCode}
+		 AND AUD_TRM = #{currSumEndDate}
+		 LIMIT 1
+	</select>
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中 账龄全国汇总表-->
+	<select id="getzhanglingQg" resultType="Map" parameterType="Map">
+	    SELECT 
+	    		sum(case when AGING &lt;= 6 then ACCT_NUM_PER else '0' end)*100 AS acctNumMom1,
+	    		sum(case when AGING &gt;= 7 AND AGING &lt;= 12 then ACCT_NUM_PER else '0' end)*100 AS acctNumMom2,
+	    		sum(case when AGING &gt;= 13 AND AGING &lt;= 18 then ACCT_NUM_PER else '0' end)*100 AS acctNumMom3,
+	    		sum(case when AGING &gt;= 19 AND AGING &lt;= 24 then  ACCT_NUM_PER else '0' end)*100 AS acctNumMom4,
+	    		sum(case when AGING &gt;= 25  then ACCT_NUM_PER else '0' end)*100 AS acctNumMom5,
+	    	    sum(case when AGING &lt;= 6 then DBT_AMT_PER else '0' end)*100 AS dbtAmtPer1,
+	    	    sum(case when AGING &gt;= 7 AND AGING &lt;= 12 then DBT_AMT_PER else '0' end)*100 AS dbtAmtPer2,
+	    	    sum(case when AGING &gt;= 13 AND AGING &lt;= 18 then DBT_AMT_PER else '0' end)*100 AS dbtAmtPer3,
+	    	    sum(case when AGING &gt;= 19 AND AGING &lt;= 24 then DBT_AMT_PER else '0' end)*100 AS dbtAmtPer4,
+	    	    sum(case when AGING &gt;= 25  then DBT_AMT_PER else '0' end)*100 AS dbtAmtPer5
+	    	FROM
+		    hpeapb.sum_jtqf_4001_crty_aging 
+		    WHERE 1 = 1 
+		    AND AUD_TRM = #{currSumEndDate}
+	</select>
+	<!-- 欠费账龄分布数据表数据-->
+	<select id="selectZlfbTableData" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+		a.AUD_TRM AS audTrm,a.AGING as aging,sum(a.ACCT_NUM) as sumAcctNum,
+		(sum(a.ACCT_NUM)/b.allAcctNum)*100 as accNumPer,
+		sum(a.DBT_AMT) as dbtAmt,
+		(sum(a.DBT_AMT)/b.allDbtAmt)*100 as dbtAmtSum
+		FROM hpeapb.sum_jtqf_4001_aging a
+		JOIN (SELECT
+		sum(ACCT_NUM) as allAcctNum,sum(DBT_AMT) as allDbtAmt,cmcc_prov_prvd_id
+		FROM hpeapb.sum_jtqf_4001_aging WHERE 1=1
+		and cmcc_prov_prvd_id = #{params.provinceCode}
+		and AUD_TRM = #{params.currSumEndDate}) b
+		ON	a.cmcc_prov_prvd_id =b.cmcc_prov_prvd_id WHERE 1=1
+		and a.cmcc_prov_prvd_id = #{params.provinceCode}
+		and a.AUD_TRM = #{params.currSumEndDate} 
+		GROUP BY a.aging
+		ORDER BY a.aging 
+	</select>
+	<!-- 导出欠费账龄分布数据表数据-->
+	<select id="exportZhangLingList" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+		a.AUD_TRM AS audTrm,a.AGING as aging,sum(a.ACCT_NUM) as sumAcctNum,
+		(sum(a.ACCT_NUM)/b.allAcctNum)*100 as accNumPer,
+		sum(a.DBT_AMT) as dbtAmt,
+		round((sum(a.DBT_AMT)/b.allDbtAmt)*100,4) as dbtAmtSum
+		FROM hpeapb.sum_jtqf_4001_aging a
+		JOIN (SELECT
+		sum(ACCT_NUM) as allAcctNum,sum(DBT_AMT) as allDbtAmt,cmcc_prov_prvd_id
+		FROM hpeapb.sum_jtqf_4001_aging WHERE 1=1
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and AUD_TRM = #{currSumEndDate}) b
+		ON	a.cmcc_prov_prvd_id =b.cmcc_prov_prvd_id WHERE 1=1
+		and a.cmcc_prov_prvd_id = #{provinceCode}
+		and a.AUD_TRM = #{currSumEndDate} 
+		GROUP BY a.aging
+		ORDER BY a.aging 
+	</select>
+	<!-- 账龄分布 审计结论 -->
+	<select id="getzhanglingjielun" resultType="Map" parameterType="Map">
+		 SELECT 
+	    	SUM(ACCT_NUM) AS acctNum,
+	    	SUM(DBT_AMT) AS dbtAmt,
+	    	SUM(ACCT_NUM)/ SUM(ACCT_NUM / ACCT_NUM_PER)*100 AS acctNumMom,
+	    	sum(DBT_AMT)/ SUM(DBT_AMT / DBT_AMT_PER)*100 AS dbtAmtPer,
+	    	sum(case when AGING &gt;18  then ACCT_NUM when AGING &lt;=18  then 0 end)AS moreThanOneYearacctNum,
+	    	sum(case when AGING &gt;18  then ACCT_NUM when AGING &lt;=18  then 0 end)/ b.allAcctNum*100 AS acctNumPer,
+	    	sum(case when AGING &gt;18  then DBT_AMT when AGING &lt;=18  then 0 end) AS moreThanOneYeardbtAmt,
+	    	sum(case when AGING &gt;18  then DBT_AMT when AGING &lt;=18  then 0 end)/ b.allDbtAmt*100 AS amtPer
+		 FROM
+		    hpeapb.sum_jtqf_4001_aging  a
+		    JOIN (SELECT
+			SUM(ACCT_NUM) AS allAcctNum,SUM(DBT_AMT) AS allDbtAmt,CMCC_PROV_PRVD_ID
+			FROM hpeapb.sum_jtqf_4001_aging WHERE 1=1
+			AND AUD_TRM = #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID=#{provinceCode}) b
+			ON	a.CMCC_PROV_PRVD_ID =b.CMCC_PROV_PRVD_ID
+		    WHERE 1 = 1 
+		    AND a.CMCC_PROV_PRVD_ID = #{provinceCode} 
+		    AND a.AUD_TRM = #{currSumEndDate}
+	</select>
+	<!-- 账龄分布 全国审计结论 -->
+	<select id="getQGzhanglingjielun" resultType="Map" parameterType="Map">
+	    SELECT 
+	    	sum(case when AGING &gt;18  then ACCT_NUM_PER end)*100 AS acctNumMom,
+	    	sum(case when AGING &gt; 18  then DBT_AMT_PER end)*100 AS dbtAmtPer
+		 FROM
+		    hpeapb.sum_jtqf_4001_crty_aging 
+		    WHERE 1 = 1 
+		    AND AUD_TRM = #{currSumEndDate}
+		 LIMIT 1
+	</select>
+	<!--欠费规模分布 :              根据省份代码、审计时间获取   省份汇总表  中  数据表-->
+	<select id="getguimoPagerList" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm ,
+		DBT_AMT_ARR AS abtAmtArr,
+		SUM(ACCT_NUM) AS acctNum , 
+		SUM(ACCT_NUM)/b.allAcctNum*100 AS acctNumPer , 
+		SUM(DBT_AMT) AS dbtAmt , 
+		SUM(DBT_AMT)/b.allDbtAmt*100 AS dbtAmtPer 
+		FROM hpeapb.sum_jtqf_4001_dbt_amt a
+		JOIN (SELECT
+		SUM(ACCT_NUM) AS allAcctNum,SUM(DBT_AMT) AS allDbtAmt,CMCC_PROV_PRVD_ID
+		FROM hpeapb.sum_jtqf_4001_dbt_amt WHERE 1=1
+		AND AUD_TRM = #{params.currSumEndDate}
+		AND CMCC_PROV_PRVD_ID=#{params.provinceCode} ) b
+		ON	a.CMCC_PROV_PRVD_ID =b.CMCC_PROV_PRVD_ID 
+		WHERE 1=1 
+		AND a.AUD_TRM = #{params.currSumEndDate}
+		AND a.CMCC_PROV_PRVD_ID=#{params.provinceCode}
+		GROUP BY a.DBT_AMT_ARR
+	</select>
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中  导出账龄数据表-->
+	<select id="exportguimoList" resultType="Map" parameterType="Map">
+		SELECT AUD_TRM AS audTrm ,
+		DBT_AMT_ARR AS abtAmtArr,
+		SUM(ACCT_NUM) AS acctNum , 
+		SUM(ACCT_NUM)/b.allAcctNum*100 AS acctNumPer , 
+		SUM(DBT_AMT) AS dbtAmt , 
+		round(SUM(DBT_AMT)/b.allDbtAmt*100,4) AS dbtAmtPer 
+		FROM hpeapb.sum_jtqf_4001_dbt_amt a
+		JOIN (SELECT
+		SUM(ACCT_NUM) AS allAcctNum,SUM(DBT_AMT) AS allDbtAmt,CMCC_PROV_PRVD_ID
+		FROM hpeapb.sum_jtqf_4001_dbt_amt WHERE 1=1
+		AND AUD_TRM = #{currSumEndDate}
+		AND CMCC_PROV_PRVD_ID=#{provinceCode} ) b
+		ON	a.CMCC_PROV_PRVD_ID =b.CMCC_PROV_PRVD_ID 
+		WHERE 1=1 
+		AND a.AUD_TRM = #{currSumEndDate}
+		AND a.CMCC_PROV_PRVD_ID=#{provinceCode}
+		GROUP BY a.DBT_AMT_ARR
+	</select>
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中 欠费规模趋势图数据-->
+	<select id="getguimoZhs" resultType="Map" parameterType="Map">
+	    SELECT 
+	    		sum(case when DBT_AMT_ARR = '10000元以内' then ACCT_NUM when DBT_AMT_ARR != '10000元以内' then '0' end)/ SUM(ACCT_NUM)*100 AS acctNumMom1,
+	    		sum(case when DBT_AMT_ARR = '10000至50000元' then ACCT_NUM when DBT_AMT_ARR != '10000至50000元' then '0' end)/ SUM(ACCT_NUM)*100 AS acctNumMom2,
+	    		sum(case when DBT_AMT_ARR = '50000至100000元' then ACCT_NUM  when DBT_AMT_ARR != '50000至100000元' then '0' end)/ SUM(ACCT_NUM)*100 AS acctNumMom3,
+	    		sum(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM  when DBT_AMT_ARR != '100000元以上' then '0' end)/ SUM(ACCT_NUM)*100 AS acctNumMom4,
+	    	    sum(case when DBT_AMT_ARR = '10000元以内' then DBT_AMT  when DBT_AMT_ARR != '10000元以内' then '0' end)/ SUM(DBT_AMT)*100 AS dbtAmtPer1,
+	    	    sum(case when DBT_AMT_ARR = '10000至50000元' then DBT_AMT  when DBT_AMT_ARR != '10000至50000元' then '0' end)/ SUM(DBT_AMT)*100 AS dbtAmtPer2,
+	    	    sum(case when DBT_AMT_ARR = '50000至100000元' then DBT_AMT  when DBT_AMT_ARR != '50000至100000元' then '0' end)/ SUM(DBT_AMT)*100 AS dbtAmtPer3,
+	    	    sum(case when DBT_AMT_ARR = '100000元以上'  then DBT_AMT  when DBT_AMT_ARR != '100000元以上' then '0' end)/ SUM(DBT_AMT)*100 AS dbtAmtPer4
+		 FROM
+		    hpeapb.sum_jtqf_4001_dbt_amt 
+		    WHERE 1 = 1 
+		    AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		    AND AUD_TRM = #{currSumEndDate}
+		 LIMIT 1
+	</select>
+	<!-- 根据省份代码、审计时间获取   省份汇总表  中 规模全国汇总表-->
+	<select id="getguimoQg" resultType="Map" parameterType="Map">
+	    SELECT  
+	    	    sum(case when DBT_AMT_ARR = '10000元以内' then ACCT_NUM_PER when DBT_AMT_ARR != '10000元以内' then '0' end)*100 AS acctNumMom1,
+	    		sum(case when DBT_AMT_ARR = '10000至50000元' then ACCT_NUM_PER when DBT_AMT_ARR != '10000至50000元' then '0' end)*100 AS acctNumMom2,
+	    		sum(case when DBT_AMT_ARR = '50000至100000元' then ACCT_NUM_PER  when DBT_AMT_ARR != '50000至100000元' then '0' end)*100 AS acctNumMom3,
+	    		sum(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM_PER  when DBT_AMT_ARR != '100000元以上' then '0' end)*100 AS acctNumMom4,
+	    	    sum(case when DBT_AMT_ARR = '10000元以内' then DBT_AMT_PER  when DBT_AMT_ARR != '10000元以内' then '0' end)*100 AS dbtAmtPer1,
+	    	    sum(case when DBT_AMT_ARR = '10000至50000元' then DBT_AMT_PER  when DBT_AMT_ARR != '10000至50000元' then '0' end)*100 AS dbtAmtPer2,
+	    	    sum(case when DBT_AMT_ARR = '50000至100000元' then DBT_AMT_PER  when DBT_AMT_ARR != '50000至100000元' then '0' end)*100 AS dbtAmtPer3,
+	    	    sum(case when DBT_AMT_ARR = '100000元以上'  then DBT_AMT_PER  when DBT_AMT_ARR != '100000元以上' then '0' end)*100 AS dbtAmtPer4 
+		 FROM
+		    hpeapb.sum_jtqf_4001_crty_dbt_amt 
+		    WHERE 1 = 1 
+		    AND AUD_TRM = #{currSumEndDate}
+		 LIMIT 1
+	</select>
+	<!-- 规模分布 审计结论 -->
+	<select id="getguimojielun" resultType="Map" parameterType="Map">
+		  SELECT 
+	    	SUM(ACCT_NUM) AS acctNum,
+	    	SUM(DBT_AMT) AS dbtAmt,
+	    	SUM(ACCT_NUM)/ SUM(ACCT_NUM / ACCT_NUM_PER)*100 AS acctNumMom,
+	    	sum(DBT_AMT)/ SUM(DBT_AMT / DBT_AMT_PER)*100 AS dbtAmtPer,
+	    	sum(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM when DBT_AMT_ARR != '100000元以上' then 0 end) AS moreThanOneYearacctNum,
+	    	sum(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM when DBT_AMT_ARR != '100000元以上' then 0 end)/ SUM(ACCT_NUM)*100 AS acctNumPer,
+	    	sum(case when DBT_AMT_ARR = '100000元以上'  then DBT_AMT when DBT_AMT_ARR != '100000元以上' then 0 end) AS moreThanOneYeardbtAmt,
+	    	sum(case when DBT_AMT_ARR = '100000元以上'  then DBT_AMT when DBT_AMT_ARR != '100000元以上' then 0 end)/ SUM(DBT_AMT)*100 AS amtPer
+		 FROM
+		    hpeapb.sum_jtqf_4001_dbt_amt
+		    WHERE 1 = 1 
+		    AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		    AND AUD_TRM = #{currSumEndDate}
+		 LIMIT 1
+	</select>
+	<!-- 规模分布 全国审计结论 -->
+	<select id="getQGguimojielun" resultType="Map" parameterType="Map">
+	    SELECT 
+	    	sum(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM_PER when DBT_AMT_ARR != '100000元以上' then 0 end)*100 AS acctNumMom,
+	    	sum(case when DBT_AMT_ARR = '100000元以上'  then DBT_AMT_PER when DBT_AMT_ARR != '100000元以上' then 0 end)*100 AS dbtAmtPer
+		 FROM
+		    hpeapb.sum_jtqf_4001_crty_dbt_amt 
+		    WHERE 1 = 1 
+		    AND AUD_TRM = #{currSumEndDate}
+		 LIMIT 1
+	</select>
+	
+	<!-- 查询长期欠费数据表数据-->
+	<select id="selectCqqfTableData" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT AUD_TRM as audTrm,cmcc_prvd_nm_short as cityName,
+				sum(case when aging &gt; 18 then DBT_AMT when aging &lt;= 18 then 0 end)as lontTimeDbtAmt,
+				sum(case when aging &gt; 18 then DBT_AMT_PER*100 when aging &lt;= 18 then 0 end)as lontTimeDbtAmtPer,
+				sum(dbt_amt) as sumDbtAmt
+		FROM hpeapb.sum_jtqf_4001_aging 
+		WHERE aud_trm = #{params.currSumEndDate}
+			and cmcc_prov_prvd_id = #{params.provinceCode}  
+		GROUP BY cmcc_prov_id
+		ORDER BY lontTimeDbtAmtPer DESC
+	</select>
+
+	<!-- 导出长期欠费数据表数据-->
+	<select id="selectChangQiList" resultType="java.util.Map"  parameterType="java.util.Map">
+		
+		SELECT AUD_TRM as audTrm,cmcc_prvd_nm_short as cityName,
+				sum(case when aging &gt; 18 then DBT_AMT when aging &lt;= 18 then 0 end)as lontTimeDbtAmt,
+				round(sum(case when aging &gt; 18 then DBT_AMT_PER*100 when aging &lt;= 18 then 0 end),4)as lontTimeDbtAmtPer,
+				sum(dbt_amt) as allDbtAmt
+		FROM hpeapb.sum_jtqf_4001_aging 
+		WHERE aud_trm = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}  
+		GROUP BY cmcc_prov_id
+		ORDER BY lontTimeDbtAmtPer DESC
+	</select>
+	<!-- 长期欠费分布图  数据 1 -->
+	<select id="selectCqqfInfo" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT cmcc_prvd_nm_short as cityName,sum(DBT_AMT_PER*100) as lontTimeDbtAmtPer
+		FROM hpeapb.sum_jtqf_4001_aging
+		WHERE aud_trm = #{currSumEndDate} 
+			and cmcc_prov_prvd_id=#{provinceCode} 
+			and aging &gt; 18
+		GROUP BY cmcc_prov_id
+		ORDER BY sum(DBT_AMT_PER) DESC
+	</select>
+	<!-- 长期欠费分布图  数据 2 -->
+	<select id="selectCqqf2Info" resultType="java.lang.Double"  parameterType="java.util.Map">
+		SELECT sum(DBT_AMT_PER)*100 as qgDbtAmtPer
+		FROM hpeapb.sum_jtqf_4001_crty_aging
+		WHERE aud_trm = #{currSumEndDate} 
+			  and aging &gt; 18
+		LIMIT 1
+	</select>
+	
+	<!-- 长期欠费审计结论  1 -->
+	<select id="selectCqqfResult1" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+				sum(case when aging &gt; 18 then DBT_AMT when aging &lt;= 18 then 0 end)as lontTimeDbtAmt,
+				sum(case when aging &gt; 18 then DBT_AMT when aging &lt;= 18 then 0 end)/sum(dbt_amt)*100 as allDbtAmtPer
+		FROM hpeapb.sum_jtqf_4001_aging 
+		WHERE aud_trm = #{currSumEndDate}
+			and cmcc_prov_prvd_id = #{provinceCode}
+		LIMIT 1 
+	</select>
+	<!-- 长期欠费审计结论  2 -->
+	<select id="selectCqqfResult2" resultType="java.lang.String"  parameterType="java.util.Map">
+		SELECT cmcc_prvd_nm_short as cityName
+		FROM hpeapb.sum_jtqf_4001_aging
+		WHERE aud_trm = #{currSumEndDate} 
+			  and cmcc_prov_prvd_id = #{provinceCode}
+			   and aging &gt; 18
+		GROUP BY cmcc_prvd_nm_short
+		ORDER BY sum(DBT_AMT_PER) desc
+		LIMIT 3
+	</select>
+	
+	<!--查询高额欠费管控风险地域分布  数据表数据  -->
+	<select id="selectGeqfTableData" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT AUD_TRM as audTrm,cmcc_prvd_nm_short as cityName,
+					sum(CASE when dbt_amt_arr = '100000元以上' then acct_num when DBT_AMT_ARR != '100000元以上' then 0 end)as geAcctNum,
+					sum(CASE when dbt_amt_arr = '100000元以上' then acct_num when DBT_AMT_ARR != '100000元以上' then 0 end)/sum(acct_num)*100 as geAcctNumPer,
+					sum(acct_num)as sumGeAcctNum
+		FROM  hpeapb.sum_jtqf_4001_dbt_amt 
+		WHERE aud_trm = #{params.currSumEndDate}  
+				and cmcc_prov_prvd_id=#{params.provinceCode} 
+		GROUP BY cmcc_prov_id
+		ORDER BY geAcctNumPer DESC
+	</select>
+
+	<!--导出高额欠费管控风险地域分布  数据表数据  -->
+	<select id="selectGaoEList" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT AUD_TRM as audTrm,cmcc_prvd_nm_short as cityName,
+					sum(CASE when dbt_amt_arr = '100000元以上' then acct_num when DBT_AMT_ARR != '100000元以上' then 0 end)as geAcctNum,
+					sum(CASE when dbt_amt_arr = '100000元以上' then acct_num when DBT_AMT_ARR != '100000元以上' then 0 end)/sum(acct_num)*100 as geAcctNumPer,
+					sum(acct_num)as sumGeAcctNum
+		FROM  hpeapb.sum_jtqf_4001_dbt_amt 
+		WHERE aud_trm = #{currSumEndDate}  
+				and cmcc_prov_prvd_id=#{provinceCode} 
+		GROUP BY cmcc_prov_id
+		ORDER BY geAcctNumPer DESC
+	</select>
+	<!-- 高额欠费管控风险地域分布  折线图数据1 -->
+	<select id="selectGeqf1Info" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT cmcc_prvd_nm_short as cityName,sum(acct_num_per*100) as geAcctNumPer
+		FROM hpeapb.sum_jtqf_4001_dbt_amt
+		WHERE aud_trm = #{currSumEndDate}  
+			 and cmcc_prov_prvd_id = #{provinceCode} 
+			 and dbt_amt_arr = '100000元以上'
+		GROUP BY cmcc_prov_id
+		ORDER BY sum(acct_num_per) DESC
+	</select>
+	<!--  高额欠费管控风险地域分布  折线图数据2 -->
+	<select id="selectGeqf2Info" resultType="java.lang.Double"  parameterType="java.util.Map">
+		SELECT sum(ACCT_NUM_PER)*100 as qgAcctNumPer
+		FROM hpeapb.sum_jtqf_4001_crty_dbt_amt
+		WHERE aud_trm = #{currSumEndDate} 
+			  and dbt_amt_arr = '100000元以上'
+		LIMIT 1
+	</select>
+	<!-- 高额欠费审计结论 1 -->
+	<select id="selectGeqfResult1" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT 
+			SUM(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM when DBT_AMT_ARR != '100000元以上'  then 0 end) AS geAcctNum,
+	    	SUM(case when DBT_AMT_ARR = '100000元以上'  then ACCT_NUM when DBT_AMT_ARR != '100000元以上'  then 0 end)/SUM(ACCT_NUM)*100 AS qfNumPer
+		FROM hpeapb.sum_jtqf_4001_dbt_amt
+		WHERE aud_trm = #{currSumEndDate} 
+			and cmcc_prov_prvd_id= #{provinceCode} 
+	</select>
+	<!-- 高额欠费审计结论 2 -->
+	<select id="selectGeqfResult2" resultType="java.lang.String"  parameterType="java.util.Map">
+		SELECT cmcc_prvd_nm_short as cityName
+		FROM hpeapb.sum_jtqf_4001_dbt_amt
+		WHERE aud_trm = #{currSumEndDate}
+			  and cmcc_prov_prvd_id = #{provinceCode} 
+			   and DBT_AMT_ARR = '100000元以上'
+		GROUP BY cmcc_prvd_nm_short
+		ORDER BY sum(acct_num) desc
+		LIMIT 3
+	</select>
+	<!-- 明细数据表数据 -->
+	<select id="selectDetialTableData" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT aud_trm as audTrm,cmcc_prov_prvd_id as cmccProvPrvdId,
+				short_name as shortName,cmcc_prov_id as cmccProvId,
+				cmcc_prvd_nm_short as cmccPrvdNmShort,acct_prd_ytm as acctPrdYtm,
+				min_acct_prd_ytm as minAcctPrdYtm,org_cust_lvl as orgCustLvl,
+				cust_stat_typ_nm as custStatTypNm,aging,acct_id as acctId,
+				blto_cust_id as bltoCustId,org_nm as orgNm,org_busn_typ_nm,
+				dbt_amt as dbtAmt
+		FROM hpeapb.det_jtqf_4001 WHERE 1=1 
+				and cmcc_prov_prvd_id = #{params.provinceCode}
+				<if test="params.currCityType != '' and params.currCityType !=null ">
+					and cmcc_prov_id = #{params.currCityType} 
+				</if>
+				<if test="params.currBeginAging != '' and params.currBeginAging !=null ">
+					and aging &gt;= #{params.currBeginAging} 
+				</if>
+				<if test="params.currEndAging != '' and params.currEndAging !=null ">
+					and aging &lt;= #{params.currEndAging} 
+				</if>
+		ORDER BY aud_trm desc,acct_prd_ytm,dbt_amt DESC
+	</select>
+	<!-- 导出明细数据表数据 -->
+	<select id="selectDetailList" resultType="java.util.Map"  parameterType="java.util.Map">
+		
+		SELECT aud_trm as audTrm,cmcc_prov_prvd_id as cmccProvPrvdId,
+				short_name as shortName,cmcc_prov_id as cmccProvId,
+				cmcc_prvd_nm_short as cmccPrvdNmShort,acct_prd_ytm as acctPrdYtm,
+				min_acct_prd_ytm as minAcctPrdYtm,org_cust_lvl as orgCustLvl,
+				cust_stat_typ_nm as custStatTypNm,aging,acct_id as acctId,
+				blto_cust_id as bltoCustId,org_nm as orgNm,org_busn_typ_nm,
+				dbt_amt as dbtAmt
+		FROM hpeapb.det_jtqf_4001 WHERE 1=1 
+				and cmcc_prov_prvd_id = #{provinceCode}
+				<if test="currCityType != '' and currCityType !=null ">
+					and cmcc_prov_id = #{currCityType} 
+				</if>
+				<if test="currBeginAging != '' and currBeginAging !=null ">
+					and aging &gt;= #{currBeginAging} 
+				</if>
+				<if test="currEndAging != '' and currEndAging !=null ">
+					and aging &lt;= #{currEndAging} 
+				</if>
+		ORDER BY aud_trm desc,acct_prd_ytm,dbt_amt DESC
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

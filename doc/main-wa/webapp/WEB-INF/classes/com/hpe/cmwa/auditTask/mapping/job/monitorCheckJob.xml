@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="monitorCheckMapper">
+
+
+    <select id="getTimeStamp" resultType="Map" parameterType="Map">
+        SELECT DISTINCT date FROM hpeapm.monitor_check_infos WHERE status != 'T'
+    </select>
+	<!-- 获取hpeapm库中tb_sum_prvd_name表没有同步的数据 -->
+    <select id="selectNeedSyncList" resultType="Map" parameterType="List">
+        select 
+			audit_focus_point_code,
+			date,
+			prov_id,
+			money,
+			nums,
+			check_date,
+			check_money,
+			check_reason,
+			check_measures,
+			check_report_date,
+			check_report_path
+		from hpeapm.monitor_check_infos where date in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")" > 
+		#{item.date}
+		</foreach> 
+    </select>
+    <delete id="deleteData" parameterType="List">
+	     delete from audit_db.monitor_check_infos where date in
+			<foreach collection="list" item="item" index="index" open="(" separator="," close=")" > 
+			#{item.date}
+			</foreach> 
+    </delete>
+    <insert id="addDataToAuditDb" parameterType="List">
+    	insert into audit_db.monitor_check_infos 
+    		(audit_focus_point_code,
+			date,
+			prov_id,
+			money,
+			nums,
+			check_date,
+			check_money,
+			check_reason,
+			check_measures,
+			check_report_date,
+			check_report_path) 
+		values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(#{item.audit_focus_point_code},
+			#{item.date},
+			#{item.prov_id},
+			#{item.money},
+			#{item.nums},
+			#{item.check_date},
+			#{item.check_money},
+			#{item.check_reason},
+			#{item.check_measures},
+			#{item.check_report_date},
+			#{item.check_report_path}) 
+		</foreach> 
+    </insert>
+	<update id="updateDataStatus">
+		update hpeapm.monitor_check_infos set status = 'T' where status = 'F'
+	</update>   
+</mapper>

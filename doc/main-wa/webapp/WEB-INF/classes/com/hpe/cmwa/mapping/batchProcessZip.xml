@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="batchProcessZip">
+
+	<cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" />
+
+	  <insert id="saveFileDetail" parameterType="List">
+    	insert into hpeapm.invoiceDetail 
+    		(id,pathName,fileName,FPDM,FPHM,KPRQ,JQBH,MWSJ,
+			GFMC,GFSBH,XFMC,XFSBH,JSHJ,JEHJ,SEHJ,DXJE,
+			BZ,FPLX,JYM,GFKHZH,XFKHHZH,GFDZDH,XFDZDH,
+			QR,DYFPDM,DYFPHM,FPLC) values 
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(#{item.id},#{item.pathName},#{item.fileName},#{item.FPDM},#{item.FPHM},
+			#{item.KPRQ},#{item.JQBH},#{item.MWSJ},#{item.GFMC},#{item.GFSBH},#{item.XFMC},
+			#{item.XFSBH},#{item.JSHJ},#{item.JEHJ},#{item.SEHJ},#{item.DXJE},#{item.BZ},
+			#{item.FPLX},#{item.JYM},#{item.GFKHZH},#{item.XFKHHZH},#{item.GFDZDH},
+			#{item.XFDZDH},#{item.QR},#{item.DYFPDM},#{item.DYFPHM},#{item.FPLC}) 
+		</foreach> 
+    </insert>
+    
+	<insert id="saveGoodsDetail" parameterType="Map">
+    	insert into hpeapm.goodsDetail 
+    		(taskId,fileName,HWMC,DJ,DW,SL,SLV,JE,SE,XH) values 
+		<foreach collection="goods" item="item" index="index" separator="," > 
+			(#{id},#{fileName},#{item.HWMC},#{item.DJ},#{item.DW},#{item.SL},#{item.SLV},#{item.JE},#{item.SE},#{item.XH})
+		</foreach> 
+    </insert>
+    
+    <select id="selectTaskDetail"  resultType="Map" parameterType="Map">
+    	select * from hpeapm.invoiceDetail where id = #{id} limit #{curr},#{nums}
+    </select>
+    
+    <select id="getGoodsDetById"  resultType="Map" parameterType="Map">
+    	select * from hpeapm.goodsDetail where taskId = #{taskId} and fileName = #{fileName}
+    </select>
+    <select id="selectDataNum"  resultType="String" parameterType="Map">
+    	select count(*) from hpeapm.invoiceDetail where id = #{id} 
+    </select>
+    
+     <select id="exportFileDetail"  resultType="Map" parameterType="Map">
+    	select * from hpeapm.invoiceDetail where id = #{id} limit #{pageStar},#{pageEnd}
+    </select>
+</mapper>
+

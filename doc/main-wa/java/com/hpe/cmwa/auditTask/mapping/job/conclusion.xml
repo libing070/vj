@@ -1,0 +1,3723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="conclusionMapper">
+
+	<cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" />
+	
+	
+    <!-- 1 实名制登记率 start -->
+		<!-- 1.1 全部存量用户实名制率 start-->
+	 <select id="smzdjl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN short_name IS NULL THEN ''
+			 ELSE CONCAT('截止到',end_year,'年',end_month,'月之前入网的用户，全省实名制登记率',REAL_NAME_PER_01,'%，') end as smz_prvd
+from (
+SELECT SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+       SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+       short_name,
+	   CAST((REAL_NAME_PER*100) AS DECIMAL(10,2))AS REAL_NAME_PER_01,
+	   SUM(1)
+FROM HPEAPB.SUM_SMZDJL_PRVD
+WHERE CMCC_PROV_PRVD_ID = #{provinceCode}
+AND AUD_TRM = #{currSumEndDate})T1;
+	 </select>
+	 
+	 <select id="smzCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN prvd_id_01='无' THEN CONCAT(end_year,'年',end_month,'月，',short_name,'未上报实名制数据。')
+			 WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+       when fst_cty_01='无' then''
+       when fst_cty_01!='无' and sec_cty_01='无' then CONCAT('其中',fst_cty_01,'实名制登记率最低，为',fst_cty_per_01,'%。')
+       when fst_cty_01!='无' and sec_cty_01!='无' and thr_cty_01='无' then CONCAT('其中',fst_cty_01,'、',sec_cty_01,'实名制登记率最低，分别为',fst_cty_per_01,'%、',sec_cty_per_01,'%。')
+	     ELSE CONCAT('其中',fst_cty_01,'、',sec_cty_01,'、',thr_cty_01,'实名制登记率最低，分别为',fst_cty_per_01,'%、',sec_cty_per_01,'%、',thr_cty_per_01,'%。')
+	       END AS smz_cty
+	FROM
+	   (SELECT SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+       SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+	    #{shortName} as short_name ,
+       IFNULL(MAX(CASE WHEN RANK=1 THEN CMCC_PROV_PRVD_ID END ),'无' ) as prvd_id_01,
+       IFNULL(MAX(CASE WHEN RANK=1 THEN CMCC_PRVD_NM_SHORT END),'无')AS fst_cty_01,
+       IFNULL(MAX(CASE WHEN RANK=1 THEN REAL_NAME_PER END),'无')AS fst_cty_per_01,
+       IFNULL(MAX(CASE WHEN RANK=2 THEN CMCC_PRVD_NM_SHORT END),'无')AS sec_cty_01,
+       IFNULL(MAX(CASE WHEN RANK=2 THEN REAL_NAME_PER END),'无')AS sec_cty_per_01,
+       IFNULL(MAX(CASE WHEN RANK=3 THEN CMCC_PRVD_NM_SHORT END),'无')AS thr_cty_01,
+       IFNULL(MAX(CASE WHEN RANK=3 THEN REAL_NAME_PER END),'无')AS thr_cty_per_01
+	  FROM (SELECT CMCC_PROV_PRVD_ID,CMCC_PRVD_NM_SHORT, CAST((REAL_NAME_PER*100) AS DECIMAL(10,2)) AS REAL_NAME_PER,
+	   @ROWNUM := @ROWNUM+1 as RANK
+	   FROM  (SELECT CMCC_PROV_PRVD_ID,CMCC_PRVD_NM_SHORT, REAL_NAME_PER 
+	   FROM HPEAPB.SUM_SMZDJL_CTY 
+	   WHERE CMCC_PROV_PRVD_ID = #{provinceCode}
+	   AND AUD_TRM = #{currSumEndDate}
+	   ORDER BY REAL_NAME_PER ASC 
+	   LIMIT 3) T1, (SELECT @ROWNUM := 0) r) T2) T3;
+	 </select>
+		<!-- 1.1 全部存量用户实名制率 end-->
+	 
+		<!-- 1.2 全部存量物联网M2M用户实名制率 start -->
+	  <select id="hyksdjl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		   SELECT CASE WHEN short_name IS NULL THEN ''
+			 ELSE CONCAT('截止到',end_year,'年',end_month,'月之前入网的物联网M2M用户，全省实名制登记率',REAL_NAME_PER,'%，') end as smz_m2m_prvd
+from (select substr(#{currSumEndDate},1,4) as end_year,
+						 substr(#{currSumEndDate},5,2) as end_month,
+						 short_name as short_name,
+			 	     CAST(real_name_per*100 AS DECIMAL(10,2)) as real_name_per,
+			 	     SUM(1)
+		   from hpeapb.sum_hyksmzdjl_prvd
+		   where cmcc_prov_prvd_id=#{provinceCode}
+		   and aud_trm  = #{currSumEndDate})T1;
+	  </select>
+	  
+	  <select id="hyksCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	 SELECT CASE WHEN prvd_id='无' THEN CONCAT(end_year,'年',end_month,'月，',short_name,'未上报实名制数据。')
+	  WHEN prvd_id IN ('10100','10200','10300','10400') THEN ''
+       when fst_cty='无' then ''
+       when fst_cty!='无' and sec_cty='无' then CONCAT('其中',fst_cty,'实名制登记率最低，为',fst_cty_per,'%。')
+       when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then CONCAT('其中',fst_cty,'、',sec_cty,'实名制登记率最低，分别为',fst_cty_per,'%、',sec_cty_per,'%。')
+	     ELSE CONCAT('其中',fst_cty,'、',sec_cty,'、',thr_cty,'实名制登记率最低，分别为',fst_cty_per,'%、',sec_cty_per,'%、',thr_cty_per,'%。')
+	      END AS smz_m2m_cty
+      from(select SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+                  SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+	            #{shortName} as short_name ,
+	            ifnull(max(case when rank = 1 then cmcc_prov_prvd_id end),'无') as prvd_id,
+				ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end ),'无') as fst_cty,
+		        ifnull(max(case when rank = 1 then real_name_per end ),'无') as fst_cty_per,
+		        ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end ),'无') as sec_cty,
+		        ifnull(max(case when rank = 2 then real_name_per end ),'无') as sec_cty_per,
+		        ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end ),'无') as thr_cty,
+		        ifnull(max(case when rank = 3 then real_name_per end ),'无') as thr_cty_per
+		    from
+		  (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,real_name_per,@rownum := @rownum+1 as rank
+		  from
+		   (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,CAST((real_name_per*100) AS DECIMAL(10,2)) AS real_name_per          
+		   from hpeapb.sum_hyksmzdjl_cty
+		   where cmcc_prov_prvd_id=#{provinceCode}
+		    and aud_trm = #{currSumEndDate}
+		   order by 3 asc
+		   limit 3) T1,(select @rownum := 0) r) T2) T3;
+
+	 	</select>
+		<!-- 1.2 全部存量物联网M2M用户实名制率 end -->
+    <!-- 1 实名制登记率 end --> 		
+	
+	<!-- 2 有价卡合规性 start-->
+		<!-- 2.1 批量激活分析(单时) start -->
+	 <select id="jzjhfx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN yjk_cnt IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报批量激活有价卡的数据。')
+	                when yjk_cnt=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在批量激活有价卡的情况。')  
+		ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'单时批量激活有价卡',format(yjk_cnt,0),'张，涉及金额',format(amt_sum,2),'元。其中营销案赠送有价卡',format(zs_yjk_cnt,0),'张，金额',format(zs_amt_sum,2),'元。')
+	       END AS pljh_01
+        FROM
+       (select substring(#{currSumBeginDate},1,4) as bg_year,
+		  substring(#{currSumBeginDate},5,2) as bg_month,
+		  substring(#{currSumEndDate},1,4) as end_year,
+		  substring(#{currSumEndDate},5,2) as end_month,
+		  #{shortName} as short_name ,
+		  sum(yjk_cnt) as yjk_cnt,
+		  sum(amt_sum) as amt_sum,
+		  sum(zs_yjk_cnt) as zs_yjk_cnt,
+		  sum(zs_amt_sum) as zs_amt_sum
+		  from hpeapb.sum_yjk_2001_prvd
+		  where cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate})T1;
+		 </select>
+		 
+		 <select id="pljhqs" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		 SELECT CASE WHEN prvd_id_01='无' THEN ''
+		     WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+		     when fst_opr='无' then ''
+             when fst_opr!='无' and sec_opr='无' then CONCAT('参与批量激活有价卡的操作员：',fst_opr,'激活有价卡',format(fst_opr_num,0),'张。')
+             when fst_opr!='无' and sec_opr!='无' and thr_opr='无' then  CONCAT('参与批量激活有价卡的操作员：',fst_opr,'激活有价卡',format(fst_opr_num,0),'张，',sec_opr,'激活有价卡',format(sec_opr_num,0),'张。')
+	         ELSE CONCAT('批量激活数量排名前三的操作员:',fst_opr,'、',sec_opr,'、',thr_opr,',分别激活有价卡',format(fst_opr_num,0),'张、',format(sec_opr_num,0),'张、',format(thr_opr_num,0),'张。')
+	         END AS pljh_cty
+         FROM
+        (select 
+            IFNULL( CMCC_PROV_PRVD_ID ,'无' ) as prvd_id_01,
+            ifnull(max(case when rank = 1 then nm end),"无" )as fst_opr,
+		    ifnull(max(case when rank = 1 then sum_yjk_cnt end),0)as fst_opr_num,
+		    ifnull(max(case when rank = 2 then nm end),"无" ) as sec_opr,
+		    ifnull(max(case when rank = 2 then sum_yjk_cnt end),0)as sec_opr_num,
+		    ifnull(max(case when rank = 3 then nm end),"无" )as thr_opr,
+		    ifnull(max(case when rank = 3 then sum_yjk_cnt end),0)as thr_opr_num
+		    from
+		    (select cmcc_prov_prvd_id,cmcc_prov_id,opr_id,if(nm='?',opr_id,nm)nm,if(sum_yjk_cnt='?',0,sum_yjk_cnt)sum_yjk_cnt,@rownum := @rownum+1 as rank
+		  from
+		    (select cmcc_prov_prvd_id,cmcc_prov_id,opr_id,nm,sum(yjk_cnt) sum_yjk_cnt              
+		    from hpeapb.sum_yjk_2001_czy
+		    where cmcc_prov_prvd_id=#{provinceCode}
+		    and aud_trm &gt;=#{currSumBeginDate}
+		    and aud_trm &lt;=#{currSumEndDate}
+            and (opr_id is not null or opr_id !='')
+		    group by 1,2,3,4
+		    order by 5 desc
+		     limit 3) T1,(select @rownum := 0) r) T2) T3;   
+	 </select>
+		<!-- 2.1 批量激活分析(单时) start -->
+	 
+		<!-- 2.2 批量激活分析(单秒) begin -->
+		 <select id="yjk2001SumYjk" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		   SELECT CASE WHEN yjk_cnt_02 IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报有价卡激活的数据。')
+	                   when yjk_cnt_02=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在批量激活有价卡的情况。')  
+		ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'单秒批量激活有价卡',format(yjk_cnt_02,0),'张，涉及金额',format(amt_sum_02,2),'元。其中营销案赠送有价卡',format(zs_yjk_cnt_02,0),'张，金额',format(zs_amt_sum_02,2),'元。')
+	       END AS pljh_ss_01
+        FROM
+       (select substring(#{currSumBeginDate},1,4) as bg_year,
+		  substring(#{currSumBeginDate},5,2) as bg_month,
+		  substring(#{currSumEndDate},1,4) as end_year,
+		  substring(#{currSumEndDate},5,2) as end_month,
+		  #{shortName} as short_name ,
+		  sum(yjk_cnt) as yjk_cnt_02,
+		  sum(amt_sum) as amt_sum_02,
+		  sum(zs_yjk_cnt) as zs_yjk_cnt_02,
+		  sum(zs_amt_sum) as zs_amt_sum_02
+		  from hpeapb.SUM_YJK_2001_PRVD_SS
+		  where cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate})T1;
+		 </select>
+
+		  <select id="yjk2001Top3Opr" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		   SELECT CASE WHEN prvd_id_01='无' THEN ''
+		     WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+			 when fst_opr_02='无' then ''
+             when fst_opr_02!='无' and sec_opr_02='无' then CONCAT('参与批量激活有价卡的操作员：',fst_opr_02,'激活有价卡',format(fst_opr_num_02,0),'张。')
+             when fst_opr_02!='无' and sec_opr_02!='无' and thr_opr_02='无' then  CONCAT('参与批量激活有价卡的操作员：',fst_opr_02,'激活有价卡',format(fst_opr_num_02,0),'张，',sec_opr_02,'激活有价卡',format(sec_opr_num_02,0),'张。')
+	    ELSE CONCAT('批量激活数量排名前三的操作员:',fst_opr_02,'、',sec_opr_02,'、',thr_opr_02,',分别激活有价卡',format(fst_opr_num_02,0),'张、',format(sec_opr_num_02,0),'张、',format(thr_opr_num_02,0),'张。')
+	       END AS pljh_ss_cty
+        FROM
+       (select IFNULL( CMCC_PROV_PRVD_ID ,'无' ) as prvd_id_01,
+           ifnull(max(case when rank = 1 then nm end),"无" ) as fst_opr_02,
+		   ifnull(max(case when rank = 1 then sum_yjk_cnt end),0) as fst_opr_num_02,
+		   ifnull(max(case when rank = 2 then nm end),"无" ) as sec_opr_02,
+		   ifnull(max(case when rank = 2 then sum_yjk_cnt end),0) as sec_opr_num_02,
+		   ifnull(max(case when rank = 3 then nm end),"无" ) as thr_opr_02,
+		   ifnull(max(case when rank = 3 then sum_yjk_cnt end),0) as thr_opr_num_02
+		   from
+		    (select cmcc_prov_prvd_id,opr_id,if(nm='?',opr_id,nm)nm,if(sum_yjk_cnt='?',0,sum_yjk_cnt)sum_yjk_cnt,@rownum := @rownum+1 as rank
+		  from
+		    (select cmcc_prov_prvd_id,cmcc_prov_id,opr_id,nm,sum(yjk_cnt) sum_yjk_cnt              
+		   from hpeapb.SUM_YJK_2001_CZY_SS
+		    where cmcc_prov_prvd_id=#{provinceCode}
+		    and aud_trm  &gt;= #{currSumBeginDate}
+		    and aud_trm  &lt;= #{currSumEndDate}
+		    group by 1,2,3,4
+		    order by 5 desc
+		     limit 3) T1,(select @rownum := 0) r) T2) T3;
+		  </select>
+		 <!-- 2.2 批量激活分析(单秒) end -->
+		 
+		 <!-- 2.3 有价卡充值对象集中度分析 start -->
+	 <select id="yccz" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  SELECT CASE WHEN msisdn_cnt IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报有价卡充值的数据。')
+	                  when msisdn_cnt=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在单月内对同一个号码充值的有价卡数量大于50张或者金额大于5000元的情况。') 
+		ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'异常充值用户（单月内对同一号码充值的有价卡数量大于50张或者金额大于5000元）',format(msisdn_cnt,0),'个，共',
+		    format(tol_cnt_yccz,0),'张有价卡，金额共',format(tol_amt,2),'元。')
+	       END AS yccz_01
+        FROM
+       (select substring(#{currSumBeginDate},1,4) as bg_year,
+		   substring(#{currSumBeginDate},5,2) as bg_month,
+		   substring(#{currSumEndDate},1,4) as end_year,
+		   substring(#{currSumEndDate},5,2) as end_month,
+		   #{shortName} as short_name,
+		   sum(msisdn_cnt) as msisdn_cnt,
+		   sum(cnt) as tol_cnt_yccz,
+           sum(tol_amt) as tol_amt
+		  from hpeapb.SUM_YJK_2002_PRVD
+		    where  cmcc_prov_prvd_id=#{provinceCode}
+		    and  Aud_trm &gt;= #{currSumBeginDate}
+		    and  Aud_trm &lt;= #{currSumEndDate})T1;
+	 </select>
+	 
+	 <select id="dcczqs" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN prvd_id_01="无" THEN ''
+		     WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+		     when fst_cty_yccz='无' then ''
+             when fst_cty_yccz!='无' and sec_cty_yccz='无' then CONCAT('涉及异常充值有价卡的操作地市：',fst_cty_yccz,'。')
+             when fst_cty_yccz!='无' and sec_cty_yccz!='无' and thr_cty_yccz='无' then  CONCAT('涉及异常充值有价卡的操作地市：',fst_cty_yccz,'、',sec_cty_yccz,'。')
+		    ELSE CONCAT('其中异常充值有价卡金额排名前三的操作地市：',fst_cty_yccz,'、',sec_cty_yccz,'、',thr_cty_yccz,'，涉及',format(tol_cnt_num,0),'张有价卡，金额',format(tol_sum_amt,2),'元。')
+		       END AS yjk_yccz_cty
+		 from
+		  (select 
+		   IFNULL(MAX(CASE WHEN RANK=1 THEN CMCC_PROV_PRVD_ID END ),"无" ) as prvd_id_01,
+           ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end),"无") as fst_cty_yccz,
+		    ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end),"无") as sec_cty_yccz,
+		    ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end),"无") as thr_cty_yccz,
+		    ifnull(sum(sum_amt),0) as tol_sum_amt,
+		    ifnull(sum(cnt_sum),0) as tol_cnt_num
+		   from 
+		    (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum_amt, cnt_sum, 
+		    @rownum := @rownum+1 as rank
+		   from 
+		   (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(cnt) cnt_sum,sum(tol_amt) sum_amt
+		   from  hpeapb.SUM_YJK_2002
+		   where  cmcc_prov_prvd_id=#{provinceCode}
+		    and  Aud_trm &gt;= #{currSumBeginDate}
+		    and Aud_trm &lt;= #{currSumEndDate} 
+		    group by 1,2
+		    order by sum_amt desc
+		    limit 3) T1, (select @rownum := 0) r) T2) T3;
+	 </select>
+		<!-- 2.3 有价卡充值对象集中度分析 end -->
+	 
+	 
+		<!-- 2.4 有价卡重复使用 start -->
+	 <select id="yjkwgcfsy" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	 SELECT CASE WHEN infraction_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报有价卡重复使用的数据。')
+	             when infraction_num=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在有价卡违规重复使用的情况。') 
+	 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'有价卡违规重复使用',format(infraction_num,0),'张。')
+	       END AS cfsy_01
+        FROM
+       (select  substring(#{currSumBeginDate},1,4) as bg_year,
+	  substring(#{currSumEndDate},5,2) as bg_month,
+	  substring(#{currSumEndDate},1,4) as end_year,
+	  substring(#{currSumEndDate},5,2) as end_month,
+	  #{shortName}  as SHORT_NAME,
+	  sum(infraction_num) as infraction_num
+	  from hpeapb.SUM_YJK_2003_PRVD
+	  where  cmcc_prov_prvd_id=#{provinceCode}
+	   and  Aud_trm &gt;= #{currSumBeginDate}
+	   and  Aud_trm &lt;= #{currSumEndDate})T1;
+	 </select>
+	 
+	 <select id="wgpmqs" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN prvd_id_01='无' THEN ''
+			 WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN '' 
+			 when fst_cty='无' then ''
+             when fst_cty!='无' and sec_cty='无' then CONCAT('涉及有价卡违规重复使用的地市：',fst_cty,'。')
+             when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及有价卡违规重复使用的地市：',fst_cty,'、',sec_cty,'。')
+		    ELSE CONCAT('其中违规排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及有价卡',format(tol_num,0),'张。')
+	       END AS yjk_cfsy_cty
+	FROM
+	 (select
+    ifnull(cmcc_prov_prvd_id,"无") prvd_id_01,
+    ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end),"无") as fst_cty,
+	  ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end),"无") as sec_cty,
+	  ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end),"无") as thr_cty,
+	  sum(weigui_num) as tol_num
+	 from 
+	  (select cmcc_prov_prvd_id,cmcc_prvd_nm_short, weigui_num, @rownum := @rownum+1 as rank
+	  from 
+	   (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(infraction_num) weigui_num
+	    from  hpeapb.SUM_YJK_2003
+	    where cmcc_prov_prvd_id=#{provinceCode}
+	    and  Aud_trm &gt;= #{currSumBeginDate}
+	    and  Aud_trm &lt;= #{currSumEndDate} 
+		and infraction_num >0
+      group by 1,2
+	   order by 3 desc 
+	  limit 3) T1, (select @rownum := 0) r) T2) T3;
+	 </select>
+		<!-- 2.4 有价卡重复使用 start -->
+	 
+		<!-- 2.5 有价卡跨省使用 start-->
+		   <select id="yjk2004Sum" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		   SELECT CASE WHEN tol_cnt_prvd IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',CMCC_prov_prvd_name,'未上报有价卡跨省使用的数据。')
+	                   when tol_cnt_prvd=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',CMCC_prov_prvd_name,'不存在有价卡异地使用的情况。') 
+	      ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',CMCC_prov_prvd_name,'有价卡被异地使用共',format(tol_cnt_prvd,0),'张，')
+	       END AS kssy_01
+        FROM
+       (select  substring(#{currSumBeginDate},1,4) as bg_year,
+		  substring(#{currSumBeginDate},5,2) as bg_month,
+		  substring(#{currSumEndDate},1,4) as end_year,
+		  substring(#{currSumEndDate},5,2) as end_month,
+		  #{shortName}  as CMCC_prov_prvd_name,
+		  sum(tol_cnt) as tol_cnt_prvd            
+		 from  hpeapb.SUM_YJK_2004
+		 where  cmcc_prov_prvd_id=#{provinceCode}
+		  and  Aud_trm &gt;= #{currSumBeginDate}
+		  and  Aud_trm &lt;= #{currSumEndDate})T1;
+		  </select>
+		  <select id="yjk2004Top3Prvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		     SELECT CASE WHEN prvd_id_01="无" THEN ''
+			  when fst_prvd='无' then ''
+              when fst_prvd!='无' and sec_prvd='无' then CONCAT('涉及有价卡异地使用的省份：',fst_prvd,'。')
+              when fst_prvd!='无' and sec_prvd!='无' and thr_prvd='无' then  CONCAT('涉及有价卡异地使用的省份：',fst_prvd,'、',sec_prvd,'。')
+	    ELSE CONCAT('排名前三的省份：',fst_prvd,'、',sec_prvd,'、',thr_prvd,'，涉及有价卡',format(tol_cnt,0),'张。')
+	       END AS kssy_02
+	    FROM
+	    (select 
+             ifnull(cmcc_prov_prvd_id,"无") prvd_id_01,
+             ifnull(max(case when rank = 1 then msisdn_prvd_name end),"无") as fst_prvd,
+			 ifnull(max(case when rank = 2 then msisdn_prvd_name end),"无") as sec_prvd,
+			 ifnull(max(case when rank = 3 then msisdn_prvd_name end),"无") as thr_prvd,
+			 ifnull(sum(tol_cnt),0) as tol_cnt
+			 from
+			 (select cmcc_prov_prvd_id,msisdn_prvd_name,tol_cnt, @rownum := @rownum+1 as rank
+			 from
+			 (select cmcc_prov_prvd_id,msisdn_prvd_name,sum(tol_cnt) tol_cnt
+			  from  hpeapb.SUM_YJK_2004
+			  where  cmcc_prov_prvd_id =#{provinceCode}
+			  and  Aud_trm &gt;= #{currSumBeginDate}
+			  and  Aud_trm &lt;= #{currSumEndDate}
+			 group by 1,2
+			 order by 3 desc
+			 limit 3) T1, (select @rownum := 0) r) T2) T3;
+		    </select>
+		<!-- 2.5 有价卡跨省使用 start-->
+	<!-- 2 有价卡合规性 end-->
+		
+	<!-- 3 个人客户欠费 start -->
+	<select id="grqfone" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN sum_dbt_amt = 0  THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报个人客户欠费数据。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'发生个人客户欠费',format(sum_dbt_amt,2),'元。')END AS GRAF_1
+FROM (SELECT SUBSTRING(#{currSumBeginDate},1,4) AS bg_year,
+		   SUBSTRING(#{currSumBeginDate},5,2) AS bg_month, 
+		   SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+		   SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+		    #{shortName}  AS short_name,
+		   ifnull(SUM(sum_dbt_amt),0) AS sum_dbt_amt
+FROM HPEAPB.sum_grqf_3001_prvd_prd
+		WHERE CMCC_PROV_PRVD_ID= #{provinceCode}
+		AND ACCT_PRD_YTM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		AND AUD_TRM= #{currSumEndDate})T1;
+	</select>
+	
+	<select id="grqftwo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN short_name_1 IS NULL THEN ''
+			 ELSE CONCAT('截止至',end_year_1,'年',end_month_1,'月，个人客户欠费超1万元的账户有',format(acct_num_prvd,0),'个，涉及',format(dbt_amt_prvd,2),'元。')END AS GRAF_2
+FROM (SELECT SUBSTRING(#{currSumEndDate},1,4) AS end_year_1,
+       SUBSTRING(#{currSumEndDate},5,2) AS end_month_1,
+       short_name as SHORT_NAME_1,
+    sum(acct_num) as acct_num_prvd,
+    sum(dbt_amt) as dbt_amt_prvd
+	FROM HPEAPB.sum_grqf_3001_dbt_amt 
+	WHERE CMCC_PROV_PRVD_ID= #{provinceCode}
+	AND dbt_amt_arr='10000元以上'
+	AND AUD_TRM= #{currSumEndDate})T1;
+	</select>
+	
+	<select id="grqffour" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	select CASE WHEN dbt_amt_12 IS NULL THEN ''
+			 ELSE CONCAT('个人客户欠费账龄达12个月以上的个人客户欠费',format(dbt_amt_12,2),'元，涉及账户',format(acct_num_12,0),'个。')END AS GRQF_4
+from (SELECT sum(dbt_amt) as dbt_amt_12,
+    sum(acct_num) as acct_num_12
+	FROM HPEAPB.sum_grqf_3001_aging 
+	WHERE CMCC_PROV_PRVD_ID= #{provinceCode} 
+	AND aging > 12
+	AND AUD_TRM= #{currSumEndDate})T1;
+	</select>
+	<!-- 3 个人客户欠费 end -->
+	
+    <!-- 4 集团客户欠费 start -->
+	<select id="jtqfone" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select CASE WHEN sum_dbt_amt IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报集团客户欠费数据。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'发生集团客户欠费',format(sum_dbt_amt,2),'元。')END AS JTQF1
+from (SELECT SUBSTRING(#{currSumBeginDate},1,4) AS bg_year,
+	       SUBSTRING(#{currSumBeginDate},5,2) AS bg_month, 
+	       SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+	       SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+	       #{shortName} as short_name,
+	       SUM(sum_dbt_amt) AS sum_dbt_amt
+			FROM HPEAPB.sum_jtqf_4001_prvd_prd
+		WHERE CMCC_PROV_PRVD_ID=#{provinceCode} 
+		AND ACCT_PRD_YTM BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		AND AUD_TRM= #{currSumEndDate})T1;
+	</select>
+	
+	<select id="jtqftwo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select CASE WHEN acct_num_prvd IS NULL THEN ''
+			 ELSE CONCAT('截止至',end_year_1,'年',end_month_1,'月，集团客户欠费超10万元的账户有',format(acct_num_prvd,0),'个，涉及',format(dbt_amt_prvd,2),'元。')END AS JTQF2
+from (SELECT SUBSTRING(#{currSumEndDate},1,4) AS end_year_1,
+	       SUBSTRING(#{currSumEndDate},5,2) AS end_month_1,
+		    sum(acct_num) as acct_num_prvd,
+		    sum(dbt_amt) as dbt_amt_prvd
+		FROM HPEAPB.sum_jtqf_4001_dbt_amt 
+		WHERE CMCC_PROV_PRVD_ID=#{provinceCode}  
+		AND dbt_amt_arr='100000元以上'
+		AND AUD_TRM= #{currSumEndDate})T1;
+	</select>
+	
+	<select id="jtqffour" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select CASE WHEN dbt_amt_12 IS NULL THEN ''
+			 ELSE CONCAT('集团客户欠费账龄达18个月以上的集团客户欠费',format(dbt_amt_12,2),'元，涉及账户',format(acct_num_12,0),'个。')END AS JTQF4
+from (SELECT sum(dbt_amt) as dbt_amt_12,
+	    sum(acct_num) as acct_num_12
+		FROM HPEAPB.sum_jtqf_4001_aging 
+		WHERE CMCC_PROV_PRVD_ID=#{provinceCode} 
+		AND aging >18
+		AND AUD_TRM=#{currSumEndDate})T1;
+	</select>
+	<!-- 4 集团客户欠费 end -->
+	
+	<!-- 5 终端违规销售 start -->
+		<!-- 5.1 养机套利 start -->	
+	<select id="yjtl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN errNum IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报疑似养机的数据。')
+	              when errNum=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在疑似养机的情况。') 
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似养机终端共',format(errNum,0),'台，套利金额',
+										format(errAmt,2),'元,全国排名第',rank,'名。') END AS yj_prvd
+FROM 
+(SELECT substring(#{currSumBeginDate},1,4) AS bg_year,
+	      substring(#{currSumBeginDate},5,2) AS bg_month,
+	      substring(#{currSumEndDate},1,4) AS end_year,
+	      substring(#{currSumEndDate},5,2) AS end_month,
+	      #{shortName} as short_name,
+		  IFNULL(errAmt,0) AS errAmt,
+		  IFNULL(errNum,0) AS errNum,
+		  IFNULL(rank,0) AS rank,
+		  SUM(1)
+FROM
+	    (SELECT cmcc_prov_prvd_id,short_name,errAmt,errNum,@rownum:=@rownum+1 AS rank
+	     FROM 
+	         (SELECT cmcc_prov_prvd_id,short_name,sum(errAmt) AS errAmt,sum(errNum) AS errNum
+									 FROM hpeapb.Sum_zdwgxs_5001_prvd
+									 WHERE aud_trm  BETWEEN #{currSumBeginDate} 
+									 AND #{currSumEndDate} 
+									 GROUP BY 1,2
+									 ORDER BY errNum DESC,errAmt DESC,cmcc_prov_prvd_id ASC) T1,(SELECT @rownum :=0) r) T2
+WHERE cmcc_prov_prvd_id = #{provinceCode}) T3 ; 
+	 </select>
+	 
+	 <select id="yjtlqsds" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN cmcc_prov_prvd_id is null THEN ''
+			    WHEN cmcc_prov_prvd_id in(10100,10200,10300,10400) THEN ''
+			    when fst_cty_yj='无' then ''
+                when fst_cty_yj!='无' and sec_cty_yj='无' then CONCAT('涉及疑似终端养机违规的地市：',fst_cty_yj,'。')
+                when fst_cty_yj!='无' and sec_cty_yj!='无' and thr_cty_yj='无' then  CONCAT('涉及疑似终端养机违规的地市：',fst_cty_yj,'、',sec_cty_yj,'。')
+	    ELSE CONCAT('疑似终端养机违规比例排名前三的地市：',fst_cty_yj,'、',sec_cty_yj,'、',thr_cty_yj,'，疑似养机数量共',IFNULL(tol_num_yj,0),'台，套利金额',IFNULL(tol_amt_yj,0),'元。')
+	       END AS yj_cty
+	FROM
+	  (SELECT cmcc_prov_prvd_id,
+			  ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty_yj,
+	          ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty_yj,
+	          ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty_yj,
+	            SUM(errAmt) AS tol_amt_yj,
+	            SUM(errNum) AS tol_num_yj
+	       FROM
+	              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,errAmt,errNum, @rownum := @rownum+1 as rank
+	       FROM
+	              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(errAmt) AS errAmt,sum(errNum) AS errNum,sum(tolNum) AS tolNum,
+									CASE WHEN SUM(tolNum) IS NULL OR SUM(tolNum) = 0 OR SUM(errNum) IS NULL OR SUM(errNum) = 0 THEN 0
+									ELSE SUM(errNum)/SUM(tolNum) END AS numPer
+	       FROM hpeapb.sum_zdwgxs_5001_cty
+	       WHERE cmcc_prov_prvd_id = #{provinceCode}
+	       AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	       GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+	       ORDER BY numPer DESC,errNum DESC,errAmt DESC,cmcc_prov_id ASC
+	       LIMIT 3) T1, (select @rownum := 0) r) T2
+) T3;
+	 </select>
+		<!-- 5.1 养机套利 end -->
+	 
+		<!-- 5.2 窜货套利 start -->
+ <select id="chtl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN errNum IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报疑似窜货的数据。')
+	              when errNum=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在疑似窜货的情况。') 
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似窜货终端共',format(errNum,0),'台，套利金额',
+										format(errAmt,2),'元,全国排名第',rank,'名。') END AS ch_prvd
+FROM
+(SELECT substring(#{currSumBeginDate},1,4) AS bg_year,
+	      substring(#{currSumBeginDate},5,2) AS bg_month,
+	      substring(#{currSumEndDate},1,4) AS end_year,
+	      substring(#{currSumEndDate},5,2) AS end_month,
+	      #{shortName} as short_name,
+			  IFNULL(errAmt,0) AS errAmt,
+			  IFNULL(errNum,0) AS errNum,
+			  IFNULL(rank,0) AS rank,
+			  SUM(1)
+FROM
+	    (SELECT cmcc_prov_prvd_id,short_name,errAmt,errNum,@rownum:=@rownum+1 AS rank
+	     FROM 
+	         (SELECT cmcc_prov_prvd_id,short_name,sum(errAmt) AS errAmt,sum(errNum) AS errNum
+									 FROM hpeapb.Sum_zdwgxs_5002_prvd
+									 WHERE aud_trm  BETWEEN #{currSumBeginDate} 
+									 AND #{currSumEndDate} 
+									 GROUP BY 1,2
+									 ORDER BY errNum DESC,errAmt DESC,cmcc_prov_prvd_id ASC) T1,(SELECT @rownum :=0) r) T2
+WHERE cmcc_prov_prvd_id = #{provinceCode}) T3 ; 
+	 </select>
+	 
+	<select id="chtlqsds" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN cmcc_prov_prvd_id is null THEN ''
+			 WHEN cmcc_prov_prvd_id in(10100,10200,10300,10400) THEN '' 
+			 when fst_cty='无' then ''
+             when fst_cty!='无' and sec_cty='无' then CONCAT('涉及疑似终端窜货违规的地市：',fst_cty,'。')
+             when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及疑似终端窜货违规的地市：',fst_cty,'、',sec_cty,'。')
+	     ELSE CONCAT('疑似终端窜货违规比例排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，疑似窜货数量共',IFNULL(tol_num,0),'台，套利金额',IFNULL(tol_amt,0),'元。')
+	       END AS ch_cty
+	FROM
+	  (SELECT cmcc_prov_prvd_id,
+			ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty,
+	        ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty,
+	        ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty,
+	        SUM(errAmt) AS tol_amt,
+	        SUM(errNum) AS tol_num
+	        FROM
+	              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,errAmt,errNum,@rownum := @rownum+1 AS rank
+	        FROM 
+	              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(errAmt) AS errAmt,sum(errNum) AS errNum,sum(tolNum) AS tolNum,
+									CASE WHEN SUM(tolNum) IS NULL OR SUM(tolNum) = 0 OR SUM(errNum) IS NULL OR SUM(errNum) = 0 THEN 0
+									ELSE SUM(errNum)/SUM(tolNum) END AS numPer
+	        FROM hpeapb.sum_zdwgxs_5002_cty
+	        WHERE cmcc_prov_prvd_id = #{provinceCode}
+	        AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	        GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+	        ORDER BY numPer DESC,errNum DESC,errAmt DESC,cmcc_prov_id ASC
+	        LIMIT 3) T1, (select @rownum := 0) r) T2) T3;
+	 </select>
+		<!-- 5.2 窜货套利 end -->
+	<!-- 5 终端违规销售 end -->
+	
+	<!-- 6 终端服务费超标准支付 start -->
+		<!-- 6.1 终端裸机服务费违规 start -->
+	<select id="zdlj" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	   SELECT CASE WHEN errNum IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报终端裸机服务费的数据。')
+	               when errNum=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在支付终端裸机服务费高于规定的情况。') 
+			  else CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,
+																	  '存在支付终端裸机服务费高于规定情况，共',format(errNum,0),'台终端，不符合总部',
+																		'《关于规范社会渠道终端销售酬金标准及加强资源支持和管理的通知》'
+																		'（市通[2012]364号）中“补贴比例不超过终端零售指导价的10%，对于重点机型可上浮至不超过15%”的规定。')
+END AS zdlj_prvd
+FROM 
+(SELECT substring(#{currSumBeginDate},1,4) as bg_year,
+	    substring(#{currSumBeginDate},5,2) as bg_month,
+	    substring(#{currSumEndDate},1,4) as end_year,
+	    substring(#{currSumEndDate},5,2) as end_month,
+	    #{shortName} as short_name,
+	    sum(errNum) AS errNum
+	FROM hpeapb.Sum_zdfwfhgx_6001_prvd
+	WHERE cmcc_prov_prvd_id = #{provinceCode}
+	AND aud_trm  BETWEEN #{currSumBeginDate} AND #{currSumEndDate}) T1;
+	  </select>
+	 
+	 <select id="zdljqsds" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN cmcc_prov_prvd_id is null THEN ''
+			 WHEN cmcc_prov_prvd_id in(10100,10200,10300,10400) THEN '' 
+			 when fst_cty_lj='无' then ''
+             when fst_cty_lj!='无' and sec_cty_lj='无' then CONCAT('涉及终端裸机服务费违规的地市：',fst_cty_lj,'。')
+             when fst_cty_lj!='无' and sec_cty_lj!='无' and thr_cty_lj='无' then  CONCAT('涉及终端裸机服务费违规的地市：',fst_cty_lj,'、',sec_cty_lj,'。')
+	    ELSE CONCAT('违规数量排名前三的地市：',fst_cty_lj,'、',sec_cty_lj,'、',thr_cty_lj,'，涉及终端',format(tol_num_lj,0),'台，结酬金额',format(tol_amt_lj,2),'元。')
+	       END AS zdlj_cty
+	FROM
+	   (SELECT  cmcc_prov_prvd_id,
+				ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty_lj,
+	            ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty_lj,
+	            ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty_lj,
+	            ifnull(SUM(errAmt),0) AS tol_amt_lj,
+	            ifnull(SUM(errNum),0) AS tol_num_lj
+	    FROM 
+	          (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short, errAmt, errNum, @rownum := @rownum+1 as rank
+	    FROM 
+	          (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(err_pay_amt) AS errAmt,sum(errNum) AS errNum
+	    FROM hpeapb.Sum_zdfwfhgx_6001_cty
+	    WHERE cmcc_prov_prvd_id = #{provinceCode}
+	    AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+		and errNum>0
+	    GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+	    ORDER BY errNum DESC,errAmt DESC,cmcc_prov_id ASC LIMIT 3) T1, (select @rownum := 0) r) T2) T3;
+	  </select>
+		<!-- 6.1 终端裸机服务费违规 end -->
+	  
+		<!-- 6.2 终端合约计划服务费违规 start -->
+		  <select id="zdhy" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	   SELECT CASE WHEN errNum IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报终端合约计划服务费的数据。')
+	               when errNum=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在支付终端合约计划服务费高于规定的情况。')   
+			       else CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'存在支付终端合约计划服务费高于规定情况，共',format(errNum,0),
+										'台终端，不符合总部《关于规范社会渠道终端销售酬金标准及加强资源支持和管理的通知》',
+										'（市通[2012]364号）中“购机送话费模式比例不超过月最低消费的240%、且每月支付额不超月最低消费的10%”的规定。') 
+			 END AS zdhy_prvd
+FROM 
+(SELECT substring(#{currSumBeginDate},1,4) as bg_year,
+	    substring(#{currSumBeginDate},5,2) as bg_month,
+	    substring(#{currSumEndDate},1,4) as end_year,
+	    substring(#{currSumEndDate},5,2) as end_month,
+		cmcc_prov_prvd_id,
+	    #{shortName} as short_name,
+	    IFNULL(sum(errNum),0) AS errNum
+FROM hpeapb.Sum_zdfwfhgx_6002_prvd
+WHERE cmcc_prov_prvd_id = #{provinceCode}
+AND aud_trm  BETWEEN #{currSumBeginDate} AND #{currSumEndDate}) T1
+	  </select>
+	 
+	 <select id="zdhyqsds" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN cmcc_prov_prvd_id is null THEN ''
+			 WHEN cmcc_prov_prvd_id in(10100,10200,10300,10400) THEN '' 
+			 when fst_cty='无' then ''
+             when fst_cty!='无' and sec_cty='无' then CONCAT('涉及终端合约计划服务费违规的地市：',fst_cty,'。')
+             when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及终端合约计划服务费违规的地市：',fst_cty,'、',sec_cty,'。')
+	    ELSE CONCAT('违规数量排名前三的地市：',IFNULL(fst_cty,'无'),'、',IFNULL(sec_cty,'无'),'、',IFNULL(thr_cty,'无'),'，涉及终端',format(tol_num,0),'台，结酬金额',format(tol_amt,2),'元。')
+	       END AS hy_cty
+	FROM
+	   (SELECT cmcc_prov_prvd_id,
+				MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END) AS fst_cty,
+	                   MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END) AS sec_cty,
+	                   MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END) AS thr_cty,
+	                   ifnull(SUM(errAmt),0) AS tol_amt,
+	                   ifnull(SUM(errNum),0) AS tol_num
+	             FROM 
+	                   (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short, errAmt, errNum, @rownum := @rownum+1 as rank
+	             FROM 
+	                   (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(err_pay_amt) AS errAmt,sum(errNum) AS errNum
+	             FROM hpeapb.Sum_zdfwfhgx_6002_cty
+	             WHERE cmcc_prov_prvd_id = #{provinceCode}
+	             AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+				 and errNum>0
+	             GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+	             ORDER BY errNum DESC,errAmt DESC,cmcc_prov_id ASC LIMIT 3) T1, (select @rownum := 0) r) T2) T3;
+	  </select>
+		<!-- 6.2 终端合约计划服务费违规 end -->
+	<!-- 6 终端服务费超标准支付 end -->
+	
+	<!-- 7 终端补贴合规性 start -->	
+		<!-- 7.1 终端综合补贴率 start -->
+<select id="zhbtl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select CASE WHEN COST_NUM_PRVD IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报渠道合约终端销售的数据。')
+	   when COST_NUM_PRVD=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在终端类营销案的综合补贴率超过50%的情况。')  
+	 ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'终端类营销案的综合补贴率超过50%的终端',format(IMEI_NUM_PRVD,0),'台，补贴金额',format(COST_NUM_PRVD,2),'元。')END AS zhbt1
+from (SELECT SUBSTRING(#{currSumBeginDate},1,4) AS bg_year,
+	   SUBSTRING(#{currSumBeginDate},5,2) AS bg_month,
+	   SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+	   SUBSTRING(#{currSumEndDate},5,2) AS end_month, 
+	   SUM(weigui_IMEI_num) AS IMEI_NUM_PRVD,
+	   #{shortName} as SHORT_NAME,
+	   SUM(tol_allow_cost) AS COST_NUM_PRVD 
+FROM HPEAPB.SUM_OFFER_ZHBTL_7001_PRVD
+WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+AND AUD_TRM &lt;= #{currSumEndDate}
+AND AUD_TRM &gt;= #{currSumBeginDate})T1;
+</select>
+
+<select id="zhbtlCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN PRVD_ID='无' THEN ''
+            WHEN PRVD_ID IN ('10100','10200','10300','10400') THEN ''
+			when fst_cty_zhbt='无' then ''
+            when fst_cty_zhbt!='无' and sec_cty_zhbt='无' then CONCAT('涉及综合补贴率违规的地市：',fst_cty_zhbt,'。')
+            when fst_cty_zhbt!='无' and sec_cty_zhbt!='无' and thr_cty_zhbt='无' then  CONCAT('涉及综合补贴率违规的地市：',fst_cty_zhbt,'、',sec_cty_zhbt,'。')
+	          ELSE CONCAT('补贴金额排名前三的地市：',fst_cty_zhbt,'、',sec_cty_zhbt,'、',thr_cty_zhbt,'，涉及终端',format(IMEI_NUM_CTY,0),'台，补贴金额',format(COST_NUM_CTY,2),'元。')
+	          END AS zdbt2
+FROM(SELECT   IFNULL(MAX(CASE WHEN RANK=1 THEN CMCC_PROV_PRVD_ID END),'无')AS PRVD_ID,
+			  IFNULL(MAX(CASE WHEN RANK=1 THEN CMCC_PRVD_NM_SHORT END),'无')AS fst_cty_zhbt,
+	          IFNULL(MAX(CASE WHEN RANK=2 THEN CMCC_PRVD_NM_SHORT END),'无')AS sec_cty_zhbt,
+	          IFNULL(MAX(CASE WHEN RANK=3 THEN CMCC_PRVD_NM_SHORT END),'无')AS thr_cty_zhbt,
+	          IFNULL(SUM(COST_NUM),0) AS COST_NUM_CTY,
+	          IFNULL(SUM(IMEI_NUM),0) AS IMEI_NUM_CTY
+	   FROM (
+	          SELECT CMCC_PROV_PRVD_ID,
+									 CMCC_PRVD_NM_SHORT,
+                   IMEI_NUM,
+                   COST_NUM,
+                   @ROWNUM := @ROWNUM+1 as RANK
+            FROM  (
+	                 SELECT CMCC_PROV_PRVD_ID,
+					 CMCC_prvd_nm_short,
+                          SUM(weigui_IMEI_num) AS IMEI_NUM,
+	                        SUM(tol_allow_cost) AS COST_NUM 
+	                 FROM HPEAPB.SUM_OFFER_ZHBTL_7001_CTY
+	                 WHERE CMCC_PROV_PRVD_ID = #{provinceCode}
+	                 AND AUD_TRM &lt;= #{currSumEndDate}
+	                 AND AUD_TRM &gt;= #{currSumBeginDate}
+					 and weigui_IMEI_num>0
+	                 GROUP BY CMCC_prvd_nm_short
+	                 ORDER BY COST_NUM DESC
+	                 LIMIT 3) T1, (SELECT @ROWNUM := 0) r) T2) T3;
+        </select>
+		<!-- 7.1 终端综合补贴率 end -->
+		
+		<!-- 7.2 是否严格执行终端酬金与4G流量挂钩 start -->
+	<select id="zhbtwg" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN imei_num_100 IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报终端酬金与4G流量的数据。')
+	              when imei_num_100=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在未严格执行终端酬金与4G流量挂钩的情况。')  
+	    ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'未严格执行总部规定“终端酬金与4G流量、客户价值挂钩”，低于流量100M的门槛，共涉及',format(imei_num_100,0),'台终端，违规补贴金额',format(amt_sum_100,2),'元。')
+	       END AS zdbt_01
+        FROM
+       (select substring(#{currSumBeginDate},1,4) as bg_year,
+	   substring(#{currSumBeginDate},5,2) as bg_month,
+	   substring(#{currSumEndDate},1,4) as end_year,
+	   substring(#{currSumEndDate},5,2) as end_month,
+	   #{shortName} as short_name,
+	   ifnull(sum(imei_cnt2),0) imei_num_100,
+       ifnull(sum(pay_amt),0) amt_sum_100
+	  from hpeapb.SUM_ZDBT_7002_PRVD
+	  where cmcc_prov_prvd_id= #{provinceCode}
+	   and aud_trm &gt;= #{currSumBeginDate}
+	   and aud_trm &lt;= #{currSumEndDate})T1;
+	 </select>
+	 
+	 <select id="zhbtwgCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN prvd_id_01 = "无" THEN	''
+           WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN	''
+		   when fst_cty='无' then ''
+           when fst_cty!='无' and sec_cty='无' then CONCAT('涉及违规补贴的地市：',fst_cty,'。')
+           when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及违规补贴的地市：',fst_cty,'、',sec_cty,'。')
+           ELSE	CONCAT('违规补贴金额排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及结酬金额',format(tol_amt,2),'元。'	)
+           END AS zdbt_03
+    FROM
+	  (	SELECT ifnull(cmcc_prov_prvd_id,"无") prvd_id_01,
+       ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),"无") AS fst_cty,
+	   ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),"无") AS sec_cty,
+	   ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),"无") AS thr_cty,
+	   ifnull(SUM(amt_sum),0) AS tol_amt
+	  FROM
+	   (SELECT  cmcc_prov_prvd_id,cmcc_prvd_nm_short, amt_sum, @rownum := @rownum+1 as rank
+	   FROM 
+	    (select  cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(pay_amt) amt_sum
+	    from hpeapb.SUM_ZDBT_7002
+	    where cmcc_prov_prvd_id= #{provinceCode}
+	     and aud_trm &gt;= #{currSumBeginDate}
+	     and aud_trm &lt;= #{currSumEndDate}
+	    group by 1,2
+	    order by 2 desc
+	    limit 3) T1, (select @rownum := 0) r) T2) T3;	
+	   </select>
+		<!-- 7.2 是否严格执行终端酬金与4G流量挂钩 end -->
+    <!-- 7 终端补贴合规性 end -->	
+
+	<!-- 8 卡号销售费合规性 start -->
+	  <select id="khxfhg" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN out_nbr_rwd IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报卡号销售酬金的数据。')
+	              when out_nbr_rwd=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在发放卡号销售酬金的情况。')  
+	    ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似违反总部《关于2015年渠道工作的指导意见》（市通[2015]77号）中“2015年取消新增放号类酬金”的规定，发放卡号销售酬金',format(out_nbr_rwd,2),'元。')
+	       END AS khff_01
+        FROM
+       (select substring(#{currSumBeginDate},1,4) as bg_year,
+	   substring(#{currSumBeginDate},5,2) as bg_month,
+	   substring(#{currSumEndDate},1,4) as end_year,
+	   substring(#{currSumEndDate},5,2) as end_month,
+	   #{shortName} as short_name,
+	   sum(out_nbr_rwd) as out_nbr_rwd
+	  from  hpeapb.SUM_KHFF_PRVD
+	  where cmcc_prov_prvd_id = #{provinceCode}
+	   and aud_trm &gt;= #{currSumBeginDate}
+	   and aud_trm &lt;= #{currSumEndDate})T1;
+	 </select>
+	 
+	 <select id="khxfhgCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN prvd_id_01="无" THEN ''
+	      WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+		  when fst_cty='无' then ''
+          when fst_cty!='无' and sec_cty='无' then CONCAT('涉及卡号销售酬金违规的地市：',fst_cty,'。')
+          when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及卡号销售酬金违规的地市：',fst_cty,'、',sec_cty,'。')
+	    ELSE CONCAT('违规排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及结酬金额',format(tol_amt,2),'元。')
+	       END AS kssy_02
+	FROM
+	   (SELECT 
+     ifnull(cmcc_prov_prvd_id,"无")  as prvd_id_01,
+     ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),"无") AS fst_cty,
+	   ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),"无") AS sec_cty,
+	   ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),"无") AS thr_cty,
+	   ifnull(SUM(out_nbr_rwd),0) AS tol_amt
+	  FROM
+	   (SELECT  cmcc_prov_prvd_id,cmcc_prvd_nm_short, out_nbr_rwd, @rownum := @rownum+1 as rank
+	   FROM 
+	   (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(out_nbr_rwd)out_nbr_rwd
+	    from  hpeapb.SUM_KHFF_CTY
+	    where  cmcc_prov_prvd_id= #{provinceCode}
+	    and  Aud_trm &gt;= #{currSumBeginDate}
+	    and Aud_trm &lt;= #{currSumEndDate} 
+	   group by 1,2
+	    order by 3 desc
+	   limit 3) T1, (select @rownum := 0) r) T2) T3;
+	 </select>
+	<!-- 8 卡号销售费合规性 end -->
+	
+	<!-- 9 积分合规性 start -->
+		<!-- 9.1 积分回馈合规性 start -->
+<select id="jfhkv" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN flag is null THEN  CONCAT(substring(#{currSumBeginDate},1,4),'年',substring(#{currSumBeginDate},5,2),'月-',substring(#{currSumEndDate},1,4),'年',substring(#{currSumEndDate},5,2),'月，',#{shortName},'未上报积分回馈的数据。')
+		ELSE flag END AS jfhkv_prvd
+		FROM 
+		(SELECT GROUP_CONCAT(CAST(flag AS CHAR) ORDER BY aud_trm SEPARATOR '\n') as flag
+		FROM
+		(SELECT aud_trm,case when ifnull(per_jfhk,0)&lt;=4 then CONCAT(bg_year,'年01月-',
+		  bg_year,'年',eg_month,'月，全省的积分回馈率都不高于4%，符合集团公司要求。')
+								when per_jfhk&gt;4 then CONCAT(short_name,'在',substring(aud_trm,1,4),'年的积分回馈率为',
+		per_jfhk,'%，高于4%，不符合集团公司”年度积分回馈率不高于4%”的管控目标。')
+       else null end as flag
+		FROM 
+		(SELECT  substring(#{currSumBeginDate},1,4) as bg_year,
+             IF(aud_trm=#{currSumEndDate},substring(#{currSumEndDate},5,2),'12') as eg_month,
+            #{shortName} as short_name,
+            aud_trm,
+            CAST(per_jfhk AS DECIMAL(10,2)) AS per_jfhk,
+            sum(1)
+		FROM hpeapb.sum_jfhk_prvd
+		WHERE cmcc_prov_prvd_id = #{provinceCode}
+		AND aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		AND (substring(aud_trm,5,2) ='12' or aud_trm = #{currSumEndDate})) T1)T2) T3;
+</select>
+		<!-- 9.1 积分回馈合规性 end -->
+		
+		<!-- 9.2 同一工号操作大量转入积分 start -->
+		<select id="dlzrjfone" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN gh_count IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'未上报积分转入的数据。')
+	                WHEN gh_count=0       THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'不存在同一工号办理同一号码大量转入积分的情况。')
+ 	           ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'存在同一工号办理同一号码大量转入积分的情况，共涉及工号',format(gh_count,0),'个、',format(jf_count,0),'积分、用户数',format(yhs_count,0),'个。')
+	       END AS yccz_01
+        FROM
+       (select substr(#{currSumBeginDate}, 1, 4) as bg_year,
+		       substr(#{currSumBeginDate}, 5, 2) as bg_month,
+		       substr(#{currSumEndDate}, 1, 4) as end_year,
+		       substr(#{currSumEndDate}, 5, 2) as end_month,
+		       #{shortName} as short_name,
+		       sum(WEIGUI_STAFF_NUM) as gh_count,
+		       sum(WEIGUI_SHIFT_VALUE) as jf_count,
+		       sum(WEIGUI_SUBS_NUM) as yhs_count
+		from HPEAPB.SUM_YCCZ_9002_PRVD
+		where CMCC_PROV_PRVD_ID = #{provinceCode}
+		and AUD_TRM &gt;= #{currSumBeginDate}
+		and AUD_TRM &lt;= #{currSumEndDate})T1;
+		</select>
+		<select id="dlzrjftwo" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN SHIFT_VALUE IS NULL THEN ''
+	    ELSE CONCAT('其中单笔最高转入积分',format(SHIFT_VALUE,0),'分。')
+	       END AS yccz_02
+        FROM
+       (select  max(SHIFT_VALUE) as SHIFT_VALUE
+		  from HPEAPB.SUM_YCCZ_9002_SUBS
+		 where CMCC_PROV_PRVD_ID = #{provinceCode}
+		and AUD_TRM &gt;= #{currSumBeginDate}
+		and AUD_TRM &lt;= #{currSumEndDate})T1;
+
+		</select>
+		<select id="dlzrjfthree" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN prvd_id_01="无" THEN '' 
+		       WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+			   when fst_cty='无' then ''
+               when fst_cty!='无' and sec_cty='无' then CONCAT('涉及积分异常操作的地市：',fst_cty,'，涉及工号',format(gh_count,0),'个、',format(jf_count,0),'积分、用户数',format(yhs_count,0),'个。')
+               when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及积分异常操作的地市：',fst_cty,'、',sec_cty,'，涉及工号',format(gh_count,0),'个、',format(jf_count,0),'积分、用户数',format(yhs_count,0),'个。')
+	    ELSE CONCAT('异常操作积分值前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及工号',format(gh_count,0),'个、',format(jf_count,0),'积分、用户数',format(yhs_count,0),'个。')
+	     END AS yccz_03
+	    FROM
+	     (SELECT  ifnull(CMCC_PROV_PRVD_ID,"无")prvd_id_01,
+		          ifnull(MAX(CASE WHEN RANK = 1 THEN CMCC_PRVD_NM_SHORT END),"无") AS fst_cty,           
+		          ifnull(MAX(CASE WHEN RANK = 2 THEN CMCC_PRVD_NM_SHORT END),"无") AS sec_cty,
+		          ifnull(MAX(CASE WHEN RANK = 3 THEN CMCC_PRVD_NM_SHORT END),"无") AS thr_cty,
+		          ifnull(SUM(gh_count),0) gh_count,
+		          ifnull(SUM(jf_count),0) jf_count,
+		          ifnull(SUM(yhs_count),0) yhs_count
+		          FROM (select   CMCC_PROV_PRVD_ID,
+		                         CMCC_PRVD_NM_SHORT,
+		                         gh_count,
+		                         jf_count,
+		                         yhs_count,
+		                         @ROWNUM := @ROWNUM + 1 as RANK
+		                   from (select  CMCC_PROV_PRVD_ID,
+                                         CMCC_PRVD_NM_SHORT,
+		                                 sum(WEIGUI_STAFF_NUM) as gh_count,
+		                                 sum(WEIGUI_SHIFT_VALUE) as jf_count,
+		                                 sum(WEIGUI_SUBS_NUM) as yhs_count
+		                            from HPEAPB.SUM_YCCZ_9002_CTY
+		                           where AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+		                             and CMCC_PROV_PRVD_ID = #{provinceCode}
+		                           group by CMCC_PROV_PRVD_ID,CMCC_PRVD_NM_SHORT
+		                           order by jf_count desc 
+		              limit 3) t1,(SELECT @ROWNUM := 0) r) t2) t3;
+		</select>
+		<!-- 9.2 同一工号操作大量转入积分 end -->
+	<!-- 9 积分合规性 end -->
+	
+		<!-- 11 指标作假 start -->
+			<!-- 11.1 虚增收入 start -->
+		<select id="xzsr" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  		SELECT CASE WHEN tol_amt IS NULL THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报收入相关的数据。')
+			            WHEN tol_amt=0       THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在虚增收入的情况。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'养卡虚增收入',format(yk_amt,2),'元、测试号码虚增收入',
+									 format(test_amt,2),'元、公免用户虚增收入',format(free_amt,2),'元、本省移动公司用户虚增收入',format(emp_amt,2),'元，总虚增收入',
+									 format(tol_amt,2),'元，位于全国第',rank,'位；') END AS zbzj_01_prvd
+FROM
+(SELECT substring(#{currSumBeginDate},1,4) AS bg_year,
+			       substring(#{currSumBeginDate},5,2) AS bg_month,
+			       substring(#{currSumEndDate},1,4) AS end_year,
+			       substring(#{currSumEndDate},5,2) AS end_month,
+						 cmcc_prov_prvd_id,
+			       short_name,
+						 IFNULL(yk_amt,0) AS yk_amt,
+						 IFNULL(test_amt,0) AS test_amt,
+				         IFNULL(free_amt,0) AS free_amt,
+						 IFNULL(emp_amt,0) AS emp_amt,
+						 IFNULL(tol_amt,0) AS tol_amt,
+						 IFNULL(rank,0) AS rank,
+				SUM(1)
+			FROM
+			    (SELECT cmcc_prov_prvd_id,short_name,yk_amt,test_amt,
+			       free_amt,emp_amt,tol_amt,@rownum:=@rownum+1 AS rank
+			   FROM 
+			     (SELECT cmcc_prov_prvd_id,#{shortName} as short_name,SUM(vt_yk_amt) AS yk_amt,SUM(vt_test_amt) AS test_amt,
+			         SUM(vt_free_amt) AS free_amt,SUM(vt_emp_amt) AS emp_amt,SUM(tol_vt_amt) AS tol_amt
+			     FROM hpeapb.sum_zbzj_1101_prvd
+			     WHERE aud_trm  BETWEEN #{currSumBeginDate} 
+			     AND #{currSumEndDate} 
+			     GROUP BY 1,2
+			     ORDER BY tol_amt DESC,cmcc_prov_prvd_id ASC
+			     ) T1,(SELECT @rownum :=0) r
+			    ) T2
+			WHERE cmcc_prov_prvd_id = #{provinceCode}) T3;
+		</select>
+		<!-- 11.1 虚增收入 end -->
+		
+<!-- 11.2 违规对欠费停机、预销号用户订购业务 start -->
+		<select id="wg" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  	SELECT CASE WHEN user_num IS NULL THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报业务订购相关的数据。')
+		            WHEN user_num=0       THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在对欠费停机、预销号用户订购业务的情况。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'违规对',format(user_num,0),
+										'个欠费停机、预销号用户订购业务',format(busi_num,0),'笔，') END AS zbzj_02_prvd
+FROM
+(SELECT SUBSTRING(#{currSumBeginDate},1,4) as bg_year,
+		       SUBSTRING(#{currSumBeginDate},5,2) as bg_month,
+		       SUBSTRING(#{currSumEndDate},1,4) as end_year,
+		       SUBSTRING(#{currSumEndDate},5,2) as end_month,
+					 cmcc_prov_prvd_id,
+		       #{shortName} as short_name,
+		       IFNULL(SUM(user_num),0) AS user_num,
+		       IFNULL(SUM(busi_num),0) AS busi_num
+		FROM hpeapb.sum_zbzj_1102_ywlx
+		WHERE aud_trm  BETWEEN #{currSumBeginDate}  
+		AND #{currSumEndDate} 
+		AND cmcc_prov_prvd_id = #{provinceCode} ) T1
+		</select>
+		
+		<select id="wgYw" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  	SELECT CASE WHEN prvd_id_01="无" THEN ''
+		       when fst_yw='无' then ''
+               when fst_yw!='无' and sec_yw='无' then CONCAT('涉及违规的业务：',fst_yw,'业务',format(IFNULL(fst_yw_busi_num,0),0),'笔。')
+               when fst_yw!='无' and sec_yw!='无' and thr_yw='无' then  CONCAT('涉及违规的业务：',fst_yw,'业务',format(IFNULL(fst_yw_busi_num,0),0),'笔、',sec_yw,'业务',format(IFNULL(sec_yw_busi_num,0),0),'笔。')    
+			 ELSE CONCAT('违规办理业务量排名前三的业务：',fst_yw,'业务',format(IFNULL(fst_yw_busi_num,0),0),'笔、',
+										sec_yw,'业务',format(IFNULL(sec_yw_busi_num,0),0),'笔、',
+										thr_yw,'业务',format(IFNULL(thr_yw_busi_num,0),0),'笔。') END AS zbzj_02_ywlx
+FROM
+(SELECT     ifnull(cmcc_prov_prvd_id,"无") as prvd_id_01, 
+            ifnull(MAX(CASE WHEN rank = 1 THEN busi_acce_typ END),'无') AS fst_yw,
+		    MAX(CASE WHEN rank = 1 THEN busi_num END) AS fst_yw_busi_num,
+		    ifnull(MAX(CASE WHEN rank = 2 THEN busi_acce_typ END),'无') AS sec_yw,
+		    MAX(CASE WHEN rank = 2 THEN busi_num END) AS sec_yw_busi_num,
+		    ifnull(MAX(CASE WHEN rank = 3 THEN busi_acce_typ END),'无') AS thr_yw,
+		    MAX(CASE WHEN rank = 3 THEN busi_num END) AS thr_yw_busi_num
+		FROM
+		    (SELECT cmcc_prov_prvd_id,busi_acce_typ,busi_num, @rownum := @rownum+1 as rank
+		FROM
+	         (SELECT cmcc_prov_prvd_id,busi_acce_typ,sum(busi_num) AS busi_num
+	          FROM hpeapb.sum_zbzj_1102_ywlx
+	          WHERE cmcc_prov_prvd_id = #{provinceCode}
+	          AND aud_trm BETWEEN #{currSumBeginDate} 
+	          AND #{currSumEndDate}
+			  and busi_num>0
+	          GROUP BY cmcc_prov_prvd_id,busi_acce_typ
+	          ORDER BY busi_num DESC
+	          LIMIT 3
+	     ) T1, (select @rownum := 0) r
+	      ) T2) T3;
+		</select>
+		
+		<select id="wgCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  	SELECT CASE WHEN prvd_id_01="无" THEN ''
+			 WHEN prvd_id_01 in(10100,10200,10300,10400) THEN '' 
+			 when fst_cty='无' then ''
+             when fst_cty!='无' and sec_cty='无' then CONCAT('涉及违规的地市：',fst_cty,'，涉及业务量',format(IFNULL(tol_busi_num,0),0),'笔；')
+             when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及违规的地市：',fst_cty,'、',sec_cty,'，涉及业务量',format(IFNULL(tol_busi_num,0),0),'笔；')	
+		    ELSE CONCAT('违规办理业务量排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及业务量',format(IFNULL(tol_busi_num,0),0),'笔；')
+		       END AS zbzj_02_cty
+		FROM
+		  (SELECT ifnull(cmcc_prov_prvd_id,"无") as prvd_id_01,
+                  ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty,
+		          ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty,
+		          ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty,
+		            SUM(busi_num) AS tol_busi_num
+		       FROM
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,busi_num,@rownum := @rownum+1 as rank
+		       FROM
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(busi_num) AS busi_num
+		       FROM hpeapb.sum_zbzj_1102_ywlx
+		       WHERE cmcc_prov_prvd_id = #{provinceCode}
+		       AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+			   and busi_num>0
+		       GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+		       ORDER BY busi_num DESC,cmcc_prov_id ASC
+		       LIMIT 3) T1, (select @rownum := 0) r) T2) T3;
+		</select>
+		<!-- 11.2 违规对欠费停机、预销号用户订购业务 end -->
+	 	
+	 	<!-- 11.3 违规对M2M行业卡用户开通梦网业务和5类基地业务 start -->
+		<select id="jdyw" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  		SELECT CASE WHEN user_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报业务订购相关的数据。')
+			            WHEN user_num=0       THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name, '不存在对M2M行业卡用户开通梦网业务和5类基地业务的情况。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'违规对',format(user_num,0),
+										'个M2M行业卡用户开通梦网业务和5类基地业务',format(busi_num,0),'笔，') END AS zbzj_03_prvd
+FROM
+(SELECT SUBSTRING(#{currSumBeginDate},1,4) AS bg_year,
+			       SUBSTRING(#{currSumBeginDate},5,2) AS bg_month,
+			       SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+			       SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+						cmcc_prov_prvd_id,
+			        #{shortName} as short_name,
+			       IFNULL(SUM(user_num),0) AS user_num,
+			       IFNULL(SUM(busi_num),0) AS busi_num
+			FROM hpeapb.sum_zbzj_1103_ywlx
+			WHERE aud_trm  BETWEEN #{currSumBeginDate} AND #{currSumEndDate} 
+			AND cmcc_prov_prvd_id = #{provinceCode}) T1 ;
+		</select>
+		<select id="jdywYw" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  		SELECT CASE WHEN prvd_id_01="无" THEN ''
+			            when fst_yw='无' then ''
+                        when fst_yw!='无' and sec_yw='无' then CONCAT('涉及违规的业务：',fst_yw,'业务',format(IFNULL(fst_yw_busi_num,0),0),'笔。')
+                        when fst_yw!='无' and sec_yw!='无' and thr_yw='无' then  CONCAT('涉及违规的业务：',fst_yw,'业务',format(IFNULL(fst_yw_busi_num,0),0),'笔、',sec_yw,'业务',format(IFNULL(sec_yw_busi_num,0),0),'笔。') 
+			 ELSE CONCAT('违规办理业务量排名前三的业务：',fst_yw,'业务',format(IFNULL(fst_yw_busi_num,0),0),'笔、',
+										sec_yw,'业务',format(IFNULL(sec_yw_busi_num,0),0),'笔、',
+										thr_yw,'业务',format(IFNULL(thr_yw_busi_num,0),0),'笔。') END AS zbzj_03_ywlx
+FROM
+(SELECT ifnull(cmcc_prov_prvd_id,"无") as  prvd_id_01  ,
+                   ifnull(MAX(CASE WHEN rank = 1 THEN busi_type_nm END),'无') AS fst_yw,
+			       MAX(CASE WHEN rank = 1 THEN busi_num END) AS fst_yw_busi_num,
+			       ifnull(MAX(CASE WHEN rank = 2 THEN busi_type_nm END),'无') AS sec_yw,
+			       MAX(CASE WHEN rank = 2 THEN busi_num END) AS sec_yw_busi_num,
+			       ifnull(MAX(CASE WHEN rank = 3 THEN busi_type_nm END),'无') AS thr_yw,
+			       MAX(CASE WHEN rank = 3 THEN busi_num END) AS thr_yw_busi_num
+			FROM
+			    (SELECT cmcc_prov_prvd_id,busi_type_nm,busi_num,@rownum := @rownum+1 as rank
+			     FROM
+			         (SELECT cmcc_prov_prvd_id,busi_type_nm,sum(busi_num) AS busi_num
+			          FROM hpeapb.sum_zbzj_1103_ywlx
+			          WHERE cmcc_prov_prvd_id = #{provinceCode} 
+			          AND aud_trm BETWEEN #{currSumBeginDate} 
+			          AND #{currSumEndDate} 
+					  and busi_num>0
+			          GROUP BY cmcc_prov_prvd_id,busi_type_nm
+			          ORDER BY busi_num DESC
+			          LIMIT 3
+			     ) T1, (select @rownum := 0) r
+			      ) T2) T3;
+		</select>
+		
+		<select id="jdywCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  		SELECT CASE WHEN prvd_id_01="无" THEN '' 
+			 WHEN prvd_id_01 in(10100,10200,10300,10400) THEN '' 
+			 when fst_cty='无' then ''
+             when fst_cty!='无' and sec_cty='无' then CONCAT('涉及违规的地市：',fst_cty,'，涉及业务量',format(IFNULL(tol_busi_num,0),0),'笔；')
+             when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及违规的地市：',fst_cty,'、',sec_cty,'，涉及业务量',format(IFNULL(tol_busi_num,0),0),'笔；')	
+			    ELSE CONCAT('违规办理业务量排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及业务量',format(IFNULL(tol_busi_num,0),0),'笔；')
+			       END AS zbzj_03_cty
+			FROM 
+			  (SELECT ifnull(cmcc_prov_prvd_id,"无") as prvd_id_01,
+                      ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty,
+			          ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty,
+			          ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty,
+			          SUM(busi_num) AS tol_busi_num
+			       FROM
+			              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,busi_num,@rownum := @rownum+1 as rank
+			       FROM
+			              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(busi_num) AS busi_num
+			       FROM hpeapb.sum_zbzj_1103_ywlx
+			       WHERE cmcc_prov_prvd_id = #{provinceCode}
+			       AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+				   and busi_num>0
+			       GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+			       ORDER BY busi_num DESC,cmcc_prov_id ASC
+			       LIMIT 3) T1, (select @rownum := 0) r) T2) T3;
+		</select>
+		<!-- 11.3 违规对M2M行业卡用户开通梦网业务和5类基地业务 end -->
+	<!-- 11 指标作假 start -->
+	
+	<!-- 12 家宽业务合规性 start -->
+		<select id="jkywhgx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  SELECT CASE WHEN weigui_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'未上报家庭宽带业务办理的数据。')
+		              WHEN weigui_num =0      THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'不存在虚假开通家庭宽带的情况。')
+	    ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'疑似虚假开通家庭宽带',format(weigui_num,0),'笔，疑似虚假办理用户数占比',per_weigui,'%，')
+	       END AS jtkd_01
+        FROM
+       (select substr(#{currSumBeginDate},1,4) as bg_year,
+		  substr(#{currSumBeginDate},5,2) as bg_month,
+		  substr(#{currSumEndDate},1,4) as end_year,
+		  substr(#{currSumEndDate},5,2) as end_month,
+		   #{shortName} as short_name,
+		  sum(weigui_num) as weigui_num,
+		   (case when sum(tol_num)  is null or sum(tol_num)   =0 then null else                              
+		          cast( sum(weigui_num)*1.000/sum(tol_num)*100 as decimal(10,2)) end)   per_weigui
+		  from hpeapb.SUM_JTKD_1201_PRVD
+		  where cmcc_prov_prvd_id= #{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate}
+)T1;
+
+		</select>
+		<select id="jkywhgxThreeCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		 SELECT CASE WHEN prvd_id_01="无" THEN ''
+		       WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+			   when fst_cty='无' then ''
+               when fst_cty!='无' and sec_cty='无' then CONCAT('涉及虚假开通宽带的地市：',fst_cty,'，涉及',format(weigui_num,0),'个宽带用户。')
+               when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及虚假开通宽带的地市：',fst_cty,'、',sec_cty,'，涉及',format(weigui_num,0),'个宽带用户。')
+	    ELSE CONCAT('疑似虚假办理宽带用户数排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及',format(weigui_num,0),'个宽带用户。')
+	     END AS jtkd_02
+	    FROM
+	     (select ifnull(cmcc_prov_prvd_id,"无") prvd_id_01,
+               ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end),"无") as fst_cty,
+		           ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end),"无") as sec_cty,
+		           ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end),"无") as thr_cty,
+		           ifnull(sum(weigui_num),0) weigui_num
+		    from
+		    (select cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short,weigui_num,@rownum := @rownum+1 as rank
+		  from
+		    (select cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short,sum(weigui_num) weigui_num              
+		  from hpeapb.SUM_JTKD_1201_CTY
+		    where cmcc_prov_prvd_id= #{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate}
+		    group by 1,2,3
+		    order by 4 desc
+		     limit 3) T1,(select @rownum := 0) r) T2) T3;
+		</select>
+	<!-- 12 家宽业务合规性 start -->
+	
+	<!-- 13 统付收入合规性 start -->
+       <!-- 13.1 违规将成员数小于3的集团客户纳入统付收入 start -->
+		<select id="tfsrhgx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  SELECT CASE WHEN cust_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'未上报集团统付收入的数据。')
+		              WHEN cust_num=0       THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'不存在将成员数小于3的集团客户纳入统付收入的情况。')       
+			 ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'将成员数小于3人的集团客户收入统计为集团成员统一付费通信收入，涉及集团客户数',format(cust_num,0),'个，金额',format(mer_amt,2),'元。') end as tfsrhgx_prvd
+from (select substr(#{currSumBeginDate},1,4) as bg_year,
+		  substr(#{currSumBeginDate},5,2) as bg_month,
+		  substr(#{currSumEndDate},1,4) as end_year,
+		  substr(#{currSumEndDate},5,2) as end_month,
+		  #{shortName} as short_name,
+		  sum(wg_cust_num) as cust_num,
+		  sum(wg_mer_amt) as mer_amt
+		  from hpeapb.sum_tfsrhgx_1301_prvd
+		  where cmcc_prov_prvd_id= #{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate}
+)T1;
+		</select>
+		
+         <select id="tfsrhgxThreeCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+          SELECT CASE WHEN prvd_id='无' THEN '' 
+					  WHEN prvd_id IN ('10100','10200','10300','10400') THEN ''
+					  when fst_cty='无' then ''
+                      when fst_cty!='无' and sec_cty='无' then CONCAT('涉及违规统付收入的地市：',fst_cty,'，涉及金额',format(mer_amt,2),'元。')
+                      when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及违规统付收入的地市：',fst_cty,'、',sec_cty,'，涉及金额',format(mer_amt,2),'元。')	  
+		       ELSE CONCAT('不符合总部《关于加强集团成员统一付费通信收入统计及管理工作的通知》（市通 [2014] 410 号）中“集团成员通信费用账户下统付成员数量应不少于3人”的规定。其中违规统付收入金额排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及金额',format(mer_amt,2),'元。')
+		       END AS tfsrhgx_cty 
+		from
+		    (select IFNULL(max(case when rank = 1 then cmcc_prov_id end),'无')as prvd_id,
+								IFNULL(max(case when rank = 1 then cmcc_prvd_nm_short end ),'无') as fst_cty,
+		            IFNULL(max(case when rank = 2 then cmcc_prvd_nm_short end ),'无') as sec_cty,
+		            IFNULL(max(case when rank = 3 then cmcc_prvd_nm_short end ),'无') as thr_cty,
+		            sum(mer_amt) mer_amt
+		    from
+		  (select cmcc_prov_id,cmcc_prvd_nm_short,mer_amt,@rownum := @rownum+1 as rank
+		  from
+		   (select cmcc_prov_id,cmcc_prvd_nm_short,sum(wg_mer_amt) mer_amt              
+		   from hpeapb.sum_tfsrhgx_1301_cty
+		    where cmcc_prov_prvd_id= #{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate}
+		    group by 1,2
+		    order by 3 desc
+		     limit 3) T1,(select @rownum := 0) r) T2) T3;
+		</select>
+		<!-- 13.1 违规将成员数小于3的集团客户纳入统付收入 end -->
+	<!-- 13 统付收入合规性 end -->
+		
+		 		<!--14 流量产品管理合规性 start -->
+		<select id="llcphgx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+			SELECT CASE WHEN infrac_pack_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报套餐资费相关的数据。')
+			            WHEN infrac_pack_num=0       THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在与总部规定不一致的低价资费套餐。')
+						ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,
+															'新推出资费套餐',format(new_pack_num,0),'个，其中存在与总部规定不一致的低价资费共',
+															format(infrac_pack_num,0),'个，在推出当月订购套餐的用户数共',format(pack_user_num,0),'个。') 
+						END AS zftc_01_prvd
+FROM 
+(SELECT SUBSTRING(#{currSumBeginDate},1,4) AS bg_year,
+		       SUBSTRING(#{currSumBeginDate},5,2) AS bg_month,
+		       SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+		       SUBSTRING(#{currSumEndDate},5,2) AS end_month,
+						cmcc_prov_prvd_id,
+		        #{shortName} as short_name,
+		       IFNULL(SUM(new_pack_num),0) AS new_pack_num,
+		       IFNULL(SUM(infrac_pack_num),0) AS infrac_pack_num,
+   				 IFNULL(SUM(pack_user_num),0) AS pack_user_num
+			FROM hpeapb.sum_zftc_1401_prvd
+			WHERE aud_trm  BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+			AND cmcc_prov_prvd_id = #{provinceCode}
+) T1;
+		</select>
+	<!--14 流量产品管理合规性 end -->
+		
+	<!-- 15 包月流量产品不设限 start -->
+		<!-- 15.1 用户月使用流量违规超过50G start -->
+		<select id="yhysyllc50g1" resultType="java.util.HashMap" parameterType="java.util.HashMap">	
+        SELECT CASE WHEN over_gprs IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'未上报流量使用相关的数据。')
+		            WHEN over_gprs=0       THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'不存在违反总部流量套餐双封顶规定的情况。')
+	    ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'违反总部流量套餐双封顶规定，有',format(subs_num,0),'个用户单月流量超过50G，超限流量',format(over_gprs,0),'G。')
+	       END AS over_gprs_01
+        FROM
+       (select substr(#{currSumBeginDate},1,4) as bg_year,
+			substr(#{currSumBeginDate},5,2) as bg_month,
+			substr(#{currSumEndDate},1,4) as end_year,
+			substr(#{currSumEndDate},5,2) as end_month,
+			#{shortName} as short_name,
+			sum(subs_num) as subs_num,
+			sum(over_gprs) as over_gprs
+			from hpeapb.SUM_GPRS_1501_PRVD
+			where cmcc_prov_prvd_id=#{provinceCode}
+			and aud_trm &gt;= #{currSumBeginDate}
+			and aud_trm &lt;= #{currSumEndDate}
+			)T1;
+		</select>
+
+	<select id="yhysyllc50g2" resultType="java.util.HashMap"
+		parameterType="java.util.HashMap">
+		SELECT CASE WHEN prvd_id_01="无" THEN ''
+		       WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+			   when fst_cty='无' then ''
+               when fst_cty!='无' and sec_cty='无' then CONCAT('涉及违规的地市：',fst_cty,'，涉及超限流量',format(over_gprs,0),'G。')
+               when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及违规的地市：',fst_cty,'、',sec_cty,'，涉及超限流量',format(over_gprs,0),'G。')		   
+	    ELSE CONCAT('排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及超限流量',format(over_gprs,0),'G。')
+	     END AS over_gprs_02
+	    FROM
+	     (select ifnull(cmcc_prov_prvd_id,"无") prvd_id_01,
+                 ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end ),"无") as fst_cty,
+		         ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end ),"无") as sec_cty,
+		         ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end ),"无") as thr_cty,
+		         ifnull(sum(over_gprs),0) over_gprs
+		from
+		(select cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short,over_gprs,@rownum := @rownum+1 as
+		rank
+		from
+		(select cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short,sum(over_gprs) over_gprs
+		from hpeapb.SUM_GPRS_1501_CTY
+		where cmcc_prov_prvd_id=#{provinceCode}
+		and aud_trm &gt;=#{currSumBeginDate}
+		and aud_trm &lt;=#{currSumEndDate}
+		group by cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short
+		order by 4 desc
+		limit 3) T1,(select @rownum := 0) r) T2) T3;
+	</select>
+		<!-- 15.1 用户月使用流量违规超过50G end -->
+	
+		<!-- 15.2 超低价流量 start -->
+	<select id="cdjll1" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN GPRS_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'未上报流量资费相关的数据。')
+	            WHEN GPRS_num=0       THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'不存在使用超低价流量的情况。')
+	    ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',SHORT_NAME,'使用低价流量',format(GPRS_num,0),'G。')
+	    END AS low_gprs_01
+        FROM
+       (select substr(#{currSumBeginDate},1,4) as bg_year,
+	  substr(#{currSumBeginDate},5,2) as bg_month,
+	  substr(#{currSumEndDate},1,4) as end_year,
+	  substr(#{currSumEndDate},5,2) as end_month,
+	  #{shortName} as short_name,
+	  sum(low_gprs_tol_G) as GPRS_num
+	  from hpeapb.SUM_GPRS_1502_PRVD
+	  where cmcc_prov_prvd_id=#{provinceCode}
+	  and aud_trm  &gt;= #{currSumBeginDate}
+	  and aud_trm  &lt;= #{currSumEndDate}
+      )T1;
+	</select>
+	
+	<select id="cdjll2" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN prvd_id_01="无" THEN ''
+		    WHEN prvd_id_01 IN ('10100','10200','10300','10400') THEN ''
+			when fst_cty='无' then ''
+            when fst_cty!='无' and sec_cty='无' then CONCAT('涉及低价流量使用的地市：',fst_cty,'，涉及流量',format(low_gprs_tol_G,0),'G。（流量单价低于0.0248元/MB统计为低价流量）')
+            when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及低价流量使用的地市：',fst_cty,'、',sec_cty,'，涉及流量',format(low_gprs_tol_G,0),'G。（流量单价低于0.0248元/MB统计为低价流量）')		   
+	        ELSE CONCAT('按照低价流量使用量排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及流量',format(low_gprs_tol_G,0),'G。（流量单价低于0.0248元/MB统计为低价流量）')
+	         END AS low_gprs_02
+	FROM
+	     (select ifnull(cmcc_prov_prvd_id,"无") prvd_id_01,
+               ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end ),"无") as fst_cty,
+	             ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end ),"无") as sec_cty,
+	             ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end ),"无") as thr_cty,
+	             ifnull(sum(low_gprs_tol_G),0) low_gprs_tol_G
+	     from
+	       (select cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short,low_gprs_tol_G,@rownum := @rownum+1 as rank
+	         from
+	    (select cmcc_prov_prvd_id,cmcc_prov_id,cmcc_prvd_nm_short,sum(low_gprs_tol_G) low_gprs_tol_G
+	     from hpeapb.SUM_GPRS_1502_CTY
+	     where cmcc_prov_prvd_id=#{provinceCode}
+	      and aud_trm &gt;= #{currSumBeginDate}
+	      and aud_trm &lt;= #{currSumEndDate}
+	     group by 1,2,3
+	    order by 4 desc
+	    limit 3) T1,(select @rownum := 0) r) T2) T3;  
+	</select>
+	
+		<!-- 15.2 超低价流量 end -->
+	<!-- 15 包月流量产品不设限 end -->
+	
+	<!-- 16 终端补贴违规发放 start -->
+		<!-- 16.1 违规对无线座机、数据卡发放补贴 start -->
+		<select id="zdbtwgff1601" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  SELECT CASE WHEN trmnl_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报终端补贴相关的数据。')
+		              WHEN trmnl_num=0       THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在违规对无线座机、数据卡进行补贴的情况。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似违规对无线座机、数据卡进行补贴的终端',
+										format(trmnl_num,0),'台，补贴金额',format(tol_allow_cost,2),'元。') END AS zdwgbt_01_prvd
+FROM
+(SELECT 
+	SUBSTRING(#{currSumBeginDate},1,4) as bg_year,
+	       SUBSTRING(#{currSumBeginDate},5,2) as bg_month,
+	       SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	       SUBSTRING(#{currSumEndDate},5,2) as end_month,
+           cmcc_prov_prvd_id,
+		   #{shortName} as short_name,
+	IFNULL(SUM(trmnl_num),0) AS trmnl_num,
+    IFNULL(SUM(tol_allow_cost),0) AS tol_allow_cost
+			FROM hpeapb.sum_zdbt_1601_prvd
+			WHERE cmcc_prov_prvd_id = #{provinceCode}
+			AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}) T1
+		</select>
+		<select id="zdbtwgff1601ThreeCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN prvd_id_01="无" THEN ''
+			 WHEN prvd_id_01 in(10100,10200,10300,10400) THEN ''
+			 when fst_cty_zdbt='无' then ''
+             when fst_cty_zdbt!='无' and sec_cty_zdbt='无' then CONCAT('涉及违规的地市：',fst_cty_zdbt,'，涉及终端',format(IFNULL(trmnl_num,0),0),'台，补贴金额',format(IFNULL(tol_allow_cost,0),2),'元。')
+             when fst_cty_zdbt!='无' and sec_cty_zdbt!='无' and thr_cty_zdbt='无' then  CONCAT('涉及违规的地市：',fst_cty_zdbt,'、',sec_cty_zdbt,'，涉及终端',format(IFNULL(trmnl_num,0),0),'台，补贴金额',format(IFNULL(tol_allow_cost,0),2),'元。')	 
+		    ELSE CONCAT('补贴金额排名前三的地市：',fst_cty_zdbt,'、',sec_cty_zdbt,'、',thr_cty_zdbt,'，涉及终端',format(IFNULL(trmnl_num,0),0),'台，补贴金额',format(IFNULL(tol_allow_cost,0),2),'元。')
+		       END AS zdbt_01_cty
+		FROM
+		  (SELECT ifnull(cmcc_prov_prvd_id,"无") as prvd_id_01,
+	              ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty_zdbt,
+		          ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty_zdbt,
+		          ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty_zdbt,
+		          SUM(trmnl_num) AS trmnl_num,
+		          SUM(tol_allow_cost) AS tol_allow_cost
+		       FROM 
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,trmnl_num,tol_allow_cost,@rownum := @rownum+1 as rank
+		       FROM
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(trmnl_num) AS trmnl_num,SUM(tol_allow_cost) AS tol_allow_cost
+		       FROM hpeapb.sum_zdbt_1601_cty
+		       WHERE cmcc_prov_prvd_id = #{provinceCode}
+			   AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+			   and trmnl_num>0
+		       GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+		       ORDER BY trmnl_num DESC,tol_allow_cost DESC
+		       LIMIT 3) T1, (select @rownum := 0) r) T2) T3
+		</select>
+		<!-- 16.1 违规对无线座机、数据卡发放补贴 end -->		
+		
+		<!-- 16.2 违规对非4G定制终端发放补贴 start -->
+		<select id="zdbtwgff1602" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		  SELECT  CASE WHEN trmnl_num IS NULL THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报终端补贴相关的数据。')
+		               WHEN trmnl_num=0       THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在终端补贴用于非4G定制终端的情况。')
+			 ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似终端补贴用于非4G定制终端',
+										format(trmnl_num,0),'台，补贴金额',format(tol_allow_cost,2),'元。') END AS zdbt_02_prvd
+FROM
+(SELECT    SUBSTRING(#{currSumBeginDate},1,4) as bg_year,
+	       SUBSTRING(#{currSumBeginDate},5,2) as bg_month,
+	       SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	       SUBSTRING(#{currSumEndDate},5,2) as end_month,
+		   cmcc_prov_prvd_id,
+		   #{shortName} as short_name,
+		   IFNULL(SUM(trmnl_num),0) AS trmnl_num,
+		   IFNULL(SUM(trmnl_allow_cost),0) AS tol_allow_cost
+		   FROM hpeapb.sum_zdbt_1602_prvd
+			WHERE cmcc_prov_prvd_id = #{provinceCode}
+			AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}) T1
+		</select>
+		<select id="zdbtwgff1602ThreeCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN prvd_id_01="无" THEN ''
+			 WHEN prvd_id_01 in(10100,10200,10300,10400) THEN ''
+			 when fst_cty_zdbt='无' then ''
+             when fst_cty_zdbt!='无' and sec_cty_zdbt='无' then CONCAT('涉及违规的地市:',fst_cty_zdbt,'，涉及终端',format(IFNULL(trmnl_num,0),0),'台，补贴金额',format(IFNULL(tol_allow_cost,0),2),'元。')
+             when fst_cty_zdbt!='无' and sec_cty_zdbt!='无' and thr_cty_zdbt='无' then  CONCAT('涉及违规的地市:',fst_cty_zdbt,'、',sec_cty_zdbt,'，涉及终端',format(IFNULL(trmnl_num,0),0),'台，补贴金额',format(IFNULL(tol_allow_cost,0),2),'元。')	 
+		    ELSE CONCAT('补贴金额排名前三的地市：',fst_cty_zdbt,'、',sec_cty_zdbt,'、',thr_cty_zdbt,'，涉及终端',format(IFNULL(trmnl_num,0),0),'台，补贴金额',format(IFNULL(tol_allow_cost,0),2),'元。')
+		       END AS zdbt_02_cty
+		FROM
+		  (SELECT  ifnull(cmcc_prov_prvd_id,"无") as prvd_id_01,
+                   ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty_zdbt,
+		           ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty_zdbt,
+		           ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty_zdbt,
+		           SUM(trmnl_num) AS trmnl_num,
+		           SUM(tol_allow_cost) AS tol_allow_cost
+		       FROM 
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,trmnl_num,tol_allow_cost,@rownum := @rownum+1 as rank
+		       FROM
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(trmnl_num) AS trmnl_num,SUM(trmnl_allow_cost) AS tol_allow_cost
+		       FROM hpeapb.sum_zdbt_1602_cty
+		       WHERE cmcc_prov_prvd_id = #{provinceCode}
+			   AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+			   and trmnl_num>0
+		       GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+		       ORDER BY tol_allow_cost DESC
+		       LIMIT 3) T1, (select @rownum := 0) r) T2) T3
+		</select>
+		<!-- 16.2 违规对非4G定制终端发放补贴 end -->
+	<!-- 16 终端补贴违规发放 end -->
+		
+	<!-- 17 合约终端补贴合规性 start -->	
+		<!-- 17.1 合约内离网 start -->
+<select id="hyzdbthgx1701SumLwl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN imei_num01 IS NULL THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'未上报用户合约计划的数据。')
+            WHEN imei_num01=0       THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'不存在用户合约内离网的情况。')
+			ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'用户合约内离网率',offline_per,'%，涉及终端',format(imei_num01,0),'台，涉及营销案',format(offer_num,0),'个。') end as yhnlw1_1
+from (select substr(#{currSumBeginDate},1,4) as bg_year,
+			  substr(#{currSumBeginDate},5,2) as bg_month,
+			  substr(#{currSumEndDate},1,4) as end_year,
+			  substr(#{currSumEndDate},5,2) as end_month,
+			  #{shortName} as short_name,
+			  cast(sum(T1.subs_num)*1.000000/sum(T2.subs_num)*100 as decimal(10,2)) as offline_per,
+			  ifnull(sum(T1.imei_num),0) as imei_num01,
+			  ifnull(count(distinct(T1.offer_id)),0) as offer_num
+			  from hpeapb.sum_hyzdbthgx_1701_offer T1,hpeapb.sum_hyzdbthgx_1701_prvd_qdhy T2
+			  where T1.cmcc_prov_prvd_id=#{provinceCode} and T2.cmcc_prov_prvd_id=#{provinceCode}
+			  and T1.sell_mon  &gt;= #{currSumBeginDate} 
+			  and T1.sell_mon  &lt;= #{currSumEndDate}
+			  and T2.sell_mon  &gt;= #{currSumBeginDate} 
+			  and T2.sell_mon  &lt;= #{currSumEndDate}
+)T1;
+		 </select>
+		  <select id="hyzdbthgx1701Top3Offer" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT CASE WHEN prvd_id_1='无' THEN ''
+			        WHEN prvd_id_1 IN ('10100','10200','10300','10400') THEN ''
+			        when fst_offer_id='无' then ''
+                    when fst_offer_id!='无' and sec_offer_id='无' then CONCAT('涉及合约内离网的营销案：（',fst_offer_id,'）',fst_offer_nm,'，',fst_offer_per,'%。')
+                    when fst_offer_id!='无' and sec_offer_id!='无' and thr_offer_id='无' then  CONCAT('涉及合约内离网的营销案：（',fst_offer_id,'）',fst_offer_nm,'、（',sec_offer_id,'）',sec_offer_nm,'，分别是',fst_offer_per,'%、',sec_offer_per,'%。')		
+	      ELSE CONCAT('用户合约内离网率排名前三的营销案：（',fst_offer_id,'）',fst_offer_nm,'、（',sec_offer_id,'）',sec_offer_nm,'、（',thr_offer_id,'）',thr_offer_nm,'，分别是',fst_offer_per,'%、',sec_offer_per,'%、',thr_offer_per,'%。')END AS yhnlw1_2 
+		from
+		    (select ifnull(max(case when rank = 1 then cmcc_prov_prvd_id end),'无') as prvd_id_1,
+					ifnull(max(case when rank = 1 then offer_id end ),'无') as fst_offer_id,
+					ifnull(max(case when rank = 1 then offer_nm end ),'无') as fst_offer_nm,
+					ifnull(max(case when rank = 1 then offline_per end ),'无') as fst_offer_per,
+					ifnull(max(case when rank = 2 then offer_id end ),'无') as sec_offer_id,
+		            ifnull(max(case when rank = 2 then offer_nm end ),'无') as sec_offer_nm,
+					ifnull(max(case when rank = 2 then offline_per end ),'无') as sec_offer_per,
+					ifnull(max(case when rank = 3 then offer_id end ),'无') as thr_offer_id,
+		            ifnull(max(case when rank = 3 then offer_nm end ),'无') as thr_offer_nm,
+					ifnull(max(case when rank = 3 then offline_per end ),'无') as thr_offer_per
+		    from
+		  (select cmcc_prov_prvd_id,offer_id,offer_nm,offline_per,@rownum := @rownum+1 as rank
+		  from
+		   (select T1.cmcc_prov_prvd_id AS cmcc_prov_prvd_id,T1.offer_id as offer_id,T1.offer_nm as offer_nm,ifnull(CAST(sum(T1.subs_num)*1.000000/sum(T2.subs_num)*100 AS DECIMAL(10,2)),0) AS offline_per          
+		   from hpeapb.sum_hyzdbthgx_1701_offer T1,hpeapb.sum_hyzdbthgx_1701_prvd_qdhy T2
+		   where T1.cmcc_prov_prvd_id=#{provinceCode} and T2.cmcc_prov_prvd_id=#{provinceCode}
+		  and T1.offer_id = T2.offer_id
+		  and T1.sell_mon  &gt;= #{currSumBeginDate} 
+		  and T1.sell_mon  &lt;= #{currSumEndDate}
+		  and T2.sell_mon  &gt;= #{currSumBeginDate} 
+		  and T2.sell_mon   &lt;= #{currSumEndDate}
+		  group by 1,2,3)T1,(select @rownum := 0) r) T2)T3;
+		  </select>
+		<!-- 17.1 合约内离网 end -->
+		
+		<!-- 17.2 重复办理终端类合约计划 start -->
+		  <select id="hyzdbthgx1702SumImei" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		    SELECT CASE WHEN imei_num02 IS NULL THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'未上报办理终端合约计划的数据。')
+			            WHEN imei_num02=0       THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'不存在重复办理合约计划的情况。')
+					ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,format(sub_num,0),'个用户重复办理终端类合约计划，涉及终端',format(imei_num02,0),'台。') end as cfblhy_1
+from (select substr(#{currSumBeginDate},1,4) as bg_year,
+			  substr(#{currSumBeginDate},5,2) as bg_month,
+			  substr(#{currSumEndDate},1,4) as end_year,
+			  substr(#{currSumEndDate},5,2) as end_month,
+			  #{shortName} as short_name,
+			  sum(sub_num) as sub_num,
+			  sum(imei_num) as imei_num02
+			  from hpeapb.sum_hyzdbthgx_1702_prvd
+			  where cmcc_prov_prvd_id=#{provinceCode}
+			  and aud_trm  &gt;= #{currSumBeginDate} 
+			  and aud_trm  &lt;= #{currSumEndDate})T1;
+		  </select>
+		   <select id="hyzdbthgx1702Top3City" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		   SELECT CASE WHEN prvd_id2='无' THEN '' 
+					   WHEN prvd_id2 IN ('10100','10200','10300','10400') THEN '' 
+					   when fst_cty='无' then ''
+                       when fst_cty!='无' and sec_cty='无' then CONCAT('涉及违规的地市：',fst_cty,'，涉及终端',format(imei_num,0),'台。')
+                       when fst_cty!='无' and sec_cty!='无' and thr_cty='无' then  CONCAT('涉及违规的地市：',fst_cty,'、',sec_cty,'，涉及终端',format(imei_num,0),'台。')			
+	          ELSE CONCAT('重复办理合约计划终端数量排名前三的地市:',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及终端',format(imei_num,0),'台。')END AS cfblhy_2 
+			from
+		    (select ifnull(max(case when rank = 1 then cmcc_prov_prvd_id end ),'无') as prvd_id2, 
+					ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end ),'无') as fst_cty,
+		            ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end ),'无')as sec_cty,
+		            ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end ),'无') as thr_cty,
+		            sum(imei_num) imei_num
+		    from
+		  (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,imei_num,@rownum := @rownum+1 as rank
+		  from
+		   (select cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(imei_num) imei_num           
+		   from hpeapb.sum_hyzdbthgx_1702_cty
+		   where cmcc_prov_prvd_id=#{provinceCode}
+		    and aud_trm  &gt;= #{currSumBeginDate}
+		    and aud_trm  &lt;= #{currSumEndDate}
+			group by 1,2
+		   order by 3 desc
+		   limit 3) T1,(select @rownum := 0) r) T2) T3;
+		   </select>
+		<!-- 17.2 重复办理终端类合约计划 end -->
+	<!-- 17 合约终端补贴合规性 end -->
+	
+	<!-- 18 终端库存合规性 start -->
+<select id="zdkchgx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select CASE WHEN WG_NUM IS NULL THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'未上报库存终端的数据。')
+            WHEN WG_NUM=0       THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'不存在长账龄库存终端。')
+			ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'存在长账龄库存但未及时清理或退货造成公司损失的情况，涉及终端',format(WG_NUM,0),'台。')END AS zdkchgx1
+from (SELECT SUBSTRING(#{currSumBeginDate},1,4) AS bg_year,
+	   SUBSTRING(#{currSumBeginDate},5,2) AS bg_month,
+	   SUBSTRING(#{currSumEndDate},1,4) AS end_year,
+	   SUBSTRING(#{currSumEndDate},5,2) AS end_month, 
+	   T1.SHORT_NAME,
+	   T1.WG_NUM as WG_NUM,
+	   SUM(WG_NUM+WG_NUM) AS A
+FROM
+(
+SELECT #{shortName} as short_name,SUM(LONG_AGING_IMEI_NUM)AS WG_NUM
+FROM HPEAPB.SUM_ZDKCHGX_1801_PRVD
+WHERE aud_trm &gt;= #{currSumBeginDate}
+AND aud_trm &lt;= #{currSumEndDate}
+AND CMCC_PROV_PRVD_ID = #{provinceCode}
+) T1)T2;
+</select>
+	<!-- 18 终端库存合规性 end -->
+	
+
+	<!-- 19 激励酬金发放合规性 start -->
+				<!-- 19.1 激励酬金超过当年社会渠道费用总预算总额的15% start -->
+<select id="jlcj" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select CASE WHEN INCEN_RWD_SUM_1 IS NULL THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'未上报发放激励酬金的数据。')
+            WHEN INCEN_RWD_SUM_1=0       THEN CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'不存在激励酬金超过当年社会渠道费用预算总额15%的情况。')
+		    ELSE CONCAT(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',SHORT_NAME,'发放激励酬金',format(INCEN_RWD_SUM_1,2),'元，占社会渠道费用实际发放总额的',PER_INCEN_1,'%。')END AS jlcj1
+from (select substr(#{currSumBeginDate},1,4) as bg_year,
+			 substr(#{currSumBeginDate},5,2) as bg_month,
+			 substr(#{currSumEndDate},1,4) as end_year,
+			 substr(#{currSumEndDate},5,2) as end_month,
+			 short_name,
+			 INCEN_RWD_SUM_1,
+			 CAST(INCEN_RWD_SUM_1/TOL_FEE_1*100 AS DECIMAL(10,2)) as PER_INCEN_1 
+from(select #{shortName} as short_name,
+				    sum(TOL_FEE) as TOL_FEE_1,
+				    sum(INCEN_RWD_SUM) as INCEN_RWD_SUM_1
+     from hpeapb.SUM_JLCJ_1901_PRVD
+		 where cmcc_prov_prvd_id=#{provinceCode}
+		 and aud_trm  &gt;= #{currSumBeginDate} 
+		 and aud_trm  &lt;= #{currSumEndDate}
+		 )T1)T2;
+</select>
+
+<select id="jlcjCity" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN prvd_id='无' THEN '' 
+			WHEN PRVD_ID IN ('10100','10200','10300','10400') THEN '' 
+		    ELSE CONCAT('激励酬金排名前三的地市：',fst_cty,'、',sec_cty,'、',thr_cty,'，涉及金额',format(TOL_FEE,2),'元。')END AS jlcj2 
+from(select ifnull(max(case when rank = 1 then cmcc_prov_prvd_id end),'无') as prvd_id,
+			ifnull(max(case when rank = 1 then cmcc_prvd_nm_short end ),'无') as fst_cty,
+		    ifnull(max(case when rank = 2 then cmcc_prvd_nm_short end ),'无') as sec_cty,
+		    ifnull(max(case when rank = 3 then cmcc_prvd_nm_short end ),'无') as thr_cty,
+		    sum(TOL_FEE) TOL_FEE
+from(select cmcc_prov_prvd_id,cmcc_prvd_nm_short,TOL_FEE,@rownum := @rownum+1 as rank
+		 from
+				(select cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(incen_rwd_sum) as TOL_FEE        
+		     from hpeapb.SUM_JLCJ_1901_CTY
+		     where cmcc_prov_prvd_id=#{provinceCode}
+		     and aud_trm  &gt;= #{currSumBeginDate}
+		     and aud_trm  &lt;= #{currSumEndDate}
+			 and incen_rwd_sum>0
+			 group by 1,2
+		     order by 3 asc
+		     limit 3) T1,(select @rownum := 0) r) T2) T3;
+</select>
+		<!-- 19.1 激励酬金超过当年社会渠道费用总预算总额的15% end -->
+	<!-- 19 激励酬金发放合规性 end -->
+		
+<!-- 21.1 业务批开异常 start -->
+ <!-- 21.1.1 同一工号批量开通业务 start --> 
+  <select id="tyghplkt" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+     SELECT CASE WHEN opr_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',prvd_name_01,'未上报业务开通相关的数据。')	            
+	             ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',prvd_name_01,fst_staff,'、',sec_staff,'、',thr_staff,'等',format(staff_num,0),'个工号批量办理',format(opr_num,0),'笔业务，存在异常，请根据明细数据进一步核实业务办理的真实性。')
+	    END AS ywpkyc_01
+	    FROM
+       (select  
+         substr(#{currSumBeginDate},1,4) as bg_year,
+	     substr(#{currSumBeginDate},5,2) as bg_month,
+	     substr(#{currSumEndDate},1,4) as end_year,
+	     substr(#{currSumEndDate},5,2) as end_month,
+         ifnull(T3.short_name,"无") prvd_name_01,
+         ifnull(max(case when rank = 1 then T2.staff_nm end ),"无") as fst_staff,
+	     ifnull(max(case when rank = 2 then T2.staff_nm end ),"无") as sec_staff,
+	     ifnull(max(case when rank = 3 then T2.staff_nm end ),"无") as thr_staff,
+	     ifnull(T3.opr_num,0) opr_num,
+         ifnull(T3.staff_num,0) staff_num
+       from 
+		(select short_name,staff_id,staff_nm,opr_num_1,@rownum := @rownum+1 as  rank
+		from
+		(select #{shortName} as short_name,staff_id,staff_nm,sum(opr_num) opr_num_1
+		 from hpeapb.sum_pkyc_2101_oprid_cty
+		 where cmcc_prov_prvd_id=#{provinceCode}
+		 and aud_trm  &gt;= #{currSumBeginDate}
+		 and aud_trm  &lt;= #{currSumEndDate}
+         group by short_name,staff_id,staff_nm
+		 order by 4 desc
+		 limit 3) T1,(select @rownum := 0) r) T2
+    left join 
+    (select #{shortName} as short_name,count(distinct staff_id) staff_num,sum(opr_num) opr_num
+      from hpeapb.sum_pkyc_2101_oprid_cty
+      where cmcc_prov_prvd_id=#{provinceCode}
+      and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate}
+      group by short_name) T3
+    on 1=1) T4;
+	
+  </select>
+<!-- 21.1.1 同一工号批量开通业务 end -->
+
+<!-- 21.1.2 同一渠道批量开通业务 start -->
+ <select id="tyqdplkt" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   SELECT CASE WHEN opr_num is NULL  THEN  CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',prvd_name_01,'未上报业务开通相关的数据。')
+	    ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',prvd_name_01,fst_staff,'、',sec_staff,'、',thr_staff,'等',format(busi_chnl_num,0),'个渠道批量办理',format(opr_num,0),'笔业务，存在异常，请根据明细数据进一步核实业务办理的真实性。')
+	    END AS ywpkyc_02
+	    FROM
+       (select  
+         substr(#{currSumBeginDate},1,4) as bg_year,
+	     substr(#{currSumBeginDate},5,2) as bg_month,
+	     substr(#{currSumEndDate},1,4) as end_year,
+	     substr(#{currSumEndDate},5,2) as end_month,
+         ifnull(T3.short_name,"无") prvd_name_01,
+         ifnull(max(case when rank = 1 then T2.busi_chnl_nm end ),"无") as fst_staff,
+	     ifnull(max(case when rank = 2 then T2.busi_chnl_nm end ),"无") as sec_staff,
+	     ifnull(max(case when rank = 3 then T2.busi_chnl_nm end ),"无") as thr_staff,
+	     ifnull(T3.opr_num,0) opr_num,
+         ifnull(T3.busi_chnl_num,0) busi_chnl_num
+       from 
+		(select short_name,busi_chnl_id,busi_chnl_nm,opr_num_1,@rownum := @rownum+1 as  rank
+		from
+		(select #{shortName} as short_name,busi_chnl_id,busi_chnl_nm,sum(opr_num) opr_num_1
+		 from hpeapb.sum_pkyc_2102_chnl_cty
+		 where cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate}
+         group by short_name,busi_chnl_id,busi_chnl_nm
+		 order by 4 desc
+		 limit 3) T1,(select @rownum := 0) r) T2
+    left join 
+    (select #{shortName} as short_name,count(distinct busi_chnl_id) busi_chnl_num,sum(opr_num) opr_num
+      from hpeapb.sum_pkyc_2102_chnl_cty
+      where cmcc_prov_prvd_id=#{provinceCode}
+      and aud_trm  &gt;= #{currSumBeginDate}
+	  and aud_trm  &lt;= #{currSumEndDate}
+      group by short_name) T3
+    on 1=1) T4;
+	
+ </select>
+	<!-- 21.1.2 同一渠道批量开通业务 end -->
+<!-- 21.1 业务批开异常 end -->
+
+   <!-- 23.4 小额非整充值 start -->
+ <select id="xefz" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  select case when pay_num is null then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报小额非整数充值的数据。')
+              when pay_num=0       then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在小额非整数充值的情况。')
+       else concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'为',format(user_num,0),'个用户办理',format(pay_num,0),'笔小额非整充值，累计',format(pay_amt,2),'元。请根据明细数据进一步核实业务办理的真实性。')
+       end as ygcccz_2304
+  from
+  (select substr(#{currSumBeginDate},1,4) as bg_year,
+	     substr(#{currSumBeginDate},5,2) as bg_month,
+	     substr(#{currSumEndDate},1,4) as end_year,
+	     substr(#{currSumEndDate},5,2) as end_month,
+       #{shortName} as short_name,
+       sum(pay_msisdn_num) user_num,
+       sum(pay_num) pay_num,
+       sum(pay_amt) pay_amt
+  from hpeapb.sum_ygyccz_2304_prvd
+  where cmcc_prov_prvd_id=#{provinceCode}
+  and aud_trm  &gt;= #{currSumBeginDate}
+  and aud_trm  &lt;= #{currSumEndDate}) T1;
+
+</select>
+<!-- 23.4 小额非整充值 end -->
+
+<!-- 38.1 社会渠道酬金异常波动 start -->
+ <select id="shqdfwfprvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when rwd_amt is null then concat(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'未上报终社会渠道酬金的数据。')
+	      else concat(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,
+	   '共支付社会渠道酬金',format(rwd_amt,2),'元，涉及渠道',format(soc_chnl_num,0),'个。') end as shqdfwfyc_3801_01
+    from 
+	(select substring(#{currSumBeginDate},1,4) as bg_year,
+			substring(#{currSumBeginDate},5,2) as bg_month,			
+			substring(date_format(date_add(concat(#{currSumBeginDate},'01'),interval 11 month),'%Y%m') ,1,4) as end_year,
+			substring(date_format(date_add(concat(#{currSumBeginDate},'01'),interval 11 month),'%Y%m') ,5,2) as end_month,
+			#{shortName} as short_name,
+			sum(rwd_amt) as rwd_amt,
+			sum(soc_chnl_num) as soc_chnl_num
+	from HPEAPB.SUM_SHQDFWFYC_3801_VARWAVE
+	where cmcc_prov_prvd_id = #{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate} 
+	) t1;
+ </select>
+	
+<select id="shqdfwfvar" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when short_name is null then ''
+	   else concat('其中，方差波动≥0.5的社会渠道有',format(coalesce(soc_chnl_num_var,0),0),'个（',format(coalesce(rwd_amt_var,0.00),2),
+	   '元），环比波动≥50%的社会渠道有',format(coalesce(soc_chnl_num_rela,0),0),'个（',format(coalesce(rwd_amt_rela,0.00),2),'元）；') end as shqdfwfyc_3801_02  
+  from 
+	(select short_name,
+			soc_chnl_num as soc_chnl_num_var,
+			rwd_amt as rwd_amt_var,
+			sum(1)
+	from HPEAPB.SUM_SHQDFWFYC_3801_VARWAVE
+	where cmcc_prov_prvd_id = #{provinceCode} 
+	and aud_trm_begin  = #{currSumBeginDate}
+	and var_wave_range_id = 6
+	) t1,
+	(select soc_chnl_num as soc_chnl_num_rela,
+			rwd_amt as rwd_amt_rela,
+			sum(1)
+	from HPEAPB.SUM_SHQDFWFYC_3801_RELARATWAVE
+	where cmcc_prov_prvd_id = #{provinceCode}
+	and aud_trm_begin  = #{currSumBeginDate}
+	and rela_rat_range_id = 6
+	) t2;
+
+ </select>
+ <select id="shqdfwfmaxvar" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  select case when t1.cmcc_prvd_nm_short is null then ''
+			else concat('方差波动最大的为',t1.cmcc_prvd_nm_short,'分公司的“',t1.soc_chnl_nm,'”渠道（最高为',
+			t1.max_year,'年',t1.max_mon,'月累计酬金',format(t1.rwd_amt,2),'元、最低为',min_year,'年',min_mon,
+			'月累计酬金',format(t2.rwd_amt,2),'元），') end as shqdfwfyc_3801_03
+  from 
+	(select cmcc_prvd_nm_short,
+			soc_chnl_nm,
+			substr(mon,1,4) as max_year,
+			substr(mon,5,2) as max_mon,
+			rwd_amt,
+			sum(1)
+	from HPEAPB.SUM_SHQDFWFYC_3801_CHNL
+	where cmcc_prov_prvd_id = #{provinceCode}
+	and aud_trm_begin  = #{currSumBeginDate}
+	and soc_chnl_id = (select soc_chnl_id
+					from HPEAPB.SUM_SHQDFWFYC_3801_CHNL
+					where cmcc_prov_prvd_id = #{provinceCode}
+					and aud_trm_begin  = #{currSumBeginDate}
+					order by var_wave desc,soc_chnl_id asc
+					limit 1)
+	order by rwd_amt desc
+	limit 1) t1,
+	(select cmcc_prvd_nm_short,
+			soc_chnl_nm,
+			substr(mon,1,4) as min_year,
+			substr(mon,5,2) as min_mon,
+			rwd_amt,
+			sum(1)
+	from HPEAPB.SUM_SHQDFWFYC_3801_CHNL
+	where cmcc_prov_prvd_id = #{provinceCode}
+	and aud_trm_begin  = #{currSumBeginDate}
+	and soc_chnl_id = (select soc_chnl_id
+					from HPEAPB.SUM_SHQDFWFYC_3801_CHNL
+					where cmcc_prov_prvd_id = #{provinceCode}
+					and aud_trm_begin  = #{currSumBeginDate}
+					order by var_wave desc,soc_chnl_id asc
+					limit 1)
+	order by rwd_amt asc
+	limit 1) t2;
+ </select>
+ <select id="shqdfwfmaxrwd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when t1.cmcc_prvd_nm_short is null then ''
+			else concat('环比波动最大的为',t1.cmcc_prvd_nm_short,'分公司的“',t1.soc_chnl_nm,'”渠道（',
+			substr(t1.mon,1,4),'年',substr(t1.mon,5,2),'月累计酬金',format(t1.rwd_amt,2),'元、',substr(t2.mon,1,4),'年',substr(t2.mon,5,2),
+			'月累计酬金',format(t2.rwd_amt,2),'元）。') end as shqdfwfyc_3801_04
+   from 
+	(select cmcc_prvd_nm_short,
+			soc_chnl_id,
+			soc_chnl_nm,
+			mon,
+			rwd_amt,
+			sum(1)
+	 from HPEAPB.SUM_SHQDFWFYC_3801_CHNL
+	 where cmcc_prov_prvd_id = #{provinceCode}
+	 and aud_trm_begin  = #{currSumBeginDate}
+	 order by abs(rela_rat) desc,soc_chnl_id asc
+	 limit 1) t1
+    left join 
+	(select soc_chnl_id,
+			mon,
+			rwd_amt,
+			sum(1)
+	 from HPEAPB.SUM_SHQDFWFYC_3801_CHNL
+	 where cmcc_prov_prvd_id = #{provinceCode}
+	 and aud_trm_begin  = #{currSumBeginDate}
+	 group by 1,2,3) t2
+    on t1.soc_chnl_id = t2.soc_chnl_id
+    and date(concat(t1.mon,'01')) = date_add(concat(t2.mon,'01'),interval 1 month);
+ </select>
+<!-- 38.1 社会渠道酬金异常波动 end -->
+		
+<!-- 23.2 同一工号批量缴费异常 start -->
+ <select id="tyghpljf" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  SELECT CASE WHEN tol_trade_cnt IS NULL THEN concat(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,'未上报缴费业务相关的数据。')             
+  ELSE concat(bg_year,'年',bg_month,'月 - ',end_year,'年',end_month,'月，',short_name,
+		fst_opr,
+		sec_opr,
+		thr_opr,
+		'等',
+		format(opr_num,0),
+		'个工号批量办理',
+		format(tol_trade_cnt,0),
+		'笔缴费业务，',
+		'存在异常，请根据明细数据进一步核实业务办理的真实性。'
+	)
+   END AS ygyccz_03
+   FROM
+	(
+		SELECT
+			SUBSTRING(#{currSumBeginDate}, 1, 4) AS bg_year,
+			SUBSTRING(#{currSumBeginDate}, 5, 2) AS bg_month,
+			SUBSTRING(#{currSumEndDate}, 1, 4) AS end_year,
+			SUBSTRING(#{currSumEndDate}, 5, 2) AS end_month,
+			#{shortName} as short_name,
+			count(DISTINCT emp_id) AS opr_num,
+			sum(trade_cnt) AS tol_trade_cnt
+		FROM
+			HPEAPB.SUM_YGYCCZ_2302_OPR_BUSI_CTY
+		WHERE
+			cmcc_prov_prvd_id = #{provinceCode}
+		AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	) t1
+  LEFT JOIN (
+	SELECT
+		max(CASE WHEN rank = 1 THEN emp_nm end) AS fst_opr, 
+		max(CASE WHEN rank = 2 THEN concat('、',emp_nm) else '' end) AS sec_opr,
+		max(CASE WHEN rank = 3 THEN concat('、',emp_nm) else '' end) AS thr_opr
+	FROM
+		(
+			SELECT
+				emp_nm ,@rownum := @rownum + 1 AS rank
+			FROM
+				(
+					SELECT
+						emp_id,
+						emp_nm,
+						sum(trade_cnt) AS tol_trade_cnt
+					FROM
+						HPEAPB.SUM_YGYCCZ_2302_OPR_BUSI_CTY
+					WHERE
+						cmcc_prov_prvd_id = #{provinceCode}
+					AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+					AND (emp_nm IS NOT NULL
+						OR emp_nm !='')
+					group by
+					    emp_id,emp_nm
+					order by
+						tol_trade_cnt desc,
+						emp_id asc
+					limit 3
+				) t2,
+				(select @rownum := 0) t3
+		) t4
+   ) t5 on 1 = 1;
+ </select>
+<!-- 23.2 同一工号批量缴费异常 end -->
+
+<!-- 30.1 有价卡赠送集中度异常 start -->
+ <select id="yjkzsjzdprvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when yjk_num is null then concat(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',short_name,'未上报有价卡赠送的数据。')   
+			else concat(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',short_name,
+			'赠送有价卡',format(yjk_num,0),'张、',format(yjk_amt,2),'元，') end as yjkzsjzd_3001_01
+   from
+	(select substring(#{currSumBeginDate}, 1, 4) as bg_year,
+			substring(#{currSumBeginDate}, 5, 2) as bg_month,
+			substring(#{currSumEndDate}, 1, 4) as end_year,
+			substring(#{currSumEndDate}, 5, 2) as end_month,
+			#{shortName} as short_name,
+			sum(count_zsyjksl) as yjk_num,
+			sum(count_zsyjkje) as yjk_amt
+	from hpeapb.sum_yjkzsjzd_3001_prov_qujian
+	where cmcc_prov_prvd_id = #{provinceCode}
+	and aud_trm_end = #{currSumEndDate}) t1;
+ </select>
+ 
+ <select id="yjkzsjzdmsisdn" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case
+               when fst_msisdn='无' then ''
+               when fst_msisdn!='无' and sec_msisdn='无' then CONCAT('涉及获赠金额异常的手机号码：',fst_msisdn,'，获赠有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）；')
+               when fst_msisdn!='无' and sec_msisdn!='无' and thr_msisdn='无' then  CONCAT('涉及获赠金额异常的手机号码：',fst_msisdn,'、',sec_msisdn,'，分别获赠有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）；')	
+			else concat('其中，获赠金额异常排名前三的手机号码有',fst_msisdn,'、',
+			sec_msisdn,'、',thr_msisdn,'，分别获赠有价卡',format(fst_num,0),'张（',
+			format(fst_amt,2),'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）、',format(thr_num,0),'张（',format(thr_amt,2),'元）；') end as yjkzsjzd_3001_02
+   from
+	(select 
+	        ifnull(max(case when rank = 1 then trade_msisdn end),'无') as fst_msisdn,
+			ifnull(max(case when rank = 1 then yjk_trade_num end),'无') as fst_num,
+			ifnull(max(case when rank = 1 then yjk_trade_amt end),'无') as fst_amt,
+			ifnull(max(case when rank = 2 then trade_msisdn end),'无') as sec_msisdn,
+			ifnull(max(case when rank = 2 then yjk_trade_num else 0 end),'无') as sec_num,
+			ifnull(max(case when rank = 2 then yjk_trade_amt else 0.00 end),'无') as sec_amt,
+			ifnull(max(case when rank = 3 then trade_msisdn end),'无') as thr_msisdn,
+			ifnull(max(case when rank = 3 then yjk_trade_num else 0 end),'无') as thr_num,
+			ifnull(max(case when rank = 3 then yjk_trade_amt else 0.00 end),'无') as thr_amt
+	from
+		(select t1.trade_msisdn,
+				t1.yjk_trade_num,
+				t1.yjk_trade_amt,
+				@rownum := @rownum + 1 AS rank
+		from
+			(select trade_msisdn,
+					sum(yjk_trade_num) as yjk_trade_num,
+					sum(yjk_trade_amt) as yjk_trade_amt
+			from hpeapb.sum_yjkzsjzd_3001_user
+			where cmcc_prov_prvd_id = #{provinceCode}
+			and aud_trm_end = #{currSumEndDate}
+			and (trade_msisdn is not null or trim(trade_msisdn) !='')
+			group by trade_msisdn
+			order by yjk_trade_amt desc
+			limit 3) t1,(select @rownum := 0) t2) t3) t4;
+
+ </select>
+ <select id="yjkzsjzdchnl" resultType="java.util.HashMap" parameterType="java.util.HashMap">	
+  select case when fst_chnl='无' then ''
+              when fst_chnl!='无' and sec_chnl='无' then CONCAT('涉及获赠金额异常的渠道：',fst_chnl,'，赠送有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）；')
+              when fst_chnl!='无' and sec_chnl!='无' and thr_chnl='无' then  CONCAT('涉及获赠金额异常的渠道：',fst_chnl,'、',sec_chnl,'，分别赠送有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）；')
+			else concat('赠送有价卡金额排名前三的渠道有',fst_chnl,'、',
+			sec_chnl,'、',thr_chnl,'，分别赠送有价卡',format(fst_num,0),'张（',format(fst_amt,2),
+			'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）、',format(thr_num,0),'张（',format(thr_amt,2),'元）；') end as yjkzsjzd_3001_03
+  from
+	 (select 
+	        ifnull(max(case when rank = 1 then cor_chnl_nm end),'无') as fst_chnl,
+			ifnull(max(case when rank = 1 then yjk_trade_num end),'无') as fst_num,
+			ifnull(max(case when rank = 1 then yjk_trade_amt end),'无') as fst_amt,
+			ifnull(max(case when rank = 2 then cor_chnl_nm end),'无') as sec_chnl,
+			ifnull(max(case when rank = 2 then yjk_trade_num else 0 end),'无') as sec_num,
+			ifnull(max(case when rank = 2 then yjk_trade_amt else 0.00 end),'无') as sec_amt,
+			ifnull(max(case when rank = 3 then cor_chnl_nm end),'无') as thr_chnl,
+			ifnull(max(case when rank = 3 then yjk_trade_num else 0 end),'无') as thr_num,
+			ifnull(max(case when rank = 3 then yjk_trade_amt else 0.00 end),'无') as thr_amt
+	from
+		(select t1.cor_chnl_nm,
+				t1.yjk_trade_num,
+				t1.yjk_trade_amt,
+				@rownum := @rownum + 1 AS rank
+		from
+			(select cor_chnl_nm,
+					sum(count_zsyjksl) as yjk_trade_num,
+					sum(count_zsyjkje) as yjk_trade_amt
+			from hpeapb.sum_yjkzsjzd_3001_chnl
+			where cmcc_prov_prvd_id = #{provinceCode}
+			and aud_trm_end = #{currSumEndDate}
+			and (cor_chnl_nm is not null and trim(cor_chnl_nm) !='') 
+			group by  cor_chnl_nm
+			order by yjk_trade_amt desc
+			limit 3) t1,(select @rownum := 0) t2) t3) t4;
+			
+ </select>
+ <select id="yjkzsjzdoffer" resultType="java.util.HashMap" parameterType="java.util.HashMap">			
+   select case when fst_offer='无' then ''
+               when fst_offer!='无' and sec_offer='无' then CONCAT('涉及获赠金额异常的营销案：',fst_offer,'，赠送有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）。')
+               when fst_offer!='无' and sec_offer!='无' and thr_offer='无' then  CONCAT('涉及获赠金额异常的营销案：',fst_offer,'、',sec_offer,'，分别赠送有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）。') 
+			else concat('赠送有价卡金额排名前三的营销案有',fst_offer,'、',
+			sec_offer,'、',thr_offer,'，分别赠送有价卡',format(fst_num,0),'张（',format(fst_amt,2),
+			'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）、',format(thr_num,0),'张（',format(thr_amt,2),'元）。') end as yjkzsjzd_3001_04
+    from
+	(select 
+	        ifnull(max(case when rank = 1 then yjk_offer_nm end),'无') as fst_offer,
+			ifnull(max(case when rank = 1 then yjk_trade_num end),'无') as fst_num,
+			ifnull(max(case when rank = 1 then yjk_trade_amt end),'无') as fst_amt,
+			ifnull(max(case when rank = 2 then yjk_offer_nm  end),'无') as sec_offer,
+			ifnull(max(case when rank = 2 then yjk_trade_num else 0 end),'无') as sec_num,
+			ifnull(max(case when rank = 2 then yjk_trade_amt else 0.00 end),'无') as sec_amt,
+			ifnull(max(case when rank = 3 then yjk_offer_nm  end),'无') as thr_offer,
+			ifnull(max(case when rank = 3 then yjk_trade_num else 0 end),'无') as thr_num,
+			ifnull(max(case when rank = 3 then yjk_trade_amt else 0.00 end),'无') as thr_amt
+	from
+		(select t1.yjk_offer_nm,
+				t1.yjk_trade_num,
+				t1.yjk_trade_amt,
+				@rownum := @rownum + 1 AS rank
+		from
+			(select yjk_offer_nm,
+				sum(count_zsyjksl) as yjk_trade_num,
+				sum(count_zsyjkje) as yjk_trade_amt
+			from hpeapb.sum_yjkzsjzd_3001_offer
+			where cmcc_prov_prvd_id = #{provinceCode}
+			and aud_trm_end = #{currSumEndDate}
+			and (yjk_offer_nm is not null and trim(yjk_offer_nm) !='') 
+            group by yjk_offer_nm
+			order by yjk_trade_amt desc
+			limit 3) t1,(select @rownum := 0) t2) t3) t4;
+			
+ </select>
+<!-- 30.1 有价卡赠送集中度异常 end -->
+			
+
+<!-- 30.2 赠送有价卡充值集中度异常 start -->
+ <select id="zsyjkczjzdprvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when yjk_num is null then concat(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',short_name,'未上报有价卡充值的数据。')
+			else concat(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',short_name,
+			'充值有价卡',format(yjk_num,0),'张、',format(yjk_amt,2),'元，') end as yjkzsjzd_3002_01
+   from
+	 (select substring(#{currSumBeginDate}, 1, 4) as bg_year,
+			substring(#{currSumBeginDate}, 5, 2) as bg_month,
+			substring(#{currSumEndDate}, 1, 4) as end_year,
+			substring(#{currSumEndDate}, 5, 2) as end_month,
+			#{shortName} as short_name,
+			sum(yjk_trade_num) as yjk_num,
+			sum(yjk_trade_amt) as yjk_amt
+	from hpeapb.sum_yjkzsjzd_3002_prvd_range
+	where cmcc_prov_prvd_id = #{provinceCode}
+	and aud_trm_end = #{currSumEndDate}) t1;
+	
+ </select>
+ <select id="zsyjkczjzdsum" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when short_name is null then ''
+			else concat('其中，被充值金额在10万元以上的用户有',format(user_num_08,0),'个（',
+			format(yjk_amt_08,2),'元），被充值金额在5万~10万之间的用户有',format(user_num_07,0),'个（',
+			format(yjk_amt_07,2),'元），被充值金额在2万~5万之间的用户有',format(user_num_06,0),'个（',
+			format(yjk_amt_06,2),'元），被充值金额在1万~2万之间的用户有',format(user_num_05,0),'个（',
+			format(yjk_amt_05,2),'元），被充值金额在5000~1万之间的用户有',format(user_num_04,0),'个（',
+			format(yjk_amt_04,2),'元），被充值金额在2000~5000之间的用户有',format(user_num_03,0),'个（',format(yjk_amt_03,2),'元），') end as yjkzsjzd_3002_02
+   from
+	(select short_name,
+			max(case when yjk_amt_range_id = 3 then yjk_trade_user_num else 0 end) as user_num_03,
+			max(case when yjk_amt_range_id = 3 then yjk_trade_amt else 0.00 end) as yjk_amt_03,
+			max(case when yjk_amt_range_id = 4 then yjk_trade_user_num else 0 end) as user_num_04,
+			max(case when yjk_amt_range_id = 4 then yjk_trade_amt else 0.00 end) as yjk_amt_04,
+			max(case when yjk_amt_range_id = 5 then yjk_trade_user_num else 0 end) as user_num_05,
+			max(case when yjk_amt_range_id = 5 then yjk_trade_amt else 0.00 end) as yjk_amt_05,
+			max(case when yjk_amt_range_id = 6 then yjk_trade_user_num else 0 end) as user_num_06,
+			max(case when yjk_amt_range_id = 6 then yjk_trade_amt else 0.00 end) as yjk_amt_06,
+			max(case when yjk_amt_range_id = 7 then yjk_trade_user_num else 0 end) as user_num_07,
+			max(case when yjk_amt_range_id = 7 then yjk_trade_amt else 0.00 end) as yjk_amt_07,
+			max(case when yjk_amt_range_id = 8 then yjk_trade_user_num else 0 end) as user_num_08,
+			max(case when yjk_amt_range_id = 8 then yjk_trade_amt else 0.00 end) as yjk_amt_08
+	from hpeapb.sum_yjkzsjzd_3002_prvd_range 
+	where cmcc_prov_prvd_id = #{provinceCode}
+	and aud_trm_end = #{currSumEndDate}) t1;
+	
+ </select>
+ <select id="zsyjkczjzdmsisdn" resultType="java.util.HashMap" parameterType="java.util.HashMap">	
+   select case when fst_msisdn='无' then ''
+               when fst_msisdn!='无' and sec_msisdn='无' then CONCAT('涉及被充值金额异常的手机号码：',fst_msisdn,'，被充值有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）。')
+               when fst_msisdn!='无' and sec_msisdn!='无' and thr_msisdn='无' then  CONCAT('涉及被充值金额异常的手机号码：：',fst_msisdn,'、',sec_msisdn,'，分别被充值有价卡',format(fst_num,0),'张（',format(fst_amt,2),'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）。')	 
+			else concat('被充值金额异常排名前三的手机号码有',fst_msisdn,'、',
+			sec_msisdn,'、',thr_msisdn,'，分别被充值有价卡',format(fst_num,0),'张（',
+			format(fst_amt,2),'元）、',format(sec_num,0),'张（',format(sec_amt,2),'元）、',format(thr_num,0),'张（',format(thr_amt,2),'元）。') end as yjkzsjzd_3002_03
+  from
+	(select 
+	        ifnull(max(case when rank = 1 then trade_msisdn end),'无') as fst_msisdn,
+			ifnull(max(case when rank = 1 then yjk_trade_num end),'无') as fst_num,
+			ifnull(max(case when rank = 1 then yjk_trade_amt end),'无') as fst_amt,
+			ifnull(max(case when rank = 2 then trade_msisdn end),'无') as sec_msisdn,
+			ifnull(max(case when rank = 2 then yjk_trade_num else 0 end),'无') as sec_num,
+			ifnull(max(case when rank = 2 then yjk_trade_amt else 0.00 end),'无') as sec_amt,
+			ifnull(max(case when rank = 3 then trade_msisdn end),'无') as thr_msisdn,
+			ifnull(max(case when rank = 3 then yjk_trade_num else 0 end),'无') as thr_num,
+			ifnull(max(case when rank = 3 then yjk_trade_amt else 0.00 end),'无') as thr_amt
+	from
+		(select t1.trade_msisdn,
+				t1.yjk_trade_num,
+				t1.yjk_trade_amt,
+				@rownum := @rownum + 1 AS rank
+		from
+			(select trade_msisdn,
+					sum(yjk_trade_num) as yjk_trade_num ,
+					sum(yjk_trade_amt) as yjk_trade_amt
+			from hpeapb.sum_yjkzsjzd_3002_user
+			where cmcc_prov_prvd_id = #{provinceCode}
+			and aud_trm_end = #{currSumEndDate}
+			and (trade_msisdn is not null or trim(trade_msisdn) !='')
+			group by  trade_msisdn
+			order by yjk_trade_amt desc
+			limit 3) t1,(select @rownum := 0) t2) t3) t4;
+ </select>
+<!-- 30.2 赠送有价卡充值集中度异常 end -->
+
+<!-- 24.1 渠道养卡 start -->
+ <select id="qdykprvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select 
+	   case when qdyk_subs_num is null then concat(bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月，',short_name,'未上报疑似养卡的数据。')
+	        when qdyk_subs_num=0       then concat(bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月，',short_name,'不存在疑似养卡的情况。')
+	   else concat(bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月，',short_name,'共识别疑似养卡号码',format(qdyk_subs_num,0),'个。')
+     END AS qdyk_1
+   FROM(
+   select 
+	substr(#{currSumBeginDate},1,4) as bg_year,
+	substr(#{currSumBeginDate},5,2) as bg_month,
+	substr(#{currSumEndDate},1,4) as end_year,
+	substr(#{currSumEndDate},5,2) as end_month,
+	#{shortName} as short_name,
+	sum(qdyk_subs_num) as qdyk_subs_num
+from hpeapb.sum_qdyk_2401_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and aud_trm  &gt;= #{currSumBeginDate}
+and aud_trm  &lt;= #{currSumEndDate}) a ;
+
+ </select>
+ 
+ <select id="qdykchnl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   SELECT CASE WHEN offer_nm_1 IS NULL THEN ''
+               when offer_nm_1 is not null and offer_nm_2 is null then CONCAT('其中，',offer_nm_1,'渠道养卡数量最多，为',format(rase_crd_qty_num1,0),'个；')
+               when offer_nm_1 is not null and offer_nm_2 is not null and offer_nm_3 is null then CONCAT('其中，',offer_nm_1,'、',ifnull(offer_nm_2,'无'),'渠道养卡数量最多，分别为',format(rase_crd_qty_num1,0),'、',format(rase_crd_qty_num2,0),'个；')
+		  ELSE CONCAT('其中，',offer_nm_1,'、',ifnull(offer_nm_2,'无'),'、',IFnull(offer_nm_3,'无'),'渠道养卡数量最多，分别为',format(rase_crd_qty_num1,0),'、',format(rase_crd_qty_num2,0),'、',format(rase_crd_qty_num3,0),'个；') END AS qdyk_2
+   FROM
+    (SELECT
+        MAX(CASE WHEN rank = 1 THEN chnl_nm END) AS offer_nm_1,
+		    MAX(CASE WHEN rank = 1 THEN rase_crd_qty_num END) AS rase_crd_qty_num1,
+		    MAX(CASE WHEN rank = 2 THEN chnl_nm END) AS offer_nm_2,
+		    MAX(CASE WHEN rank = 2 THEN rase_crd_qty_num END) AS rase_crd_qty_num2,
+		    MAX(CASE WHEN rank = 3 THEN chnl_nm END) AS offer_nm_3,
+		    MAX(CASE WHEN rank = 3 THEN rase_crd_qty_num END) AS rase_crd_qty_num3
+		FROM
+		    (SELECT chnl_nm,rase_crd_qty_num, @rownum := @rownum+1 as rank
+		FROM
+	         (SELECT chnl_nm,sum(rase_crd_qty) as rase_crd_qty_num
+	          FROM hpeapb.sum_qdyk_2401_chnl
+	          WHERE cmcc_prov_prvd_id = #{provinceCode}
+	          AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	          GROUP BY chnl_nm
+	          ORDER BY rase_crd_qty_num DESC
+	          LIMIT 3
+	     ) T1, (select @rownum := 0) r
+	      ) T2) T3;		
+
+ </select>	
+ 	  
+ <select id="qdykchnlper" resultType="java.util.HashMap" parameterType="java.util.HashMap">	  
+   SELECT CASE WHEN offer_nm_1 IS NULL THEN ''
+               when offer_nm_1 is not null and offer_nm_2 is null then CONCAT('其中，',offer_nm_1,'渠道养卡占比最高，为',yk_per1,'%。')
+               when offer_nm_1 is not null and offer_nm_2 is not null and offer_nm_3 is null then CONCAT('其中，',offer_nm_1,'、',ifnull(offer_nm_2,'无'),'渠道养卡数占比最高，分别为',yk_per1,'%、',yk_per2,'%。')
+			 ELSE CONCAT(offer_nm_1,'、',ifnull(offer_nm_2,'无'),'、',IFnull(offer_nm_3,'无'),'渠道养卡占比最高，分别为',yk_per1,'%、',yk_per2,'%、',yk_per3,'%。') END AS qdyk_3
+   FROM
+     (SELECT
+        MAX(CASE WHEN rank = 1 THEN chnl_nm END) AS offer_nm_1,
+		    MAX(CASE WHEN rank = 1 THEN yk_per END) AS yk_per1,
+		    MAX(CASE WHEN rank = 2 THEN chnl_nm END) AS offer_nm_2,
+		    MAX(CASE WHEN rank = 2 THEN yk_per END) AS yk_per2,
+		    MAX(CASE WHEN rank = 3 THEN chnl_nm END) AS offer_nm_3,
+		    MAX(CASE WHEN rank = 3 THEN yk_per END) AS yk_per3
+		FROM
+		    (SELECT chnl_nm,yk_per, @rownum := @rownum+1 as rank
+		FROM
+	         (SELECT chnl_nm,
+             sum(rase_crd_qty) as rase_crd_qty_num,
+             sum(tol_users)as tol_users_num,
+             round(sum(rase_crd_qty)*100/sum(tol_users),2) yk_per
+	          FROM hpeapb.sum_qdyk_2401_chnl
+	          WHERE cmcc_prov_prvd_id = #{provinceCode}
+	          AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	          GROUP BY chnl_nm
+	          ORDER BY yk_per DESC
+	          LIMIT 3
+	     ) T1, (select @rownum := 0) r
+	      ) T2) T3;
+		  
+ </select>
+<!-- 24.1 渠道养卡 end -->	  
+		  
+<!-- 31.1 赠送有价卡未充值比例异常 start -->		  
+
+ <select id="zsyjkwczprvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select 
+	   case when zsyjk_num is null then concat(bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月，',short_name,'未上报有价卡充值的数据。')
+	   else concat('截至',aud_year,'年',aud_month,'月，',short_name,'在',bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月期间赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，涉及营销案',format(offer_num,0),'个，')
+     END AS yjkzscz_1
+   FROM(
+    select 
+	substr(#{currSumEndDate},1,4) as aud_year,
+	substr(#{currSumEndDate},5,2) as aud_month,
+	substr(CONCAT(substr(#{currSumBeginDate},1,4),'01'),1,4) as bg_year,
+	substr(CONCAT(substr(#{currSumBeginDate},1,4),'01'),5,2) as bg_month,
+	substr(CONCAT(substr(#{currSumBeginDate},1,4),'12'),1,4) as end_year,
+	substr(CONCAT(substr(#{currSumBeginDate},1,4),'12'),5,2) as end_month,
+	#{shortName} as short_name,
+	sum(zsyjk_num) as zsyjk_num,
+	sum(zsyjk_amt) as zsyjk_amt,
+	sum(offer_num)as offer_num
+from hpeapb.sum_yjkzscz_3101_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+   and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')
+   and aud_trm=(select max(aud_trm) 
+                from hpeapb.sum_yjkzscz_3101_prvd
+				where  pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+                and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')
+				and cmcc_prov_prvd_id=#{provinceCode})
+) a ;
+
+ </select>
+
+ <select id="zsyjkwcz1" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  select 
+	   case when short_name is null then ''
+	   else concat('其中，未充值金额比例≥80%的营销案有',format(offer_num,0),'个（涉及赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，未充值',format(zsyjk_nopay_num,0),'张、',format(zsyjk_nopay_amt,2),'元）,')
+     END AS yjkzscz_2
+  FROM(
+  select 
+	short_name,
+	sum(zsyjk_num) as zsyjk_num,
+	sum(zsyjk_amt) as zsyjk_amt,
+	sum(zsyjk_nopay_num) as zsyjk_nopay_num,
+	sum(zsyjk_nopay_amt) as zsyjk_nopay_amt,
+	sum(offer_num)as offer_num
+  from hpeapb.sum_yjkzscz_3101_cty
+    where cmcc_prov_prvd_id=#{provinceCode}
+    and aud_trm= (select max(aud_trm) 
+                from hpeapb.sum_yjkzscz_3101_cty
+				where  pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+                and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')
+				and cmcc_prov_prvd_id=#{provinceCode})
+    and RANGE_NO = 5
+    ) a ;
+
+ </select>
+
+ <select id="zsyjkwcz2" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  select 
+	   case when short_name is null then ''
+	   else concat('未充值金额比例在60%~80%之间的营销案有',format(offer_num,0),'个（涉及赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，未充值',format(zsyjk_nopay_num,0),'张、',format(zsyjk_nopay_amt,2),'元）,')
+     END AS yjkzscz_3
+  FROM(
+   select 
+	short_name,
+	sum(zsyjk_num) as zsyjk_num,
+	sum(zsyjk_amt) as zsyjk_amt,
+	sum(zsyjk_nopay_num) as zsyjk_nopay_num,
+	sum(zsyjk_nopay_amt) as zsyjk_nopay_amt,
+	sum(offer_num)as offer_num
+  from hpeapb.sum_yjkzscz_3101_cty
+  where cmcc_prov_prvd_id=#{provinceCode}
+  and aud_trm=(select max(aud_trm) 
+                from hpeapb.sum_yjkzscz_3101_cty
+				where  pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+                and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')
+				and cmcc_prov_prvd_id=#{provinceCode})
+  and RANGE_NO = 4
+   ) a ;
+ </select>
+
+ <select id="zsyjkwcz3" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select 
+	   case when short_name is null then ''
+	   else concat('未充值金额比例在40%~60%之间的营销案有',format(offer_num,0),'个（涉及赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，未充值',format(zsyjk_nopay_num,0),'张、',format(zsyjk_nopay_amt,2),'元）,')
+     END AS yjkzscz_4
+   FROM(
+   select 
+	short_name,
+	sum(zsyjk_num) as zsyjk_num,
+	sum(zsyjk_amt) as zsyjk_amt,
+	sum(zsyjk_nopay_num) as zsyjk_nopay_num,
+	sum(zsyjk_nopay_amt) as zsyjk_nopay_amt,
+	sum(offer_num)as offer_num
+   from hpeapb.sum_yjkzscz_3101_cty
+   where cmcc_prov_prvd_id=#{provinceCode}
+   and aud_trm=(select max(aud_trm) 
+                from hpeapb.sum_yjkzscz_3101_cty
+				where  pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+                and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')
+				and cmcc_prov_prvd_id=#{provinceCode})
+   and RANGE_NO = 3
+   ) a ;
+ </select>
+
+ <select id="zsyjkwcz4" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  SELECT CASE WHEN offer_nm IS NULL THEN ''
+              when offer_1='无' then ''
+              when offer_1!='无' and offer_2='无' then CONCAT('涉及赠送有价卡未充值的营销案：',offer_1,'（涉及赠送有价卡',format(offer_zsyjk_num_1,0),'张、',format(offer_zsyjk_amt_1,2),'元，未充值',format(offer_zsyjk_nopay_num_1,0),'张、',format(offer_zsyjk_nopay_amt_1,2),'元）。')
+              when offer_1!='无' and offer_2!='无' and offer_3='无' then  CONCAT('涉及赠送有价卡未充值的营销案：',offer_1,'（涉及赠送有价卡',format(offer_zsyjk_num_1,0),'张、',format(offer_zsyjk_amt_1,2),'元，未充值',format(offer_zsyjk_nopay_num_1,0),'张、',format(offer_zsyjk_nopay_amt_1,2),'元）、',
+			                                                                     offer_2,'（涉及赠送有价卡',format(offer_zsyjk_num_2,0),'张、',format(offer_zsyjk_amt_2,2),'元，未充值',format(offer_zsyjk_nopay_num_2,0),'张、',format(offer_zsyjk_nopay_amt_2,2),'元）。')	
+			ELSE CONCAT('未充值金额比例排名前三的营销案为',
+			IF(offer_1 IS NULL,'无、',CONCAT(offer_1,'（涉及赠送有价卡',format(offer_zsyjk_num_1,0),'张、',format(offer_zsyjk_amt_1,2),'元，未充值',format(offer_zsyjk_nopay_num_1,0),'张、',format(offer_zsyjk_nopay_amt_1,2),'元）')),
+			IF(offer_2 IS NULL,'无、',CONCAT(offer_2,'（涉及赠送有价卡',format(offer_zsyjk_num_2,0),'张、',format(offer_zsyjk_amt_2,2),'元，未充值',format(offer_zsyjk_nopay_num_2,0),'张、',format(offer_zsyjk_nopay_amt_2,2),'元）')),
+			IF(offer_3 IS NULL,'无、',CONCAT(offer_3,'（涉及赠送有价卡',format(offer_zsyjk_num_3,0),'张、',format(offer_zsyjk_amt_3,2),'元，未充值',format(offer_zsyjk_nopay_num_3,0),'张、',format(offer_zsyjk_nopay_amt_3,2),'元）')),'。') END AS yjkzscz_5
+ FROM
+ (SELECT offer_nm,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_nm END),'无') AS offer_1,
+		    ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_num END),'无') AS offer_zsyjk_num_1,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_amt END),'无') AS offer_zsyjk_amt_1,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_nopay_num END),'无') AS offer_zsyjk_nopay_num_1,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_nopay_amt END),'无') AS offer_zsyjk_nopay_amt_1,
+		    ifnull(MAX(CASE WHEN rank = 2 THEN offer_nm END),'无') AS offer_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_num END),'无') AS offer_zsyjk_num_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_amt END),'无') AS offer_zsyjk_amt_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_nopay_num END),'无') AS offer_zsyjk_nopay_num_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_nopay_amt END),'无') AS offer_zsyjk_nopay_amt_2,
+		    ifnull(MAX(CASE WHEN rank = 3 THEN offer_nm END),'无') AS offer_3,
+		    ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_num END),'无') AS offer_zsyjk_num_3,
+			ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_amt END),'无') AS offer_zsyjk_amt_3,
+			ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_nopay_num END),'无') AS offer_zsyjk_nopay_num_3,
+			ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_nopay_amt END),'无') AS offer_zsyjk_nopay_amt_3
+		FROM
+		    (SELECT offer_nm,offer_zsyjk_num,offer_zsyjk_amt,offer_zsyjk_nopay_num,offer_zsyjk_nopay_amt,per_nopay, @rownum := @rownum+1 as rank
+		FROM
+	         (SELECT offer_nm,
+			         offer_zsyjk_num,
+			         offer_zsyjk_amt,
+			         offer_zsyjk_nopay_num,
+			         offer_zsyjk_nopay_amt,
+			         per_nopay
+	          from hpeapb.sum_yjkzscz_3101_offer_cty
+			  where cmcc_prov_prvd_id=#{provinceCode}
+              and aud_trm= (select max(aud_trm) 
+                            from hpeapb.sum_yjkzscz_3101_offer_cty
+				            where  pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+                            and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')
+				            and cmcc_prov_prvd_id=#{provinceCode})
+              and pres_bg=CONCAT(substr(#{currSumBeginDate},1,4),'01')
+              and pres_ed=CONCAT(substr(#{currSumBeginDate},1,4),'12')							
+	          ORDER BY per_nopay DESC
+	          LIMIT 3
+	     ) T1, (select @rownum := 0) r
+	      ) T2) T3;
+ </select>
+<!-- 31.1 赠送有价卡未充值比例异常 end -->	    
+
+<!-- 31.2 赠送有价卡异省充值比例异常 start -->			  
+ <select id="zsyjkysczprvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select 
+	   case when zsyjk_num is null then concat(bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月,',short_name,'未上报有价卡充值的数据。')      
+	   else concat(bg_year,'年',bg_month,'月-', end_year,'年',end_month,'月,',short_name,'省赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，涉及营销案',format(offer_num,0),'个，')
+     END AS yjkzscz_21
+   FROM(
+   select 
+	substr(#{currSumBeginDate},1,4) as bg_year,
+	substr(#{currSumBeginDate},5,2) as bg_month,
+	substr(#{currSumEndDate},1,4) as end_year,
+	substr(#{currSumEndDate},5,2) as end_month,
+	#{shortName} as short_name,
+	sum(offer_zsyjk_num) as zsyjk_num,
+	sum(offer_zsyjk_amt) as zsyjk_amt,
+	count(offer_nm)as offer_num
+  from hpeapb.sum_yjkzscz_3102_offer_prvd
+   where cmcc_prov_prvd_id=#{provinceCode}
+   and aud_trm  &gt;= #{currSumBeginDate}
+   and aud_trm  &lt;= #{currSumEndDate}
+   ) a ;
+
+ </select>
+ <select id="zsyjkyscz1" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select 
+	   case when short_name is null then ''
+	   else concat('其中，异省充值金额比例≥80%的营销案有',format(offer_num,0),'个（涉及赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，异省充值',format(zsyjk_ys_num,0),'张、',format(zsyjk_ys_amt,2),'元），')
+     END AS yjkzscz_22
+  FROM(
+   SELECT short_name,count(OFFER_NM) as offer_num,sum(zsyjk_num)as zsyjk_num, sum(zsyjk_amt) as zsyjk_amt,sum(zsyjk_ys_num)as zsyjk_ys_num,sum(zsyjk_ys_amt)as zsyjk_ys_amt
+  from (
+   select 
+	short_name,
+	offer_nm,
+	sum(offer_zsyjk_num) as zsyjk_num,
+	sum(offer_zsyjk_amt) as zsyjk_amt,
+	sum(offer_zsyjk_ys_num) as zsyjk_ys_num,
+	sum(offer_zsyjk_ys_amt) as zsyjk_ys_amt,
+	sum(offer_zsyjk_ys_amt)/sum(offer_zsyjk_pay_amt) as per_ys_pay
+   from hpeapb.sum_yjkzscz_3102_offer_cty
+   where cmcc_prov_prvd_id=#{provinceCode}
+   and aud_trm  &gt;= #{currSumBeginDate}
+   and aud_trm  &lt;= #{currSumEndDate}
+   group by 1,2
+   having per_ys_pay &gt; 0.8
+    ) a)b ;
+ </select>
+
+ <select id="zsyjkyscz2" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select 
+	   case when short_name is null then ''
+	   else concat('异省充值金额比例60%~80%之间的营销案有',format(offer_num,0),'个（涉及赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，异省充值',format(zsyjk_ys_num,0),'张、',format(zsyjk_ys_amt,2),'元），')
+     END AS yjkzscz_23
+   FROM(
+    SELECT short_name,count(OFFER_NM) as offer_num,sum(zsyjk_num)as zsyjk_num, sum(zsyjk_amt) as zsyjk_amt,sum(zsyjk_ys_num)as zsyjk_ys_num,sum(zsyjk_ys_amt)as zsyjk_ys_amt
+   from (
+   select 
+	short_name,
+	offer_nm,
+	sum(offer_zsyjk_num) as zsyjk_num,
+	sum(offer_zsyjk_amt) as zsyjk_amt,
+	sum(offer_zsyjk_ys_num) as zsyjk_ys_num,
+	sum(offer_zsyjk_ys_amt) as zsyjk_ys_amt,
+	sum(offer_zsyjk_ys_amt)/sum(offer_zsyjk_pay_amt) as per_ys_pay
+  from hpeapb.sum_yjkzscz_3102_offer_cty
+  where cmcc_prov_prvd_id=#{provinceCode}
+  and aud_trm  &gt;= #{currSumBeginDate}
+  and aud_trm  &lt;= #{currSumEndDate}
+  group by 1,2
+  having per_ys_pay &gt; 0.6 and per_ys_pay &lt; 0.8
+   ) a)b ;
+ </select>
+
+ <select id="zsyjkyscz3" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  select 
+	   case when short_name is null then ''
+	   else concat('异省充值金额比例40%~60%之间的营销案有',format(offer_num,0),'个（涉及赠送有价卡',format(zsyjk_num,0),'张、',format(zsyjk_amt,2),'元，异省充值',format(zsyjk_ys_num,0),'张、',format(zsyjk_ys_amt,2),'元），')
+     END AS yjkzscz_24
+   FROM(
+  SELECT short_name,count(OFFER_NM) as offer_num,sum(zsyjk_num)as zsyjk_num, sum(zsyjk_amt) as zsyjk_amt,sum(zsyjk_ys_num)as zsyjk_ys_num,sum(zsyjk_ys_amt)as zsyjk_ys_amt
+  from (
+  select 
+	short_name,
+	offer_nm,
+	sum(offer_zsyjk_num) as zsyjk_num,
+	sum(offer_zsyjk_amt) as zsyjk_amt,
+	sum(offer_zsyjk_ys_num) as zsyjk_ys_num,
+	sum(offer_zsyjk_ys_amt) as zsyjk_ys_amt,
+	sum(offer_zsyjk_ys_amt)/sum(offer_zsyjk_pay_amt) as per_ys_pay
+  from hpeapb.sum_yjkzscz_3102_offer_cty
+   where cmcc_prov_prvd_id=#{provinceCode}
+   and aud_trm  &gt;= #{currSumBeginDate}
+   and aud_trm  &lt;= #{currSumEndDate}
+   group by 1,2
+   having per_ys_pay &gt; 0.4 and per_ys_pay&lt; 0.6
+   ) a)b ;
+
+ </select>
+
+ <select id="zsyjkyscz4" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  SELECT CASE WHEN offer_nm IS NULL THEN ''
+              when offer_1='无' then ''
+              when offer_1!='无' and offer_2='无' then CONCAT('涉及赠送有价卡异省充值的营销案：',offer_1,'（涉及赠送有价卡',format(offer_zsyjk_num_1,0),'张、',format(offer_zsyjk_amt_1,2),'元，异省充值',format(offer_zsyjk_ys_num_1,0),'张、',format(offer_zsyjk_ys_amt_1,2),'元）。')
+              when offer_1!='无' and offer_2!='无' and offer_3='无' then  CONCAT('涉及赠送有价卡异省充值的营销案：',offer_1,'（涉及赠送有价卡',format(offer_zsyjk_num_1,0),'张、',format(offer_zsyjk_amt_1,2),'元，异省充值',format(offer_zsyjk_ys_num_1,0),'张、',format(offer_zsyjk_ys_amt_1,2),'元）、',
+			                                                                     offer_2,'（涉及赠送有价卡',format(offer_zsyjk_num_2,0),'张、',format(offer_zsyjk_amt_2,2),'元，未充值',format(offer_zsyjk_ys_num_2,0),'张、',format(offer_zsyjk_ys_amt_2,2),'元）。')  
+  
+			ELSE CONCAT('异省充值金额比例排名前三的营销案为',
+			offer_1,'（涉及赠送有价卡',format(offer_zsyjk_num_1,0),'张、',format(offer_zsyjk_amt_1,2),'元，异省充值',format(offer_zsyjk_ys_num_1,0),'张、',format(offer_zsyjk_ys_amt_1,2),'元）、',
+			offer_2,'（涉及赠送有价卡',format(offer_zsyjk_num_2,0),'张、',format(offer_zsyjk_amt_2,2),'元，异省充值',format(offer_zsyjk_ys_num_2,0),'张、',format(offer_zsyjk_ys_amt_2,2),'元）、',
+			offer_3,'（涉及赠送有价卡',format(offer_zsyjk_num_3,0),'张、',format(offer_zsyjk_amt_3,2),'元，异省充值',format(offer_zsyjk_ys_num_3,0),'张、',format(offer_zsyjk_ys_amt_3,2),'元）。') END AS yjkzscz_25
+  FROM
+  (SELECT offer_nm,
+		    ifnull(MAX(CASE WHEN rank = 1 THEN offer_nm END),'无') AS offer_1,
+		    ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_num END),'无') AS offer_zsyjk_num_1,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_amt END),'无') AS offer_zsyjk_amt_1,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_ys_num END),'无') AS offer_zsyjk_ys_num_1,
+			ifnull(MAX(CASE WHEN rank = 1 THEN offer_zsyjk_ys_amt END),'无') AS offer_zsyjk_ys_amt_1,
+		    ifnull(MAX(CASE WHEN rank = 2 THEN offer_nm END),'无') AS offer_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_num END),'无') AS offer_zsyjk_num_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_amt END),'无') AS offer_zsyjk_amt_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_ys_num END),'无') AS offer_zsyjk_ys_num_2,
+			ifnull(MAX(CASE WHEN rank = 2 THEN offer_zsyjk_ys_amt END),'无') AS offer_zsyjk_ys_amt_2,
+		    ifnull(MAX(CASE WHEN rank = 3 THEN offer_nm END),'无') AS offer_3,
+		    ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_num END),'无') AS offer_zsyjk_num_3,
+			ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_amt END),'无') AS offer_zsyjk_amt_3,
+			ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_ys_num END),'无') AS offer_zsyjk_ys_num_3,
+			ifnull(MAX(CASE WHEN rank = 3 THEN offer_zsyjk_ys_amt END),'无') AS offer_zsyjk_ys_amt_3
+		FROM
+		    (SELECT offer_nm,offer_zsyjk_num,offer_zsyjk_amt,offer_zsyjk_ys_num,offer_zsyjk_ys_amt,per_pay, @rownum := @rownum+1 as rank
+		FROM
+	         (SELECT offer_nm,
+			  sum(offer_zsyjk_num) as offer_zsyjk_num,
+			  sum(offer_zsyjk_amt) as offer_zsyjk_amt,
+			  sum(offer_zsyjk_ys_num) as offer_zsyjk_ys_num,
+			  sum(offer_zsyjk_ys_amt) as offer_zsyjk_ys_amt,
+			  sum(offer_zsyjk_ys_amt)*1.00/sum(offer_zsyjk_pay_amt) as per_pay
+	          from hpeapb.sum_yjkzscz_3102_offer_cty
+			  where cmcc_prov_prvd_id=#{provinceCode}
+              and aud_trm  &gt;= #{currSumBeginDate}
+              and aud_trm  &lt;= #{currSumEndDate}
+	          GROUP BY offer_nm
+	          ORDER BY per_pay DESC
+	          LIMIT 3
+	     ) T1, (select @rownum := 0) r
+	      ) T2) T3;
+ </select>
+<!-- 31.2 赠送有价卡异省充值比例异常 end -->  	
+
+<!-- 23.3 同一渠道批量缴费异常 start -->
+ <select id="tyqdpljf" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT
+    case when chnl_count =0  then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月,',short_name,'未上报缴费业务相关的数据。')	    
+    else
+   concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月,',short_name,
+		ifnull(max(case when rank = 1 then busi_chnl_nm end),"无" ),
+		'渠道、',
+		ifnull(max(case when rank = 2 then busi_chnl_nm end),"无" ),
+		'渠道、',
+			ifnull(max(case when rank = 3 then busi_chnl_nm end),"无" ),
+		'渠道等',
+    format(chnl_count,0),
+  '个渠道批量办理',
+		format(bishu_count,0),
+ '笔缴费业务，存在异常，请根据明细数据进一步核实业务办理的真实性。')
+  end 
+   chnl_jiaofei
+  FROM
+	(	SELECT
+            substring(#{currSumBeginDate}, 1, 4) AS bg_year,
+		   	substring(#{currSumBeginDate}, 5, 2) AS bg_month,
+			substring(#{currSumEndDate}, 1, 4) AS end_year,
+		  	substring(#{currSumEndDate}, 5, 2) AS end_month,
+			#{shortName} as short_name,
+			count(DISTINCT busi_chnl_id) AS chnl_count,
+			sum(count_amt_num) AS bishu_count
+			FROM
+				hpeapb.sum_ygyccz_2303_chnl_busi_cty
+			WHERE	cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm between #{currSumBeginDate} and #{currSumEndDate}) t1
+left join 
+			(
+				SELECT
+					t1.busi_chnl_nm,
+					t1.count_amt_num,
+					@rownum := @rownum + 1 AS rank
+				FROM
+					(
+						SELECT
+							busi_chnl_nm,
+							sum(count_amt_num) as count_amt_num
+						FROM hpeapb.sum_ygyccz_2303_chnl_busi_cty
+						WHERE cmcc_prov_prvd_id=#{provinceCode}
+		                and aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				            group by 1
+						ORDER BY count_amt_num DESC
+					) t1,
+					(SELECT @rownum := 0) r
+			) t2
+ on 1=1;	
+ </select>
+<!-- 23.3 同一渠道批量缴费异常 end -->
+
+<!-- 29.1 高额积分变动 start -->
+ <select id="gejfbd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+ SELECT
+   case when t1.sum_value is null then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月,',short_name,'未上报积分变动的数据。')
+   else concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月,',short_name,
+		'存在单个用户单月积分变动绝对值超过100万分的情况，共涉及用户',
+		format(t1.sum_subs_cnt,0),
+		'个、累计',
+		format(t1.sum_value,0),
+		'积分。其中积分异常变动最高的有',
+		ifnull(max(case when rank = 1 then CMCC_prvd_nm_short end),"无" ),
+		'分公司',
+		ifnull(max(case when rank = 1 then subs_id end),0),
+		'用户（积分变动为',
+		ifnull(max(case when rank = 1 then format(count_value,0) end),0),
+		'分）、',
+		ifnull(max(case when rank = 2 then CMCC_prvd_nm_short end),"无" ),
+		'分公司',
+		ifnull(max(case when rank = 2 then subs_id end),0),
+		'用户（积分变动为',
+		ifnull(max(case when rank = 2 then format(count_value,0) end),0),
+		'分）、',
+		ifnull(max(case when rank = 3 then CMCC_prvd_nm_short end),"无" ),
+		'分公司',
+		ifnull(max(case when rank = 3 then subs_id end),0),
+		'用户（积分变动为',
+		ifnull(max(case when rank = 3 then format(count_value,0) end),0),
+		'分）。')
+    end jfbdyc1
+  FROM (select  substring(#{currSumBeginDate}, 1, 4) AS bg_year,
+			    substring(#{currSumBeginDate}, 5, 2) AS bg_month,
+			    substring(#{currSumEndDate}, 1, 4) AS end_year,
+			    substring(#{currSumEndDate}, 5, 2) AS end_month,
+			    #{shortName} as short_name,
+                count(subs_id) as sum_subs_cnt,
+                sum(trade_value) as sum_value
+  from  hpeapb.sum_jfbdyc_2901_prvd
+  where cmcc_prov_prvd_id=#{provinceCode}
+	and aud_trm between #{currSumBeginDate} and #{currSumEndDate}) t1
+  left join 
+	(select 
+			t1.cmcc_prov_id,
+			t1.CMCC_prvd_nm_short,
+			t1.subs_id,
+			t1.count_value,
+			@rownum := @rownum + 1 AS rank
+		FROM
+			(SELECT
+					cmcc_prov_id,
+					CMCC_prvd_nm_short,
+					subs_id,
+					sum(trade_value) count_value
+				FROM
+					hpeapb.sum_jfbdyc_2901_cty a
+				 where cmcc_prov_prvd_id=#{provinceCode}
+	             and aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				GROUP BY 1,2,3
+				ORDER BY 4 DESC
+			) t1,(SELECT @rownum := 0) r) t2
+	on 1=1;	
+ </select>
+<!-- 29.1 高额积分变动 end -->
+
+<!--29.2 积分清零与赠送比例异常 start -->
+<select id="jfqlyzsbl" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when t2.subs_cnt1 = 0
+             and t2.subs_cnt2 = 0
+			 and t2.subs_cnt3 = 0
+			 and t2.subs_cnt4 = 0
+			 and t2.subs_cnt5 = 0
+			 and t2.subs_cnt6 = 0
+			 then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',t2.short_name,'未上报积分清零的数据。')
+       else concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',t2.short_name,
+       '用户清零积分值与赠送积分值的比例情况是，比例>=100%的用户有',format(subs_cnt1,0),
+       '个，比例在80%-100%之间的用户有',format(subs_cnt2,0),'个，比例在60%-80%之间的用户有',format(subs_cnt3,0),
+       '个，比例在40%-60%之间的用户有',format(subs_cnt4,0),'个，比例在20%-40%之间的用户有',format(subs_cnt5,0),
+       '个，比例在0%-20%之间的用户有',format(subs_cnt6,0),'个，请根据明细数据进一步核实积分清零、赠送的真实性。')
+       end as jfbdyc2
+from
+(select (substr(#{currSumBeginDate},1,4)-1) as bg_year,
+        '10' as bg_month,
+        substr(#{currSumBeginDate},1,4) as end_year,
+        '03' as end_month,
+        #{shortName} as short_name,
+        count(case when ql_zs_bili &gt;=1 then 1 end) as subs_cnt1,
+        count(case when ql_zs_bili &lt;1 and ql_zs_bili &gt;=0.8 then 1 end) as subs_cnt2,
+count(case when ql_zs_bili &lt;0.8 and ql_zs_bili &gt;=0.6 then 1 end) as subs_cnt3,
+count(case when ql_zs_bili &lt;0.6 and ql_zs_bili &gt;=0.4 then 1 end) as subs_cnt4,
+count(case when ql_zs_bili &lt;0.4 and ql_zs_bili &gt;=0.2 then 1 end) as subs_cnt5,
+count(case when ql_zs_bili &lt;0.2 and ql_zs_bili &gt;=0 then 1 end) as subs_cnt6
+from
+(select short_name,
+       subs_id,
+       bili_value as ql_zs_bili
+from hpeapb.sum_jfbdyc_2902_subs
+where cmcc_Prov_Prvd_id=#{provinceCode}
+and aud_trm_begin =concat((substr(#{currSumBeginDate},1,4)-1),'10')
+and aud_trm_end =concat(substr(#{currSumBeginDate},1,4),'03')
+group by 1,2) t1) t2;
+</select>
+<!--29.2 积分清零与赠送比例异常 end -->
+
+<!-- 34.1 合约终端重复销售 start -->
+ <select id="hyzdcfxs" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when imei_cnt=0 then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报终端销售的数据。')
+			else concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,
+			'存在同一终端IMEI重复销售的情况（剔除退货情况），涉及终端',format(imei_cnt,0),'台，累计销售',format(SELL_NUM,0),
+       '次，累计补贴',format(tol_allow_cost,2),'元，其中话费补贴',format(sum_fee_allow_cost,2),'元、终端补贴',format(sum_trmnl_allow_cost,2),
+      '元，存在异常，请根据明细数据进一步核实业务办理的真实性。') end as hyzdcfxs_3401
+   from
+     (select substring(#{currSumBeginDate}, 1, 4) AS bg_year,
+	   substring(#{currSumBeginDate}, 5, 2) AS bg_month,
+	   substring(#{currSumEndDate}, 1, 4) AS end_year,
+	   substring(#{currSumEndDate}, 5, 2) AS end_month,
+       #{shortName} as short_name,
+	   count(distinct trmnl_IMEI) imei_cnt,
+	   sum(SELL_NUM) SELL_NUM,
+	   sum(sum_trmnl_allow_cost) sum_trmnl_allow_cost,
+	   sum(sum_fee_allow_cost) sum_fee_allow_cost,
+	   sum(sum_trmnl_allow_cost)+sum(sum_fee_allow_cost) tol_allow_cost
+   from hpeapb.sum_hyzdxsyc_3401_sell_num
+   where cmcc_prov_prvd_id=#{provinceCode}
+   and aud_trm = date_format(date_sub(date(CURRENT_TIMESTAMP),interval 2 month),'%Y%m')
+   and ( substr(earliest_sell_dt,1,6) between  #{currSumBeginDate} and  #{currSumEndDate}
+        or substr(latest_sell_dt,1,6) between  #{currSumBeginDate} and  #{currSumEndDate} )  
+   ) a;
+ </select>
+<!-- 34.1 合约终端重复销售 end -->	
+
+
+<!--有价卡赠送合规性-->
+<!--有价卡赠送对象分析-->
+<select id="yjkzsdxfx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select
+	case when sum_offer_num='无' then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报有价卡赠送的数据。')
+	     when sum_offer_num=0       then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在向非中高端非集团客户赠送有价卡的营销活动。')
+		 when yjk_offer_cd1='无' then ''
+         when yjk_offer_cd1!='无' and yjk_offer_cd2='无' then CONCAT(start_year,'年',start_month,'月 - ',end_year,'年',end_month,'月，',short_name,'有',FORMAT(sum_offer_num,0),'个营销活动向',FORMAT(sum_yjk_user,0),
+					'个非中高端非集团客户赠送有价卡，涉及有价卡数量',FORMAT(sum_tol_yjk_num,0),'，金额',FORMAT(sum_tol_yjk_amt,2),'元。涉及疑似违规的营销案：',
+					'（',yjk_offer_cd1,'）',yjk_offer_nm1,'，涉及有价卡数量',FORMAT(sum_tol_yjk_num1,0),'张，金额',
+					FORMAT(sum_tol_yjk_amt1,2),'元。')
+         when yjk_offer_cd1!='无' and yjk_offer_cd2!='无' and yjk_offer_cd3='无' then CONCAT(start_year,'年',start_month,'月 - ',end_year,'年',end_month,'月，',short_name,'有',FORMAT(sum_offer_num,0),'个营销活动向',FORMAT(sum_yjk_user,0),
+					'个非中高端非集团客户赠送有价卡，涉及有价卡数量',FORMAT(sum_tol_yjk_num,0),'，金额',FORMAT(sum_tol_yjk_amt,2),'元。涉及疑似违规的营销案：',
+					'（',yjk_offer_cd1,'）',yjk_offer_nm1,'、（',yjk_offer_cd2,'）',yjk_offer_nm2,'，涉及有价卡数量',FORMAT(sum_tol_yjk_num1+sum_tol_yjk_num2,0),'张，金额',
+					FORMAT(sum_tol_yjk_amt1+sum_tol_yjk_amt2,2),'元。')
+		 else CONCAT(start_year,'年',start_month,'月 - ',end_year,'年',end_month,'月，',short_name,'有',FORMAT(sum_offer_num,0),'个营销活动向',FORMAT(sum_yjk_user,0),
+					'个非中高端非集团客户赠送有价卡，涉及有价卡数量',FORMAT(sum_tol_yjk_num,0),'，金额',FORMAT(sum_tol_yjk_amt,2),'元。疑似违规赠送有价卡金额排名前三的营销案：',
+					'（',yjk_offer_cd1,'）',yjk_offer_nm1,'、（',yjk_offer_cd2,'）',yjk_offer_nm2,'、（',yjk_offer_cd3,'）',yjk_offer_nm3,'，涉及有价卡数量',FORMAT(sum_tol_yjk_num1+sum_tol_yjk_num2+sum_tol_yjk_num3,0),'张，金额',
+					FORMAT(sum_tol_yjk_amt1+sum_tol_yjk_amt2+sum_tol_yjk_amt3,2),'元。') 
+  end as yjkzsdx_info
+from
+(select	
+	SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+	SUBSTRING(#{currSumBeginDate},5,6) as start_month,
+	SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	SUBSTRING(#{currSumEndDate},5,6) as end_month,
+	#{shortName}   as short_name,
+	IFNULL(t3.sum_offer_num,'无') as sum_offer_num,
+	IFNULL(t3.sum_yjk_user,'无') as sum_yjk_user,
+	IFNULL(t3.sum_tol_yjk_num,'无') as sum_tol_yjk_num,
+	IFNULL(t3.sum_tol_yjk_amt,'无') as sum_tol_yjk_amt,
+
+	IFNULL(max(case when rank=1 then t2.yjk_offer_cd end),'无') as yjk_offer_cd1,
+	IFNULL(max(case when rank=1 then t2.yjk_offer_nm end),'无') as yjk_offer_nm1,
+	IFNULL(max(case when rank=1 then t2.sum_tol_yjk_amt end),'无') as sum_tol_yjk_amt1,
+	IFNULL(max(case when rank=1 then t2.sum_tol_yjk_num end),'无') as sum_tol_yjk_num1,
+
+	IFNULL(max(case when rank=2 then t2.yjk_offer_cd end),'无') as yjk_offer_cd2,
+	IFNULL(max(case when rank=2 then t2.yjk_offer_nm end),'无') as yjk_offer_nm2,
+	IFNULL(max(case when rank=2 then t2.sum_tol_yjk_amt end),'无') as sum_tol_yjk_amt2,
+	IFNULL(max(case when rank=2 then t2.sum_tol_yjk_num end),'无') as sum_tol_yjk_num2,
+
+	IFNULL(max(case when rank=3 then t2.yjk_offer_cd end),'无') as yjk_offer_cd3,
+	IFNULL(max(case when rank=3 then t2.yjk_offer_nm end),'无') as yjk_offer_nm3,
+	IFNULL(max(case when rank=3 then t2.sum_tol_yjk_amt end),'无') as sum_tol_yjk_amt3,
+	IFNULL(max(case when rank=3 then t2.sum_tol_yjk_num end),'无') as sum_tol_yjk_num3
+from 
+	(select 
+		yjk_offer_cd,
+		yjk_offer_nm,
+		sum_tol_yjk_amt,
+		sum_tol_yjk_num,
+		@rownum := @rownum+1 as rank
+	from
+		(select 
+			yjk_offer_cd,
+			yjk_offer_nm,
+			sum(tol_yjk_amt) as sum_tol_yjk_amt,
+			sum(tol_yjk_num) as sum_tol_yjk_num
+		from hpeapb.sum_yjk_2006_04_offerprvd
+		where Aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		and cmcc_prov_prvd_id=#{provinceCode}
+		group by  1,2 
+		order by sum_tol_yjk_amt desc
+		limit 3) t1, (SELECT @ROWNUM := 0) r  
+	)t2,
+	(select
+		short_name,
+		sum(offer_num) as sum_offer_num,
+		sum(yjk_user) as sum_yjk_user,
+		sum(tol_yjk_num) as sum_tol_yjk_num, 
+		sum(tol_yjk_amt) as sum_tol_yjk_amt 
+	from hpeapb.sum_yjk_2006_04_prvd 
+	where Aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+	and cmcc_prov_prvd_id=#{provinceCode}
+	group by 1) t3
+) t4;
+</select>
+
+<!--赠送有价卡批量激活-->
+ <select id="yjkzspljh" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select
+	case when batch_yjk_cnt='无' then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报有价卡赠送和激活的数据。')
+	     when batch_yjk_cnt=0    then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在赠送有价卡批量激活的情况。')
+		 when opr1='无' then ''
+         when opr1!='无' and opr2='无' then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'赠送有价卡',
+					format(zsyjk_cnt,0),'张，涉及金额',format(zsyjk_amt,2),'元，其中单小时批量激活有价卡',format(batch_yjk_cnt,0),
+         '张，涉及金额',format(batch_amt_sum,2),'元。涉及批量激活赠送有价卡的操作员：',opr1,
+          '，激活赠送有价卡',format(sum_err_num1,0),'张。')
+         when opr1!='无' and opr2!='无' and opr3='无' then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'赠送有价卡',
+					format(zsyjk_cnt,0),'张，涉及金额',format(zsyjk_amt,2),'元，其中单小时批量激活有价卡',format(batch_yjk_cnt,0),
+         '张，涉及金额',format(batch_amt_sum,2),'元。涉及批量激活赠送有价卡的操作员：',opr1,'、',opr2,
+          '，分别激活赠送有价卡',format(sum_err_num1,0),'张、',format(sum_err_num2,0),'张。')
+		 else CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'赠送有价卡',
+					format(zsyjk_cnt,0),'张，涉及金额',format(zsyjk_amt,2),'元，其中单小时批量激活有价卡',format(batch_yjk_cnt,0),
+         '张，涉及金额',format(batch_amt_sum,2),'元。批量激活数量排名前三的操作员：',opr1,'、',opr2,'、',opr3,
+          '，分别激活赠送有价卡',format(sum_err_num1,0),'张、',format(sum_err_num2,0),'张、',format(sum_err_num3,0),'张。') 
+  end as zs_batch_jh
+from
+(select	
+	SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+	SUBSTRING(#{currSumBeginDate},5,6) as start_month,
+	SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	SUBSTRING(#{currSumEndDate},5,6) as end_month,
+	IFNULL(t3.short_name,'无') as short_name,
+	IFNULL(t3.zsyjk_cnt,'无') as zsyjk_cnt,
+    IFNULL(t3.zsyjk_amt,'无') as zsyjk_amt,
+    IFNULL(t3.batch_yjk_cnt,'无') as batch_yjk_cnt,
+    IFNULL(t3.batch_amt_sum,'无') as batch_amt_sum,
+	IFNULL(max(case when rank=1 then t2.opr_id end),'无') as opr1,
+	IFNULL(max(case when rank=1 then t2.err_num end),'无') as sum_err_num1,
+	IFNULL(max(case when rank=2 then t2.opr_id end),'无') as opr2,
+	IFNULL(max(case when rank=2 then t2.err_num end),'无') as sum_err_num2,
+	IFNULL(max(case when rank=3 then t2.opr_id end),'无') as opr3,
+	IFNULL(max(case when rank=3 then t2.err_num end),'无') as sum_err_num3
+from 
+	(select 
+    opr_id,
+		err_num,
+		@rownum := @rownum+1 as rank
+	from
+		(select 
+            nm as opr_id,
+			sum(batch_yjk_cnt) as err_num
+		from hpeapb.sum_zsyjk_batch_jh_czy
+		where cmcc_prov_prvd_id=#{provinceCode}
+    and aud_trm BETWEEN #{currSumBeginDate} and #{currSumEndDate}
+		group by  1 
+		order by err_num desc
+		limit 3) t1, (SELECT @ROWNUM := 0) r  
+	)t2,
+	(select 
+    #{shortName} as short_name,
+	sum(zsyjk_cnt) as zsyjk_cnt,
+    sum(zsyjk_amt) as zsyjk_amt,
+    sum(batch_yjk_cnt) as batch_yjk_cnt,
+    sum(batch_amt_sum) as batch_amt_sum
+	from hpeapb.sum_zsyjk_batch_jh_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and aud_trm BETWEEN #{currSumBeginDate} and #{currSumEndDate}) t3
+) t4;
+</select>
+
+<!-- 有价卡赠送合规性 begin -->
+ <select id="ycbd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select  case when  yjkamt = 0 and yjkmz = 0 then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'BOSS系统和财务系统均未上报有价卡赠送的数据。')        
+else CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'财务系统记录赠送有价卡',
+		format(coalesce(yjkmz,0),2),'元，总部BOSS系统记录赠送有价卡',format(coalesce(yjkamt,0),2),'元，差异金额',format(chayi,2),'元，占到财务赠送有价卡金额的',per_chayi*100,'%。' ) end AS yjk_2006_01
+from
+(select SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+	    SUBSTRING(#{currSumBeginDate},5,6) as start_month,
+	    SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	    SUBSTRING(#{currSumEndDate},5,6) as end_month,
+        #{shortName}  as short_name,
+		t2.yjkamt,
+		t1.yjkmz,
+		abs(t1.yjkmz-t2.yjkamt) as chayi,
+		case when t1.yjkmz =0 or t1.yjkmz is null then 0
+		else cast(abs(t1.yjkmz-t2.yjkamt)*1.00/t1.yjkmz as decimal(18,2)) end as per_chayi
+from 
+(SELECT 
+ifnull(SUM(CASE WHEN KJQJ &gt;= 201406 
+			THEN ((CASE WHEN MXKMDM LIKE '51142723%' OR MXKMDM LIKE '51142724%' THEN JFJE ELSE 0 END)*1.11+
+				(CASE WHEN MXKMDM LIKE '51142730%' OR MXKMDM LIKE '51142731%' THEN JFJE ELSE 0 END)*1.06)
+	ELSE JFJE END),0) as yjkmz
+FROM audit_db.ods_yjk_cw_sum
+WHERE  KJQJ BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+AND prov_code = #{provinceCode}) T1,
+(SELECT ifnull(sum(yjk_amt),0) as yjkamt
+FROM hpeapb.sum_yjk_2006_01_prvd
+WHERE  aud_trm BETWEEN  #{currSumBeginDate} AND #{currSumEndDate}
+AND CMCC_PROV_PRVD_ID = #{provinceCode}) T2)T3;
+</select>
+
+<select id="zszsx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT  case when tol_yjk_amt is null then ''
+        else CONCAT('发现',format(COALESCE(tol_yjk_amt,0.00),2),'元有价卡赠送未记录批复文件公文号，',
+						if(COALESCE(tol_yjk_amt,0)=0,'','无法'),'保证有价卡赠送的真实性。') end AS yjk_2006_02_01
+FROM
+	(SELECT CAST(SUM(yjk_amt) AS DECIMAL(20,2)) AS tol_yjk_amt
+	FROM hpeapb.sum_yjk_2006_02_prvd
+	WHERE cmcc_prov_prvd_id = #{provinceCode}
+	AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	AND exist_word = '无公文号') T1;
+</select>
+
+<select id="zsdx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT case when user_num=0 then ''
+       else CONCAT('发现部分客户累计有价卡赠送金额较大。其中，赠送有价卡总金额超过10万元的客户有',format(COALESCE(user_num,0),0),'个，涉及金额',format(COALESCE(tol_yjk_amt,0.00),2),'元。') end AS yjk_2006_03_01
+FROM
+(SELECT COUNT(msisdn) AS user_num,
+		 CAST(SUM(tol_yjk_amt) AS DECIMAL(20,2)) AS tol_yjk_amt
+FROM
+	(SELECT msisdn,
+				  SUM(yjk_amt) AS tol_yjk_amt
+	FROM hpeapb.sum_yjk_2006_03_msisdn
+	WHERE cmcc_prov_prvd_id = #{provinceCode}
+	AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	GROUP BY msisdn
+	HAVING tol_yjk_amt &gt;= 100000) T1) T2;
+</select>
+
+<select id="zsyg" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT  case when emp_num=0 then ''
+        else CONCAT('发现存在向员工赠送大额有价卡的情况。其中，赠送有价卡总金额超过1万元的员工人数有',format(COALESCE(emp_num,0),0),'人，涉及金额',format(COALESCE(tol_yjk_amt,0.00),2),'元。') end AS yjk_2006_06_01
+FROM(
+SELECT COUNT(emp_id) AS emp_num,
+			 CAST(SUM(tol_yjk_amt) AS DECIMAL(20,2)) AS tol_yjk_amt
+FROM 
+	(SELECT emp_id,
+				 SUM(yjk_amt) AS tol_yjk_amt
+	FROM hpeapb.sum_yjk_2006_06_emp
+	WHERE cmcc_prov_prvd_id = #{provinceCode}
+	AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}
+	GROUP BY emp_id
+	HAVING tol_yjk_amt &gt;= 10000) T1) T2;
+</select>
+	
+<select id="zsyt" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT case when tol_yjk_amt is null then ''
+       else CONCAT('发现',IF(COALESCE(tol_yjk_amt,0)=0,'不',''),'存在以有价卡赠送方式支付租金、渠道酬金、员工福利的情况',IF(COALESCE(tol_yjk_amt,0)=0,'。',CONCAT('，共涉及金额',format(tol_yjk_amt,2),'元。'))) end AS yjk_2006_05_01
+FROM
+	(SELECT CAST(SUM(yjk_amt) AS DECIMAL(20,2)) AS tol_yjk_amt
+	FROM hpeapb.sum_yjk_2006_05_prvd
+	WHERE cmcc_prov_prvd_id =#{provinceCode}
+	AND aud_trm BETWEEN #{currSumBeginDate} AND #{currSumEndDate}) T1;
+</select>	
+
+<!-- 有价卡赠送合规性 end -->			
+			
+<!--赠送有价卡被充值号码集中度 -->	
+<select id="zsyhmjkjzd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT	
+	case when cnt_charge_msisdn is null then concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'未上报有价卡赠送的数据。')
+	     when cmcc_prvd_nm_short1='无' then ''
+         when cmcc_prvd_nm_short1!='无' and cmcc_prvd_nm_short2='无' then concat(start_year,'年',start_months,'月 - ',end_year,'年',end_months,'月，',short_name,'赠送有价卡集中充值用户（单月内对同一个用户充值的有价卡数量大于10张或者金额大于1000元）',
+		                                                                   FORMAT(cnt_charge_msisdn,0),'个，共',FORMAT(sum_yjk_num,0),'张有价卡，金额共',FORMAT(sum_yjk_amt,2),'元。涉及赠送有价卡集中充值的地市：',cmcc_prvd_nm_short1,
+		                                                                   '地市，涉及',FORMAT(top_yjk_num1,0),'张有价卡，金额',FORMAT(top_yjk_amt1,2),'元。')
+         when cmcc_prvd_nm_short1!='无' and cmcc_prvd_nm_short2!='无' and cmcc_prvd_nm_short3='无' then concat(start_year,'年',start_months,'月 - ',end_year,'年',end_months,'月，',short_name,'赠送有价卡集中充值用户（单月内对同一个用户充值的有价卡数量大于10张或者金额大于1000元）',
+		                                                                    FORMAT(cnt_charge_msisdn,0),'个，共',FORMAT(sum_yjk_num,0),'张有价卡，金额共',FORMAT(sum_yjk_amt,2),'元。其中赠送有价卡集中充值金额排名前三的操作地市：',cmcc_prvd_nm_short1,'地市、',
+		                                                                    cmcc_prvd_nm_short2,'地市，涉及',FORMAT(top_yjk_num1+top_yjk_num2,0),'张有价卡，金额',FORMAT(top_yjk_amt1+top_yjk_amt2,2),'元。')
+	else concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'赠送有价卡集中充值用户（单月内对同一个用户充值的有价卡数量大于10张或者金额大于1000元）',
+		FORMAT(cnt_charge_msisdn,0),'个，共',FORMAT(sum_yjk_num,0),'张有价卡，金额共',FORMAT(sum_yjk_amt,2),'元。其中赠送有价卡集中充值金额排名前三的操作地市：',cmcc_prvd_nm_short1,'、',
+		cmcc_prvd_nm_short2,'、',cmcc_prvd_nm_short3,'，涉及',FORMAT(top_yjk_num1+top_yjk_num2+top_yjk_num3,0),'张有价卡，金额',FORMAT(top_yjk_amt1+top_yjk_amt2+top_yjk_amt3,2),'元。')
+	end as czhmjzd_info
+from
+	(select 
+		SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+		SUBSTRING(#{currSumBeginDate},5,6) as start_months,
+		SUBSTRING(#{currSumEndDate},1,4) as end_year,
+		SUBSTRING(#{currSumEndDate},5,6) as end_months,
+		cnt_charge_msisdn,
+		sum_yjk_num,
+		sum_yjk_amt,
+		short_name,
+		max(CASE WHEN t2.rank = 1 THEN t2.cmcc_prvd_nm_short END) as cmcc_prvd_nm_short1,
+		max(CASE WHEN t2.rank = 1 THEN t2.top_yjk_amt END) as top_yjk_amt1,
+		max(CASE WHEN t2.rank = 1 THEN t2.top_yjk_num END) as top_yjk_num1,
+
+		max(CASE WHEN t2.rank = 2 THEN t2.cmcc_prvd_nm_short END) as cmcc_prvd_nm_short2,
+		max(CASE WHEN t2.rank = 2 THEN t2.top_yjk_amt END) as top_yjk_amt2,
+		max(CASE WHEN t2.rank = 2 THEN t2.top_yjk_num END) as top_yjk_num2,
+
+		max(CASE WHEN t2.rank = 3 THEN t2.cmcc_prvd_nm_short END) as cmcc_prvd_nm_short3,
+		max(CASE WHEN t2.rank = 3 THEN t2.top_yjk_amt END) as top_yjk_amt3,
+		max(CASE WHEN t2.rank = 3 THEN t2.top_yjk_num END) as top_yjk_num3
+	from
+		(SELECT
+			cmcc_prvd_nm_short,
+			top_yjk_amt,
+			top_yjk_num,
+			@rownum := @rownum + 1 AS rank
+		from
+			(select 
+				cmcc_prvd_nm_short,             
+				sum(yjk_amt) as top_yjk_amt,    
+				sum(yjk_num) as top_yjk_num		 
+			from hpeapb.sum_zsyjk_msisdn_focus_cty
+			where cmcc_prov_prvd_id = #{provinceCode}
+			and  Aud_trm between  #{currSumBeginDate} and #{currSumEndDate}
+			group by 1 
+			order by top_yjk_amt desc
+			limit 3) t1, (SELECT @rownum := 0)r
+		) t2,
+		(select 
+			#{shortName} as short_name,
+			count(distinct charge_user) as cnt_charge_msisdn,  
+			sum(yjk_num) as sum_yjk_num,               
+			sum(yjk_amt) as sum_yjk_amt             
+		from hpeapb.sum_zsyjk_msisdn_focus_phone
+		WHERE cmcc_prov_prvd_id=#{provinceCode}
+		and Aud_trm between  #{currSumBeginDate} and #{currSumEndDate}
+		group by 1
+		) t3
+	) t4;	
+</select>		
+<!--赠送有价卡被充值号码集中度-->
+<!--流量赠送合规性-->
+<select id="llzshgx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT
+	case when sum_pres_strm_tol='无' then  concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'未上报流量赠送相关的数据。' )
+         when sum_pres_strm_tol=0    then  concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'不存在单用户年度累计赠送超过6G的违规数据。' )
+		 when cmcc_prvd_nm_short1='无' then ''
+         when cmcc_prvd_nm_short1!='无' and cmcc_prvd_nm_short2='无' then concat(start_year,'年',start_months,'月',' - ',end_year,'年',end_months,'月，',short_name,'违反总部规定“2015年2月起，针对大众市场，单用户年度累计赠送不得超过6G”，有',format(sum_pres_user_num,0),
+			                                                               '个用户年度累计赠送流量超过6G，涉及违规的地市：',cmcc_prvd_nm_short1,'地市，涉及赠送流量',format(sum_pres_strm_tol,2),'G。')
+         when cmcc_prvd_nm_short1!='无' and cmcc_prvd_nm_short2!='无' and cmcc_prvd_nm_short3='无' then concat(start_year,'年',start_months,'月',' - ',end_year,'年',end_months,'月，',short_name,'违反总部规定“2015年2月起，针对大众市场，单用户年度累计赠送不得超过6G”，有',format(sum_pres_user_num,0),
+			                                                                 '个用户年度累计赠送流量超过6G，涉及违规的地市：',cmcc_prvd_nm_short1,'地市、',cmcc_prvd_nm_short2,'地市，涉及赠送流量',format(sum_pres_strm_tol,2),'G。')
+		 else concat(start_year,'年',start_months,'月',' - ',end_year,'年',end_months,'月，',short_name,'违反总部规定“2015年2月起，针对大众市场，单用户年度累计赠送不得超过6G”，有',format(sum_pres_user_num,0),
+			'个用户年度累计赠送流量超过6G，用户数排名前三的地市：',cmcc_prvd_nm_short1,'、',cmcc_prvd_nm_short2,'、',cmcc_prvd_nm_short3,'，涉及赠送流量',format(sum_pres_strm_tol,2),'G。')
+		 end as llzs_info
+from
+	(select 
+		substring(#{currSumBeginDate},1,4) as start_year,
+		substring(#{currSumBeginDate},5,6) as start_months,
+		substring(#{currSumEndDate},1,4) as end_year,
+		substring(#{currSumEndDate},5,6) as end_months,
+		#{provinceCode} as  prvd_id,
+		ifnull(max(case when t2.rank=1 then t2.cmcc_prvd_nm_short end),'无') as cmcc_prvd_nm_short1,
+		ifnull(max(case when t2.rank=2 then t2.cmcc_prvd_nm_short end),'无') as cmcc_prvd_nm_short2,
+		ifnull(max(case when t2.rank=3 then t2.cmcc_prvd_nm_short end),'无') as cmcc_prvd_nm_short3,
+		ifnull(t3.sum_pres_user_num,'无') as sum_pres_user_num,
+		ifnull(t3.sum_pres_strm_tol,'无') as sum_pres_strm_tol,
+		t3.short_name as short_name
+	from
+		(SELECT
+			cmcc_prvd_nm_short,
+			top_pres_user_num,
+			@rownum := @rownum + 1 as rank
+		from
+			(select	
+				cmcc_prvd_nm_short,
+				sum(pres_user_num) as top_pres_user_num
+			 from hpeapb.SUM_ZFTC_1402_CTY
+			 where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+			 and cmcc_prov_prvd_id=#{provinceCode}
+			 group by cmcc_prvd_nm_short 
+			 order by top_pres_user_num desc 
+			 limit 3
+			) t1, (select @rownum := 0) r
+		) t2,
+		(select 
+			#{shortName} as short_name,
+			sum(pres_user_num) as sum_pres_user_num,
+			sum(pres_strm_tol) as sum_pres_strm_tol
+		 from hpeapb.SUM_ZFTC_1402_CTY
+		 where aud_trm between #{currSumBeginDate} and #{currSumEndDate} 
+		 and cmcc_prov_prvd_id=#{provinceCode}
+		) t3 
+	) t4;
+</select>		
+<!--流量赠送合规性-->
+<!--宽带收入汇总分析-->
+<select id="kdsrhzfx" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select 
+	case when sum_sun_bill_amt_prov is null  then concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'未上报家庭业务收入的数据。')
+		 else concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'家庭业务收入总额',FORMAT(sum_sun_bill_amt_prov,2),'元，其中宽带业务收入',
+					FORMAT(kdyw_amt,2),'元，魔百和互联网电视收入',format(mbh_amt,2),'元，CPE业务收入',format(cpe_amt,2),'元。')
+	end as kdsr_info
+from
+	(select 
+		 SUBSTRING(#{currSumBeginDate},1,4)  as start_year,
+		 SUBSTRING(#{currSumBeginDate},5,6)  as start_months,
+		 SUBSTRING(#{currSumEndDate},1,4)  as end_year,
+		 SUBSTRING(#{currSumEndDate},5,6)  as end_months,
+		 t2.mbh_amt               as mbh_amt,
+		 t2.kdyw_amt   			  as kdyw_amt,
+		 t2.cpe_amt    			  as cpe_amt,
+		 t2.short_name 			  as short_name,
+		 t3.sum_sun_bill_amt_prov as sum_sun_bill_amt_prov
+	FROM
+		(select 
+			ifnull(sum(sun_bill_amt),0) as sum_sun_bill_amt_prov
+		 from hpeapb.SUM_JTKD_INC
+		 where Aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		 and cmcc_prov_prvd_id=#{provinceCode}
+		) t3 
+		LEFT JOIN
+		(select 
+			#{shortName} as short_name,
+			ifnull(sum(case when busn_typ='魔百和互联网电视' then sun_bill_amt end),0) as mbh_amt,
+			ifnull(sum(case when busn_typ='宽带业务' then sun_bill_amt end),0) as kdyw_amt,
+			ifnull(sum(case when busn_typ='cpe' then sun_bill_amt end),0) as cpe_amt
+		from hpeapb.SUM_JTKD_INC 
+		where cmcc_prov_prvd_id=#{provinceCode}
+		and Aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		group by short_name
+		) t2 on 1=1 	
+	) t4;
+</select>   
+
+<!--长市漫合一-->
+<select id="csmtc" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select 
+	case when sum_infrac_pack_num='无' then concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'未上报资费套餐相关的数据。')
+	     when sum_infrac_pack_num=0    then concat(start_year,'年',start_months,'月-',end_year,'年',end_months,'月，',short_name,'不存在新增非长市漫合一套餐的情况。') 
+		 when end_year_months &gt; '201607' and start_year_months &gt; '201607' then concat(start_year,'年',start_months,'月 - ',end_year,'年',end_months,'月，',short_name,'新增的资费套餐中有',format(sum_infrac_pack_num,0),'个是非长市漫合一套餐。')
+		 when end_year_months &gt; '201607' and start_year_months &lt; '201607' then concat('2016年7月 - ',end_year,'年',end_months,'月，',short_name,'新增的资费套餐中有',format(sum_infrac_pack_num,0),'个是非长市漫合一套餐。')
+		 when end_year_months &lt;='201607'                               then '2016年7月起开始执行集团规定“停止新增非长市漫合一的套餐”，审计期间还未实施此规定。'
+	end as csmhy_info
+from
+	(SELECT	
+			concat(start_year,start_months) as start_year_months,
+			concat(end_year,end_months)     as end_year_months,
+			start_year, 
+			start_months, 
+			end_year, 
+			end_months,
+			short_name,
+			sum_infrac_pack_num
+	from
+		(SELECT	
+			substring(#{currSumBeginDate}, 1, 4) AS start_year,
+			substring(#{currSumBeginDate}, 5, 6) AS start_months,
+			substring(#{currSumEndDate}, 1, 4) AS end_year,
+			substring(#{currSumEndDate}, 5, 6) AS end_months,
+			t1.	short_name            AS short_name,
+			ifnull(t1.sum_infrac_pack_num,'无') as sum_infrac_pack_num
+		from
+			(select 
+				#{shortName} as short_name,
+				sum(infrac_pack_num) AS sum_infrac_pack_num
+			from hpeapb.sum_csmtc_prvd
+			where cmcc_prov_prvd_id=#{provinceCode}
+			and aud_trm between #{currSumBeginDate} and #{currSumEndDate}) t1  ) t2
+	) t3;
+</select>		
+<!--长市漫合一-->	
+<!-- 异地二次结酬-->
+<select id="ydecjc" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT case when yc_num is null then concat(SUBSTRING(#{currSumBeginDate},1,4),'年',SUBSTRING(#{currSumBeginDate},5,2),'月-'
+                                           ,SUBSTRING(#{currSumEndDate},1,4),'年',SUBSTRING(#{currSumEndDate},5,2),'月，',short_name,'未上报终端酬金的数据。')
+            when yc_num=0       then concat(SUBSTRING(#{currSumBeginDate},1,4),'年',SUBSTRING(#{currSumBeginDate},5,2),'月-'
+                                           ,SUBSTRING(#{currSumEndDate},1,4),'年',SUBSTRING(#{currSumEndDate},5,2),'月，',short_name,'不存在酬金异地二次结算的情况。')
+           else concat(SUBSTRING(#{currSumBeginDate},1,4),'年',SUBSTRING(#{currSumBeginDate},5,2),'月-'
+            ,SUBSTRING(#{currSumEndDate},1,4),'年',SUBSTRING(#{currSumEndDate},5,2),'月，',short_name,'酬金异地二次结算共涉及'
+            ,FORMAT(yc_num,0),'台终端，违规补贴金额',FORMAT(yc_amt,2),'元。') end as ydjc
+from      
+(select 
+    #{shortName} as short_name,
+    sum(yc_imei_num) as yc_num,
+    sum(yc_amt) as yc_amt
+from hpeapb.sum_zdbt_7003_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and aud_trm between #{currSumBeginDate} and #{currSumEndDate}) t1;
+</select>	
+<!-- 异地二次结酬-->	
+
+<!-- 赠送有价卡发起充值号码集中度 start -->
+<select id="zsyjkfqsjhjzd" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select
+	case when callnumber_all='无'  then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报有价卡赠送的数据。')
+		 when callnumber_all=0  then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在赠送有价卡异常集中发起充值的情况。')
+		 when cty1='无' then ''
+         when cty1!='无' and cty2='无' then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'存在',FORMAT(callnumber_all,0),'个号码使用赠送有价卡异常集中发起充值（单月内同一个发起充值号码使用赠送有价卡给大于等于50个号码充值），涉及有价卡'
+					,format(charge_yjk_all,0),'张，',format(charge_amt_all,2),'元。涉及赠送有价卡异常集中发起充值的地市：',cty1,'，涉及有价卡',format(charge_yjk_sum,0),'张，',format(charge_amt_sum,2),'元。') 
+         when cty1!='无' and cty2!='无' and cty3='无' then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'存在',FORMAT(callnumber_all,0),'个号码使用赠送有价卡异常集中发起充值（单月内同一个发起充值号码使用赠送有价卡给大于等于50个号码充值），涉及有价卡'
+					,format(charge_yjk_all,0),'张，',format(charge_amt_all,2),'元。涉及赠送有价卡异常集中发起充值的地市：：',cty1,'、',cty2,'，涉及有价卡',format(charge_yjk_sum,0),'张，',format(charge_amt_sum,2),'元。') 
+		else CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'存在',FORMAT(callnumber_all,0),'个号码使用赠送有价卡异常集中发起充值（单月内同一个发起充值号码使用赠送有价卡给大于等于50个号码充值），涉及有价卡'
+					,format(charge_yjk_all,0),'张，',format(charge_amt_all,2),'元。其中异常集中发起充值金额排名前三的地市：',cty1,'、',cty2,'、',cty3,'，涉及有价卡',format(charge_yjk_sum,0),'张，',format(charge_amt_sum,2),'元。') 
+  end as fqsjh_jzd
+from
+(select	
+	SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+	SUBSTRING(#{currSumBeginDate},5,2) as start_month,
+	SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	SUBSTRING(#{currSumEndDate},5,2) as end_month,
+    t3.short_name,
+	IFNULL(t3.callnumber_all,'无') as callnumber_all,
+    IFNULL(t3.charge_yjk_all,0) as charge_yjk_all,
+    IFNULL(t3.charge_amt_all,0) as charge_amt_all,
+    sum(IFNULL(t2.charge_amt_sum,0)) as charge_amt_sum,
+    sum(IFNULL(t2.charge_yjk_sum,0)) as charge_yjk_sum,
+	IFNULL(max(case when rank=1 then t2.cmcc_prvd_nm_short end),'无') as cty1,
+	IFNULL(max(case when rank=2 then t2.cmcc_prvd_nm_short end),'无') as cty2,
+	IFNULL(max(case when rank=3 then t2.cmcc_prvd_nm_short end),'无') as cty3
+from 
+	(select 
+		cmcc_prvd_nm_short,
+		charge_amt_sum,
+        charge_yjk_sum,
+		@rownum := @rownum+1 as rank
+	from
+		(select 
+			cmcc_prov_id,
+            cmcc_prvd_nm_short,
+			sum(charge_amt) as charge_amt_sum,
+            sum(charge_yjk_cnt) as charge_yjk_sum
+		from hpeapb.sum_fqsjh_jzd_cty
+		where  cmcc_prov_prvd_id=#{provinceCode}
+        and aud_trm  between #{currSumBeginDate} and #{currSumEndDate}
+		group by  1,2 
+		order by charge_amt_sum desc,cmcc_prov_id asc 
+		limit 3) t1, (SELECT @ROWNUM := 0) r  
+	)t2,
+	(select 
+        #{shortName} as short_name,
+		sum(callnumber_cnt) as callnumber_all,
+    sum(charge_yjk_cnt) as charge_yjk_all,
+    sum(charge_amt) as charge_amt_all
+	from hpeapb.sum_fqsjh_jzd_prvd 
+	where  cmcc_prov_prvd_id=#{provinceCode}
+     and aud_trm  between #{currSumBeginDate} and #{currSumEndDate}
+    group by 1) t3
+) t4;
+</select>
+<!-- 赠送有价卡发起充值号码集中度 end -->
+
+<!-- 1 欠费预存款 start -->
+     <!-- 1.1 个人欠费预存款 start-->
+	 <select id="grqfyck" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN short_name IS NULL THEN '该省无数据。'
+			  ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,
+'同时存在欠费数据和预存款数据的个人账户',format(acct_cnt,0),'个。')
+	       END AS qfyck_1001
+        FROM
+  (select substring(#{currSumBeginDate},1,4) as bg_year,
+		  substring(#{currSumBeginDate},5,2) as bg_month,
+		  substring(#{currSumEndDate},1,4) as end_year,
+		  substring(#{currSumEndDate},5,2) as end_month,
+		  short_name,
+		  count(acct_id) as acct_cnt
+		  from hpeapb.sox_sum_qfyck_1001_acct
+		  where cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate})T1;
+	 </select>
+     <!-- 1.1 个人欠费预存款 end-->
+     <!-- 1.2 集团欠费预存款 start-->
+	 <select id="jtqfyck" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	  SELECT CASE WHEN short_name IS NULL THEN '该省无数据。'
+			  ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'同时存在欠费数据和预存款数据的集团账户',format(acct_cnt,0),'个。')
+	       END AS qfyck_1002
+        FROM
+  (select substring(#{currSumBeginDate},1,4) as bg_year,
+		  substring(#{currSumBeginDate},5,2) as bg_month,
+		  substring(#{currSumEndDate},1,4) as end_year,
+		  substring(#{currSumEndDate},5,2) as end_month,
+		  short_name,
+		  count(acct_id) as acct_cnt
+		  from hpeapb.sox_sum_qfyck_1002_acct
+		  where cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate})T1;
+	 </select>
+	 <!-- 1.2 集团欠费预存款 end-->
+<!--  1 欠费预存款 end --> 
+<!-- 2 业财一致性 start -->
+     <!-- 2.1 用户欠费 start-->
+     <select id="ycyzx_01" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   SELECT CASE WHEN short_name IS NULL THEN '该省无数据。'
+			  ELSE CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,
+             '财务系统记录用户欠费',format(qmye_sum,2),'元，总部BOSS系统记录用户欠费',format(dbt_amt_sum,2),'元，差异金额',format(diff_amt,2),'元。')
+	       END AS ycyzx_1201
+from
+	(
+select 	SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+		SUBSTRING(#{currSumBeginDate},5,2) as start_month,
+		SUBSTRING(#{currSumEndDate},1,4) as end_year,
+		SUBSTRING(#{currSumEndDate},5,2) as end_month,
+        t1.short_name,
+        ifnull(t1.dbt_amt_sum,0) as dbt_amt_sum,
+        ifnull(t2.qmye_sum,0) as qmye_sum,
+        abs(ifnull(t2.qmye_sum,0)-ifnull(t1.dbt_amt_sum,0)) as diff_amt
+from (select
+		short_name,
+		sum(dbt_amt) as dbt_amt_sum
+	from  hpeapb.sox_sum_ycyzx_1201_prvd
+	where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+	and cmcc_prov_prvd_id = #{provinceCode}) t1
+left join 
+	(select 
+		prov_id,
+		sum(qmye) as qmye_sum
+	from audit_db.ods_yjk_cw_sum_hp
+	where mxkmdm like '113101%' 
+	and prov_id=#{provinceCode}
+	and  kjqj between #{currSumBeginDate} and #{currSumEndDate}) t2
+   on 1=1) t3;
+      </select>
+      <!--  2.1 用户欠费 end --> 
+      <!--  2.2 预存款业财数据一致性 start --> 	  
+   <select id="yckyzx_02" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select 
+	case when short_name is not null then concat(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',short_name,'财务系统记录用户预存款',
+		 format(qmye_sum,2),'元，总部BOSS系统记录用户预存款',format(dbt_amt_sum,2),'元，差异金额', format(diff_amt,2),'元。')
+	     else '该省无数据。'
+	end as yck_info
+from (
+select 	SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+	    SUBSTRING(#{currSumBeginDate},5,2) as start_month,
+		SUBSTRING(#{currSumEndDate},1,4) as end_year,
+		SUBSTRING(#{currSumEndDate},5,2) as end_month,
+        t1.short_name,
+        ifnull(t1.dbt_amt_sum,0) as dbt_amt_sum,
+        ifnull(t2.qmye_sum,0) as qmye_sum,
+        abs(ifnull(t2.qmye_sum,0)-ifnull(t1.dbt_amt_sum,0)) as diff_amt
+from 
+	(select
+		short_name,
+		sum(dbt_amt) as dbt_amt_sum
+	from  hpeapb.sox_sum_ycyzx_1202_prvd
+	where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+	and cmcc_prov_prvd_id = #{provinceCode}) t1
+left join 
+	(select 
+		prov_id,
+		sum(qmye*(-1)) as qmye_sum
+	from audit_db.ods_yjk_cw_sum_hp
+	where mxkmdm like '213101%' 
+	and prov_id = #{provinceCode}
+	and  kjqj between #{currSumBeginDate} and #{currSumEndDate}) t2
+   on 1=1) t3;
+       </select>
+      <!--  2.2 预存款业财数据一致性 end --> 	  
+       <!--  2.3 预存有价卡款业财数据一致性 start --> 
+      <select id="ycyjkyzx_03" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select 
+	case when short_name is not null then CONCAT(start_year,'年',start_month,'月-',end_year,'年',end_month,'月，',
+           short_name,'财务系统记录预收有价卡款',format(ifnull(dfje_sum,0),2),'元，总部BOSS系统记录预收有价卡款',
+           FORMAT(dbt_amt_sum,2),'元，差异金额',FORMAT(diff_amt,2),'元。')
+				else '该省无数据。'
+	end as ycyjkk_info
+from (
+select SUBSTRING(#{currSumBeginDate},1,4) as start_year,
+	   SUBSTRING(#{currSumBeginDate},5,2) as start_month,
+	   SUBSTRING(#{currSumEndDate},1,4) as end_year,
+	   SUBSTRING(#{currSumEndDate},5,2) as end_month,
+       t1.short_name,
+	   ifnull(t1.dbt_amt_sum,0) as dbt_amt_sum,
+	   ifnull(t2.dfje_sum,0) as dfje_sum,
+	   abs(ifnull(t2.dfje_sum,0)-ifnull(t1.dbt_amt_sum,0)) as diff_amt	   
+from (select 
+		short_name,
+		sum(dbt_amt) as dbt_amt_sum
+	from hpeapb.sox_sum_ycyzx_1203_prvd
+	where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+	and cmcc_prov_prvd_id=#{provinceCode}) t1
+left join 
+	(select 
+		prov_id,
+		sum(dfje) as dfje_sum
+	from audit_db.ods_yjk_cw_sum_hp
+	where mxkmdm like '213102%' 
+	and kjqj between #{currSumBeginDate} and #{currSumEndDate}
+	and prov_id=#{provinceCode}) t2
+on 1=1) t3;
+    </select>	
+<!--  2.3 预存有价卡款业财数据一致性 end -->   
+
+<!--  3.1 个人欠费未停机 start -->   
+ <select id="grqfwtj" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select 
+	case when t.short_name is null then '该省无数据。'
+		 else CONCAT(t.start_year,'年',t.start_month,'月-',t.end_year,'年',t.end_month,'月，',t.short_name,'个人客户连续欠费6个月以上的帐户有',format(t.acct_cnt,0),'个，','涉及',format(t.dbt_amt,2),'元。')
+	end as grqf_info
+from
+(select 
+	short_name,
+	SUBSTR(#{currSumBeginDate},1,4) as start_year,
+	SUBSTR(#{currSumBeginDate},5,6) as start_month,
+	SUBSTR(#{currSumEndDate},1,4) as end_year,
+	SUBSTR(#{currSumEndDate},5,6) as end_month,
+	count(distinct t1.acct_id) as acct_cnt,
+	sum(t1.dbt_amt) as dbt_amt
+from hpeapb.sox_sum_cqqfwtj_1301_acct t1
+inner join
+(select 
+	 acct_id,max(aud_trm) max_mon
+from 
+	hpeapb.sox_sum_cqqfwtj_1301_acct
+where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+and cmcc_prov_prvd_id=#{provinceCode}
+group by 1) t2
+on t1.acct_id=t2.acct_id
+and t1.aud_trm=t2.max_mon) t
+ </select>
+<!--  3.1 个人欠费未停机 end --> 
+
+<!--  3.2 集团欠费未停机 start -->   
+ <select id="jtqfwtj" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select 
+	case when t.short_name is null then '该省无数据。'
+		 else CONCAT(t.start_year,'年',t.start_month,'月-',t.end_year,'年',t.end_month,'月，',t.short_name,'集团客户连续欠费6个月以上的帐户有',format(t.acct_cnt,0),'个，','涉及',format(t.dbt_amt,2),'元。')
+	end as jtqf_info
+from
+(select 
+	short_name,
+	SUBSTR(#{currSumBeginDate},1,4) as start_year,
+	SUBSTR(#{currSumBeginDate},5,6) as start_month,
+	SUBSTR(#{currSumEndDate},1,4) as end_year,
+	SUBSTR(#{currSumEndDate},5,6) as end_month,
+	count(distinct t1.acct_id) as acct_cnt,
+	sum(t1.dbt_amt) as dbt_amt
+from hpeapb.sox_sum_cqqfwtj_1302_acct t1
+inner join
+(select 
+	 acct_id,max(aud_trm) max_mon
+from 
+	hpeapb.sox_sum_cqqfwtj_1302_acct
+where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+and cmcc_prov_prvd_id=#{provinceCode}
+group by 1) t2
+on t1.acct_id=t2.acct_id
+and t1.aud_trm=t2.max_mon) t
+ </select>
+<!--  3.2 集团欠费未停机 end --> 
+<!-- 2018新增经营业绩-->
+<!-- 长期高额欠费集团客户订购新业务 start -->
+<select id="dmkhqf100301" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT case when wg_busi_num is null then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'未上报长期高额欠费集团客户违规订购新业务的相关数据。')
+            when wg_busi_num = 0  then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'未发现长期高额欠费集团客户违规订购新业务的情况。')
+            else CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'共有',format(wg_cust_num,0),'个长期高额欠费集团客户违规订购新业务',format(wg_busi_num,0),'笔。')
+            end as khqf_1003_01
+from 
+(SELECT SUBSTR(#{currSumBeginDate},1,4) as bg_year,
+	    SUBSTR(#{currSumBeginDate},5,6) as bg_month,
+	    SUBSTR(#{currSumEndDate},1,4) as end_year,
+	    SUBSTR(#{currSumEndDate},5,6) as end_month,
+        #{shortName} as short_name,
+        sum(wg_busi_num) as wg_busi_num,
+        sum(wg_cust_num) as wg_cust_num
+from hpeapb.dm_sum_khqf_1003_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and Aud_trm BETWEEN #{currSumBeginDate} and #{currSumEndDate}) t1;
+ </select>
+<select id="dmkhqf100302" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT CASE WHEN prvd_id_01="无" THEN ''
+			 WHEN prvd_id_01 in(10100,10200,10300,10400) THEN ''
+			 when fst_cty_zdbt='无' then ''
+             when fst_cty_zdbt!='无' and sec_cty_zdbt='无' then CONCAT('涉及违规订购的地市：',fst_cty_zdbt,'，涉及',format(IFNULL(wg_busi_num,0),0),'笔业务订购。')
+             when fst_cty_zdbt!='无' and sec_cty_zdbt!='无' and thr_cty_zdbt='无' then  CONCAT('涉及违规订购的地市：',fst_cty_zdbt,'、',sec_cty_zdbt,'，涉及',format(IFNULL(wg_busi_num,0),0),'笔业务订购。')	 
+		    ELSE CONCAT('违规订购业务笔数排名前三的地市：',fst_cty_zdbt,'、',sec_cty_zdbt,'、',thr_cty_zdbt,'，涉及',format(IFNULL(wg_busi_num,0),0),'笔业务订购。')
+		       END AS khqf_1003_02
+		FROM
+		  (SELECT ifnull(cmcc_prov_prvd_id,"无") as prvd_id_01,
+	            ifnull(MAX(CASE WHEN rank = 1 THEN cmcc_prvd_nm_short END),'无') AS fst_cty_zdbt,
+		          ifnull(MAX(CASE WHEN rank = 2 THEN cmcc_prvd_nm_short END),'无') AS sec_cty_zdbt,
+		          ifnull(MAX(CASE WHEN rank = 3 THEN cmcc_prvd_nm_short END),'无') AS thr_cty_zdbt,
+		          SUM(wg_busi_num) AS wg_busi_num
+		       FROM 
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,wg_busi_num,@rownum := @rownum+1 as rank
+		       FROM
+		              (SELECT cmcc_prov_prvd_id,cmcc_prvd_nm_short,sum(wg_busi_num) AS wg_busi_num  
+		       FROM hpeapb.dm_sum_khqf_1003_cty
+		       WHERE cmcc_prov_prvd_id = #{provinceCode}
+			     AND aud_trm BETWEEN  #{currSumBeginDate} and #{currSumEndDate}
+			     and wg_busi_num>0
+		       GROUP BY cmcc_prov_prvd_id,cmcc_prvd_nm_short
+		       ORDER BY wg_busi_num DESC,cmcc_prov_id ASC
+		       LIMIT 3) T1, (select @rownum := 0) r) T2) T3	
+</select>
+<!-- 长期高额欠费集团客户订购新业务 end -->
+<!-- 38.2 社会渠道服务费酬金科目异常波动 start -->
+ <select id="shqdfwfsubj380201" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when subj_cnt =0 and subj_cnt2=0 then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未发现社会渠道服务费酬金科目异常波动的情况。')
+	      else concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,
+	   '方差波动≥0.5的酬金科目',format(subj_cnt,0),'个，环比波动≥50%的酬金科目',format(subj_cnt2,0),'个；') end as shqdfwf_3802_01
+    from 
+	(select substring(#{currSumBeginDate},1,4) as bg_year,
+			substring(#{currSumBeginDate},5,2) as bg_month,			
+			substring(date_format(date_add(concat(#{currSumBeginDate},'01'),interval 11 month),'%Y%m') ,1,4) as end_year,
+			substring(date_format(date_add(concat(#{currSumBeginDate},'01'),interval 11 month),'%Y%m') ,5,2) as end_month,
+			#{shortName} as short_name,
+		    t1.subj_cnt,
+            t2.subj_cnt2
+from 	
+(select count(distinct sell_fee_subj) as subj_cnt
+	from hpeapb.sum_shqdfwfyc_3802_prvd
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+	and var_wave>=0.5) t1
+left join 
+(select count(distinct sell_fee_subj) as subj_cnt2
+	from hpeapb.sum_shqdfwfyc_3802_prvd
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+	and rat_wave>=0.5) t2
+on 1=1
+	) t1;
+ </select>
+ <select id="shqdfwfsubj380202" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when t1.sell_fee_subj_nm or t2.sell_fee_subj_nm is null then ''
+      else  concat('方差波动最大的为“',t1.sell_fee_subj_nm,'”科目，环比波动最大的为“',t2.sell_fee_subj_nm,'”科目。')
+      end as shqdfwf_3802_02
+from 
+(select sell_fee_subj,sell_fee_subj_nm,var_wave,sum(1)
+	from hpeapb.sum_shqdfwfyc_3802_prvd
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+    and var_wave=(select max(var_wave)
+                   from hpeapb.sum_shqdfwfyc_3802_prvd
+	                 where cmcc_prov_prvd_id =#{provinceCode}
+                   and aud_trm_begin  = #{currSumBeginDate})) t1, 
+(select sell_fee_subj,sell_fee_subj_nm,rat_wave,sum(1)
+	from hpeapb.sum_shqdfwfyc_3802_prvd
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+    and rat_wave=(select max(rat_wave)
+                   from hpeapb.sum_shqdfwfyc_3802_prvd
+	                 where cmcc_prov_prvd_id =#{provinceCode}
+                   and aud_trm_begin  = #{currSumBeginDate})) t2
+ </select>
+<!-- 38.2 社会渠道服务费酬金科目异常波动 end -->
+
+<!-- 39.1 集团产品收入异常波动 start -->
+ <select id="jtcp390101" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+   select case when typ_cnt =0 then concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未发现集团产品收入异常波动的情况。')
+	      else concat(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,
+	   '集团产品累计收入',format(unitpay_inc,2),'元，涉及集团产品',format(typ_cnt,0),'个。') end as jtcp_3901_01
+    from 
+	(select substring(#{currSumBeginDate},1,4) as bg_year,
+			substring(#{currSumBeginDate},5,2) as bg_month,			
+			substring(date_format(date_add(concat(#{currSumBeginDate},'01'),interval 11 month),'%Y%m') ,1,4) as end_year,
+			substring(date_format(date_add(concat(#{currSumBeginDate},'01'),interval 11 month),'%Y%m') ,5,2) as end_month,
+			#{shortName} as short_name,
+		    sum(unitpay_inc) as unitpay_inc ,
+            count(distinct org_svc_typ) as typ_cnt
+from  hpeapb.sum_jtcp_3901_typprvd	
+where cmcc_prov_prvd_id =#{provinceCode}
+and aud_trm between #{currSumBeginDate} and #{currSumEndDate}) t1;
+ </select>
+<select id="jtcp390102" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when typ_cnt =0 and typ_cnt2=0 then ''
+       else  concat('其中，方差波动≥0.5的集团产品',format(typ_cnt,0),'个，环比波动≥50%的集团产品',format(typ_cnt2,0),'个；') end as jtcp_3901_02
+from 
+(select count(distinct org_svc_typ) as typ_cnt
+	from hpeapb.sum_jtcp_3901_prvd
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+	and var_wave>=0.5) t1
+left join 
+(select count(distinct org_svc_typ) as typ_cnt2
+	from hpeapb.sum_jtcp_3901_prvd
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+	and rat_wave>=0.5) t2
+on 1=1;
+ </select>
+ <select id="jtcp390103" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when t1.org_svc_typ_nm or t2.org_svc_typ_nm is null then ''
+      else  concat('方差波动最大的为',t1.CMCC_prvd_nm_short,'分公司的“',t1.org_svc_typ_nm,'”产品，环比波动最大的为',t2.CMCC_prvd_nm_short,'分公司的“',t2.org_svc_typ_nm,'”产品。')
+      end as jtcp_3901_03
+from 
+(select CMCC_prvd_nm_short,org_svc_typ_nm,var_wave,sum(1)
+	from hpeapb.sum_jtcp_3901_cty
+	where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+    and var_wave=(select max(var_wave)
+                   from hpeapb.sum_jtcp_3901_cty
+	                where cmcc_prov_prvd_id =#{provinceCode}
+                    and aud_trm_begin  = #{currSumBeginDate})) t1, 
+(select CMCC_prvd_nm_short,org_svc_typ_nm,rat_wave,sum(1)
+	from hpeapb.sum_jtcp_3901_cty
+   where cmcc_prov_prvd_id =#{provinceCode}
+    and aud_trm_begin  = #{currSumBeginDate}
+    and rat_wave=(select max(rat_wave)
+                   from hpeapb.sum_jtcp_3901_cty
+	                where cmcc_prov_prvd_id =#{provinceCode}
+                    and aud_trm_begin  = #{currSumBeginDate})) t2
+ </select>
+<!-- 39.1 集团产品收入异常波动 end -->
+
+<!-- sox审计2018新增 -->
+
+<!-- 业务受理合规性 异常时段办理业务 start -->
+<select id="sox1401" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when busi_num is null then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'未上报业务订购相关的数据。')
+            when busi_num = 0  then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'不存在异常时段办理业务的情况。')
+            else CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'异常时段办理业务',format(busi_num,0),'笔，疑似违规办理操作员数',format(staff_num,0),'个。')
+            end as sox_1401
+from (
+select SUBSTR(#{currSumBeginDate},1,4) as bg_year,
+	   SUBSTR(#{currSumBeginDate},5,6) as bg_month,
+	   SUBSTR(#{currSumEndDate},1,4) as end_year,
+	   SUBSTR(#{currSumEndDate},5,6) as end_month,
+       #{shortName} as short_name,
+       sum(busi_num) as busi_num,
+       sum(staff_num) as staff_num
+from hpeapb.sox_sum_ywslhgx_1401_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and aud_trm BETWEEN #{currSumBeginDate} and #{currSumEndDate}) t1
+ </select>
+<!-- 业务受理合规性 异常时段办理业务 end -->
+
+<!-- 业务受理合规性 社会渠道工号在自营厅办理业务 start -->
+<select id="sox1402" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when busi_num is null then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'未上报业务订购相关的数据。')
+            when busi_num = 0  then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'不存在社会渠道工号在自营厅办理业务的情况。')
+            else CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'疑似社会渠道工号在自营厅办理业务',format(busi_num,0),'笔，疑似违规办理操作员数',format(staff_num,0),'个。')
+            end as sox_1402
+from (
+select SUBSTR(#{currSumBeginDate},1,4) as bg_year,
+	   SUBSTR(#{currSumBeginDate},5,6) as bg_month,
+	   SUBSTR(#{currSumEndDate},1,4) as end_year,
+	   SUBSTR(#{currSumEndDate},5,6) as end_month,
+       #{shortName} as short_name,
+       sum(busi_num) as busi_num,
+       sum(staff_num) as staff_num
+from hpeapb.sox_sum_ywslhgx_1402_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and aud_trm BETWEEN #{currSumBeginDate} and #{currSumEndDate}) t1
+ </select>
+<!-- 业务受理合规性 社会渠道工号在自营厅办理业务 end -->
+
+<!-- 同一工号单秒受理业务异常 start -->
+<select id="sox1501" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when busi_num is null then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'未上报业务订购相关的数据。')
+            when busi_num = 0  then CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'不存在疑似后台办理业务的情况。')
+            else CONCAT(bg_year,'年',bg_month,'月- ',end_year,'年',end_month,'月，',SHORT_NAME,'同一操作员单秒办理业务笔数大于1笔的疑似违规业务',format(busi_num,0),'笔，疑似违规办理操作员数',format(staff_num,0),'个。')
+            end as sox_1501
+from (
+select SUBSTR(#{currSumBeginDate},1,4) as bg_year,
+	   SUBSTR(#{currSumBeginDate},5,6) as bg_month,
+	   SUBSTR(#{currSumEndDate},1,4) as end_year,
+	   SUBSTR(#{currSumEndDate},5,6) as end_month,
+       #{shortName} as short_name,
+       sum(busi_num) as busi_num,
+       sum(staff_num) as staff_num
+from hpeapb.sox_sum_htblyw_1501_prvd
+where cmcc_prov_prvd_id=#{provinceCode}
+and aud_trm BETWEEN #{currSumBeginDate} and #{currSumEndDate}) t1
+ </select>
+<!-- 同一工号单秒受理业务异常 end -->
+
+<!-- 41 资费套餐 start -->
+		<!-- 41.1 未按照集团提速降费要求下调相关资费 start -->	
+	<select id="cpzf4101" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+select case when #{currSumBeginDate} &lt;= 201706 and #{currSumEndDate} &lt;=201706 then cpzf_4101_03
+            when #{currSumBeginDate}  &gt;= 201706 and #{currSumEndDate}  &gt;=201706 then cpzf_4101_02
+       else cpzf_4101_01 and as cpzf_4101
+from (select t1.*,t2.cpzf_4101_02,t3.cpzf_4101_03 from
+         (select 
+				 short_name,
+				 case when weigui_num is null then concat('2017年6月-',end_year,'年',end_month,'月，',short_name,'未上传资费套餐信息。')
+                      when weigui_num=0       then concat('2017年6月-',end_year,'年',end_month,'月，',short_name,'未发现没有按照集团提速降费要求下调相关资费的情况。')
+		         else concat('2017年6月-',end_year,'年',end_month,'月，',short_name,'总共有',format(weigui_num,0),'个套餐未按照集团提速降费要求下调相关资费（2017年6月起开始执行集团规定“产品资费下调”）。'
+				 end as cpzf_4101_01
+		  from (select 
+		          substring(#{currSumBeginDate},1,4) as bg_year,
+		          substring(#{currSumBeginDate},5,2) as bg_month,
+		          substring(#{currSumEndDate},1,4) as end_year,
+                  substring(#{currSumEndDate},5,2) as end_month,
+		          #{shortName} as short_name ,
+				  sum(weigui_num) as weigui_num
+		        from hpeapb.sum_cpzf_4101_prvd
+				where cmcc_prov_prvd_id=#{provinceCode}
+				and aud_trm  &gt;= #{currSumBeginDate}
+		        and aud_trm  &lt;= #{currSumEndDate}
+				group by 1)t 
+		  ) t1 
+    inner join 
+		  (select 
+				 short_name,
+				 case when weigui_num is null then CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上传资费套餐信息。')
+                      when weigui_num=0       then CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未发现没有按照集团提速降费要求下调相关资费的情况。')
+		         else CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'总共有',format(weigui_num,0),'个套餐未按照集团提速降费要求下调相关资费。')
+				 end as cpzf_4101_02
+		  from (select 
+		         substring(#{currSumBeginDate},1,4) as bg_year,
+		         substring(#{currSumBeginDate},5,2) as bg_month,
+		         substring(#{currSumEndDate},1,4) as end_year,
+                 substring(#{currSumEndDate},5,2) as end_month,
+		         #{shortName} as short_name ,
+				 sum(weigui_num) as weigui_num
+		        from hpeapb.sum_cpzf_4101_prvd
+				where cmcc_prov_prvd_id=#{provinceCode}
+				and aud_trm  &gt;= #{currSumBeginDate}
+		        and aud_trm  &lt;= #{currSumEndDate}
+				group by 1)t 
+		  ) t2 
+	on t1.short_name=t2.short_name
+	inner join
+	       (select #{shortName} as short_name ,
+				 '2017年6月起开始执行集团规定“产品资费下调”，审计期间还未实施此规定。' 
+				 as  cpzf_4101_03
+           from hpeapb.sum_cpzf_4101_prvd
+		   where cmcc_prov_prvd_id=#{provinceCode}
+		   and aud_trm  &gt;= #{currSumBeginDate}
+		   and aud_trm  &lt;= #{currSumEndDate}
+		  ) t3 
+	on t1.short_name=t3.short_name		 
+) t	;
+ </select>
+		<!-- 41.1 未按照集团提速降费要求下调相关资费 end -->
+
+<!-- 41.2 违规推出低资费特惠产品 start -->
+ <select id="cpzf4102" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN weigui_num IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报业务订购相关的数据。')
+	        when weigui_num=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'不存在违规低资费特惠产品的情况。')  
+		ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似违规推出低资费特惠产品',format(weigui_num,0),'个，订购用户数',format(weigui_subs_cnt,0),'个。')
+	       END AS cpzf_4102
+        FROM
+       (select substring(#{currSumBeginDate},1,4) as bg_year,
+		  substring(#{currSumBeginDate},5,2) as bg_month,
+		  substring(#{currSumEndDate},1,4) as end_year,
+		  substring(#{currSumEndDate},5,2) as end_month,
+		  #{shortName} as short_name ,
+		  sum(weigui_num) as weigui_num,
+		  sum(weigui_subs_cnt) as weigui_subs_cnt
+		  from hpeapb.sum_cpzf_4102_prvd
+		  where cmcc_prov_prvd_id=#{provinceCode}
+		  and aud_trm  &gt;= #{currSumBeginDate}
+		  and aud_trm  &lt;= #{currSumEndDate})T1;
+ </select>
+		<!-- 41.2 违规推出低资费特惠产品 end --> 
+
+<!-- 11.1 家庭宽带虚假开通 start -->
+ <select id="jtkd_1101" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN weigui_subs_cnt IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报宽带开通数据。')
+	        when weigui_subs_cnt=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未发现虚假开通家庭宽带业务的情况。')  
+		ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似虚假开通宽带业务',format(weigui_subs_cnt,0),'笔，占到开通宽带总数的',per,'%。')
+	       END AS jtkd_1101_01
+        FROM
+       (select substring(date_format(date_add(concat(#{currSumEndDate},'01'),interval -11 month),'%Y%m') ,1,4) as bg_year,
+		       substring(date_format(date_add(concat(#{currSumEndDate},'01'),interval -11 month),'%Y%m') ,5,2) as bg_month,
+		       substring(#{currSumEndDate},1,4) as end_year,
+		       substring(#{currSumEndDate},5,2) as end_month,
+		       #{shortName} as short_name ,
+		       sum(weigui_subs_cnt) as weigui_subs_cnt,
+               sum(tol_subs_cnt)  as tol_subs_cnt,
+               case when  sum(tol_subs_cnt)=0 or sum(tol_subs_cnt) is null then null 
+               else cast(coalesce(sum(weigui_subs_cnt),0)*1.0000/ sum(tol_subs_cnt)*100 as decimal(10,2))  end as per
+		from hpeapb.sum_jtkd_1101_prvd
+		where prvd_id=#{provinceCode}
+		and aud_trm  = #{currSumEndDate})T1;
+ </select>
+<!-- 11.1 家庭宽带虚假开通 end --> 
+<!-- 11.2 魔百和互联网电视虚假开通 start -->
+ <select id="jtkd_1102" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+SELECT CASE WHEN weigui_subs_cnt IS NULL THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未上报魔百和互联网电视开通数据。')
+	        when weigui_subs_cnt=0 THEN CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'未发现虚假开通魔百和互联网电视业务的情况。')  
+		ELSE CONCAT(bg_year,'年',bg_month,'月-',end_year,'年',end_month,'月，',short_name,'疑似虚假开通魔百和互联网电视',format(weigui_subs_cnt,0),'笔，占到开通总数的',per,'%。')
+	       END AS jtkd_1101_02
+        FROM
+       (select substring(date_format(date_add(concat(#{currSumEndDate},'01'),interval -11 month),'%Y%m') ,1,4) as bg_year,
+		       substring(date_format(date_add(concat(#{currSumEndDate},'01'),interval -11 month),'%Y%m') ,5,2) as bg_month,
+		       substring(#{currSumEndDate},1,4) as end_year,
+		       substring(#{currSumEndDate},5,2) as end_month,
+		       #{shortName} as short_name ,
+		       sum(weigui_subs_cnt) as weigui_subs_cnt,
+               sum(tol_subs_cnt)  as tol_subs_cnt,
+               case when  sum(tol_subs_cnt)=0 or sum(tol_subs_cnt) is null then null 
+               else cast(coalesce(sum(weigui_subs_cnt),0)*1.0000/ sum(tol_subs_cnt)*100 as decimal(10,2))  end as per
+		  from hpeapb.sum_jtkd_1102_prvd
+		  where prvd_id=#{provinceCode}
+		  and aud_trm  = #{currSumEndDate})T1;
+ </select>
+<!-- 11.2 魔百和互联网电视虚假开通 end --> 
+		
+</mapper>

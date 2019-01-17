@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="wgdfdzzdff_qg1602Mapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(tol_amt) as tol_amt,short_name,
+			aud_trm,cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_zdbt_1602_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by tol_amt desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(tol_amt) as tol_amt,short_name,
+			aud_trm,cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_zdbt_1602_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and tol_amt !=0 
+		group by cmcc_prov_prvd_id 
+		order by tol_amt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(tol_amt) as tol_amt,short_name,
+			aud_trm,cmcc_prov_prvd_id 
+		from 
+			hpeapb.sum_zdbt_1602_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			trmnl_num,
+			trmnl_allow_cost,
+			tol_amt,
+			(per_amt*100) as per_amt,
+			tol_num,
+			(per_num*100) as per_num
+ 		from 
+ 			hpeapb.sum_zdbt_1602_prvd 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,tol_amt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			trmnl_num,
+			trmnl_allow_cost,
+			tol_amt,
+			(per_amt*100) as per_amt,
+			tol_num,
+			(per_num*100) as per_num
+ 		from 
+ 			hpeapb.sum_zdbt_1602_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,tol_amt desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

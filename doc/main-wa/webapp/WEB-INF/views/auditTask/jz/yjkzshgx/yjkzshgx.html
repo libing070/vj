@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>有价卡赠送合规性</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js?v=1"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/auditTask/jz/yjkzshgx/yjkzshgx.js?v=4"></script>
+</head>
+<body>
+    <form>
+        <!-- 国信透传条件 -->
+		<input type="hidden" id="provinceCode" name="provinceCode">
+		<input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+		<input type="hidden" id="endAcctMonth" name="endAcctMonth">
+		<input type="hidden" id="auditId" name="auditId">
+		<input type="hidden" id="taskCode" name="taskCode">
+		
+		<!-- 汇总条件 -->
+		<input type="hidden" id="currSumBeginDate" name="currSumBeginDate">
+		<input type="hidden" id="currSumEndDate" name="currSumEndDate">
+		<input type="hidden" id="provinceName" name="provinceName">
+		
+		
+		<!-- 清单条件 -->
+		<input type="hidden" id="currDetBeginDate" name="currDetBeginDate">
+		<input type="hidden" id="currDetEndDate" name="currDetEndDate">
+		<input type="hidden" id="currCityType" name="currCityType">
+		<!-- <input type="hidden" id="currCityList" name="currCityList">
+		<input type="hidden" id="currKHStatus" name="currKHStatus"> -->
+		
+		<input type="hidden" id="currBeginAging" name="currBeginAging">
+		<input type="hidden" id="currEndAging" name="currEndAging">
+		
+		<!-- 原始时间开始结束 -->
+		<input type="hidden" id="initBeginDate">
+		<input type="hidden" id="initEndDate">
+		
+		<input type="hidden" id="currTab" value="hz"/>
+        
+    </form>
+     <div class="container-fluid">
+        <!-- 选项卡 -->
+        <div class="tab-nav">
+            <ul>
+                <li class="active" id="hz_tab">汇总分析</li>
+                <li id="mx_tab">明细数据</li>
+            </ul>
+        </div>
+
+        <!-- 选项卡info -->
+        <div class="tab-box">
+            <!-- 汇总分析 -->
+            <div class="tab-info" style="display:block">
+            	<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+						<li class="active"><a href="/cmwa/yjkzshgx/index">赠送有价卡汇总分析</a></li>
+						<li ><a href="/cmwa/yjkzsdxfx2006/200604/index">有价卡赠送对象分析</a></li>
+						<li ><a href="/cmwa/zsyjkpljh/index">赠送有价卡批量激活</a></li>
+						<li ><a href="/cmwa/zsyjkczjzd/index">赠送有价卡充值集中度</a></li>
+						<li ><a href="/cmwa/yjkys_jz/index">赠送有价卡异省充值比例异常</a></li>
+						<li><a href="/cmwa/fqczhmjzd/index">发起充值号码集中度</a></li>
+					</ul>
+				</div>
+                <!-- dateBox -->
+				<div class="tab-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input value="" type="text" autocomplete="off" readonly id="sumBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input value="" type="text"  readonly id="sumEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+						<!-- <dd>
+							<img src="/cmwa/resource/images/icon-calendar.png"/>
+						</dd> -->
+					</dl>
+					<a href="javascript:;" id="hz_search_btn">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+				</div>
+                
+
+                <!-- mapBox -->
+                <div class="tab-mapbox">
+                   
+                    <div class="col-xs-6 mr-15">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送金额汇总分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_je">统计图</li>
+                                        <li id="hz_je_mx">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box" id="tab-map-info-je">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                       <div class="shuoming" id="hz_je_conclusion">
+                                        </div>
+                                        <div id="hz_je_chart" style="height:270px; margin-top:10px;">
+                                        	
+                                        </div >
+                                        		
+                                        <div>
+                                        	注：从2014年6月开始营改增，相关公式如下：基础业务有价卡赠送面值=账务报表*1.11，增值业务有价卡赠送面值=账务报表*1.06。
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-map-info" >
+                                    <div class="table-box">
+                                    	<div class="shuoming" id="hz_je_mx_conclusion">
+	                                    </div>
+                                        <a class="btn-daochu" href="javascript:;" id="hz_je_export"> 导出 </a>
+                                        <div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="hz_je_table"></table>
+                                            <div id="hz_je_pageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送真实性分析</h2>
+                                <div class="right-info" >
+                                    <ol>
+                                        <li class="active" id="hz_zsx">统计图</li>
+                                        <li id="hz_zsx_mx">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                               	 <div class="col-xs-12">
+                                    <div class="shuoming" id="hz_zsx_conclusion">
+                                    </div>
+                                    <div  id="hz_zsx_chart" style="height:290px; margin-top:10px;">
+                                        	
+                                    </div>
+                                 </div>
+                                </div>
+
+	
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="shuoming" id="hz_zsx_mx_conclusion">
+	                                    </div>
+                                        <a class="btn-daochu" href="javascript:;" id="hz_zsx_export"> 导出 </a>
+                                        <div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="hz_zsx_table"></table>
+                                            <div id="hz_zsx_pageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+					
+					<div class="col-xs-6 mr-15" style="height:455px;">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送对象集中度分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_jzd_1">统计图</li>
+                                        <li id="hz_jzd_mx_1">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                       
+                                        <div class="shuoming" id="hz_jzd_conclusion_1">
+                                        	
+                                       </div>
+                                       <div  id="hz_jzd_chart_1" style="height:290px; margin-top:10px;">
+                                        	
+                                       </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-map-info" id="tab-map-info-jzd1">
+                                    <div class="table-box">
+                                    	<div  class="shuoming"  id="hz_jzd_mx_conclusion_1">
+                                        	
+                                      	</div>
+                                        <a class="btn-daochu" href="javascript:;" id="hz_jzd_export_1"> 导出 </a>
+                                        <div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="hz_jzd_table_1"></table>
+                                            <div id="hz_jzd_pageBar_1"></div>
+                                            
+                                      	</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6" style="height:455px;">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送对象集中度分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active"  id = "hz_jzd_2">统计图</li>
+                                        <li id="hz_jzd_mx_2">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                	<div class="col-xs-12">
+	                                    <div class="shuoming" id="hz_jzd_conclusion_2">
+	                                    
+	                                    </div>
+	                                    <div  id="hz_jzd_chart_2" style="height:290px; margin-top:10px;">
+	                                    
+	                                    </div>
+                                    </div>
+                                </div>					
+	
+                                <div class="tab-map-info" id="tab-map-info-jzd2">
+                                    <div class="table-box">
+                                    	<div  class="shuoming" id="hz_jzd_mx_conclusion_2" >
+                                      	</div>
+                                 	   <a class="btn-daochu" href="javascript:;" id="hz_jzd_export_2"> 导出 </a>
+                                 	   <div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="hz_jzd_table_2"></table>
+                                            <div id="hz_jzd_pageBar_2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   	
+                   	<div class="col-xs-6 mr-15">
+                        <div class="map">
+                            <div class="title">
+                                <h2>向员工赠送分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_yg">统计图</li>
+                                        <li id="hz_yg_mx">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                       
+                                        <div class="shuoming" id="hz_yg_conclusion">
+                                        	
+                                       </div>
+                                       <div  id="hz_yg_chart" style="height:290px; margin-top:10px;">
+                                        	
+                                       </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="tab-map-info" id="tab-map-info-yg">
+                                    <div class="table-box">
+                                    	<div  class="shuoming"  id="hz_yg_mx_conclusion">
+                                        	
+                                      	</div>
+                                        <a class="btn-daochu" href="javascript:;" id="hz_yg_export"> 导出 </a>
+                                        <div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="hz_yg_table"></table>
+                                            <div id="hz_yg_pageBar"></div>
+                                            
+                                      	</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送用途分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="hz_zsyt">统计图</li>
+                                        <li id="hz_zsyt_mx">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                	<div class="col-xs-12">
+	                                    <div class="shuoming" id="hz_zsyt_conclusion">
+	                                    
+	                                    </div>
+	                                    <div  id="hz_zsyt_chart" style="height:290px; margin-top:10px;">
+	                                    
+	                                    </div>
+                                    </div>
+                                </div>					
+	
+                                <div class="tab-map-info" id="tab-map-info-zsyt">
+                                    <div class="table-box">
+                                    	<div  class="shuoming" id="hz_zsyt_mx_conclusion" >
+                                      	</div>
+                                 	   <a class="btn-daochu" href="javascript:;" id="hz_zsyt_export"> 导出 </a>
+                                 	   <div class="clear"></div>
+                                        <div class="table-responsive">
+                                            <table id="hz_zsyt_table"></table>
+                                            <div id="hz_zsyt_pageBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 明细数据 -->
+            <div class="tab-info">
+            	<!-- sub-nav -->
+				<div class="tab-sub-nav">
+					<ul>
+						<li class="active"><a href="/cmwa/yjkzshgx/index">赠送有价卡汇总分析</a></li>
+						<li ><a href="/cmwa/yjkzsdxfx2006/200604/index">有价卡赠送对象分析</a></li>
+						<li ><a href="/cmwa/zsyjkpljh/index">赠送有价卡批量激活</a></li>
+						<li ><a href="/cmwa/zsyjkczjzd/index">赠送有价卡充值集中度</a></li>
+						<li ><a href="/cmwa/yjkys_jz/index">赠送有价卡异省充值比例异常</a></li>
+						<li><a href="/cmwa/fqczhmjzd/index">发起充值号码集中度</a></li>
+					</ul>
+				</div>
+				<div class="tab-datebox mxsj-datebox">
+					<p>时间:</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detBeginDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					<p>至</p>
+					<dl class="input-append date form_datetime">
+						<dt>
+							<input type="text"  readonly id="detEndDate">
+							<span class="add-on"><i class="icon-th"></i></span>
+						</dt>
+					</dl>
+					
+					<a href="javascript:;" id="mx_search_btn">
+						<i class="icon icon-search"></i>
+						查询
+					</a>
+					<a class="more-btn" id="moreConditions" href="javascript:;">
+						更多查询条件
+					</a>
+					<a class="reset-btn" id="resetMxId" href="javascript:;">
+						重置
+					</a>
+					<a  href="javascript:;" id="export_mx_table">
+						导出
+					</a>
+				</div>
+
+                <!-- moreBox -->
+                <div class="more-box">
+                   
+                    <div class="select-box">
+                        <p>
+                            <input type="text" autocomplete="off" placeholder="地市名称" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="cityType">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- 数据Table -->
+                <div class="shuju_box">
+                    <div class="shuju_table">
+                        <table id="mx_table"></table>
+                        <div id="mx_pageBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

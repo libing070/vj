@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="tyqdpljfycsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(count_amt_num) AS count_amt_num
+		FROM hpeapb.sum_ygyccz_2303_chnl_busi_cty
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and count_amt_num != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(count_amt_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(count_amt_num) AS count_amt_num
+		FROM hpeapb.sum_ygyccz_2303_chnl_busi_cty
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(count_amt_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(count_amt_num) AS count_amt_num
+		FROM hpeapb.sum_ygyccz_2303_chnl_busi_cty
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			AUD_TRM,
+			SHORT_NAME,
+			SUM(count_amt_num) AS count_amt_num,
+			SUM(count_amt) AS count_amt
+		FROM hpeapb.sum_ygyccz_2303_chnl_busi_cty
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		GROUP BY cmcc_prov_prvd_id,AUD_TRM
+		order by aud_trm desc,count_amt_num desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			CMCC_prvd_nm_short,
+			busi_chnl_id,
+			busi_chnl_nm,
+			busi_typ,
+			busi_typ_nm,
+			count_amt_num,
+			opr_tm,
+			count_amt
+		FROM hpeapb.sum_ygyccz_2303_chnl_busi_cty
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by AUD_TRM desc,count_amt_num desc,CMCC_PROV_PRVD_ID
+	</select>
+</mapper>
+

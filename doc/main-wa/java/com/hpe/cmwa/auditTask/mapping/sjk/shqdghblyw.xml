@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="shqdghblywsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(busi_num) AS busi_num
+		FROM hpeapb.sox_sum_ywslhgx_1402_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		and busi_num != 0
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(busi_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(busi_num) AS busi_num
+		FROM hpeapb.sox_sum_ywslhgx_1402_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id
+		ORDER BY SUM(busi_num) DESC,cmcc_prov_prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm,SUM(busi_num) AS wg_busi_num
+		FROM hpeapb.sox_sum_ywslhgx_1402_prvd
+		WHERE aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm,
+			short_name,
+			busi_num,
+			staff_num,
+			chnl_num
+		FROM hpeapb.sox_sum_ywslhgx_1402_prvd
+		WHERE 
+		AUD_TRM between  #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,busi_num desc,CMCC_PROV_PRVD_ID
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			busi_num,
+			staff_num,
+			chnl_num
+		FROM hpeapb.sox_sum_ywslhgx_1402_prvd
+		WHERE 
+		AUD_TRM between  #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,busi_num desc,CMCC_PROV_PRVD_ID
+	</select>
+</mapper>
+

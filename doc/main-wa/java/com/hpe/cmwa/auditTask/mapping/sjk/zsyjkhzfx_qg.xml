@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zsyjkhzfx_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+	select cyje,cmcc_prov_prvd_id,short_name
+		from (SELECT a.cmcc_prov_prvd_id,a.short_name,
+				ABS(IFNULL(a.yjk_amt,0)-IFNULL(b.cw_je,0)) as cyje
+			from(
+				select
+					short_name,cmcc_prov_prvd_id,sum(yjk_amt)as yjk_amt
+				from sum_yjk_2006_01_prvd
+			where
+				aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				group by cmcc_prov_prvd_id
+				) a
+	left join (
+			select prov_code,
+				sum(case when MXKMDM like '5114272%' then JFJE else 0 end )*1.11
+				+sum(case when MXKMDM like '5114273%' then JFJE else 0 end )*1.06 as cw_je
+			from audit_db.ods_yjk_cw_sum
+			where 
+				MXKMDM like '511427%' and 
+				kjqj between #{currSumBeginDate} and #{currSumEndDate}
+			group by prov_code
+			) b
+	on 
+		a.cmcc_prov_prvd_id = b.prov_code
+		order by cyje desc
+		) as t ORDER BY cyje DESC,cmcc_prov_prvd_id;
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select cyje,cmcc_prov_prvd_id,short_name
+		from (SELECT a.cmcc_prov_prvd_id,a.short_name,
+				ABS(IFNULL(a.yjk_amt,0)-IFNULL(b.cw_je,0)) as cyje
+			from(
+				select
+					short_name,cmcc_prov_prvd_id,sum(yjk_amt)as yjk_amt
+				from sum_yjk_2006_01_prvd
+			where
+				aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				group by cmcc_prov_prvd_id
+				) a
+	left join (
+			select prov_code,
+				sum(case when MXKMDM like '5114272%' then JFJE else 0 end )*1.11
+				+sum(case when MXKMDM like '5114273%' then JFJE else 0 end )*1.06 as cw_je
+			from audit_db.ods_yjk_cw_sum
+			where MXKMDM like '511427%' and 
+				kjqj between #{currSumBeginDate} and #{currSumEndDate}
+			group by prov_code
+			) b
+	on 
+		a.cmcc_prov_prvd_id = b.prov_code
+		order by cyje desc
+		) as t where 1=1 and cyje>0 ORDER BY cyje DESC,cmcc_prov_prvd_id;
+	 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select aud_trm,cyje
+		from (SELECT a.aud_trm,
+				ABS(IFNULL(a.yjk_amt,0)-IFNULL(b.cw_je,0)) as cyje
+			from(
+				select
+					aud_trm,sum(yjk_amt) as yjk_amt
+				from sum_yjk_2006_01_prvd
+			where
+				aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+				group by aud_trm
+				) a
+		left join (
+			select kjqj,
+				sum(case when MXKMDM like '5114272%' then JFJE else 0 end )*1.11
+				+sum(case when MXKMDM like '5114273%' then JFJE else 0 end )*1.06 as cw_je
+			from audit_db.ods_yjk_cw_sum
+			where 
+				MXKMDM like '511427%' and 
+				kjqj between #{currSumBeginDate} and #{currSumEndDate}
+			group by kjqj
+			) b
+	 on 
+			a.aud_trm = b.kjqj
+			order by cyje desc
+		) as t ORDER BY aud_trm;
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		
+		SELECT a.aud_trm,a.cmcc_prov_prvd_id,a.short_name,IFNULL(a.yjk_amt,0)as yjk_amt,IFNULL(b.cw_je,0) as cw_je,
+		ABS(IFNULL(a.yjk_amt,0)-IFNULL(b.cw_je,0)) as cyje
+		from(
+		select cmcc_prov_prvd_id,short_name,aud_trm,sum(yjk_amt)as yjk_amt
+		from sum_yjk_2006_01_prvd
+		where aud_trm between #{params.currSumBeginDate} and #{params.currSumEndDate}
+		group by aud_trm,cmcc_prov_prvd_id) a
+		left join (
+		select prov_code,kjqj,
+		sum(case when MXKMDM like '5114272%' then JFJE else 0 end )*1.11
+		+sum(case when MXKMDM like '5114273%' then JFJE else 0 end )*1.06 as cw_je
+		from audit_db.ods_yjk_cw_sum
+		where MXKMDM like '511427%' and  kjqj between #{params.currSumBeginDate} and #{params.currSumEndDate}
+		group by kjqj,prov_code) b
+		on a.aud_trm = b.kjqj and a.cmcc_prov_prvd_id = b.prov_code
+		order by aud_trm desc,cyje desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		
+		SELECT a.aud_trm,a.cmcc_prov_prvd_id,a.short_name,IFNULL(a.yjk_amt,0)as yjk_amt,IFNULL(b.cw_je,0) as cw_je,
+		ABS(IFNULL(a.yjk_amt,0)-IFNULL(b.cw_je,0)) as cyje
+		from(
+		select cmcc_prov_prvd_id,short_name,aud_trm,sum(yjk_amt)as yjk_amt
+		from sum_yjk_2006_01_prvd
+		where aud_trm between #{currSumBeginDate} and #{currSumEndDate}
+		group by aud_trm,cmcc_prov_prvd_id) a
+		left join (
+		select prov_code,kjqj,
+		sum(case when MXKMDM like '5114272%' then JFJE else 0 end )*1.11
+		+sum(case when MXKMDM like '5114273%' then JFJE else 0 end )*1.06 as cw_je
+		from audit_db.ods_yjk_cw_sum
+		where MXKMDM like '511427%' and  kjqj between #{currSumBeginDate} and #{currSumEndDate}
+		group by kjqj,prov_code) b
+		on a.aud_trm = b.kjqj and a.cmcc_prov_prvd_id = b.prov_code
+		order by aud_trm desc,cyje desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="gprs1502">
+	<!-- 获取单价汇总表数据 -->
+	<select id="getSumPrice" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		PRICE_RANGE,
+		ifnull(sum(SUM_STRM_AMT_G),0) as SUM_STRM_AMT_G,
+		ifnull(sum(SUBS_NUM),0) as SUM_SUBS_NUM
+		FROM
+		sum_gprs_1502_price 
+		
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		
+		
+		group by PRICE_RANGE
+		
+		order by PRICE_RANGE
+	</select>
+	
+	<!-- 获取省汇总信息 -->
+	<select id="getSumPrvd" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		ifnull(sum(GPRS_SUBS),0) as SUM_GPRS_SUBS,
+		ifnull(sum(LOW_GPRS_TOL_G),0) as SUM_LOW_GPRS_TOL_G,
+		ifnull(sum(LOW_GPRS_FEE),0) as SUM_LOW_GPRS_FEE,
+		ifnull(avg(PER_GPRS_SUBS_M),0) as AVG_PER_GPRS_SUBS_M,
+		ifnull(avg(PER_GPRS_SUBS_G),0) as AVG_PER_GPRS_SUBS_G
+		FROM
+		sum_gprs_1502_prvd 
+		where 1=1 
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		group by CMCC_PROV_PRVD_ID
+		order by SUM_GPRS_SUBS desc
+	</select>
+	
+	<select id="getSumGPRS" resultType="Map" parameterType="Map">
+		select  sum(IFNULL(LOW_GPRS_TOL_G,0)) as sum_gprsG 
+		from sum_gprs_1502_cty
+		where 1=1 
+		and aud_trm &gt;= #{hz_startMonth}
+		and aud_trm &lt;= #{hz_endMonth}
+		and cmcc_prov_prvd_id = #{provId}
+	</select> 
+	
+	<select id="maxCity3" resultType="Map" parameterType="Map">
+	select cmcc_prvd_nm_short,sum(IFNULL(LOW_GPRS_TOL_G,0)) as sum_gprs_G 
+	from sum_gprs_1502_cty 
+		where 1=1
+		and aud_trm &gt;= #{hz_startMonth}
+		and aud_trm &lt;= #{hz_endMonth}
+		and cmcc_prov_prvd_id = #{provId}
+	GROUP BY CMCC_PROV_ID ORDER BY sum_gprs_G desc limit 3
+	</select>
+	
+	<select id="minCity3" resultType="Map" parameterType="Map">
+	
+	SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		cmcc_prvd_nm_short,
+		ifnull(sum(GPRS_SUBS),0) as SUM_GPRS_SUBS,
+		ifnull(sum(LOW_GPRS_TOL_G),0) as SUM_LOW_GPRS_TOL_G,
+		ifnull(sum(LOW_GPRS_FEE),0) as SUM_LOW_GPRS_FEE,
+		PER_GPRS_SUBS_M,
+		PER_GPRS_SUBS_G,
+		ifnull(sum(LOW_GPRS_FEE),0)/(ifnull(sum(LOW_GPRS_TOL_G),0)*1024) as AVG_PER_GPRS_SUBS_M,
+		ifnull(sum(LOW_GPRS_FEE),0)/(ifnull(sum(LOW_GPRS_TOL_G),0)) as AVG_PER_GPRS_SUBS_G
+		
+		FROM
+		
+		sum_gprs_1502_cty 
+		
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		
+		GROUP BY CMCC_PROV_ID 
+		order by AVG_PER_GPRS_SUBS_G asc limit 3 
+	</select>
+	
+	<!-- 获取地市汇总信息 -->
+	<select id="getSumCty" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		ifnull(sum(GPRS_SUBS),0) as SUM_GPRS_SUBS,
+		ifnull(sum(LOW_GPRS_TOL_G),0) as SUM_LOW_GPRS_TOL_G,
+		ifnull(sum(LOW_GPRS_FEE),0) as SUM_LOW_GPRS_FEE,
+		PER_GPRS_SUBS_M,
+		PER_GPRS_SUBS_G,
+		ifnull(sum(LOW_GPRS_FEE),0)/(ifnull(sum(LOW_GPRS_TOL_G),0)*1024) as AVG_PER_GPRS_SUBS_M,
+		ifnull(sum(LOW_GPRS_FEE),0)/(ifnull(sum(LOW_GPRS_TOL_G),0)) as AVG_PER_GPRS_SUBS_G
+		
+		FROM
+		
+		sum_gprs_1502_cty 
+		
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		
+		GROUP BY CMCC_PROV_ID 
+		order by SUM_LOW_GPRS_TOL_G desc
+	</select>
+	
+	
+	<!-- 获取地市汇总信息 分页-->
+	<select id="getSumCtyPager" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		ifnull(sum(GPRS_SUBS),0) as SUM_GPRS_SUBS,
+		ifnull(sum(LOW_GPRS_TOL_G),0) as SUM_LOW_GPRS_TOL_G,
+		ifnull(sum(LOW_GPRS_FEE),0) as SUM_LOW_GPRS_FEE,
+		PER_GPRS_SUBS_M,
+		PER_GPRS_SUBS_G,
+		ifnull(sum(LOW_GPRS_FEE),0)/(ifnull(sum(LOW_GPRS_TOL_G),0)*1024) as AVG_PER_GPRS_SUBS_M,
+		ifnull(sum(LOW_GPRS_FEE),0)/(ifnull(sum(LOW_GPRS_TOL_G),0)) as AVG_PER_GPRS_SUBS_G
+		
+		FROM
+		
+		sum_gprs_1502_cty 
+		
+		where 1=1 
+		
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and aud_trm >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and aud_trm <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{params.provId}]]>
+		</if>
+		
+		GROUP BY CMCC_PROV_ID 
+		
+		order by SUM_LOW_GPRS_TOL_G desc
+	</select>
+	
+	<!-- 大明细分页查询 -->
+	<select id="getDetailPager" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		SUBS_ID,
+		SUM_STRM_AMT,
+		GPRS_AMT,
+		BAS_MON_FR,
+		FEE_SUM,
+		GPRS_PRICE,
+		fee_pack_unit_cd,fee_pack_nm,strm_tot,voic_tot,sms_tot,mms_tot,wlan_tot_dur,wlan_tot_strm
+		FROM
+		
+		det_gprs_1502 c
+		
+		where 1=1 
+		
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{params.mx_startMonth} ]]> 
+            </if>
+            
+            <if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{params.mx_endMonth} ]]> 
+            </if>
+            
+            <if test="params.provId != null and params.provId != ''">
+                and c.cmcc_prov_prvd_id = #{params.provId}
+            </if>
+            
+            <if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+                and c.cmcc_prov_id = #{params.mx_cityCode}
+            </if>
+            order by AUD_TRM desc,cmcc_prov_id,GPRS_PRICE
+	</select>
+	
+	<!-- 大明细分页查询 -->
+	<select id="getDetailPagerAll" resultType="Map" parameterType="Map">
+		SELECT
+			aud_trm, 				
+			cmcc_prov_prvd_id, 		
+			short_name, 				
+			cmcc_prov_id, 			
+			cmcc_prvd_nm_short, 		
+			subs_id, 				
+			sum_strm_amt, 			
+			gprs_amt, 				
+			bas_mon_fr, 				
+			fee_sum, 				
+			gprs_price, 				
+			fee_pack_unit_cd, 		
+			fee_pack_nm, 			
+			fee_pack_desc, 			
+			fee_pack_stat, 			
+			pack_end_dt, 			
+			strm_amt_is_def, 		
+			onln_dt, 				
+			tgt_rgn_mkt, 			
+			tgt_grp, 				
+			strm_tot,				
+			dom_athrth_strm, 		
+			prov_athrty_strm, 		
+			idle_tm_strm, 			
+			sing_modl_4g_strm, 		
+			cell_strm, 				
+			voic_tot,				
+			dom_call, 				
+			prov_call, 				
+			loacl_call, 				
+			org_call, 				
+			folk_call, 				
+			nets_call, 				
+			cell_call, 				
+			idle_tm_call, 			
+			sms_tot, 				
+			mms_tot, 				
+			wlan_tot_dur, 			
+			wlan_tot_strm, 			
+			pack_inc_splt_typ, 		
+			strm_prc, 				
+			dom_call_prc, 			
+			dom_be_call_prc, 		
+			prov_call_prc, 			
+			prov_be_call_prc, 		
+			loacl_call_prc, 			
+			loacl_bsy_tm_prc, 		
+			loacl_idle_tm_prc, 		
+			cell_call_prc, 			
+			sms_prc,  				
+			mms_prc,  				
+			wlan_prc_dur,  			
+			wlan_prc_strm,  			
+			long_pack_id, 			
+			pack_tot_prc 
+		
+		FROM
+		
+		det_gprs_1502 c
+		
+		where 1=1 
+		
+		  <if test="mx_startMonth != null and mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{mx_startMonth} ]]> 
+            </if>
+            
+            <if test="mx_endMonth != null and mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{mx_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+            
+            <if test="mx_cityCode != null and mx_cityCode != ''">
+                and c.cmcc_prov_id = #{mx_cityCode}
+            </if>
+            order by AUD_TRM desc,cmcc_prov_id,GPRS_PRICE LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

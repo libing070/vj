@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="YJK2004">
+
+    <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" />
+
+    <!-- 排名趋势 -->
+    <select id="getRankTrendList" resultType="Map" parameterType="Map">
+
+        select c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name, sum(c.tol_cnt) as cnt, (sum(c.tol_cnt) / sum(c.tol_cnt_prvd) * 100) as tol_cn_prvd from hpeapb.sum_yjk_2004 c 
+        
+        <where>
+            <if test="hz_startMonth != null and hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+            </if>
+            
+            <if test="hz_endMonth != null and hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+        </where>
+        group by c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name
+        order by sum(c.tol_cnt) desc, c.cmcc_prov_prvd_id
+        
+        limit 0, 10
+    </select>
+    <select id="getConclusionList" resultType="Map" parameterType="Map">
+
+        select c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name,  (sum(c.tol_cnt) / sum(c.tol_cnt_prvd) * 100) as tol_cn_prvd from hpeapb.sum_yjk_2004 c 
+        
+        <where>
+            <if test="hz_startMonth != null and hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+            </if>
+            
+            <if test="hz_endMonth != null and hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+            </if>
+            
+            <if test="provId != null and provId != ''">
+                and c.cmcc_prov_prvd_id = #{provId}
+            </if>
+        </where>
+        group by c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name
+        order by 4 desc, c.cmcc_prov_prvd_id
+        limit 1
+        
+    </select>
+
+    <!-- 全国排名 -->
+    <select id="getRankProvSum" resultType="Map" parameterType="Map">
+
+        select a.*, @rank:= @rank + 1 as rank_num from (
+            select c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, sum(c.tol_cnt) as cnt from hpeapb.sum_yjk_2004 c 
+            
+            <where>
+                <if test="hz_startMonth != null and hz_startMonth != ''">
+                    <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+                </if>
+                
+                <if test="hz_endMonth != null and hz_endMonth != ''">
+                    <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+                </if>
+ 
+            </where>
+        
+            group by c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name
+            order by sum(c.tol_cnt) desc, c.cmcc_prov_prvd_id       
+        ) a, (select @rank:= 0) b
+    
+    </select>
+    
+    <!-- 获取省汇总列表 -->
+    <select id="getProvSumList" resultType="Map" parameterType="Map">
+    
+            select c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name,c.msisdn_prvd_id, c.msisdn_prvd_name, sum(c.tol_cnt) as cnt, sum(c.tol_amt) as tol_amt, sum(c.tol_cnt_prvd) as sum_tol_cn_prvd, (sum(c.tol_cnt) / sum(c.tol_cnt_prvd) * 100) as tol_cn_prvd from hpeapb.sum_yjk_2004 c 
+            
+            <where>
+                <if test="hz_startMonth != null and hz_startMonth != ''">
+                    <![CDATA[ and c.aud_trm >= #{hz_startMonth} ]]> 
+                </if>
+                
+                <if test="hz_endMonth != null and hz_endMonth != ''">
+                    <![CDATA[ and c.aud_trm <= #{hz_endMonth} ]]> 
+                </if>
+    
+                <if test="provId != null and provId != ''">
+                    and c.cmcc_prov_prvd_id = #{provId}
+                </if>
+                
+            </where>
+        
+            group by c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name
+            order by sum(c.tol_cnt) desc, c.cmcc_prov_prvd_id     
+              
+    </select>
+    
+    <!-- 获取省汇总列表（分页） -->
+    <select id="getProvSumPagerList" resultType="Map" parameterType="pager">
+
+        select c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_name, sum(c.tol_cnt) as cnt, sum(c.tol_amt) as tol_amt, sum(c.tol_cnt_prvd) as sum_tol_cn_prvd, (sum(c.tol_cnt) / sum(c.tol_cnt_prvd) * 100) as tol_cn_prvd from hpeapb.sum_yjk_2004 c 
+        
+        <where>
+            <if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{params.hz_startMonth} ]]> 
+            </if>
+            
+            <if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{params.hz_endMonth} ]]> 
+            </if>
+            
+            <if test="params.provId != null and params.provId != ''">
+                and c.cmcc_prov_prvd_id = #{params.provId}
+            </if>
+        
+        </where>
+    
+        group by c.cmcc_prov_prvd_id, c.cmcc_prov_prvd_name, c.msisdn_prvd_id, c.msisdn_prvd_name
+        order by sum(c.tol_cnt) desc, c.cmcc_prov_prvd_id       
+    
+    </select>
+    
+    <!-- 获取省份明细数据 -->    
+    <select id="getCityDetailList" resultType="Map" parameterType="Map" fetchSize="3000">
+    
+        select c.aud_trm,
+	    c.msisdn_prvd_name,
+	    (CASE WHEN c.msisdn= '' THEN '' ELSE CONCAT(SUBSTR(c.msisdn,1,(LENGTH(c.msisdn)-4)),'****') END)AS msisdn,
+	    c.cmcc_prov_prvd_name,
+	    c.mon,
+	    c.tradedate,
+	    c.yjk_ser_no,
+	    c.supplycardkind_name,
+	    c.cardflag,
+	    c.countatal
+         from hpeapb.det_yjk_2004 c
+        
+        <where>
+            <if test="mx_startMonth != null and mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{mx_startMonth} ]]> 
+            </if>
+            
+            <if test="mx_endMonth != null and mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{mx_endMonth} ]]> 
+            </if>
+            
+            <if test="mx_prvdId1 != null and mx_prvdId1 != ''">
+                and c.msisdn_prvd_id = #{mx_prvdId1}
+            </if>
+            
+            <if test="mx_prvdId2 != null and mx_prvdId2 != ''">
+                and c.cmcc_prov_prvd_id = #{mx_prvdId2}
+            </if>
+
+        </where>
+    		order by aud_trm desc
+    		LIMIT #{pageStar},#{pageEnd}
+    </select>
+    
+    <!-- 获取省份明细数据（分页） -->    
+    <select id="getCityDetailPagerList" resultType="Map" parameterType="pager">
+ 	
+        select 
+	    c.aud_trm,
+		c.mon,
+		c.msisdn_prvd_id,
+		c.msisdn_prvd_name,
+		(CASE WHEN c.msisdn= '' THEN '' ELSE CONCAT(SUBSTR(c.msisdn,1,(LENGTH(c.msisdn)-4)),'****') END)AS msisdn,
+		c.cmcc_prov_prvd_id,
+		c.cmcc_prov_prvd_name,
+		c.tradedate,
+		c.yjk_ser_no,
+		c.supplycardkind_name,
+		c.cardflag,
+		c.countatal
+         from hpeapb.det_yjk_2004 c
+        
+        <where>
+            <if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+                <![CDATA[ and c.aud_trm >= #{params.mx_startMonth} ]]> 
+            </if>
+            
+            <if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+                <![CDATA[ and c.aud_trm <= #{params.mx_endMonth} ]]> 
+            </if>
+            
+            <if test="params.mx_prvdId1 != null and params.mx_prvdId1 != ''">
+                and c.msisdn_prvd_id = #{params.mx_prvdId1}
+            </if>
+            
+            <if test="params.mx_prvdId2 != null and params.mx_prvdId2 != ''">
+                and c.cmcc_prov_prvd_id = #{params.mx_prvdId2}
+            </if>
+
+        </where>
+    		order by aud_trm desc
+    </select>
+
+</mapper>
+

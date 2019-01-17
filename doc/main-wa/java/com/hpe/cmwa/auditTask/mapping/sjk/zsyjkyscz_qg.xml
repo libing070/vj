@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zsyjkyscz_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(offer_zsyjk_ys_amt) as offer_zsyjk_ys_amt,cmcc_prov_prvd_id,
+			short_name
+		from 
+			hpeapb.sum_yjkzscz_3102_offer_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by offer_zsyjk_ys_amt desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(offer_zsyjk_ys_amt) as offer_zsyjk_ys_amt,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_yjkzscz_3102_offer_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and offer_zsyjk_ys_amt !=0 
+		group by cmcc_prov_prvd_id 
+		order by offer_zsyjk_ys_amt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(offer_zsyjk_ys_amt) as offer_zsyjk_ys_amt,
+			aud_trm 
+		from 
+			hpeapb.sum_yjkzscz_3102_offer_prvd 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			opr_prvd_id,
+			opr_prvd_nm,
+			offer_cd,
+			offer_nm,
+			offer_zsyjk_num,
+			offer_zsyjk_amt,
+			offer_zsyjk_pay_num,
+			ffer_zsyjk_pay_amt,
+			offer_zsyjk_ys_num,
+			offer_zsyjk_ys_amt
+ 		from 
+ 			hpeapb.sum_yjkzscz_3102_offer_prvd 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,offer_zsyjk_ys_amt desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			opr_prvd_id,
+			opr_prvd_nm,
+			offer_cd,
+			offer_nm,
+			offer_zsyjk_num,
+			offer_zsyjk_amt,
+			offer_zsyjk_pay_num,
+			ffer_zsyjk_pay_amt,
+			offer_zsyjk_ys_num,
+			offer_zsyjk_ys_amt
+ 		from 
+ 			hpeapb.sum_yjkzscz_3102_offer_prvd 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,offer_zsyjk_ys_amt desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="jfqlMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_hz_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		COUNT(CASE WHEN bili_value &gt; 0  AND bili_value &lt;=0.2 THEN subs_id   END) usercount1,
+		COUNT(CASE WHEN bili_value &gt;0.2  AND bili_value &lt;=0.4 THEN subs_id   END) usercount2,
+		COUNT(CASE WHEN bili_value &gt;0.4  AND bili_value &lt;=0.6 THEN subs_id  END) usercount3,
+		COUNT(CASE WHEN bili_value &gt;0.6 AND bili_value &lt;=0.8 THEN subs_id  END) usercount4,
+		COUNT(CASE WHEN bili_value &gt;0.8  AND bili_value &lt;=1 THEN subs_id  END) usercount5,
+		COUNT(CASE WHEN bili_value &gt;1 THEN subs_id END) usercount6,
+		COUNT(*) as allcount
+		FROM	hpeapb.sum_jfbdyc_2902_subs
+		WHERE aud_trm_begin =  #{currSumBeginDate} 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+			and cmcc_prov_id = #{czyCitySingle} 
+		</if>
+	</select>
+	<select id="load_hz_mx_table"  resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{params.currSumBeginDate},'-',#{params.currSumEndDate}) as aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			CMCC_prvd_nm_short,
+			subs_id,
+			pres_value as presvalue,
+			zero_value as zerovalue,
+			bili_value*100 AS zpper
+		FROM hpeapb.sum_jfbdyc_2902_subs
+		WHERE CMCC_prov_prvd_id = #{params.provinceCode}
+				and aud_trm_begin =  #{params.currSumBeginDate} 
+			<if test="params.czyCitySingle  != '' and params.czyCitySingle  !=null ">
+				and cmcc_prov_id = #{params.czyCitySingle} 
+			</if>
+		ORDER BY CMCC_prvd_nm_short,subs_id
+	
+	</select>
+	
+	<select id="export_hz_mx_table"  resultType="Map" parameterType="Map">
+		SELECT CONCAT(#{currSumBeginDate},'-',#{currSumEndDate}) as aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			CMCC_prvd_nm_short,
+			subs_id,
+			pres_value as presvalue,
+			zero_value as zerovalue,
+			bili_value*100 AS zpper
+		FROM hpeapb.sum_jfbdyc_2902_subs
+		WHERE CMCC_prov_prvd_id = #{provinceCode}
+				and aud_trm_begin =  #{currSumBeginDate} 
+			<if test="czyCitySingle  != '' and czyCitySingle  !=null ">
+				and cmcc_prov_id = #{czyCitySingle} 
+			</if>
+		ORDER BY CMCC_prvd_nm_short,subs_id
+	
+	</select>
+	
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm_begin,
+		aud_trm_end,
+			CMCC_prvd_nm_short,subs_id,
+			points_typ,trade_typ_name,trade_value,
+			zero_flag,trade_ser_no,trade_tm
+		FROM hpeapb.det_jfbdyc_2902
+		WHERE aud_trm_begin = #{params.currDetBeginDate}
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode}
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		ORDER BY CMCC_prvd_nm_short,trade_value desc
+	</select>
+	
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm_begin,
+		aud_trm_end,
+		CMCC_prov_prvd_id, 
+		short_name,
+		 cmcc_prov_id,
+		 CMCC_prvd_nm_short,
+		 subs_id,
+		 points_typ,
+		 trade_value,
+		 trade_stat,
+		 zero_flag,
+		 opposite_msisdn,
+		 validity_dt,
+		 trade_ser_no,
+		 trade_tm, 
+		 points_chnl_id,trade_typ,
+		 trade_typ_name,
+		 emp_id ,
+		 concat(left(nm,1),'****') as nm,
+		 emp_post,
+		 blto_chnl_id, 
+		 chnl_nm,cor_chnl_id
+		FROM hpeapb.det_jfbdyc_2902
+		WHERE aud_trm_begin &gt;= #{currDetBeginDate}
+		AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		<if test="currCityType  != '' and currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType } 
+		</if>
+		ORDER BY CMCC_prvd_nm_short,trade_value desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

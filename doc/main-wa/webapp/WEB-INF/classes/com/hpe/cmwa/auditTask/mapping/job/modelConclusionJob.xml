@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="workMapper">
+
+    <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" />
+
+
+    <!-- 获取model_file_notification表中未处理的列表 -->
+    <select id="selectIntfCodes" resultType="Map" parameterType="Map">
+        select IntfCode 
+        from hpeapm.model_file_notification
+        where status = #{status} 
+    </select>
+    
+    <!-- 获取model_finished_audit_task表  所有信息-->
+    <select id="selectModelFinishedAuditTask" resultType="Map" parameterType="Map">
+        select taskCode ,auditId , provinceCode, beforeAcctMonth,endAcctMonth ,taskName 
+        from hpeapm.model_finished_audit_task
+        where 1=1
+    </select>
+    
+    <insert id="insetModelFinishedAuditTask" keyProperty="id">
+    	insert into hpeapm.model_finished_audit_task (taskCode,auditId,provinceCode,beforeAcctMonth,endAcctMonth,status,taskName)
+    	values (#{taskCode},#{auditId},#{provinceCode},#{beforeAcctMonth},#{endAcctMonth},#{status},#{taskName})
+    </insert>
+    
+    
+    <!-- 获取model_finished_audit_task表  所有信息-->
+    <select id="selectAuditTaskInfoShare" resultType="Map" parameterType="Map">
+        select taskCode ,auditId , provinceCode, beforeAcctMonth,endAcctMonth,taskName
+        from audit_db.audit_task_info_share
+        where 1=1
+    </select>
+    
+    <!-- 根据 接口单元编码去查询对应的审计点-->
+    <select id="selectauditIds" resultType="Map" parameterType="List">
+        select m.audit_id as auditId , n.DateMonth as dateMonth 
+        from hpeapm.model_file_audit_mapping m ,hpeapm.model_file_notification n 
+        <where>
+        	m.Intf_code IN 
+        	<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			AND m.Intf_code = n.IntfCode
+        </where>
+    </select>
+    
+    <!-- 根据审计点去audit_db.audit_task_info_share查询对应的任务信息列表-->
+    <select id="selecAuditTaskInfoShare" resultType="Map" parameterType="Map">
+        select a.taskCode, a.taskname , a.auditId , a.provinceCode , a.beforeAcctMonth , a.endAcctMonth,
+        n.timestamp , n.extParam ,n.id 
+        from audit_db.audit_task_info_share a ,hpeapm.model_file_notification n ,hpeapm.model_file_audit_mapping m
+        <where>
+             a.auditId = #{auditId}
+             and m.audit_id = a.auditId
+             and m.Intf_code  = n.IntfCode 
+             and a.beforeAcctMonth &lt;= #{dateMonth} 
+             and a.endAcctMonth &gt;= #{dateMonth} 
+        </where>
+    </select>
+    
+    <!-- 根据任务信息和审计点信息，查询模型结论配置表hpeapm.model_conclusion_config，进而生成新的模型结论 -->
+    <select id="selectModelConclusionConfig" resultType="Map" parameterType="Map">
+        select c.conclusion , c.sql  from hpeapm.model_conclusion_config c
+        <where>
+             c.audit_id = #{auditId}
+        </where>
+    </select>
+    <!-- 查询模型结论配置表hpeapm.model_conclusion_config_qg，进而生成新的模型结论  -->
+    <select id="selectQGModelConclusionConfig" resultType="Map" parameterType="Map">
+        select c.conclusion , c.sql  from hpeapm.model_conclusion_config_qg c
+        <where>
+             c.audit_id = #{auditId}
+        </where>
+    </select>
+    
+    <insert id="insetConclusionLog" keyProperty="id">
+    	insert into hpeapm.model_conclusion_log (file_notification_id,audit_id,task_code,model_conclusion , timestamp, ext_param ,status)
+    	values (#{fileNotificationId},#{auditId},#{taskCode},#{modelConclusion},#{timestamp},#{extParam},#{status})
+    </insert>
+    <!-- 记录文件加载完成的通知消息model_file_notification -->
+    <insert id="insetModelFileNotification" keyProperty="id">
+    	insert into hpeapm.model_file_notification (IntfCode, DateMonth, timestamp, extParam , status)
+    	values (#{IntfCode},#{DateMonth},#{timestamp},#{extParam},#{status})
+    </insert>
+    
+    <!--修改 model_file_notification推送状态 -->
+	<update id="updateModelFileNotification" parameterType="Map">
+	 update hpeapm.model_file_notification
+	 SET status = #{status}
+	 WHERE id=#{id}
+	</update>
+	<!-- 根据省代码获取省份名称 -->
+	<select id="selectShortNameById" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	SELECT
+		short_name
+	FROM hpeapm.busi_workspace_org
+	where prvd_id =  #{provinceCode} 
+	</select>
+</mapper>

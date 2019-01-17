@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="hyzdbthgx1701">
+	<!-- 获取离网率汇总信息 -->
+	<select id="getQdhyPrvd" resultType="Map" parameterType="Map">
+		SELECT
+		sum_hyzdbthgx_1701_prvd_qdhy.GEN_DATE,
+		sum(sum_hyzdbthgx_1701_offer.SUBS_NUM) 	as SUBS_NUM,
+		sum_hyzdbthgx_1701_prvd_qdhy.CMCC_PROV_PRVD_ID,
+		sum_hyzdbthgx_1701_prvd_qdhy.SHORT_NAME,
+		sum_hyzdbthgx_1701_prvd_qdhy.OFFER_ID,
+		sum_hyzdbthgx_1701_prvd_qdhy.OFFER_NM,
+		sum_hyzdbthgx_1701_prvd_qdhy.SELL_MON,
+		ifnull(sum(sum_hyzdbthgx_1701_prvd_qdhy.IMEI_NUM),0) as SUM_IMEI_NUM,
+		sum_hyzdbthgx_1701_prvd_qdhy.SUBS_NUM ,
+		ifnull(sum(sum_hyzdbthgx_1701_offer.SUBS_NUM)/sum(sum_hyzdbthgx_1701_prvd_qdhy.SUBS_NUM),0) as LWL
+		FROM
+		hpeapb.sum_hyzdbthgx_1701_prvd_qdhy 
+		left join hpeapb.sum_hyzdbthgx_1701_offer 
+		on sum_hyzdbthgx_1701_prvd_qdhy.OFFER_ID = sum_hyzdbthgx_1701_offer.OFFER_ID 
+		where 1=1 
+	
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and sum_hyzdbthgx_1701_prvd_qdhy.SELL_MON >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and sum_hyzdbthgx_1701_prvd_qdhy.SELL_MON <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and sum_hyzdbthgx_1701_prvd_qdhy.cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+	
+	group by OFFER_ID
+	order by SUM_IMEI_NUM desc 
+	limit 20
+	</select>
+	<!-- 获取营销案汇总信息 -->
+	<select id="getSumOffer" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		OFFER_ID,
+		OFFER_NM,
+		SELL_MON,
+		ifnull(sum(SUBS_NUM),0) as SUM_SUBS_NUM
+		FROM
+		hpeapb.sum_hyzdbthgx_1701_offer
+		where 1=1 
+		
+		<if test="params.hz_startMonth != null and params.hz_startMonth != ''">
+	        <![CDATA[ and hpeapb.sum_hyzdbthgx_1701_offer.SELL_MON >= #{params.hz_startMonth} ]]>
+		</if>
+	
+		<if test="params.hz_endMonth != null and params.hz_endMonth != ''">
+	        <![CDATA[ and hpeapb.sum_hyzdbthgx_1701_offer.SELL_MON <= #{params.hz_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			<![CDATA[ and hpeapb.sum_hyzdbthgx_1701_offer.cmcc_prov_prvd_id = #{params.provId}]]>
+		</if>
+		group by OFFER_ID
+		order by SUM_SUBS_NUM desc 
+	
+	</select>
+	
+	<!-- 获取营销案汇总所有信息 -->
+	<select id="getSumOfferAll" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		OFFER_ID,
+		OFFER_NM,
+		SELL_MON,
+		ifnull(sum(SUBS_NUM),0) as SUM_SUBS_NUM
+		FROM
+		hpeapb.sum_hyzdbthgx_1701_offer
+		where 1=1 
+		
+		<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and hpeapb.sum_hyzdbthgx_1701_offer.SELL_MON >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and hpeapb.sum_hyzdbthgx_1701_offer.SELL_MON <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and hpeapb.sum_hyzdbthgx_1701_offer.cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		group by OFFER_ID
+		order by SUM_SUBS_NUM desc 
+	</select>
+	<!-- 获取合约内离网用户的在网时长分布信息 -->
+	<select id="getOnlineMon" resultType="Map" parameterType="Map">
+		SELECT
+		GEN_DATE,
+		SELL_MON,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		ONLINE_MON_ARR,
+		ifnull(sum(SUBS_NUM),0) as SUM_SUBS_NUM
+		FROM
+		hpeapb.sum_hyzdbthgx_1701_online_mon 
+		where 1=1 
+			<if test="hz_startMonth != null and hz_startMonth != ''">
+	        <![CDATA[ and hpeapb.sum_hyzdbthgx_1701_online_mon.SELL_MON >= #{hz_startMonth} ]]>
+		</if>
+	
+		<if test="hz_endMonth != null and hz_endMonth != ''">
+	        <![CDATA[ and hpeapb.sum_hyzdbthgx_1701_online_mon.SELL_MON <= #{hz_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and hpeapb.sum_hyzdbthgx_1701_online_mon.cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		
+		GROUP BY ONLINE_MON_ARR 
+	
+	</select>
+	
+	<!-- 获取详情表信息（不分页） -->
+	<select id="getDetailListPager" resultType="Map" parameterType="pager">
+		SELECT
+		GEN_DATE,
+		AUD_TRM,
+		CMCC_PROV_PRVD_ID,
+		SHORT_NAME,
+		CMCC_PROV_ID,
+		CMCC_PRVD_NM_SHORT,
+		SELL_CHNL_ID,
+		CHNL_NM,
+		EMP_ID,
+		SUBS_ID,
+		SELL_DAT,
+		TRMNL_IMEI,
+		OFFER_ID,
+		OFFER_NM,
+		BND_PRD,
+		ACTL_SHOP_AMT,
+		ACUM_EXCH_VAL,
+		USD_ACUM_EXCH_AMT,
+		SHOP_COST,
+		UNLOCKED_RETL_PRC,
+		TRMNL_ALLOW_COST,
+		FEE_ALLOW_COST,
+		CUST_PPAY_FEE,
+		CUST_ACTL_FEE_SUM,
+		CUST_PRMS_MON_LEAST_CONSM,
+		CUST_BND_CONTRT_NM,
+		PROD_TYP_NM,
+		END_DT,
+		SUBS_STAT_TYP_NM,
+		EFF_DT,
+		ENT_DT,
+		ONLINE_MON
+		FROM 
+		hpeapb.det_hyzdbthgx_1701 
+		where 1=1 
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and  AUD_TRM >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and AUD_TRM <= #{params.mx_endMonth} ]]>
+		</if>
+	
+		<if test="params.provId != null and params.provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{params.provId}]]>
+		</if>
+		
+		 <if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+                and  cmcc_prov_id = #{params.mx_cityCode}
+        </if>
+        
+         <if test="params.startTime != null and params.startTime != ''">
+	        <![CDATA[ and  ONLINE_MON >= #{params.startTime} ]]>
+		</if>
+	
+		<if test="params.endTime != null and params.endTime != ''">
+	        <![CDATA[ and ONLINE_MON <= #{params.endTime} ]]>
+		</if>
+		ORDER BY AUD_TRM desc,CMCC_PROV_ID
+	</select>
+	
+	<!-- 获取详情表信息（不分页） -->
+	<select id="getDetailListAll" resultType="Map" parameterType="Map">
+	SELECT
+	GEN_DATE,
+	AUD_TRM,
+	CMCC_PROV_PRVD_ID,
+	SHORT_NAME,
+	CMCC_PROV_ID,
+	CMCC_PRVD_NM_SHORT,
+	SELL_CHNL_ID,
+	CHNL_NM,
+	EMP_ID,
+	SUBS_ID,
+	SELL_DAT,
+	TRMNL_IMEI,
+	OFFER_ID,
+	OFFER_NM,
+	BND_PRD,
+	ACTL_SHOP_AMT,
+	ACUM_EXCH_VAL,
+	USD_ACUM_EXCH_AMT,
+	SHOP_COST,
+	UNLOCKED_RETL_PRC,
+	TRMNL_ALLOW_COST,
+	FEE_ALLOW_COST,
+	CUST_PPAY_FEE,
+	CUST_ACTL_FEE_SUM,
+	CUST_PRMS_MON_LEAST_CONSM,
+	CUST_BND_CONTRT_NM,
+	PROD_TYP_NM,
+	END_DT,
+	SUBS_STAT_TYP_NM,
+	EFF_DT,
+	ENT_DT,
+	ONLINE_MON
+	FROM 
+	hpeapb.det_hyzdbthgx_1701 
+	where 1=1 
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and  AUD_TRM >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and AUD_TRM <= #{mx_endMonth} ]]>
+		</if>
+	
+		<if test="provId != null and provId != ''">
+			<![CDATA[ and cmcc_prov_prvd_id = #{provId}]]>
+		</if>
+		
+		 <if test="mx_cityCode != null and mx_cityCode != ''">
+                and  cmcc_prov_id = #{mx_cityCode}
+        </if>
+        
+        
+        <if test="startTime != null and startTime != ''">
+	        <![CDATA[ and  ONLINE_MON >= #{startTime} ]]>
+		</if>
+	
+		<if test="endTime != null and endTime != ''">
+	        <![CDATA[ and ONLINE_MON <= #{endTime} ]]>
+		</if>
+		ORDER BY AUD_TRM desc,CMCC_PROV_ID  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

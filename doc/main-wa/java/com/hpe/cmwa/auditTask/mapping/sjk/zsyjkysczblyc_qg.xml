@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="zsyjkysczblyc_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+	select 
+		t1.cmcc_prov_prvd_id,t1.short_name,
+		sum(
+				(CASE WHEN IFNULL(t1.zb,'0')&gt;='0.6' THEN t1.number  
+							ELSE t1.number*0
+							end)
+			)as count_offer_cd
+	from
+		(select  
+			cmcc_prov_prvd_id,short_name,offer_cd,offer_nm,
+			sum(ffer_zsyjk_pay_amt) as sum_ffer_zsyjk_pay_amt,
+			sum(offer_zsyjk_ys_amt) as sum_offer_zsyjk_ys_amt,
+			(sum(offer_zsyjk_ys_amt)/sum(ffer_zsyjk_pay_amt)) as zb,1 as number
+		from 
+			sum_yjkzscz_3102_offer_prvd 
+		where 1=1
+		and   aud_trm  between #{currSumBeginDate}  and #{currSumEndDate}
+		group by  cmcc_prov_prvd_id,offer_cd 
+		) as t1 
+		group by  t1.cmcc_prov_prvd_id
+		order by count_offer_cd desc,t1.cmcc_prov_prvd_id
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select * from (select 
+			count(t1.offer_cd) as count_offer_cd,
+			t1.cmcc_prov_prvd_id,t1.short_name
+		from
+			(select  
+				cmcc_prov_prvd_id,short_name,offer_cd,offer_nm,
+				sum(ffer_zsyjk_pay_amt) as sum_ffer_zsyjk_pay_amt,
+				sum(offer_zsyjk_ys_amt) as sum_offer_zsyjk_ys_amt,
+				(sum(offer_zsyjk_ys_amt)/sum(ffer_zsyjk_pay_amt)) as zb
+			from 
+				sum_yjkzscz_3102_offer_prvd 
+			where 1=1
+			and   aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			group by  cmcc_prov_prvd_id,offer_cd having zb>'0.6'
+		) as t1 where 1=1 
+		group by  t1.cmcc_prov_prvd_id
+		order by count_offer_cd desc,t1.cmcc_prov_prvd_id) as t
+		where 1=1 and t.count_offer_cd!=0 order by count_offer_cd desc,cmcc_prov_prvd_id
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			t1.aud_trm,t1.cmcc_prov_prvd_id,t1.short_name,count(t1.offer_cd) as count_offer_cd
+		from
+			(select  
+				aud_trm,cmcc_prov_prvd_id,short_name,offer_cd,offer_nm,
+				sum(ffer_zsyjk_pay_amt) as sum_ffer_zsyjk_pay_amt,
+				sum(offer_zsyjk_ys_amt) as sum_offer_zsyjk_ys_amt,
+				(sum(offer_zsyjk_ys_amt)/sum(ffer_zsyjk_pay_amt)) as zb
+			from 
+				sum_yjkzscz_3102_offer_prvd 
+			where 1=1 
+			and aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			group by  aud_trm,offer_cd having zb>'0.6'
+		) as t1 
+		group by t1.aud_trm
+		order by t1.aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			count(t1.offer_cd) as count_offer_cd,
+			t1.cmcc_prov_prvd_id,t1.short_name,
+			#{params.currSumBeginDate} AS currSumBeginDate,
+		    #{params.currSumEndDate} AS currSumEndDate
+		from
+			(select  
+				cmcc_prov_prvd_id,short_name,offer_cd,offer_nm,
+				sum(ffer_zsyjk_pay_amt) as sum_ffer_zsyjk_pay_amt,
+				sum(offer_zsyjk_ys_amt) as sum_offer_zsyjk_ys_amt,
+				(sum(offer_zsyjk_ys_amt)/sum(ffer_zsyjk_pay_amt)) as zb
+			from 
+				sum_yjkzscz_3102_offer_prvd 
+			where 1=1
+			and   aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+			group by  cmcc_prov_prvd_id,offer_cd having zb>'0.6'
+		) as t1 
+		group by  t1.cmcc_prov_prvd_id
+		order by count_offer_cd desc,t1.cmcc_prov_prvd_id
+	
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			count(t1.offer_cd) as count_offer_cd,
+			t1.cmcc_prov_prvd_id,t1.short_name,
+			#{currSumBeginDate} AS currSumBeginDate,
+		    #{currSumEndDate} AS currSumEndDate
+		from
+			(select  
+				cmcc_prov_prvd_id,short_name,offer_cd,offer_nm,
+				sum(ffer_zsyjk_pay_amt) as sum_ffer_zsyjk_pay_amt,
+				sum(offer_zsyjk_ys_amt) as sum_offer_zsyjk_ys_amt,
+				(sum(offer_zsyjk_ys_amt)/sum(ffer_zsyjk_pay_amt)) as zb
+			from 
+				sum_yjkzscz_3102_offer_prvd 
+			where 1=1
+			and   aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+			group by  cmcc_prov_prvd_id,offer_cd having zb>'0.6'
+		) as t1 
+		group by  t1.cmcc_prov_prvd_id
+		order by count_offer_cd desc,t1.cmcc_prov_prvd_id LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

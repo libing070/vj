@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="hyzdcfxs3401Mapper">
+
+	<select id="hyzdcfxsNum" resultType="Map" parameterType="Map">
+		select
+			count(TRMNL_IMEI)as count_trmnl_imei,SELL_NUM,sum(SELL_NUM) as count_sell_num,
+			sum(SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST) as sum_trmnl_fee_cost
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId}
+			and AUD_TRM=#{sj_month}
+			
+		GROUP BY SELL_NUM
+	
+	</select>
+	
+	<select id="getSumNumCon" resultType="Map" parameterType="Map">
+		select 
+			COUNT(TRMNL_IMEI) as count_trmnl_imei,sum(SELL_NUM) as sum_sell_num,
+			sum(SUM_FEE_ALLOW_COST+SUM_TRMNL_ALLOW_COST) as sum_bt_je
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num
+		where 1=1 and
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId}
+			and AUD_TRM=#{sj_month}
+			
+	
+	</select>
+	
+	<select id="getHyzdcfxsNum3401Detail_Table"  resultType="Map" parameterType="pager">
+		select 
+			aud_trm,short_name,cmcc_prvd_nm_short,trmnl_imei,sum(sell_num) as sum_sell_num,
+			sum(sum_fee_allow_cost+sum_trmnl_allow_cost) as sum_bt_je,sum_fee_allow_cost,
+			sum_trmnl_allow_cost,(sum(sum_fee_allow_cost+sum_trmnl_allow_cost)/sum(sell_num)) as avg_bt_je
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{params.hz_startMonth} and EARLIEST_SELL_DT &lt;=#{params.hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{params.hz_startMonth} and  LATEST_SELL_DT&lt;=#{params.hz_endMonth})
+			)
+		<if test="params.sj_month != null and params.sj_month != ''">
+			<![CDATA[ and AUD_TRM = #{params.sj_month} ]]>
+		</if>
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		group by trmnl_imei order by  sell_num desc
+	</select>
+	
+	
+	<select id="exportHyzdcfxsDetail"  resultType="Map" parameterType="Map">
+		select 
+			aud_trm,short_name,cmcc_prvd_nm_short,trmnl_imei,sum(sell_num) as sum_sell_num,
+			sum(sum_fee_allow_cost+sum_trmnl_allow_cost) as sum_bt_je,sum_fee_allow_cost,
+			sum_trmnl_allow_cost,(sum(sum_fee_allow_cost+sum_trmnl_allow_cost)/sum(sell_num)) as avg_bt_je
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+		<if test="sj_month != null and sj_month != ''">
+			<![CDATA[ and AUD_TRM = #{sj_month} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		group by trmnl_imei order by  sell_num desc
+	</select>
+	
+	
+	<select id="loadbtjeChart" resultType="Map" parameterType="Map">
+		select 
+			sum(case when SELL_NUM=2 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost2,
+			sum(case when SELL_NUM=2 then SELL_NUM else 0 end) as sum_sell_num2,
+			
+			sum(case when SELL_NUM=3 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost3,
+			sum(case when SELL_NUM=3 then SELL_NUM else 0 end) as sum_sell_num3,
+			
+			sum(case when SELL_NUM=4 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost4,
+			sum(case when SELL_NUM=4 then SELL_NUM else 0 end) as sum_sell_num4,
+			
+			sum(case when SELL_NUM=5 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost5,
+			sum(case when SELL_NUM=5 then SELL_NUM else 0 end) as sum_sell_num5,
+			
+			sum(case when SELL_NUM>5 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost_gt5,
+			sum(case when SELL_NUM>5 then SELL_NUM else 0 end) as sum_sell_num_gt5,
+			
+			CMCC_PROV_ID,CMCC_PRVD_NM_SHORT
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num
+		where 1=1 and
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId} 
+			and AUD_TRM = #{sj_month}
+			GROUP BY CMCC_PROV_ID
+	</select>
+	
+	<select id="getTop3Con" resultType="Map" parameterType="Map">
+		select 
+			cmcc_prvd_nm_short,count(trmnl_imei) count_trmnl_imei,
+			sum(sell_num) as sum_sell_num,
+			sum(sum_fee_allow_cost+sum_trmnl_allow_cost) as sum_bt_je
+		from 
+		 	hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId} 
+			and AUD_TRM = #{sj_month} 
+			GROUP BY CMCC_PROV_ID ORDER BY sum_bt_je DESC limit 3;
+	</select>
+	
+	<select id="getTableCon" resultType="Map" parameterType="Map">
+		select 
+			count(trmnl_imei) as tbcount_trmnl_imei,sum(sell_num) as tbsum_sell_num,
+			sum(sum_fee_allow_cost+sum_trmnl_allow_cost) as tbsum_bt_je
+		from 
+		 	hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId} 
+			and AUD_TRM = #{sj_month} 
+	</select>
+	
+	<select id="loadxsslChart" resultType="Map" parameterType="Map">
+		select 
+			sum(case when SELL_NUM=2 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost2,
+			sum(case when SELL_NUM=2 then SELL_NUM else 0 end) as sum_sell_num2,
+			
+			sum(case when SELL_NUM=3 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost3,
+			sum(case when SELL_NUM=3 then SELL_NUM else 0 end) as sum_sell_num3,
+			
+			sum(case when SELL_NUM=4 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost4,
+			sum(case when SELL_NUM=4 then SELL_NUM else 0 end) as sum_sell_num4,
+			
+			sum(case when SELL_NUM=5 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost5,
+			sum(case when SELL_NUM=5 then SELL_NUM else 0 end) as sum_sell_num5,
+			
+			sum(case when SELL_NUM>5 then SUM_TRMNL_ALLOW_COST+SUM_FEE_ALLOW_COST else 0 end) as sum_trmnl_fee_cost_gt5,
+			sum(case when SELL_NUM>5 then SELL_NUM else 0 end) as sum_sell_num_gt5,
+			
+			CMCC_PROV_ID,CMCC_PRVD_NM_SHORT
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId} 
+			and AUD_TRM = #{sj_month}
+			GROUP BY CMCC_PROV_ID
+	</select>
+	
+	<select id="getXsslTop3Con" resultType="Map" parameterType="Map">
+		select 
+			cmcc_prvd_nm_short,count(trmnl_imei) count_trmnl_imei,
+			sum(sell_num) as sum_sell_num,
+			sum((sum_fee_allow_cost+sum_trmnl_allow_cost)) as sum_bt_je
+		from 
+		 	hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+			and CMCC_PROV_PRVD_ID=#{provId} 
+			and AUD_TRM = #{sj_month} 
+			GROUP BY CMCC_PROV_ID ORDER BY sum_sell_num DESC ;
+	</select>
+	
+	<select id="getxssl3401Detail_Table"  resultType="Map" parameterType="pager">
+		select 
+			aud_trm,cmcc_prvd_nm_short,trmnl_imei,
+			count(trmnl_imei) as count_trmnl_imei,
+			sum(sell_num) as sum_sell_num,
+			sum(sum_trmnl_allow_cost) as sum_trmnl_allow_cost,sum(sum_fee_allow_cost) as sum_fee_allow_cost,
+			sum(sum_trmnl_allow_cost+sum_fee_allow_cost) as sum_bt_je
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{params.hz_startMonth} and  EARLIEST_SELL_DT &lt;=#{params.hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{params.hz_startMonth} and  LATEST_SELL_DT&lt;=#{params.hz_endMonth})
+			)
+		<if test="params.sj_month != null and params.sj_month != ''">
+			<![CDATA[ and aud_trm = #{params.sj_month} ]]>
+		</if>
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		group by cmcc_prov_id,trmnl_imei order by cmcc_prov_id asc,sell_num desc
+	</select>
+	
+	<select id="exportXssl3401Detail"  resultType="Map" parameterType="Map">
+		select 
+			aud_trm,cmcc_prvd_nm_short,trmnl_imei,
+			count(trmnl_imei) as count_trmnl_imei,
+			sum(sell_num) as sum_sell_num,
+			sum(sum_trmnl_allow_cost) as sum_trmnl_allow_cost,sum(sum_fee_allow_cost) as sum_fee_allow_cost,
+			sum(sum_trmnl_allow_cost+sum_fee_allow_cost) as sum_bt_je
+		from 
+			hpeapb.sum_hyzdxsyc_3401_sell_num 
+		where 1=1 and 
+			(
+				(EARLIEST_SELL_DT &gt;=#{hz_startMonth} and EARLIEST_SELL_DT &lt;=#{hz_endMonth})
+			 or  
+				(LATEST_SELL_DT &gt;=#{hz_startMonth} and  LATEST_SELL_DT&lt;=#{hz_endMonth})
+			)
+		<if test="sj_month != null and sj_month != ''">
+			<![CDATA[ and AUD_TRM = #{sj_month} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		group by cmcc_prov_id,trmnl_imei order by cmcc_prov_id asc,sell_num desc
+	</select>
+	
+	
+	<select id="getCityDetailPagerList"  resultType="Map" parameterType="pager">
+		select 
+			aud_trm,short_name,cmcc_prvd_nm_short,trmnl_imei,
+			chnl_id,chnl_nm,emp_id,concat(left(emp_nm,1),'**') as emp_nm,subs_id,sell_dat,
+			offer_nm,trmnl_allow_cost,fee_allow_cost
+		from 
+			hpeapb.det_hyzdxsyc_3401 
+		where 1=1 
+		<if test=" params.sj_month != null and  params.sj_month != ''">
+	        <![CDATA[ and aud_trm >= #{ params.sj_month} ]]>
+		</if>
+		<if test="params.mx_startMonth != null and params.mx_startMonth != ''">
+	        <![CDATA[ and sell_dat >= #{params.mx_startMonth} ]]>
+		</if>
+	
+		<if test="params.mx_endMonth != null and params.mx_endMonth != ''">
+	        <![CDATA[ and sell_dat <= #{params.mx_endMonth} ]]>
+		</if>
+		<if test="params.provId != null and params.provId != ''">
+			and cmcc_prov_prvd_id = #{params.provId}
+		</if>
+		<if test="params.mx_cityCode != null and params.mx_cityCode != ''">
+			and cmcc_prov_id = #{params.mx_cityCode}
+		</if>
+		 order by  sell_dat
+	</select>
+	
+	<select id="exportMxDetailList"  resultType="Map" parameterType="Map">
+	select
+		aud_trm,cmcc_prov_prvd_id,short_name,cmcc_prov_id,cmcc_prvd_nm_short,trmnl_imei,
+		chnl_id,chnl_nm,emp_id,concat(left(emp_nm,1),'**') as emp_nm,subs_id,sell_dat,sell_typ,offer_id,offer_nm,bnd_prd,
+		actl_shop_amt,acum_exch_val,usd_acum_exch_amt,shop_cost,unlocked_retl_prc,trmnl_allow_cost,
+		fee_allow_cost,cust_ppay_fee,cust_actl_fee_sum,cust_prms_mon_least_consm
+	from
+		hpeapb.det_hyzdxsyc_3401
+	where 1=1 
+	
+		<if test="sj_month != null and sj_month != ''">
+	        <![CDATA[ and aud_trm >= #{sj_month} ]]>
+		</if>
+		<if test="mx_startMonth != null and mx_startMonth != ''">
+	        <![CDATA[ and sell_dat >= #{mx_startMonth} ]]>
+		</if>
+	
+		<if test="mx_endMonth != null and mx_endMonth != ''">
+	        <![CDATA[ and sell_dat <= #{mx_endMonth} ]]>
+		</if>
+		<if test="provId != null and provId != ''">
+			and cmcc_prov_prvd_id = #{provId}
+		</if>
+		<if test="mx_cityCode != null and mx_cityCode != ''">
+			and CMCC_PROV_ID = #{mx_cityCode}
+		</if>
+		 order by  SELL_DAT LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

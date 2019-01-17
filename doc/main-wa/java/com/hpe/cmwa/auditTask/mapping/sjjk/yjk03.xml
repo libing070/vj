@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="yjk03Mapper">
+
+	<!--获取有数据的省份  -->
+	<select id="getResultByProvinceCode" resultType="Map" parameterType="Map">
+		SELECT DISTINCT cmcc_prov_prvd_id as cmccProvPrvdId ,short_name as shortName
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach> 
+		and aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+	</select>
+	<!--获取全国的省份  -->
+	<select id="getIfQgHaveData" resultType="Map" parameterType="Map">
+		SELECT count(*) as dataNum
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+	</select>
+	<!--获取第一个柱图全国平均水平  用户数-->
+	<select id = "getFirColumnNum1" resultType="Map" parameterType="Map"> 
+		SELECT "全国平均" as areaName, sum(yjk_amt)/COUNT(DISTINCT cmcc_prov_prvd_id) as wgNum ,10000 as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and (yjk_num >50 or yjk_amt>5000)
+	</select>
+	<select id = "getFirColumnNum2" resultType="Map" parameterType="Map"> 
+		SELECT "全省平均" as areaName, sum(yjk_amt)/COUNT(DISTINCT cmcc_prov_id) as wgNum ,cmcc_prov_prvd_id as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and (yjk_num >50 or yjk_amt>5000)
+		and cmcc_prov_prvd_id= #{provinceCode}  
+	</select>
+	<!--获取第一个柱图多省数据   用户数-->
+	<select id="getFirColumnNumDataProv" resultType="Map" parameterType="Map">
+		SELECT short_name as areaName, sum(yjk_amt) as wgNum ,cmcc_prov_prvd_id as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		<if test="provinceCode!='10000'">
+		and cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach>
+		</if>
+		and (yjk_num >50 or yjk_amt>5000)
+		group by cmcc_prov_prvd_id 
+		order by wgNum desc,cmcc_prov_prvd_id
+	</select>
+
+	<!-- 获取第一个柱图单省 各地市数据   用户数-->
+	<select id="getFirColumnNumDataCty" resultType="Map" parameterType="Map">
+		SELECT 
+		cmcc_prvd_nm_short as areaName, sum(yjk_amt) as wgNum,cmcc_prov_id as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where cmcc_prov_prvd_id= #{provinceCode}  
+		and  aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		and (yjk_num >50 or yjk_amt>5000)
+		group by cmcc_prov_id 
+		order by wgNum desc,cmcc_prov_id
+	</select>
+	
+	
+	
+	
+	<!--获取第一个柱图全国平均水平     -->
+	<select id = "getFirColumnPer1" resultType="Map" parameterType="Map"> 
+		SELECT "全国平均" as areaName, sum(yjk_num)/COUNT(DISTINCT cmcc_prov_prvd_id) as wgNum ,10000 as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and (yjk_num >50 or yjk_amt>5000)
+	</select>
+	<select id = "getFirColumnPer2" resultType="Map" parameterType="Map"> 
+		SELECT "全省平均" as areaName, sum(yjk_num)/COUNT(DISTINCT cmcc_prov_id) as wgNum ,cmcc_prov_prvd_id as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and (yjk_num >50 or yjk_amt>5000)
+		and cmcc_prov_prvd_id= #{provinceCode} 
+	</select>
+	<!--获取第一个柱图多省数据    -->
+	<select id="getFirColumnPerDataProv" resultType="Map" parameterType="Map">
+		SELECT short_name as areaName, sum(yjk_num) as wgNum ,cmcc_prov_prvd_id as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		<if test="provinceCode!='10000'">
+		and cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach>
+		</if>
+		and (yjk_num >50 or yjk_amt>5000)
+		group by cmcc_prov_prvd_id 
+		order by wgNum desc,cmcc_prov_prvd_id
+	</select>
+	
+	<!-- 获取第一个柱图单省 各地市数据   -->
+	<select id="getFirColumnPerDataCty" resultType="Map" parameterType="Map">
+		SELECT 
+		cmcc_prvd_nm_short as areaName, sum(yjk_num) as wgNum,cmcc_prov_id as areaCode
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where cmcc_prov_prvd_id= #{provinceCode}  
+		and  aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		and (yjk_num >50 or yjk_amt>5000)
+		group by cmcc_prov_id 
+		order by wgNum desc,cmcc_prov_id
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	<!--  获取第一个折现图数据 begin -->
+	<select id = "getFirLineNumDataQG" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, sum(yjk_amt) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by aud_trm
+		order by aud_trm
+	</select>	
+	<select id = "getFirLineNumDataProv" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, sum(yjk_amt) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by aud_trm
+		order by aud_trm
+	</select>	
+	<select id = "getFirLineNumDataCty" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, sum(yjk_amt) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and cmcc_prov_id = #{cityId}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by aud_trm
+		order by aud_trm
+	</select>	
+	<!--  获取第一个折现图数据     用户数end -->
+	
+	
+	
+	<!--  获取第一个折现图数据     用户数占比begin -->
+	<select id = "getFirLinePerDataQG" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, sum(yjk_num) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by aud_trm
+		order by aud_trm
+	</select>	
+	<select id = "getFirLinePerDataProv" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, sum(yjk_num) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by aud_trm
+		order by aud_trm
+	</select>	
+	<select id = "getFirLinePerDataCty" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, sum(yjk_num) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and cmcc_prov_id = #{cityId}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by aud_trm
+		order by aud_trm
+	</select>	
+	<!--   获取第一个折现图数据     用户数占比end -->
+	
+	
+	
+	<!--  获取第二个折现图数据 begin -->
+	<select id = "getSecLineDataAmt" resultType="Map" parameterType="Map"> 
+		SELECT (CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END)AS msisdn, sum(yjk_amt) as wgAmt 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			<if test="provinceCode!='10000' and provinceCode.length() == 5" >
+				and CMCC_prov_prvd_id = #{provinceCode}
+				<if test="cityId != null and cityId != ''">
+					and cmcc_prov_id = #{cityId}
+				</if>
+			</if>
+		group by msisdn
+		having wgAmt!=0 
+		order by wgAmt DESC,msisdn
+		LIMIT 20
+	</select>	
+	<select id = "getSecLineDataNum" resultType="Map" parameterType="Map"> 
+		SELECT  (CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END)AS msisdn, sum(yjk_num) as wgNum 
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			<if test="provinceCode!='10000' and provinceCode.length() == 5" >
+				and CMCC_prov_prvd_id = #{provinceCode}
+				<if test="cityId != null and cityId != ''">
+					and cmcc_prov_id = #{cityId}
+				</if>
+			</if>
+		group by msisdn
+		having wgNum!=0 
+		order by wgNum DESC,msisdn
+		LIMIT 20
+	</select>	
+		
+	
+	
+	<!-- 获取汇总分析数据表数据 -->
+	
+	<select id = "getTableDataProv" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			count(DISTINCT msisdn) as msisdnNum,
+			sum(yjk_num) as yjkNum,
+			sum(yjk_amt) as yjkAmt
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			<if test="provinceCode!='10000'">
+			and cmcc_prov_prvd_id in
+			<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+			</foreach>
+			</if>
+		and (yjk_num >50 or yjk_amt>5000)
+		group by cmcc_prov_prvd_id,aud_trm
+		order by aud_trm desc,yjkAmt desc,cmcc_prov_prvd_id
+	</select>	
+	
+	<select id = "getTableDataCty" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			count(DISTINCT msisdn) as msisdnNum,
+			sum(yjk_num) as yjkNum,
+			sum(yjk_amt) as yjkAmt
+		from hpeapb.sum_yjk_2006_03_msisdn  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and (yjk_num >50 or yjk_amt>5000)
+		group by cmcc_prov_id,aud_trm
+		order by aud_trm desc,yjkAmt desc,cmcc_prov_id
+	</select>	
+	
+	
+	<select id = "exportMxTable" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			cmcc_prov_id,
+			cmcc_prvd_nm_short,
+			yjk_ser_no,
+			Yjk_amt,
+			yjk_typ,
+			yjk_pres_tm,
+			yjk_end_dt,
+			user_id,
+			(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END)AS msisdn,
+			user_type,
+			org_nm
+		from hpeapb.det_yjk_2006_03 
+		where Aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		<if test="provinceCode!='10000'">
+		and cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach>
+		</if>
+		order by aud_trm desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>

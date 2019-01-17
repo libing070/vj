@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="yjkzsjzdyc_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(count_zsyhsl) as count_zsyhsl,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_yjkzsjzd_3001_prov_qujian 
+		where 
+			aud_trm_end=#{currSumEndDate} 
+		and yjk_amt_range_id>=4 
+		group by cmcc_prov_prvd_id 
+		order by count_zsyhsl desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(count_zsyhsl) as count_zsyhsl,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.sum_yjkzsjzd_3001_prov_qujian 
+		where 
+			aud_trm_end =#{currSumEndDate} 
+		and yjk_amt_range_id>=4 
+		and count_zsyhsl!=0
+		group by cmcc_prov_prvd_id 
+		order by count_zsyhsl desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(count_zsyhsl) as count_zsyhsl,aud_trm_end
+		from 
+				hpeapb.sum_yjkzsjzd_3001_prov_qujian 
+		where 1=1 
+		and aud_trm_end=#{currSumEndDate}
+		and yjk_amt_range_id>=4 
+		group by aud_trm_end 
+		order by aud_trm_end asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm_begin,
+			aud_trm_end,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_amt_range_id,
+			qj_zsje,
+			count_zsyhsl,
+			count_zsyjksl,
+			count_zsyjkje
+ 		from 
+ 			hpeapb.sum_yjkzsjzd_3001_prov_qujian 
+		where 
+			 aud_trm_end =#{params.currSumEndDate} 
+		order by cmcc_prov_prvd_id, yjk_amt_range_id desc
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm_begin,
+			aud_trm_end,
+			cmcc_prov_prvd_id,
+			short_name,
+			yjk_amt_range_id,
+			qj_zsje,
+			count_zsyhsl,
+			count_zsyjksl,
+			count_zsyjkje
+ 		from 
+ 			hpeapb.sum_yjkzsjzd_3001_prov_qujian 
+		where 
+			 aud_trm_end =#{currSumEndDate} 
+		order by cmcc_prov_prvd_id, yjk_amt_range_id desc  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

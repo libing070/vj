@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="cjydjsMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+
+	<select id="load_qst_chart" resultType="Map" parameterType="Map">
+		SELECT Aud_trm, sum(yc_imei_num) as yc_imei_num 
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		group by Aud_trm
+		ORDER BY Aud_trm
+	</select>
+	<select id="load_hz_qst_table" resultType="Map" parameterType="Map">
+		SELECT Aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			subs_num,
+			yc_imei_num,
+			per_imei*100 as per_imei,
+			yc_amt
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate} 
+		ORDER BY Aud_trm desc,yc_imei_num desc
+	</select>
+	<select id="export_hz_qst_table" resultType="Map" parameterType="Map">
+		SELECT 
+			Aud_trm,
+			CMCC_prov_prvd_id,
+			short_name,
+			subs_num,
+			yc_imei_num,
+			per_imei*100 as per_imei,
+			yc_amt
+		FROM hpeapb.sum_zdbt_7003_prvd
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		ORDER BY Aud_trm desc,yc_imei_num desc
+	</select>
+	
+	
+	<select id="load_ds_chart" resultType="Map" parameterType="Map">
+		SELECT  a.cmcc_prvd_nm_short,a.Aud_trm ,sum(other_pay_sett_amt) as amt,count(b.local_imei) as num
+		FROM hpeapb.sum_zdbt_7003_imei a
+		JOIN (SELECT  cmcc_prvd_nm_short,max(Aud_trm) as Aud_trm,local_imei
+				FROM hpeapb.sum_zdbt_7003_imei
+				WHERE CMCC_PROV_PRVD_ID = #{provinceCode}
+				AND Aud_trm BETWEEN  #{currSumBeginDate}  AND #{currSumEndDate}
+				GROUP BY cmcc_prvd_nm_short,local_imei) b
+		on a.cmcc_prvd_nm_short=b.cmcc_prvd_nm_short AND a.Aud_trm = b.Aud_trm AND a.local_imei=b.local_imei
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode}
+		and a.Aud_trm BETWEEN  #{currSumBeginDate}  AND #{currSumEndDate}
+		GROUP BY a.cmcc_prvd_nm_short
+		ORDER BY amt desc
+	</select>
+	
+	<select id="load_hz_ds_table" resultType="Map" parameterType="Map">
+		SELECT Aud_trm,
+	      cmcc_prov_prvd_id,
+	      short_name,
+		  cmcc_prov_id ,
+	      cmcc_prvd_nm_short,
+	      local_imei,
+		  (CASE WHEN local_sett_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(local_sett_msisdn,1,(LENGTH(local_sett_msisdn)-4)),'****') END)AS local_sett_msisdn,
+		  local_pay_sett_amt,
+		  other_cmcc_prov_prvd_id,
+		  other_short_name,
+		  other_cmcc_prov_id,
+	      other_cmcc_prvd_nm_short,
+		  (CASE WHEN other_sett_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(other_sett_msisdn,1,(LENGTH(other_sett_msisdn)-4)),'****') END)AS other_sett_msisdn,
+		  other_pay_sett_amt
+		FROM hpeapb.sum_zdbt_7003_imei
+		WHERE CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		and AUD_TRM &gt;=  #{params.currSumBeginDate} 
+		and AUD_TRM &lt;= #{params.currSumEndDate} 
+		ORDER BY Aud_trm desc,cmcc_prov_id
+	</select>
+	<select id="export_hz_ds_table" resultType="Map" parameterType="Map">
+		SELECT Aud_trm,
+	      cmcc_prov_prvd_id,
+	      short_name,
+		  cmcc_prov_id ,
+	      cmcc_prvd_nm_short,
+	      local_imei,
+		  (CASE WHEN local_sett_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(local_sett_msisdn,1,(LENGTH(local_sett_msisdn)-4)),'****') END)AS local_sett_msisdn,
+		  local_pay_sett_amt,
+		  other_cmcc_prov_prvd_id,
+		  other_short_name,
+		  other_cmcc_prov_id,
+	      other_cmcc_prvd_nm_short,
+		  (CASE WHEN other_sett_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(other_sett_msisdn,1,(LENGTH(other_sett_msisdn)-4)),'****') END)AS other_sett_msisdn,
+		  other_pay_sett_amt
+		FROM hpeapb.sum_zdbt_7003_imei
+		WHERE CMCC_PROV_PRVD_ID = #{provinceCode} 
+		and AUD_TRM &gt;=  #{currSumBeginDate} 
+		and AUD_TRM &lt;= #{currSumEndDate} 
+		ORDER BY Aud_trm desc,cmcc_prov_id
+	</select>
+	
+	<select id="load_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		  Aud_trm,
+	      cmcc_prov_prvd_id,
+	      short_name,
+	      cmcc_prov_id,
+	      cmcc_prvd_nm_short ,
+		  imei,
+		  (CASE WHEN local_sett_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(local_sett_msisdn,1,(LENGTH(local_sett_msisdn)-4)),'****') END)AS local_sett_msisdn,
+		  local_sett_month,
+		  local_sett_amt_typ,
+		  local_sett_stat,
+		  local_pay_sett_amt,
+		  local_chnl_id,
+		  other_cmcc_prov_prvd_id,
+		  other_short_name
+		FROM hpeapb.det_zdbt_7003
+		WHERE cmcc_prov_prvd_id = #{params.provinceCode} 
+		and Aud_trm &gt;=  #{params.currDetBeginDate} 
+		and Aud_trm &lt;= #{params.currDetEndDate} 
+		<if test="params.currCityType  != '' and params.currCityType  !=null ">
+			and cmcc_prov_id = #{params.currCityType } 
+		</if>
+		ORDER BY Aud_trm desc,cmcc_prvd_nm_short,imei,local_sett_month
+	</select>
+	
+	<select id="export_mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		  Aud_trm,
+	      cmcc_prov_prvd_id,
+	      short_name,
+	      cmcc_prov_id,
+	      cmcc_prvd_nm_short ,
+		  imei,
+		 (CASE WHEN local_sett_msisdn= '' THEN '' ELSE CONCAT(SUBSTR(local_sett_msisdn,1,(LENGTH(local_sett_msisdn)-4)),'****') END)AS local_sett_msisdn,
+		  local_sett_month,
+		  local_sett_amt_typ,
+		  local_sett_stat,
+		  local_pay_sett_amt,
+		  local_chnl_id,
+		  other_cmcc_prov_prvd_id,
+		  other_short_name
+		FROM hpeapb.det_zdbt_7003
+		WHERE cmcc_prov_prvd_id = #{provinceCode} 
+		and Aud_trm &gt;=  #{currDetBeginDate} 
+		and Aud_trm &lt;= #{currDetEndDate} 
+		<if test="currCityType  != '' and  currCityType  !=null ">
+			and cmcc_prov_id = #{currCityType } 
+		</if>
+		ORDER BY Aud_trm desc,cmcc_prvd_nm_short,imei,local_sett_month
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

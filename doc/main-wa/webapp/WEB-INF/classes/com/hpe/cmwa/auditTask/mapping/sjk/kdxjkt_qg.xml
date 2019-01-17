@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+   		
+   		
+<mapper namespace="kdxjkt_qgMapper">
+
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(weigui_num) as weigui_num,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.SUM_JTKD_1201_PRVD 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by cmcc_prov_prvd_id 
+		order by weigui_num desc,cmcc_prov_prvd_id 
+	</select>
+
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(weigui_num) as weigui_num,short_name,
+			cmcc_prov_prvd_id
+		from 
+			hpeapb.SUM_JTKD_1201_PRVD 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+			and weigui_num !=0 
+		group by cmcc_prov_prvd_id 
+		order by weigui_num desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		select 
+			sum(weigui_num) as weigui_num,short_name,
+			aud_trm,cmcc_prov_prvd_id 
+		from 
+			hpeapb.SUM_JTKD_1201_PRVD 
+		where 
+			aud_trm between #{currSumBeginDate}  and #{currSumEndDate}
+		group by aud_trm 
+		order by aud_trm asc
+	</select>
+	
+	<select id="load_table" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			weigui_num,
+			tol_num,
+			(per_weigui*100) as per_weigui
+
+ 		from 
+ 			hpeapb.SUM_JTKD_1201_PRVD 
+		where 
+			aud_trm between #{params.currSumBeginDate} and  #{params.currSumEndDate}
+		order by aud_trm desc,weigui_num desc,cmcc_prov_prvd_id 
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		select 
+			aud_trm,
+			cmcc_prov_prvd_id,
+			short_name,
+			weigui_num,
+			tol_num,
+			(per_weigui*100) as per_weigui
+ 		from 
+ 			hpeapb.SUM_JTKD_1201_PRVD 
+		where 
+			aud_trm between #{currSumBeginDate} and  #{currSumEndDate}
+		order by aud_trm desc,weigui_num desc,cmcc_prov_prvd_id  LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>

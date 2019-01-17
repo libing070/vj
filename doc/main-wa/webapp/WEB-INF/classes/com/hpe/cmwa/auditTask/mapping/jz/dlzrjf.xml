@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="dlzrjfMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<!-- 波动趋势图结论 -->
+	<select id="getbodongjielun" resultType="Map" parameterType="Map">
+		SELECT 
+		a.weiguiShiftValue AS weiguiShiftValue,
+		p.AUD_TRM AS audTrm,
+		SUM(WEIGUI_SHIFT_VALUE) AS allValue ,
+		a.avgValue
+		FROM
+		hpeapb.sum_yccz_9002_prvd p,
+		(SELECT 
+		MAX(WEIGUI_SHIFT_VALUE) AS weiguiShiftValue,
+		CMCC_PROV_PRVD_ID,
+		AVG(WEIGUI_SHIFT_VALUE) as avgValue
+		FROM
+		hpeapb.sum_yccz_9002_prvd 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate} 
+		LIMIT 1
+		) AS a 
+		WHERE p.WEIGUI_SHIFT_VALUE = a.weiguiShiftValue
+	</select>
+	<!--省汇总表统计周期内每月异常转入积分值 波动趋势图数据 -->
+	<select id="getbodongZRValue" resultType="Map" parameterType="Map">
+		SELECT SUM(WEIGUI_SHIFT_VALUE) AS weiguiShiftValue, AUD_TRM AS audTrm
+		FROM hpeapb.sum_yccz_9002_prvd
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+		GROUP BY AUD_TRM
+		ORDER BY AUD_TRM
+	</select>
+	<!--省汇总表统计周期内全省的平均单月异常转入积分值 波动趋势图数据 -->
+	<select id="getbodongPrvdAVG" resultType="Map" parameterType="Map">
+		SELECT SUM(WEIGUI_SHIFT_VALUE) AS allWeiguiShiftValue
+		FROM hpeapb.sum_yccz_9002_prvd
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+	</select>
+	<!-- 同一工号办理同一号码大量转入积分统计 -->
+	<select id="getjftongji" resultType="Map" parameterType="Map">
+		SELECT SUM(WEIGUI_STAFF_NUM) AS weiguiStaffNum,
+		SUM(WEIGUI_SUBS_NUM) AS weiguiSubsNum,
+		SUM(WEIGUI_SHIFT_VALUE) AS weiguiShiftTime,
+		SUM(WEIGUI_SHIFT_VALUE)/SUM(TOL_SHIFT_VALUE) AS numPer,
+		CMCC_PRVD_NM_SHORT AS cmccProvNmShort
+		FROM 
+		hpeapb.SUM_YCCZ_9002_CTY	
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+		GROUP BY CMCC_PROV_ID	
+	</select>
+	<!-- 同一工号办理同一号码大量转入积分的情况，共涉及工号XX个、X积分、用户数XX个-->
+	<select id="getjfzrqktongji" resultType="Map" parameterType="Map">
+		SELECT SUM(WEIGUI_STAFF_NUM) AS weiguiStaffNum,
+		SUM(WEIGUI_SHIFT_VALUE) AS weiguiShiftValue,
+		SUM(WEIGUI_SUBS_NUM) AS weiguiSubsNum
+		FROM 
+		hpeapb.SUM_YCCZ_9002_CTY	
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+	</select>
+	<select id="getMaxPerCity" resultType="Map" parameterType="Map">
+		SELECT 
+		SUM(WEIGUI_SHIFT_VALUE)/SUM(TOL_SHIFT_VALUE) AS numPer,
+		CMCC_PRVD_NM_SHORT AS cmccProvNmShort
+		FROM 
+		hpeapb.SUM_YCCZ_9002_CTY	
+		WHERE 1=1
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+		GROUP BY CMCC_PROV_ID
+		ORDER BY numPer desc
+		LIMIT 1
+	</select>
+	
+	<!-- 大量转入积分值波动趋势 明细数据 -->
+	<select id="gettongjiSJB" resultType="Map" parameterType="Map">
+		SELECT
+		  AUD_TRM AS audTrm,
+		  CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		  WEIGUI_STAFF_NUM AS weiguiStaffNum,
+		  WEIGUI_SUBS_NUM AS weiguiSubsNum,
+		  WEIGUI_SHIFT_VALUE AS weiguiShiftValue,
+		  TOL_SHIFT_VALUE AS tolShiftValue,
+		  TOL_STAFF_NUM AS tolStaffNum,
+		  PER_VALUE*100 AS perValue
+		FROM
+		  hpeapb.SUM_YCCZ_9002_CTY 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM between #{params.currSumBeginDate} and #{params.currSumEndDate}
+		ORDER BY AUD_TRM DESC,WEIGUI_SHIFT_VALUE DESC
+	</select>
+	<!-- 大量转入积分值波动趋势  导出明细数据 -->
+	<select id="exprottongji" resultType="Map" parameterType="Map">
+		SELECT
+		  AUD_TRM AS audTrm,
+		  CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		  WEIGUI_STAFF_NUM AS weiguiStaffNum,
+		  WEIGUI_SUBS_NUM AS weiguiSubsNum,
+		  WEIGUI_SHIFT_VALUE AS weiguiShiftValue,
+		  TOL_SHIFT_VALUE AS tolShiftValue,
+		  TOL_STAFF_NUM AS tolStaffNum,
+		  PER_VALUE*100 AS perValue
+		FROM
+		  hpeapb.SUM_YCCZ_9002_CTY 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+		AND AUD_TRM between #{currSumBeginDate} and #{currSumEndDate}
+		ORDER BY AUD_TRM DESC,WEIGUI_SHIFT_VALUE DESC
+	</select>
+	<!-- 大量转入积分值波动趋势 明细数据 -->
+	<select id="getDetList" resultType="Map" parameterType="Map">
+		SELECT
+		  AUD_TRM AS audTrm,
+		  SHORT_NAME AS shortName,
+		  CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		  STAFF_ID AS staffId,
+		   concat(left(NM,1),'**') AS nm,
+		  TRADE_TM AS tradeTm,
+		  (CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS MSISDN,
+		  TRADE_TYP_NAME AS tradeTypName,
+		  POINTS_CHNL_NAME AS pointsChnlName,
+		  POINTS_TYP_NAME AS pointsTypName,
+		  (CASE WHEN OPPOSITE_MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(OPPOSITE_MSISDN,1,(LENGTH(OPPOSITE_MSISDN)-4)),'****') END)AS oppositeMsisdn,
+		  TRADE_VALUE AS tradeValue
+		FROM
+		  hpeapb.DET_YCCZ_9002 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{params.provinceCode} 
+		AND AUD_TRM between #{params.currDetBeginDate} and #{params.currDetEndDate}
+		<if test="params.currCityType != '' and params.currCityType !=null ">
+			AND CMCC_PROV_ID = #{params.currCityType} 
+		</if>
+		<if test="params.pointsChnlName != '' and params.pointsChnlName !=null ">
+			AND POINTS_CHNL_NAME = #{params.pointsChnlName}
+		</if>
+		ORDER BY AUD_TRM DESC,CMCC_PROV_ID,TRADE_VALUE desc
+	</select>
+	<!-- 大量转入积分值波动趋势  导出明细数据 -->
+	<select id="exprotDetList" resultType="Map" parameterType="Map">
+		SELECT
+		  AUD_TRM AS audTrm,
+		  CMCC_PROV_PRVD_ID AS cmccProvPrvdId,
+		  SHORT_NAME AS shortName,
+		  CMCC_PROV_ID AS cmccProvId,
+		  CMCC_PRVD_NM_SHORT AS cmccPrvdNmShort,
+		  TRADE_SER_NO AS tradeSerNo,
+		  STAFF_ID AS staffId,
+		  concat(left(NM,1),'**')  AS nm,
+		  TRADE_TM AS tradeTm,
+		 (CASE WHEN MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(MSISDN,1,(LENGTH(MSISDN)-4)),'****') END)AS MSISDN,
+		  TRADE_TYP_NAME AS tradeTypName,
+		  SUBS_ID AS subsId,
+		  POINTS_CHNL_NAME AS pointsChnlName,
+		  POINTS_TYP_NAME AS pointsTypName,
+		 (CASE WHEN OPPOSITE_MSISDN= '' THEN '' ELSE CONCAT(SUBSTR(OPPOSITE_MSISDN,1,(LENGTH(OPPOSITE_MSISDN)-4)),'****') END) AS oppositeMsisdn,
+		  TRADE_VALUE AS tradeValue,
+		  VALIDITY_DT AS validityDt
+		FROM
+		  hpeapb.DET_YCCZ_9002 
+		WHERE 1 = 1 
+		AND CMCC_PROV_PRVD_ID = #{provinceCode} 
+				<if test="currCityType != '' and currCityType !=null ">
+			AND CMCC_PROV_ID = #{currCityType} 
+		</if>
+		<if test="pointsChnlName != '' and pointsChnlName !=null ">
+			AND POINTS_CHNL_NAME = #{pointsChnlName}
+		</if> 
+		AND AUD_TRM between #{currDetBeginDate} and #{currDetEndDate}
+		ORDER BY AUD_TRM DESC,CMCC_PROV_ID,TRADE_VALUE desc
+		LIMIT #{pageStar},#{pageEnd}
+	</select>
+</mapper>
+

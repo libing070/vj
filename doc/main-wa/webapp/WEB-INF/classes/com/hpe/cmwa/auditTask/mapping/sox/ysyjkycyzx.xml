@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="ysyjkyzxMapper">
+
+	<!-- chart -->
+	<select id="getYsyjkyzxChart" resultType="Map" parameterType="Map">
+		select 
+			t3.aud_trm,t3.short_name,t3.sum_yjk_amt,
+			IFNULL(t3.prov_id,t3.short_name) as prov_id,
+			IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.aud_trm,t1.short_name,t1.sum_yjk_amt,t2.kjqj,t2.prov_id,t2.sum_dfje from 
+					(select aud_trm,cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1 and cmcc_prov_prvd_id=#{provId} and aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;=#{hz_endMonth} 
+				GROUP BY cmcc_prov_prvd_id,aud_trm ) as t1 
+ 			LEFT JOIN
+				(select kjqj,prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1 and KJQJ &gt;=#{hz_startMonth} and KJQJ &lt;=#{hz_endMonth} and mxkmdm like'213102%' GROUP BY prov_id,kjqj) as t2
+ 			ON t1.short_name=t2.prov_id and t1.aud_trm=t2.kjqj 
+ 		) as t3 ORDER BY t3.aud_trm ;
+	</select>
+	
+	<!-- con -->
+	<select id="getYsyjkyzxCon" resultType="Map" parameterType="Map">
+		select 
+			sum(t4.sum_dfje) as sum_dfje,sum(t4.sum_yjk_amt) as sum_yjk_amt,ABS(sum(t4.sum_dfje) - sum(t4.sum_yjk_amt))  as cyje
+		from (
+			select 
+				t3.aud_trm,t3.short_name,t3.sum_yjk_amt,
+				IFNULL(t3.prov_id,t3.cmcc_prov_prvd_id) as prov_id,
+				IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+	  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+	 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+			from (
+					select t1.aud_trm,t1.cmcc_prov_prvd_id,t1.short_name,t1.sum_yjk_amt,t2.kjqj,t2.prov_id,t2.sum_dfje from 
+						(select aud_trm,cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+	 				from sox_sum_ycyzx_1203_prvd 
+					where 1=1 and cmcc_prov_prvd_id=#{provId} and aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;=#{hz_endMonth} 
+					GROUP BY cmcc_prov_prvd_id,aud_trm ) as t1 
+	 			LEFT JOIN
+					(select kjqj,prov_id,sum(dfje)as sum_dfje 
+					from audit_db.ods_yjk_cw_sum_hp 
+					where 1=1 and KJQJ &gt;=#{hz_startMonth} and KJQJ &lt;=#{hz_endMonth} and mxkmdm like'213102%' GROUP BY prov_id,kjqj) as t2
+	 			ON t1.cmcc_prov_prvd_id=t2.prov_id and t1.aud_trm=t2.kjqj 
+	 		) as t3 ORDER BY t3.aud_trm 
+	 	)as t4 GROUP BY t4.prov_id ;
+	</select>
+	
+	
+	<!-- 数据表 -->
+	<select id="load_ysyjkyzx_TabDetailTable" resultType="Map" parameterType="Map">
+		select 
+			t3.aud_trm,t3.short_name,t3.sum_yjk_amt,
+			IFNULL(t3.prov_id,t3.cmcc_prov_prvd_id) as prov_id,
+			IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.aud_trm,t1.cmcc_prov_prvd_id,t1.short_name,t1.sum_yjk_amt,t2.kjqj,t2.prov_id,t2.sum_dfje from 
+					(select aud_trm,cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1 and cmcc_prov_prvd_id=#{params.provId} and aud_trm &gt;=#{params.hz_startMonth} and aud_trm &lt;=#{params.hz_endMonth} 
+				GROUP BY cmcc_prov_prvd_id,aud_trm ) as t1 
+ 			LEFT JOIN
+				(select kjqj,prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1 and KJQJ &gt;=#{params.hz_startMonth} and KJQJ &lt;=#{params.hz_endMonth} and mxkmdm like'213102%' GROUP BY prov_id,kjqj) as t2
+ 			ON t1.cmcc_prov_prvd_id=t2.prov_id and t1.aud_trm=t2.kjqj 
+ 		) as t3 ORDER BY t3.aud_trm desc 
+	</select>
+	
+	<!-- 数据表导出 -->
+	<select id="exportYsyjkyzx_Detail" resultType="Map" parameterType="Map">
+		select 
+			t3.aud_trm,t3.short_name,t3.sum_yjk_amt,t3.cmcc_prov_prvd_id,
+			IFNULL(t3.prov_id,t3.cmcc_prov_prvd_id) as prov_id,
+			IFNULL(t3.kjqj,t3.aud_trm) as kjqj,
+  			IFNULL(t3.sum_dfje,0) as sum_dfje,
+ 	 		ABS(t3.sum_yjk_amt-IFNULL(t3.sum_dfje,0)) as cyje
+		from (
+				select t1.aud_trm,t1.cmcc_prov_prvd_id,t1.short_name,t1.sum_yjk_amt,t2.kjqj,t2.prov_id,t2.sum_dfje from 
+					(select aud_trm,cmcc_prov_prvd_id,short_name,sum(dbt_amt) as sum_yjk_amt
+ 				from sox_sum_ycyzx_1203_prvd 
+				where 1=1 and cmcc_prov_prvd_id=#{provId} and aud_trm &gt;=#{hz_startMonth} and aud_trm &lt;=#{hz_endMonth} 
+				GROUP BY cmcc_prov_prvd_id,aud_trm ) as t1 
+ 			LEFT JOIN
+				(select kjqj,prov_id,sum(dfje)as sum_dfje 
+				from audit_db.ods_yjk_cw_sum_hp 
+				where 1=1 and KJQJ &gt;=#{hz_startMonth} and KJQJ &lt;=#{hz_endMonth} and mxkmdm like'213102%' GROUP BY prov_id,kjqj) as t2
+ 			ON t1.cmcc_prov_prvd_id=t2.prov_id and t1.aud_trm=t2.kjqj 
+ 		) as t3 ORDER BY t3.aud_trm desc LIMIT  #{pageStar},#{pageEnd}
+	</select>
+
+</mapper>

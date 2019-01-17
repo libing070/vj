@@ -1,0 +1,128 @@
+html,
+body,
+div,
+span,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+abbr,
+address,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+samp,
+small,
+strong,
+sub,
+sup,
+var,
+b,
+i,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+menu {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+    background-color: #ebebeb!important;
+    /*font-family: "YouYuan","Microsoft YaHei",'arial';*/
+    font-family: "Microsoft YaHei", 'arial';
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:focus,
+a:hover {
+    text-decoration: none;
+}
+
+input:focus {
+    border-color: #f8a900;
+}
+
+a,
+button,
+input {
+    outline: none;
+}
+
+button:focus {
+    outline: none!important;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+input,
+select {
+    vertical-align: middle;
+}
+
+img {
+    display: block;
+    border: 0;
+}
+
+.active_btn {
+    border: 1px solid #42b3f9;
+    background-color: #42b3f9;
+    color: #fff;
+}
+.btn:hover,
+.btn:focus {
+    border: 1px solid #42b3f9;
+    color: #fff;
+    background-color: #42b3f9;
+}
+
+ .bootstrap-table .fixed-table-container thead th .th-inner {
+    white-space: normal;
+} 

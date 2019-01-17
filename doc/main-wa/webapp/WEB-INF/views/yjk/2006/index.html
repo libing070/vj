@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv = "X-UA-Compatible" content = "IE=edge,chrome=1" />
+<script type="text/javascript" src="/cmwa/resource/js/resource.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/app.js"></script>
+<script type="text/javascript" src="/cmwa/resource/js/cmwa/yjk/2006/index.js"></script>
+</head>
+<body>
+    <form id="queryParam">
+        <input type="hidden" id="provId" />
+        <input type="hidden" id="hz_rankType" />
+        <input type="hidden" id="mx_yxaFlag" />
+        <input type="hidden" id="mx_cityCode" />
+        <input type="hidden" id="hz_map_double" />
+        <input type="hidden" id="currTab" value="hz"/>
+        <input type="hidden" id="trendType" value="boss"/>
+        <input type="hidden" id="detailtrendType" value="boss"/>
+        
+        <input type="hidden" id="typeName"value="总部有价卡赠送BOSS数据" />
+        <input type="hidden" id="provinceName" name="provinceName">
+        
+        
+        <!-- 国信透传条件 -->
+        <input type="hidden" id="provinceCode" name="provinceCode">
+        <input type="hidden" id="beforeAcctMonth" name="beforeAcctMonth">
+        <input type="hidden" id="endAcctMonth" name="endAcctMonth">
+        <input type="hidden" id="auditId" name="auditId">
+        <input type="hidden" id="taskCode" name="taskCode">
+        
+    </form>
+    <div class="container-fluid">
+        <!-- 选项卡 -->
+        <div class="tab-nav">
+            <ul>
+                <li id="hz_tab" class="active">汇总分析</li>
+                <li id="mx_tab">明细数据</li>
+            </ul>
+        </div>
+
+        <!-- 选项卡info -->
+        <div class="tab-box">
+            <!-- 汇总分析 -->
+            <div class="tab-info" style="display:block">
+                <!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul>
+                        <li><a href="/cmwa/yjk/2001/index">批量激活分析</a></li>
+                        <li><a href="/cmwa/yjk/2002/index">充值异常分析</a></li>
+                        <li><a href="/cmwa/yjk/2003/index">重复使用分析</a></li>
+                        <li><a href="/cmwa/yjk/2004/index">跨省使用分析</a></li>
+                        <li class="active"><a href="/cmwa/yjk/2006/index">赠送对象分析</a></li>
+                    </ul>
+                </div>
+
+                <!-- dateBox -->
+                <div class="tab-datebox">
+                    <p>时间:</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="hz_startMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+                    <p>至</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="hz_endMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+                    <a href="javascript:;" id="hz_search_btn">
+                        <i class="icon icon-search"></i>
+                        查询
+                    </a>
+                    
+                    <ul>
+                    	<li class="active" id="bossType">总部数据</li>
+                    	<li id="manuType">省公司手工电子台账</li>
+                    </ul>
+                </div>
+                
+
+                <!-- mapBox -->
+                <div class="tab-mapbox">
+                    
+                    <div class="col-xs-6 mr-15">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送金额汇总分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="">统计图</li>
+                                        <li id="">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="moneyCon">
+                                        	
+                                        </div>
+                                        
+                                        <div id="moneyCharts">
+                                        	
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="table-responsive">
+                                            <div class="shuoming" id="">
+                                        	
+	                                        </div>
+	                                        
+	                                        <div id="moneyTable">
+	                                        	
+	                                        </div>
+	                                       
+	                                        <p style="line-height: 20px;">备注：从2014年6月开始营改增，相关公式如下：基础业务有价卡赠送面值=账务报表*1.11，增值业务有价卡赠送面值=账务报表*1.06</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送真实性分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="">统计图</li>
+                                        <li id="">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+							<div class="tab-map-box">
+								<div class="tab-map-info" style="display:block">
+									<div class="col-xs-12">
+										<div class="shuoming" id="pieRealCon">
+
+										</div>
+
+										<div id="pieReal"></div>
+									</div>
+								</div>
+
+								<div class="tab-map-info">
+									<div class="table-box">
+										<div class="table-responsive">
+											<div class="shuoming" id=""></div>
+
+											<div>
+											<table>
+												<tr>
+													<th>公文号</th>
+													<th>金额（元）</th>
+												</tr>
+												<tr>
+													<td>有公文号</td>
+													<td id="yDocument"></td>
+												
+												</tr>
+												<tr>
+													<td>无公文号</td>
+													<td id="nDocument"></td>
+												
+												</tr>
+												<tr>
+													<td>合计</td>
+													<td id="sumDocument"></td>
+												</tr>
+											
+											
+											</table>
+										</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+                    </div>
+                    
+                    
+                    
+                    <div class="col-xs-6 mr-15">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送集中度分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="">统计图</li>
+                                        <li id="focusNumber">号码排名</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="histogramFocusCon">
+                                        	
+                                        </div>
+                                        
+                                        <div id="histogramFocus">
+                                        	
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="table-responsive">
+                                            <div class="shuoming" id="">
+                                        	
+	                                        </div>
+	                                        
+	                                        <div id="focusTableAjax">
+	                                        	<table id="focusTable"></table>
+                                            	<div id="focusTablePageBar"></div>
+	                                        </div>
+	                                        <a href="javascript:;" id="exportFocusTab"> 导出 </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>向员工赠送分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="">统计图</li>
+                                        <li id="staffTab">员工排名</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+							<div class="tab-map-box">
+								<div class="tab-map-info" style="display:block">
+									<div class="col-xs-12">
+										<div class="shuoming" id="staffCon">
+
+										</div>
+
+										<div id="staffCharts"></div>
+									</div>
+								</div>
+
+								<div class="tab-map-info">
+									<div class="table-box">
+										<div class="table-responsive">
+											<div class="shuoming" id=""></div>
+											<div id="staffTableAjax">
+												<table id="staffTable"></table>
+                                            	<div id="staffTablePageBar"></div>
+											</div>
+											 <a href="javascript:;" id="exportstaffTab"> 导出 </a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+                    </div>
+                    
+                    
+                    <div class="col-xs-6 mr-15">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送非中高端客户、非集团客户</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="">统计图</li>
+                                        <li id="fzgfjtRanking">营销案排名</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="tab-map-box">
+                                <div class="tab-map-info" style="display:block">
+                                    <div class="col-xs-12">
+                                        <div class="shuoming" id="fzgfjtCon">
+                                        	
+                                        </div>
+                                        
+                                        <div id="fzgfjtCharts">
+                                        	
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-map-info">
+                                    <div class="table-box">
+                                        <div class="table-responsive">
+                                            <div class="shuoming" id="">
+                                        	
+	                                        </div>
+	                                        
+	                                        <div id="fzgfjtTableAjax">
+	                                        	<table id="fzgfjtTable"></table>
+                                            	<div id="fzgfjtTablePageBar"></div>
+	                                        </div>
+	                                        <a href="javascript:;" id="exportFzgfjtTab"> 导出 </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-6">
+                        <div class="map">
+                            <div class="title">
+                                <h2>赠送用途分析</h2>
+                                <div class="right-info">
+                                    <ol>
+                                        <li class="active" id="">统计图</li>
+                                        <li id="purposeTab">数据表</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+							<div class="tab-map-box">
+								<div class="tab-map-info" style="display:block">
+									<div class="col-xs-12">
+										<div class="shuoming" id="purposeCon">
+
+										</div>
+
+										<div id="purposeCharts"></div>
+									</div>
+								</div>
+
+								<div class="tab-map-info">
+									<div class="table-box">
+										<div class="table-responsive">
+											<div class="shuoming" id=""></div>
+
+											<div id="purposeTableAjax">
+												
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- 明细数据 -->
+            <div class="tab-info">
+                <!-- sub-nav -->
+                <div class="tab-sub-nav">
+                    <ul>
+                        <li><a href="/cmwa/yjk/2001/index">批量激活分析</a></li>
+                        <li><a href="/cmwa/yjk/2002/index">充值异常分析</a></li>
+                        <li><a href="/cmwa/yjk/2003/index">重复使用分析</a></li>
+                        <li><a href="/cmwa/yjk/2004/index">跨省使用分析</a></li>
+                        <li class="active"><a href="/cmwa/yjk/2006/index">赠送对象分析</a></li>
+                    </ul>
+                </div>
+                <!-- dateBox -->
+                <div class="tab-datebox mxsj-datebox">
+                    <p>时间:</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="mx_startMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+                    <p>至</p>
+                    <dl class="input-append date">
+                        <dt>
+                            <input id="mx_endMonth" autocomplete="off" type="text" readonly>
+                            <span class="add-on"><i class="icon-th"></i></span>
+                        </dt>
+                    </dl>
+
+                    <a href="javascript:;" id="mx_search_btn"> <i class="icon icon-search"></i> 查询</a> 
+                    <ul>
+                    	<li class="active" id="detailbossType">总部数据</li>
+                    	<li id="detailmanuType">省公司手工电子台账</li>
+                    </ul>
+                    <a class="more-btn" href="javascript:;"> 更多查询条件 </a> <a id="mx_reset_btn" class="reset-btn" href="javascript:;"> 重置 </a> <a id="exportDetailList" href="javascript:;"> 导出 </a>
+                </div>
+
+                <!-- moreBox -->
+                <div class="more-box">
+                  
+                    <div class="select-box">
+                        <p>
+                            <input id="mx_cityCodeText" type="text" autocomplete="off" placeholder="地市名称" readonly> <span> <i class="icon icon-angle-down"></i>
+                            </span>
+                        </p>
+                        <ul id="mx_cityCodeSelect">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 数据Table -->
+                <div class="shuju_box">
+                    <h2>此数据显示的是有价卡赠送非中高端、非集团客户的明细</h2>
+                    <div class="shuju_table" id="cityDetailGridDataAjax">
+                        <table id="cityDetailGridData"></table>
+                        <div id="cityDetailGridDataPageBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 弹层 -->
+    <div class="modal-box">
+        <!-- 折线 BigMap -->
+        <div class="zhexian-bigmap">
+            <div class="close-btn">
+                <i class="icon icon-remove"></i>
+            </div>
+            <div class="info" id="ranklineChartBig"></div>
+        </div>
+
+        <!-- BigMap -->
+        <div class="bigmap">
+            <div class="close-btn">
+                <i class="icon icon-remove"></i>
+            </div>
+            <div class="info big-map-info-div" id="cityMapChartBig"></div>
+        </div>
+    </div>
+</body>
+</html>

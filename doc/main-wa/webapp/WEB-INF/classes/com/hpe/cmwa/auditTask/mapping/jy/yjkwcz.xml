@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="yjkwczMapper">
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	
+	<select id="hz_yc_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm as audTrm , pres_bg as presBg, pres_ed as presEd,RANGE_NO as pangeNo,  per_range as perRange ,SUM(zsyjk_nopay_num) as zsyjkNopayNum ,SUM(zsyjk_nopay_amt) as zsyjkNopayAmt ,
+		SUM(zsyjk_amt) as zsyjkAmt ,SUM(offer_num) as offerNum 
+		FROM hpeapb.sum_yjkzscz_3101_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		)
+		AND pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		GROUP BY per_range
+		ORDER BY zsyjkNopayAmt DESC
+	</select>
+	
+	<select id="hz_yc_city_chart" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm as audTrm , pres_bg as presBg, pres_ed as presEd,RANGE_NO as pangeNo,per_range as perRange ,SUM(zsyjk_nopay_num) as zsyjkNopayNum ,SUM(zsyjk_nopay_amt) as zsyjkNopayAmt ,
+		SUM(zsyjk_amt) as zsyjkAmt ,CMCC_prvd_nm_short as cmccPrvdNmShort ,SUM(offer_num) as offerNum 
+		FROM hpeapb.sum_yjkzscz_3101_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND cmcc_prov_id = #{cmccProvId}	
+		)
+		and pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}	
+		GROUP BY per_range
+		ORDER BY zsyjkNopayAmt DESC
+	</select>
+	
+	<select id="hz_tj_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audTrm , pres_bg as presBg, pres_ed as presEd, offer_nm AS offerNm , offer_zsyjk_amt AS offerZsyjkAmt , offer_zsyjk_nopay_amt AS offerZsyjkNopayAmt,PER_NOPAY
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		)
+		and pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		ORDER BY PER_NOPAY DESC LIMIT 10
+	</select>
+	
+	<select id="hz_tj_city_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audTrm , pres_bg as presBg, pres_ed as presEd, offer_nm AS offerNm , offer_zsyjk_amt AS offerZsyjkAmt , offer_zsyjk_nopay_amt AS offerZsyjkNopayAmt,PER_NOPAY
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND cmcc_prov_id = #{cmccProvId}	
+		)
+		and pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}	
+		ORDER BY PER_NOPAY DESC LIMIT 10
+	</select>
+	
+	<select id="hz_tj_table_conclusion" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audTrm , pres_bg as presBg, pres_ed as presEd, offer_nm as offerNm ,offer_zsyjk_num as offerZsyjkNum ,  offer_zsyjk_amt as offerZsyjkAmt ,offer_zsyjk_nopay_num as offerZsyjkNopayNum, offer_zsyjk_nopay_amt as offerZsyjkNopayAmt ,
+		per_nopay as offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND CMCC_PROV_PRVD_ID = #{provinceCode}
+		)
+		and pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		ORDER BY per_nopay DESC LIMIT 3
+	</select>
+	
+	<select id="hz_tj_city_table_conclusion" resultType="Map" parameterType="Map">
+		SELECT aud_trm as audTrm , pres_bg as presBg, pres_ed as presEd, offer_nm as offerNm ,offer_zsyjk_num as offerZsyjkNum ,  offer_zsyjk_amt as offerZsyjkAmt ,offer_zsyjk_nopay_num as offerZsyjkNopayNum, offer_zsyjk_nopay_amt as offerZsyjkNopayAmt ,
+		per_nopay as offerAmtPer ,CMCC_prvd_nm_short as cmccPrvdNmShort
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND cmcc_prov_id = #{cmccProvId}	
+		)
+		AND cmcc_prov_id = #{cmccProvId}	
+		ORDER BY per_nopay DESC LIMIT 3
+	</select>
+	
+	<select id="hz_tj_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm as audTrm , 
+		pres_bg as presBg,
+		pres_ed as presEd, 
+		short_name AS shortName,
+		offer_cd AS offerCd,
+		offer_nm AS offerNm,
+		offer_zsyjk_num AS offerZsyjkNum,
+		offer_zsyjk_amt offerZsyjkAmt,
+		offer_zsyjk_nopay_num offerZsyjkNopayNum,
+		offer_zsyjk_nopay_amt offerZsyjkNopayAmt,
+		per_nopay*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{params.currSumBeginDate} AND pres_ed = #{params.currSumEndDate}
+			AND cmcc_prov_prvd_id = #{params.provinceCode}
+		)
+		AND pres_bg = #{params.currSumBeginDate} AND pres_ed = #{params.currSumEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		ORDER BY per_nopay DESC
+	</select>
+	
+	<select id="hz_tj_city_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm as audTrm , 
+		pres_bg as presBg,
+		pres_ed as presEd, 
+		CMCC_prvd_nm_short AS shortName,
+		offer_cd AS offerCd,
+		offer_nm AS offerNm,
+		offer_zsyjk_num AS offerZsyjkNum,
+		offer_zsyjk_amt offerZsyjkAmt,
+		offer_zsyjk_nopay_num offerZsyjkNopayNum,
+		offer_zsyjk_nopay_amt offerZsyjkNopayAmt,
+		per_nopay*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{params.currSumBeginDate} AND pres_ed = #{params.currSumEndDate}
+			AND cmcc_prov_id = #{params.cmccProvId}	
+		)
+		AND  pres_bg = #{params.currSumBeginDate} AND pres_ed = #{params.currSumEndDate}
+		AND cmcc_prov_id = #{params.cmccProvId}	
+		ORDER BY per_nopay DESC
+	</select>
+	
+	<select id="hz_tj_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm as audTrm , 
+		pres_bg as presBg,
+		pres_ed as presEd,
+		cmcc_prov_prvd_id AS cmccProvPrvdId,
+		short_name AS shortName,
+		cmcc_prov_id AS cmccProvId,
+		CMCC_prvd_nm_short AS cmccPrvdNmShort,
+		offer_cd AS offerCd,
+		offer_nm AS offerNm,
+		offer_zsyjk_num AS offerZsyjkNum,
+		offer_zsyjk_amt AS offerZsyjkAmt,
+		offer_zsyjk_nopay_num AS offerZsyjkNopayNum,
+		offer_zsyjk_nopay_amt AS offerZsyjkNopayAmt,
+		per_nopay*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND cmcc_prov_prvd_id = #{provinceCode}	
+		)
+		AND pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		ORDER BY per_nopay DESC
+	</select>
+	
+	<select id="hz_tj_city_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm as audTrm , 
+		pres_bg as presBg,
+		pres_ed as presEd,
+		cmcc_prov_prvd_id AS cmccProvPrvdId,
+		short_name AS shortName,
+		cmcc_prov_id AS cmccProvId,
+		CMCC_prvd_nm_short AS cmccPrvdNmShort,
+		offer_cd AS offerCd,
+		offer_nm AS offerNm,
+		offer_zsyjk_num AS offerZsyjkNum,
+		offer_zsyjk_amt AS offerZsyjkAmt,
+		offer_zsyjk_nopay_num AS offerZsyjkNopayNum,
+		offer_zsyjk_nopay_amt AS offerZsyjkNopayAmt,
+		per_nopay*100 AS offerAmtPer
+		FROM hpeapb.sum_yjkzscz_3101_offer_cty
+		WHERE aud_trm =(
+			SELECT MAX(aud_trm) FROM hpeapb.sum_yjkzscz_3101_offer_cty
+			WHERE pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+			AND cmcc_prov_id = #{cmccProvId}	
+		)
+		AND pres_bg = #{currSumBeginDate} AND pres_ed = #{currSumEndDate}
+		AND cmcc_prov_id = #{cmccProvId}	
+		ORDER BY per_nopay DESC
+	</select>
+	
+	<select id="mx_table" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm AS audTrm,
+		pres_bg AS presBg,
+		pres_ed AS presEd,
+		short_name AS shortName,
+		CMCC_prvd_nm_short AS cmccPrvdNmShort,
+		yjk_ser_no AS yjkSerNo,
+		CounTatal AS counTatal,
+		CardFlag AS cardFlag,
+		yjk_pres_tm AS yjkPersTm,
+		(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END) AS msisdn,
+		yjk_offer_cd AS yjkOfferCd,
+		offer_nm AS offerNm,
+		cor_chnl_id AS corChnlId,
+		cor_chnl_nm AS corChnlNm
+		FROM 
+		hpeapb.det_yjkzscz_3101
+		WHERE aud_trm = (
+		SELECT MAX(aud_trm) FROM hpeapb.det_yjkzscz_3101
+		WHERE pres_bg = #{params.currDetBeginDate} AND pres_ed = #{params.currDetEndDate}
+		AND cmcc_prov_prvd_id = #{params.provinceCode}
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		 	AND cmcc_prov_id = #{params.currCityType} 
+	    </if>
+	    )
+	    AND pres_bg = #{params.currDetBeginDate} AND pres_ed = #{params.currDetEndDate}
+		<if test="params.currCityType != '' and params.currCityType !=null  ">
+		 	AND cmcc_prov_id = #{params.currCityType} 
+	    </if>
+	    AND cmcc_prov_prvd_id = #{params.provinceCode}
+	    ORDER BY aud_trm DESC,CMCC_prvd_nm_short 
+	</select>
+
+	<select id="mx_table_export" resultType="Map" parameterType="Map">
+		SELECT 
+		aud_trm AS audTrm,
+		pres_bg AS presBg,
+		pres_ed AS presEd,
+		cmcc_prov_prvd_id AS cmccProvPrvdId,
+		short_name AS shortName,
+		cmcc_prov_id AS cmccProvId,
+		CMCC_prvd_nm_short AS cmccPrvdNmShort,
+		yjk_ser_no AS yjkSerNo,
+		CounTatal AS counTatal,
+		CardFlag AS cardFlag,
+		SupplyCardKind AS supplyCardKind,
+		FeeAccountStart AS FeeAccountStart,
+		FeeAccountStop AS FeeAccountStop,
+		yjk_pres_tm AS yjkPresTm,
+		user_id AS userId,
+		yjk_typ AS yjkTyp,
+		(CASE WHEN msisdn= '' THEN '' ELSE CONCAT(SUBSTR(msisdn,1,(LENGTH(msisdn)-4)),'****') END) AS msisdn,
+		yjk_offer_cd AS yjkOfferCd,
+		offer_nm AS offerNm,
+		cor_chnl_id AS corChnlId,
+		cor_chnl_nm AS corChnlNm,
+		yjk_end_dt AS yjkEndDt
+		FROM 
+		hpeapb.det_yjkzscz_3101
+		WHERE aud_trm = (
+		SELECT MAX(aud_trm) FROM hpeapb.det_yjkzscz_3101
+		WHERE pres_bg = #{currDetBeginDate} AND pres_ed = #{currDetEndDate}
+		AND cmcc_prov_prvd_id = #{provinceCode}
+		<if test="currCityType != '' and currCityType !=null  ">
+		 	AND cmcc_prov_id = #{currCityType} 
+	    </if>
+	    )
+		<if test="currCityType != '' and currCityType !=null  ">
+		 	AND cmcc_prov_id = #{currCityType} 
+	    </if>
+	    AND pres_bg = #{currDetBeginDate} AND pres_ed = #{currDetEndDate}
+	    AND cmcc_prov_prvd_id = #{provinceCode}
+	    ORDER BY aud_trm DESC,CMCC_prvd_nm_short 
+	    LIMIT #{pageStar},#{pageEnd}
+	</select>
+	
+</mapper>
+

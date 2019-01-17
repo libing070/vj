@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间， 设置缓存时间 <cache/>-->
+<mapper namespace="xjmbsjkMapper">
+
+	<!-- <cache eviction="LRU" flushInterval="1800000" size="4096" readOnly="true" /> -->
+	<select id="load_column_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(weigui_subs_cnt) AS weigui_subs_cnt
+		FROM hpeapb.sum_jtkd_1102_prvd
+		WHERE aud_trm = #{currSumEndDate}
+		and weigui_subs_cnt != 0
+		group by prvd_id
+		ORDER BY SUM(weigui_subs_cnt) DESC,prvd_id 
+	</select>
+	<select id="load_map_chart" resultType="Map" parameterType="Map">
+		SELECT short_name,SUM(weigui_subs_cnt) AS trade_value
+		FROM hpeapb.sum_jtkd_1102_prvd
+		WHERE aud_trm = #{currSumEndDate}
+		group by prvd_id
+		ORDER BY SUM(weigui_subs_cnt) DESC,prvd_id 
+	</select>
+	<select id="load_line_chart" resultType="Map" parameterType="Map">
+		SELECT aud_trm as  aud_trm_end,SUM(weigui_subs_cnt) AS weigui_subs_cnt
+		FROM hpeapb.sum_jtkd_1102_prvd
+		WHERE aud_trm = #{currSumEndDate}
+		group by aud_trm
+		ORDER BY aud_trm
+	</select>
+	<select id="load_table" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm as  aud_trm_end,
+			short_name,
+			weigui_subs_cnt,
+			tol_subs_cnt,
+			per*100 as per
+		FROM hpeapb.sum_jtkd_1102_prvd
+		WHERE 
+		aud_trm =  #{params.currSumEndDate}
+		order by aud_trm desc,weigui_subs_cnt desc,prvd_id
+	</select>
+	
+	<select id="exportTable" resultType="Map" parameterType="Map">
+		SELECT 
+			aud_trm_begin,
+			aud_trm as  aud_trm_end,
+			prvd_id,
+			short_name,
+			weigui_subs_cnt,
+			tol_subs_cnt,
+			per*100 as per,
+			ranking
+		FROM hpeapb.sum_jtkd_1102_prvd
+		WHERE 
+		aud_trm =  #{currSumEndDate}
+		order by aud_trm desc,weigui_subs_cnt desc,prvd_id
+	</select>
+</mapper>
+

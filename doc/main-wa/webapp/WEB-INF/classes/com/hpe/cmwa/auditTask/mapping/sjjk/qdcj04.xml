@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="qdcj04Mapper">
+
+	<!--获取有数据的省份  -->
+	<select id="getResultByProvinceCode" resultType="Map" parameterType="Map">
+		SELECT DISTINCT cmcc_prov_prvd_id as cmccProvPrvdId ,short_name as shortName
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach> 
+		and aud_trm  BETWEEN #{currBeginDate} and #{currEndDate} 
+	</select>
+	
+	<!--获取全国的省份  -->
+	<select id="getIfQgHaveData" resultType="Map" parameterType="Map">
+		SELECT count(*) as dataNum
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+	</select>
+
+	<!--获取第一个柱图全国平均水平  -->
+	<select id = "getFirColumnQgAvgPer" resultType="Map" parameterType="Map"> 
+		SELECT "全国平均" as areaName,
+			sum(jl_amt)/(case when sum(tol_amt) !=0 then sum(tol_amt) else 1 end)*100 amtPer,
+			10000 as areaCode
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+	</select>
+	<!--获取第一个柱图全省平均水平  -->
+	<select id = "getFirColumnProvAvgPer" resultType="Map" parameterType="Map"> 
+		SELECT "全省平均" as areaName,
+			sum(jl_amt)/(case when sum(tol_amt) !=0 then sum(tol_amt) else 1 end)*100 amtPer,
+			cmcc_prov_prvd_id as areaCode
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id= #{provinceCode}  
+	</select>
+	<!--获取第一个柱图多省数据  -->
+	<select id="getFirColumnPerDataProv" resultType="Map" parameterType="Map">
+		SELECT short_name as areaName,
+			sum(jl_amt)/(case when sum(tol_amt) !=0 then sum(tol_amt) else 1 end)*100 as amtPer,
+			cmcc_prov_prvd_id as areaCode
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		<if test="provinceCode!='10000'">
+		and cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach>
+		</if>
+		group by cmcc_prov_prvd_id 
+		order by amtPer desc,cmcc_prov_prvd_id
+	</select>
+	
+	<!-- 获取第一个柱图单省 各地市数据  -->
+	<select id="getFirColumnPerDataCty" resultType="Map" parameterType="Map">
+		SELECT 
+			cmcc_prvd_nm_short as areaName,
+			sum(jl_amt)/(case when sum(tol_amt) !=0 then sum(tol_amt) else 1 end)*100 as amtPer,
+			cmcc_prov_id as areaCode
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where cmcc_prov_prvd_id= #{provinceCode}  
+		and  aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		group by cmcc_prov_id 
+		order by amtPer desc,cmcc_prov_id
+	</select>
+	
+	
+	<!--  获取第一个折现图数据   全国折线数据-->
+	<select id = "getFirLinePerDataQG" resultType="Map" parameterType="Map"> 
+		SELECT 
+			aud_trm as audTrm,
+			sum(jl_amt)/(case when sum(tol_amt) !=0 then sum(tol_amt) else 1 end)*100 as amtPer
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<!-- 单省折线数据 -->
+	<select id = "getFirLinePerDataProv" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, amt_per*100 as amtPer 
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<!-- 单地市折线数据 -->
+	<select id = "getFirLinePerDataCty" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, amt_per*100 as amtPer 
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and cmcc_prov_id = #{cityId}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	
+	<!--获取第2个柱图全国平均水平  -->
+	<select id = "getSecColumnQgAvgAmt" resultType="Map" parameterType="Map"> 
+		SELECT "全国平均" as areaName, (sum(jl_amt)/10000)/COUNT(DISTINCT cmcc_prov_prvd_id) as jlAmt,10000 as areaCode 
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+	</select>
+	<!--获取第2个柱图全省平均水平  -->
+	<select id = "getSecColumnProvAvgAmt" resultType="Map" parameterType="Map"> 
+		SELECT "全省平均" as areaName, (sum(jl_amt)/10000)/COUNT(DISTINCT cmcc_prov_id) as jlAmt,cmcc_prov_prvd_id as areaCode
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id= #{provinceCode}  
+	</select>
+	<!--获取第2个柱图多省数据   -->
+	<select id="getSecColumnAmtDataProv" resultType="Map" parameterType="Map">
+		SELECT short_name as areaName, (sum(jl_amt)/10000) as jlAmt, cmcc_prov_prvd_id as areaCode
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		<if test="provinceCode!='10000'">
+		and cmcc_prov_prvd_id in 
+		<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+		</foreach>
+		</if>
+		group by cmcc_prov_prvd_id 
+		order by jlAmt desc,cmcc_prov_prvd_id
+	</select>
+	<!-- 获取第2个柱图单省 各地市数据 -->
+	<select id="getSecColumnAmtDataCty" resultType="Map" parameterType="Map">
+		SELECT 
+		cmcc_prvd_nm_short as areaName, (sum(jl_amt)/10000) as jlAmt,cmcc_prov_id as areaCode
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where cmcc_prov_prvd_id= #{provinceCode}  
+		and  aud_trm BETWEEN #{currBeginDate} and #{currEndDate} 
+		group by cmcc_prov_id 
+		order by jlAmt desc,cmcc_prov_id
+	</select>
+	
+	<!--  获取第2个折现图数据   amt-->
+	<select id = "getSecLineAmtDataQG" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, (sum(jl_amt)/10000) as jlAmt 
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<select id = "getSecLineAmtDataProv" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, (sum(jl_amt)/10000) as jlAmt 
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	<select id = "getSecLineAmtDataCty" resultType="Map" parameterType="Map"> 
+		SELECT aud_trm as audTrm, (sum(jl_amt)/10000) as jlAmt 
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		and cmcc_prov_id = #{cityId}
+		group by aud_trm
+		order by aud_trm
+	</select>
+	
+	<!-- 获取汇总分析数据表数据 -->
+	<select id = "getTableDataProv" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm,			
+			cmcc_prov_prvd_id, 
+			short_name, 		
+			(jl_amt/10000) as jl_amt, 			
+			(tol_amt/10000) as tol_amt, 			
+			(amt_per*100) as amt_per
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			<if test="provinceCode!='10000'">
+			and cmcc_prov_prvd_id in
+			<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+			</foreach>
+			</if>
+		order by cmcc_prov_prvd_id,aud_trm desc
+	</select>
+	
+	<select id = "getTableDataCty" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm, 			 			
+			cmcc_prov_prvd_id, 
+			short_name, 		
+			cmcc_prov_id,  	
+			cmcc_prvd_nm_short,
+			(jl_amt/10000) as jl_amt, 			
+			(tol_amt/10000) as tol_amt, 			
+			(amt_per*100) as amt_per 		
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		order by cmcc_prov_id,aud_trm desc
+	</select>
+	
+	
+	<!-- 获取汇总分析数据表数据 -->
+	<select id = "exportTableDataProv" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm,			
+			cmcc_prov_prvd_id, 
+			short_name, 		
+			(jl_amt) as jl_amt, 			
+			(tol_amt) as tol_amt, 			
+			(amt_per*100) as amt_per
+		from hpeapb.dm_sum_qdcj_2004_prvd  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+			<if test="provinceCode!='10000'">
+			and cmcc_prov_prvd_id in
+			<foreach collection="provinceCode" item="item" index="index" open="(" separator="," close=")" > 
+			#{item}
+			</foreach>
+			</if>
+		order by cmcc_prov_prvd_id,aud_trm desc
+	</select>
+	
+	<select id = "exportTableDataCty" resultType="Map" parameterType="Map"> 
+		SELECT
+			aud_trm, 			 			
+			cmcc_prov_prvd_id, 
+			short_name, 		
+			cmcc_prov_id,  	
+			cmcc_prvd_nm_short,
+			(jl_amt) as jl_amt, 			
+			(tol_amt) as tol_amt, 			
+			(amt_per*100) as amt_per 		
+		from hpeapb.dm_sum_qdcj_2004_cty  
+		where aud_trm BETWEEN #{currBeginDate} and #{currEndDate}
+		and cmcc_prov_prvd_id = #{provinceCode}
+		order by cmcc_prov_id,aud_trm desc
+	</select>
+
+
+</mapper>
