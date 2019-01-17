@@ -1,0 +1,204 @@
+/* 客户欠费独立样式 */
+
+
+/* 地图顶部tab卡片 */
+
+.main_l .l_show_wrap .map_top_tab {
+    padding: 0 10px;
+}
+
+.map_top_tab ul>li {
+    height: 60px;
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+.map_top_tab li dl {
+    position: relative;
+    padding: 0 5px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    color: #e6ebf2;
+}
+
+.map_top_tab li dl dt {
+    font-size: 14px;
+}
+
+.map_top_tab li dl dd {
+    padding-left: 10px;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.map_top_tab li dl dd span {
+    margin-left: 10px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.map_top_tab .tab_item_icon img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    bottom: 0;
+}
+
+.map_top_tab .tab_item_icon img.blow {
+    width: auto;
+    height: 100%;
+}
+
+.map_top_tab .tab_item_icon img.shrink {
+    width: 100%;
+    height: auto;
+}
+
+.map_top_tab li:nth-of-type(2) dl,
+.map_top_tab li:last-of-type dl {
+    background-color: #466c86;
+    background-position: 90% 80%;
+    background-repeat: no-repeat;
+}
+
+.map_top_tab li:nth-of-type(2) dl {
+    background-image: url(/cmca/resource/images/tab-icon2.png);
+    background-size: 35%;
+}
+
+.map_top_tab li:last-of-type dl {
+    background-image: url(/cmca/resource/images/tab-icon3.png);
+    background-size: 25%;
+}
+
+.map_top_tab li.active dl {
+    background-color: #47678e;
+    border: 1px solid #b2b2b2;
+}
+
+
+/* 左侧地图 */
+
+.main_l .map_wrap .map_continer1 {
+    height: 330px;
+}
+
+.main_l .map_wrap .big_map_continer1 {
+    height: 530px;
+}
+
+
+/* 客户欠费地图下方卡片 */
+
+.main_l .position_card_wrap1 {
+    position: absolute;
+    bottom: 38px;
+    width: 100%;
+    padding-left: 10px;
+}
+
+.main_l .card_wrap1 li {
+    padding-left: 0;
+}
+
+.main_l .card_wrap1 li dl {
+    padding: 3px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: #1A1B24;
+    color: #ccc;
+}
+
+.main_l .position_card_wrap1 dl dt {
+    font-size: 16px;
+    color: #fff;
+}
+
+.main_l .card_wrap1 dl dd:last-of-type {
+    font-size: 6px;
+}
+
+.main_l .card_wrap1 dl dd .caret_up {
+    color: #f65470;
+}
+
+.main_l .card_wrap1 dl dd .caret_down {
+    color: #00c58e;
+}
+
+.main_l .card_wrap1 dl dd span {
+    margin-left: 5px;
+}
+
+
+/* 右侧图表展示区域顶部四级导航 */
+
+.main_r .four_nav li.active {
+    cursor: default;
+}
+
+
+/* 欠费账龄/金额分析 */
+
+.main_r .fenxi_show_wrap .qianfei_show_wrap>div,
+.main_r .fenxi_show_wrap .qianfei_recover_wrap>div {
+    height: 230px;
+}
+
+
+/* 响应式 */
+
+
+/* 大于1366*768分辨率*/
+
+@media screen and (min-width: 1366px) {
+    .map_top_tab .tab_item_icon img.shrink {
+        width: auto;
+        height: 100%;
+    }
+}
+
+
+/* 1600*900分辨率下，窗口高度为770px */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .main_l .map_wrap .map_continer1 {
+        height: 450px;
+    }
+    .main_l .map_wrap .big_map_continer1 {
+        height: 640px;
+    }
+    .main_l .map_wrap .map_nanhaiqundao {
+        width: 50px;
+        height: 65px;
+    }
+    /* 欠费账龄/金额分析,欠费回收 */
+    .main_r .fenxi_show_wrap .qianfei_show_wrap>div,
+    .main_r .fenxi_show_wrap .qianfei_recover_wrap>div {
+        height: 275px;
+    }
+}
+
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .main_l .map_wrap .map_continer1 {
+        height: 580px;
+    }
+    .main_l .map_wrap .big_map_continer1 {
+        height: 780px;
+    }
+    .main_l .map_wrap .map_nanhaiqundao {
+        width: 70px;
+        height: 80px;
+    }
+    /* 欠费账龄/金额分析，欠费回收 */
+    .main_r .fenxi_show_wrap .qianfei_show_wrap>div,
+    .main_r .fenxi_show_wrap .qianfei_recover_wrap>div {
+        height: 340px;
+    }
+}

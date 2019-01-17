@@ -1,0 +1,515 @@
+/* 业务监控预警页面 */
+
+.wrapper .public_main .main_content .main_show_wrap {
+    /* height: 94%; */
+    /* 2018.8.14修改 */
+    height: 100%;
+    padding-bottom: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+.light_style input.form-control {
+    padding: 2px 15px 2px 5px;
+    height: auto;
+}
+
+.light_style .form-control {
+    height: auto;
+}
+
+/* 主体顶部tab标签 */
+
+.main_content .main_top_tabs {
+    position: relative;
+    height: 38px;
+    margin: 0 -15px;
+    border-top: 1px solid #1A1B24;
+    z-index: 10;
+    background-color: #5A626F;
+    overflow: hidden;
+}
+
+.main_content .main_top_tabs .top_nav_ctn {
+    position: relative;
+    display: inline-block;
+    min-width: 30%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.main_content .main_top_tabs .top_nav_ctn a {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    padding: 7px 15px;
+    border-bottom: 3px solid #5A626F;
+    color: #ccc;
+}
+
+.main_content .main_top_tabs .nav-tabs {
+    position: absolute;
+    border: none;
+}
+
+.main_content .main_top_tabs .nav-tabs>li>a:hover {
+    color: #fff;
+    background-color: transparent;
+}
+
+.main_content .main_top_tabs .nav-tabs>li.active>a,
+.main_content .main_top_tabs .nav-tabs>li.active>a:focus,
+.main_content .main_top_tabs .nav-tabs>li.active>a:hover {
+    border: none;
+    border-bottom: 3px solid #0192D5;
+    background-color: transparent;
+    color: #fff;
+    font-weight: bold;
+}
+
+.main_content .main_top_tabs .btn-group {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.main_content .main_top_tabs .btn-group button {
+    height: 22px;
+    margin-top: 10px;
+    border: 1px solid #3091DF;
+    background-color: #fff;
+    color: #337ab7;
+}
+
+.main_content .main_top_tabs .btn-group button:hover,
+.main_content .main_top_tabs .btn-group button:focus {
+    background-color: #3091DF;
+    color: #fff;
+}
+
+.main_content .main_top_tabs ul {
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.main_content .main_top_tabs ul>li {
+    float: none;
+    display: inline-block;
+    position: relative;
+}
+
+.main_content .main_top_tabs ul li .close_tab {
+    position: absolute;
+    top: 5px;
+    z-index: 10;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* 主体 */
+
+.main_content .main_show_wrap .top_search {
+    padding: 3px 15px;
+    margin-bottom: 5px;
+}
+
+.main_content .main_show_wrap .btn {
+    padding: 2px 12px;
+}
+
+.main_content .main_show_wrap .panel-title {
+    display: inline-block;
+    color: #fff;
+}
+
+.main_content .main_show_wrap .panel label {
+    padding-top: 4px;
+    font-weight: normal;
+}
+
+.main_content .main_show_wrap .panel-heading {
+    padding: 3px 15px;
+}
+
+.main_content .main_show_wrap .panel-heading .btn {
+    border: none;
+    /* color: #fff; */
+    color: inherit;
+}
+
+.main_content .main_show_wrap .panel-heading .btn:hover,
+.main_content .main_show_wrap .panel-heading .btn:focus {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.main_content .main_show_wrap .panel .panel-body {
+    padding: 0;
+    margin: 0;
+}
+
+.main_content .panel-footer .panel {
+    margin-bottom: 0;
+    box-shadow: 0px 5px 10px 5px rgba(0, 0, 0, .2);
+}
+
+/* 监控点页面 */
+
+.main_content .point_page {
+    height: 100%;
+}
+
+.main_content .point_page .nav-tabs>li>a {
+    padding: 5px 15px;
+}
+
+/* 监控点tab页 */
+
+.main_content .point_page .point_tab_content {
+    position: relative;
+    height: 95%;
+}
+
+.main_content .point_page .point_tab_content .point_tab_page {
+    height: 100%;
+}
+
+.main_content .point_page .point_page_tabs>li>a {
+    color: #555;
+}
+
+.main_content .point_page .point_page_tabs>li>a:hover,
+.main_content .point_page .point_page_tabs>li.active>a,
+.main_content .point_page .point_page_tabs>li.active>a:focus,
+.main_content .point_page .point_page_tabs>li.active>a:hover {
+    color: #337ab7;
+}
+
+/* 初始化模态框样式 */
+
+.main_content .point_page .modal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-open .modal-backdrop {
+    z-index: -1 !important;
+    opacity: 0 !important;
+}
+
+.main_content .point_page .modal .list-inline>li {
+    padding: 5px;
+}
+
+.main_content .point_page .modal .list-inline input {
+    height: 26px;
+}
+
+/* 组件配置 */
+
+.main_content .component .panel {
+    position: relative;
+}
+
+.main_content .component .component_config_btn_group {
+    position: absolute;
+    top: -12px;
+    right: 0;
+    opacity: .7;
+}
+
+.main_content .component .component_config_btn_group .btn {
+    border: none;
+    color: inherit;
+    background-color: #fff;
+}
+
+.main_content .component_config_btn_group .btn:hover,
+.main_content .component_config_btn_group .btn:focus {
+    background-color: #fff;
+}
+
+.main_content .component .component_config_btn_group,
+.main_content .component .move_btn {
+    display: none;
+}
+
+/* 控件配置 */
+
+.main_content .component .widget_config_btn {
+    display: none;
+}
+
+.main_content .widget_config .form-inline .form-group {
+    vertical-align: top !important;
+}
+
+.main_content .widget_config .screen_logic_title li {
+    height: 34px;
+    line-height: 34px;
+}
+
+.main_content .widget_config .screen_logic_list>div {
+    margin-top: 5px;
+}
+
+.main_content .widget_config .screen_logic_item {
+    position: relative;
+}
+
+.main_content .widget_config .screen_item_remove_btn {
+    position: absolute;
+    right: -15px;
+    top: 10px;
+    cursor: pointer;
+    font-size: 12px
+}
+
+/* 图形控件 */
+
+.main_content .charts_container .chart_wrap .chart {
+    height: 150px;
+}
+/* 2018.7.4添加 */
+.panel .content_show{
+    height:160px;
+}
+.main_show_wrap .component .chart_item .chart_wrap{
+    min-height: 160px;
+    /* height: 160px; */
+    font-size: 12px;
+    color: #333333;
+}
+.main_content .component .charts_container .chart_item.col-xs-12{
+    height: 264px
+}
+
+/* 首页、一级业务流程表格 */
+
+.main_content .table_compontent .panel-heading {
+    padding: 0 15px;
+}
+
+.main_content .table_compontent .panel-heading .panel-title {
+    height: 30px;
+    line-height: 34px;
+}
+
+.main_content .table_compontent .panel-heading .title {
+    line-height: 33px;
+}
+
+.main_content .table_compontent .panel-heading li {
+    cursor: pointer;
+    color: inherit;
+    font-size: 14px;
+}
+
+.main_content .table_compontent .panel-heading li.active {
+    height: 34px;
+    border-bottom: 2px solid;
+    color: inherit;
+}
+
+.public_main .main_content table td {
+    padding: 1px;
+}
+
+/* 表单验证 */
+
+.btn-danger {
+    color: #d9534f !important;
+    border-color: #d9534f !important;
+}
+
+.open>.btn-danger {
+    background-color: transparent !important;
+}
+
+.error {
+    border-color: #d9534f !important;
+}
+
+.light_style .form-control[disabled],
+.light_style .form-control[readonly],
+.light_style fieldset[disabled] .form-control {
+    background-color: transparent;
+    opacity: inherit;
+}
+
+.light_style .tooltip.right .tooltip-arrow {
+    border-right-color: #d9534f;
+}
+
+.light_style .tooltip-inner {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+.light_style .tooltip.top .tooltip-arrow {
+    border-top-color: #d9534f;
+}
+
+/* 初始化bootstrap框架样式 */
+
+.main_show_wrap .panel {
+    margin-bottom: 10px;
+    border: none;
+}
+
+/* 初始化bootstrap-table插件样式 */
+
+.main_show_wrap .fixed-table-pagination .pagination-detail,
+.main_show_wrap .fixed-table-pagination div.pagination {
+    height: 34px;
+    margin: 1px 0;
+}
+
+.main_show_wrap .fixed-table-container thead th .th-inne {
+    padding: 2px;
+    font-weight: normal;
+}
+
+.main_show_wrap .bootstrap-table .page-list .btn {
+    color: inherit;
+    padding: 0 8px;
+}
+
+.main_show_wrap .bootstrap-table .page-list .btn:hover {
+    color: inherit;
+}
+
+.main_show_wrap .fixed-table-pagination div.pagination .pagination {
+    margin-top: 3px;
+}
+
+.main_show_wrap .fixed-table-pagination .pagination a {
+    padding: 3px 12px;
+}
+
+/* 需求暂时调整---部分样式调整 */
+
+.main_content .component .charts_container {
+    padding: 0;
+}
+
+.main_content .component .charts_container .chart_item {
+    margin: 5px 0;
+}
+
+.main_content .component .component_title {
+    color: #999;
+}
+
+.main_content .main_show_wrap .chart_item .panel-heading {
+    text-align: left;
+}
+
+.light_style .component .panel .panel-heading .panel-title {
+    color: #fff;
+}
+
+.light_style .panel .green_heading {
+    background-color: #3BBB80;
+}
+
+.light_style .panel .light_blue_heading {
+    background-color: #00BCD5;
+}
+
+.light_style .panel .blue_heading {
+    background-color: #0192D5;
+}
+
+.light_style .panel .yellow_heading {
+    background-color: #F4A628;
+}
+
+.light_style .panel .light_violet_heading {
+    background-color: #9a72bd;
+}
+
+.light_style .panel .violet_heading {
+    background-color: #a64df5;
+}
+
+/* 2017.7.9 */
+.title_dropdown{
+    font-size: 12px;
+    position: absolute;
+    top: 7px;
+    text-align: left;
+    right: 23px;
+    width: 113px;
+}
+.pointName{
+    display: inline-block;
+    /* word-break: keep-all; */
+    height: 14px;
+    overflow: hidden;
+    width: 108px;
+    white-space:nowrap;
+    /*文本溢出用"..."表示*/
+    text-overflow:ellipsis;                  
+    -o-text-overflow:ellipsis;                 
+    -moz-binding: url('ellipsis.xml#ellipsis')
+}
+
+/* 2018.7.31 */
+.point_sizer{
+    border-color: #a6a6a6;
+    background: #f8f8f8;
+    width: 80px;
+    position: absolute;
+    top: 3px;
+    z-index: 1;
+    min-height: 30px;
+    border-radius: 2px;
+    /* margin-left: -26px; */
+    margin-left:-12px
+}
+.point_sizer li{
+    width: 100%;
+    padding: 2px 12px;
+    cursor: pointer;
+}
+
+.point_sizer li:hover,.point_sizer li:active{
+    background-color: #0192d5;
+    color: #fff;
+}
+
+
+/* 2018.8.14 修改 模板层背景颜色 */
+.assembly .panel{
+    box-shadow:none;
+}
+.light_style .assembly .charts_container.panel-footer {
+    background-color: #f5f5f5 !important;
+}
+ .assembly .col-xs-12,.assembly .col-xs-4,.assembly .col-xs-8,.assembly .col-xs-6{
+    padding-right: 10px;
+    padding-left: 10px;
+ }
+
+@media screen and (max-width: 1024px) {
+    .chart_item .top3Data h6.title_down, .chart_item .domainRank h6.title_down{
+        display: inline-block;
+        height: 23px;
+    }
+
+    .chart_item.col-xs-4 .top3Data h6{
+        display: inline-block;
+        width: 128px;
+    } 
+   
+}
+
+/* 1600*900分辨率下，窗口高度为770px */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {}
+
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {}

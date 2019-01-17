@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.WzxxMapper">
+	
+	<select id="getWzxxData" resultType="com.hpe.cmca.pojo.WzxxData" parameterType="com.hpe.cmca.pojo.WzxxData">
+		SELECT	ID, A, B, C, D, E, F, G, H, I, J, K, L, (N+O+P+Q+R+S+T) AS M, N, O, P, Q, R,
+		S, T, U, V, W, X, Y, Z, AA, AB, AC, AD, AE, AF, IS_EFFEC,CREATE_TIME_,CREATE_PERSON,LAST_UPDATE_TIME_,LAST_UPDATE_PERSON,row_number()over(ORDER BY F DESC, B ) as ORDER_NUM
+		FROM	hpmgr.busi_wzxx_info where IS_EFFEC=1
+		<if test="A != null and  A  !='0'.toString() and A!=''.toString()">and A =#{A}</if>
+		
+	</select>
+	<select id="getTotalWzxxData" resultType="com.hpe.cmca.pojo.WzxxData" parameterType="com.hpe.cmca.pojo.WzxxData">
+		SELECT	COUNT(A) A, SUM(H) H,SUM(K) K,SUM(L) L,SUM(N+O+P+Q+R+S+T)M, SUM(N)N, SUM(O)O, SUM(P)P, SUM(Q)Q, SUM(R)R,
+		SUM(S)S, SUM(T)T, SUM(U)U,SUM(V) V, SUM(W)W,SUM(X) X,SUM(Y) Y,SUM(Z) Z, SUM(AA)AA,SUM(AB) AB,SUM(AC) AC,SUM(AD) AD,SUM(AE) AE
+		FROM	hpmgr.busi_wzxx_info where IS_EFFEC=1
+		<if test="A != null and  A  !='0'.toString() and A!=''.toString()">and A =#{A}</if>
+	</select>
+	<select id="getExistWzxxData" resultType="com.hpe.cmca.pojo.WzxxData">
+		SELECT	 A, B, C
+		FROM	hpmgr.busi_wzxx_info where IS_EFFEC=1
+	</select>
+	
+	<insert id="insertWzxxData" parameterType="com.hpe.cmca.pojo.WzxxData">
+	INSERT INTO hpmgr.busi_wzxx_info
+	(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
+		U, V, W, X, Y, Z, AA, AB, AC, AD, AE, AF, IS_EFFEC,CREATE_TIME_,CREATE_PERSON,LAST_UPDATE_TIME_,LAST_UPDATE_PERSON)
+	VALUES	
+	(#{A},#{B},#{C},#{D},#{E},#{F},#{G},#{H},#{I},#{J},
+	#{K},#{L},#{M},#{N},#{O},#{P},#{Q},#{R},#{S},#{T},#{U},
+	#{V},#{W},#{X},#{Y},#{Z},#{AA},#{AB},#{AC},#{AD},#{AE},
+	#{AF},1,#{CREATE_TIME_},#{CREATE_PERSON},#{LAST_UPDATE_TIME_},#{LAST_UPDATE_PERSON})
+	</insert>
+	 
+	<update id="updateWzxxData" parameterType="com.hpe.cmca.pojo.WzxxData">
+	update hpmgr.busi_wzxx_info
+	set 
+	     A =#{A},B =#{B},C =#{C},D =#{D}, E =#{E},F =#{F}, G =#{G}, 
+		 H =#{H}, I =#{I},J =#{J}, K =#{K}, L =#{L}, M =#{M}, N =#{N},  
+		 O =#{O},P =#{P}, Q =#{Q}, R =#{R}, S =#{S}, T =#{T}, U =#{U},
+		  V =#{V}, W =#{W},X =#{X}, Y =#{Y},Z =#{Z}, AA =#{AA},
+		 AB =#{AB},AC =#{AC},AD =#{AD}, AE =#{AE}, AF =#{AF},
+		LAST_UPDATE_TIME_ = #{LAST_UPDATE_TIME_},
+		LAST_UPDATE_PERSON= #{LAST_UPDATE_PERSON}
+	where ID=#{ID}
+	</update>
+	
+	<delete id="deleteWzxxData" parameterType="java.util.Map">
+	update hpmgr.busi_wzxx_info
+	set IS_EFFEC = 0,
+	LAST_UPDATE_TIME_ = #{LAST_UPDATE_TIME_},
+	LAST_UPDATE_PERSON= #{LAST_UPDATE_PERSON}
+	where 1=1
+		AND ID in <foreach item="item" index="index" collection="ids"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+	</delete>
+		
+		
+	<select id="getPrvd" resultType="com.hpe.cmca.pojo.WzxxData" >
+		SELECT	distinct n.A
+		FROM	hpmgr.busi_wzxx_info n
+		left join 	hpmgr.ref_dm_cmcc_prov_prvd_cd m
+		on n.A = m.CMCC_prov_prvd_nm
+ 		where n.IS_EFFEC=1
+ 		order by m.Cmcc_prov_prvd_id
+	</select>
+	
+</mapper>
+

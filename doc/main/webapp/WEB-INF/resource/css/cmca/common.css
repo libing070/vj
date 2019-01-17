@@ -1,0 +1,1692 @@
+/* 浮动/清除浮动 */
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+.clear_float {
+    zoom: 1;
+}
+
+.clear_float:after {
+    display: table;
+    height: 0;
+    content: "";
+    clear: both;
+    visibility: hidden;
+}
+
+label {
+    font-size: 14px;
+    font-weight: normal
+}
+
+.show {
+    display: block;
+}
+
+.hide,
+.hideUnit {
+    display: none
+}
+
+table {
+    word-break: break-all;
+    word-wrap: break-all
+}
+
+/* 文字省略号 */
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*三角箭头图标*/
+.caret_right {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    border-left: 4px solid;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+.caret_left {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    border-right: 4px solid;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+.caret_down {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-top: 4px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+
+.caret_up {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-bottom: 4px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+
+/* 下拉框公共样式 */
+.dropdown_con {
+    padding: 0;
+}
+
+.dropdown_con,
+.dropdown_con .input_wrap {
+    position: relative;
+}
+
+.dropdown_con .input_wrap i {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+}
+
+.dropdown_con input {
+    width: 100%;
+    height: 28px;
+    line-height: 8px;
+    padding-left: 10px;
+    border: 1px solid #5d6173;
+    border-radius: 6px;
+    background-color: transparent;
+    color: #ccc;
+}
+
+.dropdown_con .dropdown_menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    z-index: 1111;
+    width: 100%;
+    max-height: 120px;
+    overflow: hidden;
+    border: 1px solid #5d6173;
+    border-radius: 6px;
+    background-color: rgba(43, 44, 45, .8);
+}
+
+.dropdown_con .dropdown_menu li {
+    width: 100%;
+    /* white-space: nowrap; */
+}
+
+.dropdown_con .dropdown_menu li a {
+    /* display: block; */
+    display: table-cell;
+    width: 3.5%;
+    height: 30px;
+    /* line-height: 30px; */
+    padding-left: 10px;
+    vertical-align: middle;
+    color: #b3b3b3;
+    cursor: pointer;
+}
+
+.dropdown_con .dropdown_menu li a:hover {
+    color: #fff;
+}
+
+/* bootstrap-select下拉框样式重置 */
+.wrapper .dropdown-menu>li>a {
+    padding: 3px 6px;
+}
+
+/* 主体最外层容器 */
+.wrapper {
+    /* height: 640px; */
+    height: 100%;
+    min-width: 1024px;
+    overflow: hidden;
+}
+
+/* 公共头部 */
+.public_header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    background-color: #31313c;
+}
+
+.public_header>p {
+    display: inline-block;
+    height: 45px;
+    padding-left: 130px;
+    background: url('/cmca/resource/images/logo.png') center center no-repeat;
+    background-size: 110px;
+    background-position: 10px 7px;
+    line-height: 45px;
+    color: #0080CC;
+    font-size: 24px;
+    letter-spacing: 4px;
+    font-weight: bold;
+}
+
+/* 公共主体 */
+.public_main {
+    position: relative;
+    /* height: 600px; */
+    height: 100%;
+    margin-top: 45px;
+    overflow: hidden;
+}
+
+/* 主体左右切换按钮公共样式 */
+.public_main .public_btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(248, 169, 0, .2);
+    color: #f8a900;
+}
+
+.public_main .public_btn:focus {
+    border: none;
+    background-color: rgba(248, 169, 0, .2);
+    color: #f8a900;
+}
+
+.public_main .public_btn .caret_left {
+    border-right: 7px solid;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+}
+
+.public_main .public_btn .caret_right {
+    border-left: 7px solid;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+}
+
+/* 主体左侧侧边栏 */
+.public_main .public_side_bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    height: 100%;
+    /* background-color: #282a37; */
+    text-align: center;
+}
+
+.public_side_bar a {
+    display: block;
+    color: #8B9AB7;
+}
+
+/* 1024下侧边栏 */
+.public_side_bar .small_bar {
+    display: none;
+    height: 100%;
+    background-color: #282a37;
+}
+
+.public_side_bar .small_bar li {
+    position: relative;
+}
+
+.small_bar a {
+    height: 40px;
+    line-height: 40px;
+    text-decoration: none;
+}
+
+.small_bar li .nav_icon {
+    width: 50px;
+}
+
+.small_bar .content_icon {
+    display: none;
+}
+
+.small_bar .iconfont {
+    font-size: 20px;
+}
+
+.small_bar .content_icon .iconfont {
+    font-size: 16px;
+}
+
+.small_bar .content_icon.active .nav_icon,
+.small_bar .content_icon .nav_icon:hover {
+    color: #fff;
+}
+
+.small_bar .title_icon.active .nav_icon {
+    border-left: 6px solid #f8a900;
+    background-color: #1A1B24;
+}
+
+.small_bar .title_icon .nav_icon {
+    font-size: 20px;
+    color: #fff;
+    border-bottom: 1px solid #1A1B24;
+    border-top: 1px solid #1A1B24;
+    background-color: #333f4e;
+}
+
+.small_bar .title_icon .nav_tip {
+    font-size: 16px;
+}
+
+.small_bar .nav_tip {
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: -200px;
+    width: 140px;
+    padding-left: 5px;
+    color: #fefefe;
+    background-color: #282a37;
+    text-align: left;
+}
+
+.small_bar .nav_tip .caret_left {
+    margin-right: 10px;
+}
+
+.small_bar .lg_nav_tip {
+    width: 180px;
+}
+
+/* 大于1024侧边栏 */
+.public_side_bar .big_bar {
+    height: 100%;
+    background-color: #282a37;
+}
+
+.big_bar .nav_title {
+    position: relative;
+    width: 200px;
+    height: 50px;
+    padding-left: 10px;
+    border-top: 1px solid #1A1B24;
+    border-bottom: 1px solid #1A1B24;
+    background-color: #333f4e;
+    line-height: 50px;
+    font-size: 16px;
+    text-align: left;
+}
+
+.big_bar .nav_title span {
+    margin-right: 10px;
+}
+
+.big_bar .nav_title i {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+}
+
+.big_bar .nav_list {
+    display: none;
+}
+
+.big_bar>li.active .nav_list {
+    display: block;
+}
+
+.big_bar .nav_list a {
+    height: 30px;
+    line-height: 30px;
+    padding-left: 30px;
+    font-size: 12px;
+    text-align: left;
+}
+
+.big_bar .nav_list a:hover {
+    color: #fff;
+}
+
+.big_bar .nav_list a.active {
+    padding-left: 24px;
+    border-left: 6px solid #f8a900;
+    color: #fff;
+    background-color: #1a1b24;
+}
+
+.big_bar li.active .nav_title a {
+    color: #fff;
+}
+
+.big_bar li.active .nav_title i {
+    transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    /* IE 9 */
+    -moz-transform: rotate(180deg);
+    /* Firefox */
+    -webkit-transform: rotate(180deg);
+    /* Safari 和 Chrome */
+    -o-transform: rotate(180deg);
+    /* Opera */
+}
+
+/* 侧边栏响应式 */
+@media screen and (max-width: 1366px) {
+    .public_side_bar .small_bar {
+        display: block;
+    }
+
+    .public_side_bar .big_bar {
+        display: none;
+    }
+}
+
+/* 主体顶部搜索 */
+.public_main .main_content {
+    height: 100%;
+    margin-left: 200px;
+    padding: 0 15px;
+    overflow: hidden;
+}
+
+@media screen and (max-width: 1366px) {
+    .public_main .main_content {
+        margin-left: 50px;
+    }
+}
+
+.main_content .main_search {
+    color: #ccc;
+}
+
+.main_content .main_search .col-xs-7 {
+    width: 56%;
+}
+
+.main_content .main_search div.col-xs-2 {
+    width: 18%;
+    padding-left: 0;
+}
+
+.main_content .top_search {
+    margin-bottom: 10px;
+    padding: 6px 15px;
+    border-radius: 3px;
+}
+
+.main_content .top_search label {
+    padding: 7px 0 0;
+    font-weight: normal;
+    text-align: center;
+}
+
+/* 顶部左右导航公共样式 */
+.main_content .main_search .l_tab,
+.main_content .main_search .three_nav,
+.main_content .top_nav .l_tab {
+    padding-top: 10px;
+    white-space: nowrap;
+}
+
+.main_content .main_search .l_tab a,
+.main_search .three_nav li a {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 5px;
+    color: #fff;
+}
+
+.main_search .list-inline li.active a {
+    background-color: #f8a900;
+    font-weight: bolder;
+}
+
+.main_search .l_tab li a {
+    cursor: default;
+}
+
+.main_search .l_tab li.active a {
+    border-radius: 5px 5px 15px 5px;
+}
+
+.main_search .three_nav {
+    text-align: right;
+}
+
+.main_search .three_nav li {
+    padding: 5px 6px;
+    border-radius: 5px 5px 0 0;
+}
+
+.main_search .three_nav li.active {
+    background-color: #2d2e38;
+}
+
+.main_search .three_nav li a {
+    border-radius: 5px;
+}
+
+/* 中间搜索区域 */
+.main_search label {
+    padding-top: 12px;
+    text-align: right;
+    vertical-align: middle;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.main_search input {
+    height: 30px;
+    line-height: 30px;
+    margin: 10px 0;
+    text-align: left;
+    padding: 0 6px\9\0;
+}
+
+/* IE11 hack */
+@media screen and(-ms-high-contrast:active),
+(-ms-high-contrast:none) {
+    .main_search input {
+        padding: 0 6px;
+    }
+}
+
+.main_search button {
+    height: 30px;
+    line-height: 100%;
+    margin: 10px 0 0 30px;
+    text-align: center;
+}
+
+/* 主体展示区域 */
+.public_main .main_content .main_show_wrap {
+    height: 550px;
+}
+
+/* 主体表格(左侧地图下钻及右侧统计分析) */
+.main_show_wrap .table_wrap {
+    height: 460px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.main_show_wrap .table_wrap table th,
+.main_show_wrap .table_wrap table td {
+    border-color: #535666;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 12px;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.main_show_wrap .table-hover>tbody>tr:hover {
+    background-color: #1f2026;
+}
+
+/* 左侧地图下钻表格 */
+.public_main .main_content .map_pop_table {
+    display: none;
+    z-index: 998;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 98%;
+    height: 100%;
+    margin: auto;
+    padding-top: 10px;
+    background-color: #282a37;
+    font-size: 12px;
+    color: #c6c3c6;
+}
+
+.map_pop_table .map_to_table .table_title {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.map_pop_table .top button {
+    border: none;
+}
+
+.map_pop_table .top button:hover,
+.map_pop_table .top button:focus {
+    color: #f8a900;
+    background-color: transparent;
+}
+
+.map_pop_table table a {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.map_pop_table .map_to_table .top {
+    margin: 13px 0;
+}
+
+/* 地图下钻到表格层在左侧展示 */
+.map_pop_table .map_to_table .top label {
+    padding-top: 5px;
+    text-align: right;
+}
+
+.map_pop_table .map_to_table .top input {
+    height: 25px;
+    line-height: 25px;
+    padding: 0 0 0 10px;
+    border: 1px solid #5d6173;
+    border-radius: 6px;
+    background-color: transparent;
+    color: #ccc;
+}
+
+.map_pop_table .map_to_table .top input:focus {
+    border-color: #f8a900;
+}
+
+.map_pop_table .map_to_table .top button {
+    padding: 0 12px;
+}
+
+.map_pop_table .map_to_table .top .colse_btn {
+    position: absolute;
+    right: -10px;
+    top: 0px;
+}
+
+.map_pop_table .map_to_table .table_wrap {
+    padding: 0 15px;
+}
+
+.map_pop_table .map_to_table table tr:hover {
+    background-color: #212229;
+}
+
+/* 表格下钻详细信息层在右侧展示 */
+.map_pop_table .info_show .show_con .title {
+    height: 20px;
+    line-height: 20px;
+}
+
+.map_pop_table .info_show .show_con .content_wrap {
+    height: 230px;
+}
+
+.map_pop_table .info_show .show_con .content_wrap .contet {
+    height: 100%;
+}
+
+/* 主体左侧地图 */
+.public_main .main_content .main_l {
+    position: relative;
+    height: 100%;
+    padding: 0 5px 0 15px;
+}
+
+.main_l .l_btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    z-index: 999;
+    padding: 0 3px 0 0;
+    color: #f8a900;
+}
+
+.main_l .l_show_wrap {
+    position: relative;
+    height: 100%;
+    padding-top: 45px;
+    background-color: #282a37;
+}
+
+/* 地图顶部左侧图标按钮 */
+.main_l .map_top_icon {
+    z-index: 1;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    height: 60px;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.main_l .map_top_icon img {
+    height: 100%;
+}
+
+/* 左侧地图提示信息 */
+.main_l .map_wrap .dialog_tip {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0px;
+    right: 0px;
+    z-index: 1;
+    padding: 20px 15px;
+    border-radius: 5px;
+    background-color: rgba(64, 65, 80, .9);
+    font-size: 12px;
+    color: #fff;
+}
+
+/* 左侧地图层 */
+.public_main .main_content .main_l .map_wrap {
+    position: relative;
+}
+
+.main_l .map_wrap .map_title {
+    font-size: 16px;
+    color: #fefefe;
+    text-align: center;
+}
+
+.main_l .map_wrap .map_btn {
+    z-index: 1;
+    position: absolute;
+}
+
+.main_l .map_wrap .map_tip_btn {
+    bottom: 15px;
+    right: 20px;
+}
+
+.main_l .map_wrap .map_back_btn {
+    top: 10px;
+    right: 10px;
+}
+
+.main_l .map_wrap .map_btn button {
+    border: none;
+    font-size: 12px;
+    color: #f8a900;
+}
+
+.main_l .map_wrap .map_tip_btn button {
+    padding: 3px;
+    background-color: rgba(0, 0, 0, .2);
+}
+
+.main_l .map_wrap .map_back_btn button {
+    padding: 8px;
+    background-color: rgba(248, 169, 0, .2);
+}
+
+/*.main_l .map_wrap .tip_btn_group {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    z-index: 1;
+}
+.main_l .map_wrap .tip_btn_group button {
+    padding: 3px;
+    border: none;
+    font-size: 12px;
+    color: #f8a900;
+    background-color: rgba(0, 0, 0, .2);
+}
+.main_l .map_wrap .tip_btn_group .back_btn {
+    display: none;
+    background-color: rgba(248,169,0,.2);
+}
+.main_l .map_wrap .map_info {
+    font-size: 12px;
+    text-align: center;
+    color: #ccc;
+}*/
+/* 地图容器在点击中间切换按钮的时候发生变化，所以两个容器，切换的时候变化 */
+.main_l .map_wrap .map_continer {
+    height: 350px;
+}
+
+.main_l .map_wrap .big_map_continer {
+    height: 500px;
+}
+
+/* 添加南海诸岛的图层 */
+.map_nanhaiqundao {
+    position: absolute;
+    bottom: 78px;
+    right: 30px;
+    width: 30px;
+    height: 30px;
+}
+
+/* 地图下方卡片 */
+.main_l ul.position_card_wrap {
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+}
+
+.main_l .card_wrap .card_item .content_wrap {
+    height: 60px;
+    line-height: 60px;
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #282830;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.main_l .card_wrap .card_item .content_wrap>div {
+    vertical-align: top;
+}
+
+.main_l .card_wrap .card_item .content_wrap .caret_up {
+    color: #f65470;
+}
+
+.main_l .card_wrap .card_item .content_wrap .caret_down {
+    color: #00c58e;
+}
+
+.main_l .card_wrap .card_item .content_wrap>dl,
+.main_l .card_wrap .card_item .content_wrap>div {
+    display: inline-block;
+}
+
+.main_l .card_wrap .card_item .content_wrap>dl dt {
+    font-size: 12px;
+}
+
+.main_l .card_wrap .card_item .content_wrap>dl dt span {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.main_l .card_wrap .card_item .content_wrap>dl dt i {
+    margin: 0 5px;
+}
+
+.main_l .card_wrap .card_item .content_wrap>dl dd {
+    color: #ccc;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* 主体右侧图表展示区域 */
+/* 下钻返回按钮 */
+.wrap .back_btn {
+    margin-bottom: 10px;
+}
+
+.public_main .main_content .main_r {
+    position: relative;
+    height: 100%;
+    padding: 0 15px 0 5px;
+    color: #fff;
+    overflow: hidden;
+}
+
+.main_r .r_btn {
+    z-index: 999;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    padding: 0 0 0 3px;
+}
+
+/* 右侧图表展示 */
+.main_r>.tab-content {
+    height: 100%;
+    padding: 0 15px;
+    background-color: #282a37;
+    overflow: hidden;
+}
+
+/* 增量分析容器高度 */
+.tab-content .pubu_show {
+    height: 464px;
+}
+
+/* 增量分析chart高度 */
+.tab-content .pubu_con {
+    height: 400px;
+}
+
+/* 右侧图表展示区域顶部四级导航 */
+.main_r .four_nav {
+    height: 40px;
+    border-bottom: 2px solid #777;
+}
+
+.main_r .four_nav ul {
+    margin: 0;
+    padding: 0;
+}
+
+.main_r .four_nav li {
+    height: 40px;
+    padding-top: 10px;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+.main_r .four_nav li.active {
+    border-bottom: 3px solid #f8a900;
+    color: #f8a900;
+}
+
+/* 右侧图标展示区域五级导航 */
+.main_r .five_nav {
+    margin-bottom: 10px;
+    border-bottom: 2px solid #353741;
+    height: 26px;
+    overflow: hidden;
+}
+/* 增加左右按钮 */
+.main_r .five_nav .boxCaret{
+    display: inline-block;
+    width: 15px;
+    cursor: pointer;
+    z-index: 1000;
+    background-color: #1a1b24;
+    position: absolute;
+    top: 0;
+}
+.main_r .five_nav .boxCaret.lb{
+    left: 0px;
+}
+.main_r .five_nav .boxCaret.rb{
+    right: 0px;
+}
+.main_r .five_nav ul {
+    margin: 0;
+    padding: 0 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.main_r .five_nav li {
+    max-height: 40px;
+    padding: 4px 8px;
+    /* 统计分析- 排名汇总等标题 等比分配 */
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.main_r .five_nav li.active {
+    color: #f8a900;
+}
+
+/* 右侧审计结果/统计分析 */
+.main_r .result_show_wrap,
+.main_r .fenxi_show_wrap {
+    padding: 0 15px;
+}
+
+/* 右侧审计结果/统计分析公共-图形顶部标题 */
+.main_r .show_item .title {
+    height: 30px;
+    margin: 5px 0;
+    line-height: 30px;
+    font-size: 12px;
+}
+
+.main_r .show_item .title p {
+    white-space: nowrap;
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.main_r .show_item button {
+    padding: 3px;
+}
+
+.main_r .show_item button span {
+    font-size: 12px;
+}
+
+.main_r .result_show_wrap .show_item .content_show {
+    height: 210px;
+    line-height: 210px;
+    text-align: center;
+}
+
+.main_r .fenxi_show_wrap .show_item .content_show {
+    height: 180px;
+}
+
+/* 右侧统计分析图表展示-表格及下钻 */
+.fenxi_show_wrap .table_wrap table tbody {
+    color: #777;
+}
+
+.fenxi_show_wrap .table_wrap .table_to_info {
+    display: none;
+}
+
+.fenxi_show_wrap .table_wrap .table_to_info .info_item {
+    height: 220px;
+}
+
+.fenxi_show_wrap .table_wrap .table_to_info .info_item table {
+    height: 94%;
+    margin-bottom: 0;
+}
+
+/* 统计分析下拉列表 */
+.llglwg .top {
+    padding-left: 18px;
+}
+
+/* 统计分析-下拉筛选 */
+.fenxi_show_wrap .table_wrap .top label {
+    padding-top: 5px;
+    text-align: center;
+}
+
+.fenxi_show_wrap .table_wrap .top .dropdown_con input {
+    height: 30px;
+    line-height: 30px;
+    margin-bottom: 5px;
+}
+
+/* 瀑布图 */
+.fenxi_show_wrap .pubu_legend {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.fenxi_show_wrap .pubu_legend span {
+    display: inline-block;
+    height: 10px;
+    width: 10px;
+    margin: 0 10px;
+}
+
+.fenxi_show_wrap .pubu_legend .red {
+    background-color: #FF647F;
+}
+
+.fenxi_show_wrap .pubu_legend .blue {
+    background-color: #3095F2;
+}
+
+.fenxi_show_wrap .pubu_legend .green {
+    background-color: #66CD00;
+}
+
+/* 排名汇总和瀑布图下方按钮 */
+.main_show_wrap .pubu_show .bottom_btns,
+.main_show_wrap .table_wrap .bottom_btns {
+    position: absolute;
+    bottom: 10px;
+    right: 0;
+}
+
+/* 养卡套利/终端套利-饼图和趋势图 */
+.fenxi_show_wrap .zhanbi_show {
+    padding: 10px 0 0 0;
+}
+
+.fenxi_show_wrap .zhanbi_show>div {
+    height: 450px;
+    line-height: 450px;
+    padding: 0;
+    text-align: center;
+}
+
+/* 整改问责要求表 */
+.fenxi_show_wrap .wenze_require_wrap h5 {
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.fenxi_show_wrap .wenze_require_wrap .title {
+    margin-right: 10px
+}
+
+.fenxi_show_wrap .wenze_require_wrap button {
+    padding: 0 8px;
+}
+
+.fenxi_show_wrap .wenze_require_wrap button:nth-of-type(2) {
+    background-color: rgba(248, 169, 0, .2);
+}
+
+.fenxi_show_wrap .wenze_require_wrap .wenze_table_wrap {
+    position: relative;
+    height: 430px;
+}
+
+.fenxi_show_wrap .wenze_require_wrap .wenze_tip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgb(0, 0, 0);
+}
+
+.fenxi_show_wrap .wenze_require_wrap .wenze_tip h5 {
+    padding: 5px 0;
+    text-align: left;
+    font-weight: 700;
+}
+
+.fenxi_show_wrap .wenze_require_wrap .wenze_tip p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* 整改问责饼图/趋势图/柱状折线图 */
+.fenxi_show_wrap .wenze_show .show_item {
+    padding: 0;
+}
+
+.fenxi_show_wrap .wenze_show .show_item:first-of-type {
+    padding-right: 10px;
+}
+
+/* 审计报告-审计结果摘要 */
+.fenxi_show_wrap .baogao_down_wrap .sjbg-prview {
+    height: 440px;
+    width: 100%;
+}
+
+.fenxi_show_wrap .baogao_down_wrap .info_con_wrap {
+    height: 330px;
+    padding: 10px;
+}
+
+.fenxi_show_wrap .baogao_down_wrap .content_wrap .table_wrap {
+    height: 260px;
+}
+
+/* 审计报告下载 */
+.fenxi_show_wrap .baogao_down_wrap .down_btn_group {
+    padding-top: 5px;
+}
+
+.fenxi_show_wrap .baogao_down_wrap .down_btn_group button {
+    padding: 5px;
+    font-size: 12px;
+}
+
+.fenxi_show_wrap .baogao_down_wrap .content_wrap {
+    margin-top: 5px;
+}
+
+.fenxi_show_wrap .baogao_down_wrap .content_wrap h5 {
+    padding: 5px 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.fenxi_show_wrap .baogao_down_wrap .content_wrap h5:nth-of-type(2) {
+    text-align: left;
+}
+
+.fenxi_show_wrap .baogao_down_wrap li {
+    height: 25px;
+    line-height: 25px;
+}
+
+.fenxi_show_wrap .baogao_down_wrap dt {
+    text-align: left;
+}
+
+/* 审计月关闭显示内容 */
+.fenxi_show_wrap .baogao_down_wrap .audtrm_off h4 {
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+
+/* thead添加sortable 文字拥挤*/
+.bootstrap-table .table thead>tr>th {
+    overflow: hidden;
+}
+
+.fixed-table-container thead th .th-inner {
+    line-height: normal;
+    text-overflow: clip;
+}
+
+/*审计清单下载弹框 */
+.wrapper2 {
+    z-index: 1000;
+    position: absolute;
+    top: 38%;
+    left: 37%;
+    padding: 8px 20px;
+    background-color: #c5c0c0;
+    width: 406px;
+    min-height: 110px;
+    margin: 0 auto;
+    display: none;
+    overflow: hidden;
+}
+
+.wrapper2 .btn {
+    margin-bottom: 10px;
+    display: block
+}
+
+.wrapper2 .btn {
+    background-color: #0192d5;
+    color: #fff;
+}
+
+.wrapper2 .btn:hover,
+.wrapper2 .btn:focus {
+    background-color: #fff;
+    color: #000;
+}
+
+/* 浅色风格左tab右主体内容布局-使用table-cell实现多列等高布局 */
+.main_content .layout_wrap {
+    /* margin: -15px;
+    border-spacing: 15px; */
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    -webkit-box-shadow: 0 2px 4px 0 rgba(0,0,0,.12), 0 0 6px 0 rgba(0,0,0,.04);
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.12), 0 0 6px 0 rgba(0,0,0,.04);
+}
+
+.main_content .layout_wrap .layout_col {
+    display: table-cell;
+}
+
+.main_content .layout_wrap .tabs_col li>a {
+    /* display: block;
+    padding: 10px 15px;
+    white-space: nowrap; */
+}
+
+.main_content .layout_wrap .content_col {
+    width: 3000px;
+    /* 撑开容器*/
+}
+
+.main_content .content_col .content {
+    padding: 10px;
+}
+
+.main_content .content_col .content .tab-pane {
+    margin-top: 10px;
+    height: 480px;
+}
+
+.main_content .content_col .top_form label {
+    padding-top: 3px;
+    text-align: right;
+    padding-right:10px;
+    padding-left:15px;
+    white-space: nowrap;
+}
+
+.main_content .content_col .top_form .col-xs-3 {
+    width: 20%;
+}
+
+.main_content .content_col .top_form .btn {
+    font-size: 12px;
+    padding: 4px 10px;
+}
+
+/* 等待动画 */
+.wrapper .modal .modal_loading {
+    height: 50px;
+    width: 200px;
+    margin: 0 auto;
+    padding-right: 10px;
+    background: rgba(0, 0, 0, .7) url(/cmca/resource/images/loading.gif) 10px center no-repeat;
+    line-height: 50px;
+    text-align: right;
+    color: #ddd;
+    font-size: 16px;
+}
+
+/* 响应式 */
+/* 1024*768分辨率下，窗口高度为640px，上方的即为1024分辨率下，部分页面可能需要修改 */
+@media screen and (max-width: 1024px) {}
+
+/* 1366*768分辨率，窗口高度为640px */
+@media screen and (max-width: 1366px) {}
+
+/* 1600*900分辨率下，窗口高度为770px */
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+
+    /* .wrapper {
+        height: 770px;
+    } */
+    .public_header {
+        height: 50px;
+    }
+
+    .public_main {
+        /* height: 720px; */
+        margin-top: 50px;
+    }
+
+    .public_main .main_content .main_show_wrap {
+        height: 670px;
+    }
+
+    .main_l .map_wrap .map_continer {
+        height: 480px;
+    }
+
+    .main_l .map_wrap .big_map_continer {
+        height: 640px;
+    }
+
+    .main_r .result_show_wrap .show_item .content_show {
+        height: 275px;
+    }
+
+    .main_r .fenxi_show_wrap .show_item .content_show {
+        height: 245px;
+    }
+
+    .map_pop_table .info_show .show_con .content_wrap {
+        height: 295px;
+    }
+
+    .main_show_wrap .table_wrap {
+        height: 580px;
+    }
+
+    /* 重点关注下钻渠道详细信息/渠道趋势图 */
+    .fenxi_show_wrap .table_wrap .table_to_info .info_item {
+        height: 270px;
+    }
+
+    /* 整改问责要求 */
+    .fenxi_show_wrap .wenze_require_wrap .wenze_table_wrap {
+        height: 550px;
+    }
+
+    /* 统计报表-饼图和占比趋势图tab区域 */
+    .fenxi_show_wrap .zhanbi_show>div {
+        height: 430px;
+        line-height: 430px;
+    }
+
+    /* 增量分析容器高度 */
+    .tab-content .pubu_show {
+        height: 570px;
+    }
+
+    /* 增量分析chart高度 */
+    .tab-content .pubu_con {
+        height: 500px;
+    }
+
+    /* 有价卡审计发现内容 */
+    .fenxi_show_wrap .baogao_down_wrap .info_con_wrap {
+        height: 450px;
+    }
+
+    /* 浅色风格左右布局 */
+    .main_content .content_col .content .tab-pane {
+        margin-top: 10px;
+        height: 600px;
+    }
+
+    /* 审计报告 */
+    .fenxi_show_wrap .baogao_down_wrap .sjbg-prview {
+        height: 550px;
+        width: 100%;
+    }
+}
+
+/* 1920*1080分辨率下，窗口高度为900px */
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .public_header {
+        height: 50px;
+    }
+
+    .public_main {
+        /* height: 850px; */
+        margin-top: 50px;
+    }
+
+    .public_main .main_content .main_show_wrap {
+        height: 800px;
+    }
+
+    .main_l .map_wrap .map_continer {
+        height: 580px;
+    }
+
+    .main_l .map_wrap .big_map_continer {
+        height: 780px;
+    }
+
+    .main_r .result_show_wrap .show_item .content_show {
+        height: 340px;
+    }
+
+    .main_r .fenxi_show_wrap .show_item .content_show {
+        height: 310px;
+    }
+
+    .map_pop_table .info_show .show_con .content_wrap {
+        height: 355px;
+    }
+
+    .main_show_wrap .table_wrap {
+        height: 710px;
+    }
+
+    /* 重点关注下钻渠道详细信息/渠道趋势图 */
+    .fenxi_show_wrap .table_wrap .table_to_info .info_item {
+        height: 330px;
+    }
+
+    /* 整改问责要求 */
+    .fenxi_show_wrap .wenze_require_wrap .wenze_table_wrap {
+        height: 680px;
+    }
+
+    /* 统计报表-饼图和占比趋势图tab区域 */
+    .fenxi_show_wrap .zhanbi_show>div {
+        height: 660px;
+        line-height: 660px;
+    }
+
+    /* 增量分析容器高度 */
+    .tab-content .pubu_show {
+        height: 710px;
+    }
+
+    /* 增量分析chart高度 */
+    .tab-content .pubu_con {
+        height: 640px;
+    }
+
+    /* 有价卡审计发现内容 */
+    .fenxi_show_wrap .baogao_down_wrap .info_con_wrap {
+        height: 570px;
+    }
+
+    /* 浅色风格左右布局 */
+    .main_content .content_col .content .tab-pane {
+        margin-top: 10px;
+        height: 780px;
+    }
+
+    /* 审计报告 */
+    .fenxi_show_wrap .baogao_down_wrap .sjbg-prview {
+        height: 710px;
+        width: 100%;
+    }
+}
+
+/* 浅色风格样式-在body标签添加light_style类名,页面整体是浅色系展示 */
+.light_style {
+    background-color: #f7f7f7 !important;
+}
+
+/* 浅色系顶部面包屑导航 */
+.light_style .breadcrumb {
+    color: #409EFF;
+    background-color: transparent;
+}
+.breadcrumb>.active{
+    color: #606266;
+    font-weight: 400;
+}
+
+/* 浅色风格顶部搜索 */
+.light_style_new .input[disabled],
+.input[readonly],
+fieldset[disabled] .input {
+    background-color: #fff;
+}
+
+/* 浅色风格下拉框样式 */
+.light_style .main_content .top_search {
+    background-color: #fff;
+}
+
+/*.light_style .dropdown_con {
+    display: inline-block;
+}*/
+.light_style .dropdown_con .dropdown_menu {
+    border-color: #a6a6a6;
+    background: #f8f8f8;
+}
+
+.light_style .dropdown_con .dropdown_menu li a,
+.light_style .main_content .main_search li a {
+    color: #333;
+    /* font-size: 12px; */
+}
+
+.light_style label {
+    color: #333;
+}
+
+.light_style .dropdown_con input {
+    border-color: #a6a6a6;
+    color: #000;
+}
+
+.light_style .dropdown_menu input:focus {
+    border-color: #a6a6a6;
+}
+
+.light_style .dropdown_con .dropdown_menu li a,
+.light_style .main_content .main_search li a,
+.light_style .dropdown_con .dropdown_menu li a:hover {
+    color: #333;
+}
+
+.light_style .dropdown_con .dropdown_menu li a:hover {
+    background-color: #ccc;
+}
+
+/* 浅色风格按钮样式 */
+.light_style .btn-primary,
+.light_style .btn-primary:hover,
+.light_style .btn-primary:focus {
+    border: 1px solid #0192d5;
+    background-color: #0192d5;
+    color: #fff;
+}
+
+.light_style .btn-defalut,
+.light_style .btn-defalut:hover,
+.light_style .btn-defalut:focus {
+    border: 1px solid #adadad;
+    background-color: #ccc;
+    color: #333;
+}
+
+.light_style .bootstrap-select .btn {
+    padding: 2px 15px 2px 5px;
+    border: 1px solid #adadad;
+    color: #333;
+}
+
+.light_style .bootstrap-select .btn .caret {
+    right: 5px;
+}
+
+.light_style .bootstrap-select .btn:hover,
+.light_style .bootstrap-select .btn:focus {
+    border: 1px solid #adadad;
+    background-color: transparent;
+    color: #333;
+}
+
+/* 浅色风格组件标题背景 */
+.panel-heading {
+    border-bottom: 0px;
+}
+
+.light_style .panel-heading,
+.light_style .panel-footer {
+    border: none;
+    background-color: #fefefe;
+}
+
+.light_style .panel .green_heading {
+    border-top: 3px solid #3BBB80;
+}
+
+.light_style .panel .green_heading .panel-title {
+    color: #3BBB80;
+}
+
+.light_style .panel .light_blue_heading {
+    border-top: 3px solid #00BCD5;
+}
+
+.light_style .panel .light_blue_heading .panel-title {
+    color: #00BCD5;
+}
+
+.light_style .panel .blue_heading {
+    border-top: 3px solid #0192D5;
+}
+
+.light_style .panel .blue_heading .panel-title {
+    color: #0192D5;
+}
+
+.light_style .panel .yellow_heading {
+    border-top: 3px solid #F4A628;
+}
+
+.light_style .panel .yellow_heading .panel-title {
+    color: #F4A628;
+}
+
+.light_style .panel .light_violet_heading {
+    border-top: 3px solid #9a72bd;
+}
+
+.light_style .panel .light_violet_heading .panel-title {
+    color: #9a72bd;
+}
+
+.light_style .panel .violet_heading {
+    border-top: 3px solid #a64df5;
+}
+
+.light_style .panel .violet_heading .panel-title {
+    color: #a64df5;
+}
+
+.light_style .panel .light_system_heading {
+    border-top: 3px solid #836F47;
+}
+
+.light_style .panel .light_system_heading .panel-title {
+    color: #836F47;
+}
+
+.light_style .panel .panel-body {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 8px 14px;
+    border-top: 1px solid #ddd;
+}
+
+/* 浅色风格表格 */
+/* .light_style .public_main .fixed-table-container thead th:first-child {
+    border-left: 1px solid #ddd !important;
+} */
+.light_style .main_show_wrap .table_wrap table th,
+.light_style .main_show_wrap .table_wrap table td {
+    border: 1px solid #ddd;
+}
+
+.light_style .main_show_wrap .table-hover>tbody>tr:hover {
+    background-color: #f9f9f9;
+}
+
+.light_style .main_show_wrap .table td>span {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-left: 5px;
+    border-radius: 50%;
+}
+
+.light_style .main_show_wrap .table td span.red {
+    background-color: #f13b3b;
+}
+
+.light_style .main_show_wrap .table td span.green {
+    background-color: #00c58e;
+}
+
+.light_style .main_show_wrap .table td span.orange {
+    background-color: #ff9c00;
+}
+
+.light_style .main_show_wrap .table td span.yellow {
+    background-color: #ffea00;
+}
+
+.fixed-table-container tbody .nowrap {
+    white-space: nowrap;
+}
+
+.light_style .table-striped>thead>tr,
+.light_style .table-striped>tbody>tr:nth-of-type(even) {
+    background-color: #e8ecef;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: #ffffff;
+}
+
+.popups_wrap {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, .3);
+}
+
+.popups_content {
+    width: 300px;
+    height: 50px;
+    margin: 0 auto;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: #fff;
+    font-size: 24px;
+}

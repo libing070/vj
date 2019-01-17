@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- create by GuoXY 20170112 for 审计报告下载-->
+<!-- 命名空间 -->
+<mapper namespace="sjbgParamMapper">
+	<!--add by GuoXY 20170112 审计报告下载日志 for 日志查询-->              
+	<insert id="insertOperateLog" parameterType="Map">
+		INSERT INTO hpmgr.aud_report_download_log
+		(subject_code, subject_name, aud_trm, focus_code,prvdId, prvd_name, opr_type, opr_time, opr_person, opr_reason, download_count)
+		VALUES
+		( ${subjectId}, '${subjectName}', '${audTrm}', '${focusCode}', ${prvdId}, '${prvdName}', ${oprType}, CURRENT_TIMESTAMP, '', '', ${downloadCount})
+	</insert>
+</mapper>
+

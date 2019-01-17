@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.SynchronizeTwoSysMapper">
+	<insert id="addReportAndCsvPathToNew" parameterType="java.util.Map">
+		insert into  hpmgr.busi_report_log
+		SELECT	
+		id, 
+		audit_subject as subject_id,
+		audit_concern as focus_cd,
+		audit_monthly as aud_trm,
+		null as oper_type,
+		'sys' as oper_person,
+		0 as down_count,
+		case 
+			when file_type ='audDetail' then 'audDetail'
+		 	when file_type ='audReport' then 'audReport' 
+		end as file_type,
+		'manual' as create_type,
+		aduitor as prvd_id,
+		null as login_account,
+		null as down_datetime,
+		current_timestamp as create_datetime,
+		download_url as file_path,
+		file_name as file_name
+		FROM	hpmgr.busi_report_file
+		where create_time <![CDATA[>]]> cast(#{genDate} as date) 
+		<if test="subjectIds!=null">
+		and audit_subject in  
+		<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+					#{item}
+		</foreach>
+		
+		</if>
+		<if test="prvdIds!=null">
+		and aduitor in 
+		<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+					#{item}
+		</foreach>
+		</if>
+	</insert>
+	
+	<delete id="delReportAndCsvPathFromNew"  parameterType="java.util.Map">
+		delete from hpmgr.busi_report_log
+		where create_datetime<![CDATA[ > ]]>cast(#{genDate} as date) 
+		<if test="subjectIds!=null">
+		and subject_id in  
+		<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+					#{item}
+		</foreach>
+		</if>
+		<if test="prvdIds!=null">
+		and prvd_id in
+		<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+					#{item}
+		</foreach>
+		</if>
+		and file_type in ('audDetail','audReport')
+	</delete>
+	
+	
+	<delete id="delPmhzAndSjtbPathFromNew"  parameterType="java.util.Map">
+		delete from hpmgr.busi_report_log
+		where create_datetime<![CDATA[ > ]]>cast(#{genDate} as date) 
+		<if test="subjectIds!=null">
+		and subject_id in 
+		<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+					#{item}
+		</foreach>
+		</if>
+		and file_type in ('auditPm','auditTB')
+	</delete>
+	
+	<insert id="addPmhzAndSjtbPathToNew" parameterType="java.util.Map">
+	insert into  hpmgr.busi_report_log
+	SELECT	
+	id, 
+	audit_subject as subject_id,
+	focus_cd as focus_cd,
+	audit_monthly as aud_trm,
+	null as oper_type,
+	'sys' as oper_person,
+	0 as down_count,
+	case 
+		when download_url like '%排名汇总%' then 'auditPm'
+	 	when download_url like '%审计通报%' then 'auditTB' 
+	end as file_type,
+	'manual' as create_type,
+	10000 as prvd_id,
+	null as login_account,
+	null as down_datetime,
+	current_timestamp as create_datetime,
+	download_url as file_path,
+	download_url as file_name
+	FROM	hpmgr.busi_notification_file
+	where create_time <![CDATA[>]]> cast(#{genDate} as date) 
+	<if test="subjectIds!=null">
+	and audit_subject in 
+	<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+					#{item}
+	</foreach>
+	</if>
+	</insert>
+		
+</mapper>
+

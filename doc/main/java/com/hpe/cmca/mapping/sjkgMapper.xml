@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.hpe.cmca.interfaces.SjkgMapper">
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.SjkgData"  id="sjkgData">
+		<result property="audTrm" column="aud_trm"/>
+		<result property="subjectCode" column="subject_code"/>
+		<result property="subjectName" column="subject_name"/>
+		<result property="switchState" column="switch_state"/>
+		<result property="switchType" column="switch_type"/>
+		<result property="switchTypeName" column="switch_type_name"/>
+		<result property="managerOprPerson" column="manager_opr_person"/>
+		<result property="managerOprTime" column="manager_opr_time"/>
+		<result property="oprPerson" column="opr_person"/>
+		<result property="oprTime" column="opr_time"/>
+		<result property="createPerson" column="create_person"/>
+		<result property="createTime" column="create_time"/>
+	</resultMap>
+
+	<!--审计开关-获取专题列表 -add by hufei -2017.11.10 -->
+	<select id="getSubjectList" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+		<if test="queryOrAdd==null or queryOrAdd=='query'">
+		select distinct subject_code,subject_name
+		from hpmgr.busi_audit_switch_conf
+		order by subject_code;
+		</if>
+		<if test="queryOrAdd=='add'">
+		select distinct subject_id as subjectCode,subject_name
+		from hpmgr.busi_model_notify_new
+		where subject_name is not null
+		order by subject_id;
+		</if>
+	</select>
+	<!--审计开关-根据专题获取审计月 -add by hufei-2017.11.10  -->
+	<select id="getAudTrmBySubject" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+		<if test="queryOrAdd=='query'">
+		select distinct aud_trm
+		from hpmgr.busi_audit_switch_conf
+		where subject_code=#{subjectCode}
+		order by aud_trm desc;
+		</if>
+		<if test="queryOrAdd=='add'">
+		select distinct aud_trm
+		from	hpmgr.busi_model_notify_new
+		where subject_id=#{subjectCode}
+			and aud_trm not in(
+				select  distinct aud_trm
+				from (
+					select aud_trm
+					from hpmgr.busi_audit_switch_conf
+					where subject_code=#{subjectCode}
+					and switch_type=1) as t1
+				inner join (
+					select aud_trm as aud_trm2
+					from hpmgr.busi_audit_switch_conf
+					where subject_code=#{subjectCode}
+					and switch_type=2) as t2
+				on t1.aud_trm=t2.aud_trm2)
+		order by aud_trm desc;
+		</if>
+	</select>
+
+	<select id="getSwitchType" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select  distinct switch_type,switch_type_name
+	from hpmgr.busi_audit_switch_conf
+	where aud_trm=#{audTrm}
+		and subject_code=#{subjectCode}
+	</select>
+
+	<!--审计开关-保存开关信息 -add by hufei 2017.11.13 -->
+	<insert id="saveSwitchInfo" parameterType="com.hpe.cmca.pojo.SjkgData">
+	INSERT	INTO hpmgr.busi_audit_switch_conf
+	( aud_trm, subject_code, subject_name, switch_state,
+		switch_type, switch_type_name, manager_opr_time, manager_opr_person,create_person, create_time)
+	VALUES
+	(#{audTrm},#{subjectCode},#{subjectName},#{switchState},
+		#{switchType},#{switchTypeName}, current_timestamp,#{managerOprPerson}, #{createPerson},current_timestamp)
+	</insert>
+
+	<!--审计开关-查询结果列表 add by hufei 2017.11.13 -->
+	<select id="getSwitchInfoList" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select distinct aud_trm,
+		   subject_code,
+		   subject_name,
+		   switch_state,
+		   switch_type,
+		   switch_type_name,
+		   manager_opr_time,
+		   manager_opr_person,
+		   opr_time,
+		   opr_person
+	 from hpmgr.busi_audit_switch_conf
+	  where subject_code=#{subjectCode}
+	 	and aud_trm=#{audTrm}
+	 order by switch_type;
+	</select>
+
+	<!-- 审计开关-更改审计开关状态 add by hufei 2017.11.14 -->
+	<update id="updateSwitchInfo" parameterType="com.hpe.cmca.pojo.SjkgData">
+	INSERT	INTO hpmgr.busi_audit_switch_conf_history
+	( switch_no,aud_trm, subject_code, subject_name, switch_state,
+		switch_type, switch_type_name, manager_opr_time, manager_opr_person,create_person, create_time,history_time)
+	sel switch_no,aud_trm, subject_code, subject_name, switch_state,
+		switch_type, switch_type_name, manager_opr_time, manager_opr_person,create_person, create_time,current_timestamp from hpmgr.busi_audit_switch_conf
+		where aud_trm=#{audTrm}
+		and subject_code=#{subjectCode}
+		and switch_type=#{switchType};
+
+	update hpmgr.busi_audit_switch_conf
+	<set>
+	<if test="switchState!=null">switch_state=#{switchState},</if>
+	<if test="managerOprPerson!=null">manager_opr_person=#{managerOprPerson},manager_opr_time=current_timestamp,</if>
+	<if test="oprPerson!=null">opr_person=#{oprPerson},opr_time=current_timestamp</if>
+	</set>
+	where aud_trm=#{audTrm}
+		and subject_code=#{subjectCode}
+		and switch_type=#{switchType}
+	</update>
+
+	<!-- 审计开关-甘特图 -add by hufei 2017.11.15 -->
+	<select id="getGanttChart" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select  distinct aud_trm,
+		subject_code,
+		subject_name,
+		switch_state,
+		switch_type,
+		switch_type_name
+	from hpmgr.busi_audit_switch_conf
+	order by subject_code,aud_trm
+	</select>
+	<select id="getBubbleChart" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	<![CDATA[
+	select   aud_trm,subject_code,subject_name,switch_type,switch_type_name,opr_time, queryOrAdd
+	from(
+	select   aud_trm,subject_code,subject_name,switch_type,switch_type_name,cast(opr_time as date format 'YYYY-MM-DD') as opr_time,'1' as queryOrAdd
+	from hpmgr.busi_audit_switch_conf
+	where  switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time is not null
+		and opr_time not in
+		(
+		select distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+		from hpmgr.busi_audit_switch_conf
+		where switch_state=2
+			and subject_code=#{subjectCode}
+			and aud_trm<=#{audTrm}
+			and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+			and switch_type=1
+			and opr_time in(
+				select  distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+				from hpmgr.busi_audit_switch_conf
+				where switch_state=2
+					and subject_code=#{subjectCode}
+					and switch_type=2
+					and aud_trm<=#{audTrm}
+					and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+					and opr_time is not null))
+	union all
+	select   aud_trm,subject_code,subject_name,switch_type,switch_type_name,cast(opr_time as date format 'YYYY-MM-DD') as opr_time,'3' as queryOrAdd
+	from hpmgr.busi_audit_switch_conf
+	where  switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time in
+		(
+		select distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+		from hpmgr.busi_audit_switch_conf
+		where switch_state=2
+			and subject_code=#{subjectCode}
+			and aud_trm<=#{audTrm}
+			and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+			and switch_type=1
+			and opr_time in(
+				select  distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+				from hpmgr.busi_audit_switch_conf
+				where switch_state=2
+					and subject_code=#{subjectCode}
+					and switch_type=2
+					and aud_trm<=#{audTrm}
+					and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+					and opr_time is not null))
+	) as t
+	order by queryOrAdd,opr_time,switch_type,aud_trm;
+	]]>
+	</select>
+	<!--  审计开关 -气泡图-非同一天打开两种类型的开关 -add by hufei 2017.11.15 -经需求确认，显示审计月前推一年，而不是操作时间前推一年
+	<select id="getBubbleChart" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select   aud_trm,subject_code,subject_name,switch_type,switch_type_name,cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+	from hpmgr.busi_audit_switch_conf
+	<![CDATA[
+	where  switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time is not null
+		and opr_time not in
+		(
+		select distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+		from hpmgr.busi_audit_switch_conf
+		where switch_state=2
+			and subject_code=#{subjectCode}
+			and aud_trm<=#{audTrm}
+			and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+			and switch_type=1
+			and opr_time in(
+				select  distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+				from hpmgr.busi_audit_switch_conf
+				where switch_state=2
+					and subject_code=#{subjectCode}
+					and switch_type=2
+					and aud_trm<=#{audTrm}
+					and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+					and opr_time is not null))
+	order by switch_type,opr_time
+	]]>
+	</select>
+	 -->
+	<select id="getOpenSwitchOneDay" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select   aud_trm,subject_code,subject_name,switch_type,switch_type_name,cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+	from hpmgr.busi_audit_switch_conf
+	<![CDATA[
+	where  switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time in
+		(
+		select distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+		from hpmgr.busi_audit_switch_conf
+		where switch_state=2
+			and subject_code=#{subjectCode}
+			and aud_trm<=#{audTrm}
+			and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+			and switch_type=1
+			and opr_time in(
+				select  distinct cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+				from hpmgr.busi_audit_switch_conf
+				where switch_state=2
+					and subject_code=#{subjectCode}
+					and switch_type=2
+					and aud_trm<=#{audTrm}
+					and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+					and opr_time is not null))
+	order by cast(opr_time as date format 'YYYY-MM-DD'),switch_type,aud_trm;
+	]]>
+	</select>
+	<!-- 审计开关 -气泡图-非同一天打开两种类型的开关 -add by hufei 2017.11.15 -经需求确认，显示审计月前推一年，而不是操作时间前推一年
+	<select id="getBubbleChart" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select   switch_type,switch_type_name,
+		cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+	from hpmgr.busi_audit_switch_conf
+	<![CDATA[
+	where switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time is not null
+		and cast(opr_time as date format 'YYYY-MM-DD') not in(
+			select   cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+			from hpmgr.busi_audit_switch_conf
+			where switch_state=2
+				and subject_code=#{subjectCode}
+				and aud_trm<=#{audTrm}
+				and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+				and opr_time is not null
+				group by cast(opr_time as date format 'YYYY-MM-DD')
+				having count(*)>=2)
+	union all
+	select  3,'系统页面、报告及清单下载', cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+	from hpmgr.busi_audit_switch_conf
+	where switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time is not null
+		group by cast(opr_time as date format 'YYYY-MM-DD')
+		having count(*)>=2
+	]]>
+	</select>
+	-->
+	<!-- 审计开关 -气泡图-非同一天打开两种类型的开关 -add by hufei 2017.11.15
+	<select id="getBubbleChart" resultMap="sjkgData" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select   aud_trm,subject_code,subject_name,switch_type,switch_type_name,
+		cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+	from hpmgr.busi_audit_switch_conf
+	<![CDATA[
+	where switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-10) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time is not null
+		and cast(opr_time as date format 'YYYY-MM-DD') not in(
+			select   cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+			from hpmgr.busi_audit_switch_conf
+			where switch_state=2
+				and subject_code=#{subjectCode}
+				and aud_trm<=#{audTrm}
+				and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+				and opr_time is not null
+				group by cast(opr_time as date format 'YYYY-MM-DD')
+				having count(*)>=2)
+	]]>
+	</select>-->
+
+	<!-- 审计开关 -气泡图-同一天打开两种类型的开关 -add by hufei 2017.11.15
+	<select id="getOpenSwitchOneDay" resultType="String" parameterType="com.hpe.cmca.pojo.SjkgData">
+	select   cast(opr_time as date format 'YYYY-MM-DD') as opr_time
+	from hpmgr.busi_audit_switch_conf
+	<![CDATA[
+	where switch_state=2
+		and subject_code=#{subjectCode}
+		and aud_trm<=#{audTrm}
+		and aud_trm>trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-12) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_time is not null
+		group by cast(opr_time as date format 'YYYY-MM-DD')
+		having count(*)>=2
+	]]>
+	</select>
+	-->
+</mapper>

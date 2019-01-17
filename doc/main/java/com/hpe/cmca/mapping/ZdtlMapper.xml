@@ -1,0 +1,1058 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.ZdtlMapper">
+	<!-- 结果返回列名转换 -->
+	<resultMap type="com.hpe.cmca.pojo.ZdtlData" id="zdtlData">
+		<result property="rn" column="rn" />
+		<result property="audTrm" column="Aud_trm" />
+		<result property="concern" column="concern" />
+		<result property="prvdId" column="CMCC_prov_prvd_id" />
+		<result property="prvdName" column="CMCC_prov_prvd_nm" />
+		<result property="ctyId" column="CMCC_prvd_cd" />
+		<result property="ctyName" column="CMCC_prvd_nm_short" />
+		<result property="qtyPercent" column="qtyPercent" />
+		<result property="qtyPercentMom" column="qtyPercentMom" />
+		<result property="infractionNum" column="errQty" />
+		<result property="infractionNumMom" column="infractionNumMom" />
+		<result property="qtyPercentCJ" column="qtyPercentCJ" />
+		<result property="qtyPercentMomCJ" column="qtyPercentMomCJ" />
+		<result property="infractionNumCJ" column="infractionNumCJ" />
+		<result property="infractionNumMomCJ" column="infractionNumMomCJ" />
+		<result property="infractionAmtCJ" column="errAmt" />
+		<result property="amtPercentCJ" column="errPercent" />
+		<result property="infractionChnlNum" column="errChnlQty" />
+		<result property="infractionChnlPercent" column="infractionChnlPercent" />
+		<result property="chnlName" column="chnl_name" />
+		<result property="chnlType" column="chnl_type" />
+		<result property="chnlId" column="chnl_id" />
+		<result property="silentNum" column="errQty_3001" />
+		<result property="keepMachineNum" column="errQty_3002" />
+		<result property="unpackingNum" column="errQty_3004" />
+		<result property="transProvinceNum" column="errQty_3005" />
+		<result property="tolSellNum" column="tol_sell_num" />
+		<result property="tolSellChnlNum" column="tol_sell_chnl" />
+		<result property="errCityNum" column="errCtyQty" />
+		<result property="rectifyNum" column="rectifyNum" />
+	</resultMap>
+	<!-- 获取风险地图数据-风险地图 -add by hufei 2017.8.8 -->
+	<select id="getMapData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		sel
+		<if test="prvdId == 10000">
+			prvd_id as prvdId,
+		</if>
+		<if test="prvdId!= 10000">
+			cty_id as ctyId,
+		</if>
+		<choose>
+			<when test="parameterType == 'ycxs'">
+				case when err_num is not null then ROW_NUMBER() OVER (ORDER BY err_num
+				DESC) else 0 end as rn,
+			</when>
+			<when test="parameterType == 'ycxszb'">
+				case when err_num_per is not null then ROW_NUMBER() OVER (ORDER BY
+				err_num_per DESC) else 0 end as rn,
+			</when>
+			<when test="parameterType == 'ycxsqd'">
+				case when err_chnl is not null then ROW_NUMBER() OVER (ORDER BY err_chnl
+				DESC) else 0 end as rn,
+			</when>
+			<otherwise>
+				case when err_chnl_per is not null then ROW_NUMBER() OVER (ORDER BY
+				err_chnl_per DESC) else 0 end as rn,
+			</otherwise>
+		</choose>
+		err_num*1.00/10000 as infractionNum,
+		cast(err_num_per as decimal(18,2))
+		as qtyPercent,
+		<!-- trim (cast(err_num_per as decimal(18,2)) (FORMAT 'ZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(20))) 
+			as qtyPercent, -->
+		err_chnl as infractionChnlNum,
+		<!-- trim (cast(err_chnl_per as decimal(18,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(20))) 
+			as infractionChnlPercent -->
+		cast(err_chnl_per as decimal(18,2)) as infractionChnlPercent
+		from hpbus.sum_zdtl_3000_selldet
+		where aud_trm=#{audTrm}
+		and focus_cd=#{concern}
+		<if test="prvdId == 10000">
+		<![CDATA[
+		and prvd_id<>10000
+		and cty_id=10000
+		]]>
+		</if>
+		<if test="prvdId != 10000">
+		<![CDATA[
+		and prvd_id=#{prvdId}
+		]]>
+		</if>
+	</select>
+
+	<!--2017.8.9之前，废弃原因：后台新建表，重写简化SQL语句； 获取风险地图数据-风险地图 -add by hufei 2017.7.26 
+		<select id="getMapData" resultMap="zdtlData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+		<if test="parameterType == 'ycxs'"> sel errQty*1.00/10000 as errQty, <if 
+		test="prvdId == 10000"> regionId as prvdId, regionName as prvdName, </if> 
+		<if test="prvdId != 10000"> regionId as ctyId, regionName as ctyName, </if> 
+		ROW_NUMBER() OVER (ORDER BY errQty DESC) AS rn from hpbus.Sum_zdtl_3000_prvdcty_new 
+		where focus_cd=#{concern} and Aud_trm=#{audTrm} and prvd_id=#{prvdId} </if> 
+		<if test="parameterType == 'ycxszb'"> sel qtyPercent, <if test="prvdId == 
+		10000"> regionId as prvdId, regionName as prvdName, </if> <if test="prvdId 
+		!= 10000"> regionId as ctyId, regionName as ctyName, </if> ROW_NUMBER() OVER 
+		(ORDER BY qtyPercent DESC) AS rn from hpbus.Sum_zdtl_3000_prvdcty_new where 
+		focus_cd=#{concern} and Aud_trm=#{audTrm} and prvd_id=#{prvdId} </if> <if 
+		test="parameterType == 'ycxsqd' and prvdId==10000 "> sel prvd_id as prvdId, 
+		errChnlQty, ROW_NUMBER() OVER (ORDER BY errChnlQty DESC) AS rn from hpbus.Sum_zdtl_3000_prvd 
+		where focus_cd=#{concern} and Aud_trm=#{audTrm} </if> <if test="parameterType 
+		== 'ycxsqd' and prvdId!=10000 "> sel cty_id as ctyId, infraction_num as infractionChnlNum, 
+		ROW_NUMBER() OVER (ORDER BY infraction_num DESC) AS rn from hpbus.sum_zdtl_3000_cty 
+		where focus_cd=#{concern} and Aud_trm=#{audTrm} and prvd_id=#{prvdId} </if> 
+		<if test="parameterType == 'ycxsqdzb' and prvdId==10000 "> sel prvd_id as 
+		prvdId, errChnlQty*1.00/totalChnlQty as infractionChnlPercent, ROW_NUMBER() 
+		OVER (ORDER BY infractionChnlPercent DESC) AS rn from hpbus.Sum_zdtl_3000_prvd 
+		where focus_cd=#{concern} and Aud_trm=#{audTrm} and totalChnlQty>0 </if> 
+		<if test="parameterType == 'ycxsqdzb' and prvdId!=10000 "> sel cty_id as 
+		ctyId, infraction_num*1.00/tol_num as infractionChnlPercent, ROW_NUMBER() 
+		OVER (ORDER BY infractionChnlPercent DESC) AS rn from hpbus.sum_zdtl_3000_cty 
+		where focus_cd=#{concern} and Aud_trm=#{audTrm} and prvd_id=#{prvdId} and 
+		totalChnlQty>0 </if> </select> -->
+
+	<!-- <if test="parameterType == 'tlje'"> sel errAmt, <if test="prvdId == 
+		10000"> regionId as prvdId, regionName as prvdName, </if> <if test="prvdId 
+		!= 10000"> regionId as ctyId, regionName as ctyName, </if> ROW_NUMBER() OVER 
+		(ORDER BY errAmt DESC) AS rn from hpbus.Sum_zdtl_3000_prvdcty_cj_new where 
+		focus_cd=#{concern} and Aud_trm=#{audTrm} and prvd_id=#{prvdId} </if> <if 
+		test="parameterType == 'tljezb'"> sel errPercent, <if test="prvdId == 10000"> 
+		regionId as prvdId, regionName as prvdName, </if> <if test="prvdId != 10000"> 
+		regionId as ctyId, regionName as ctyName, </if> ROW_NUMBER() OVER (ORDER 
+		BY errPercent DESC) AS rn from hpbus.Sum_zdtl_3000_prvdcty_cj_new where focus_cd=#{concern} 
+		and Aud_trm=#{audTrm} and prvd_id=#{prvdId} </if> -->
+
+
+	<!-- 风险地图底部图片-异常销售-相关数据 -->
+	<select id="getMapBottomData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		sel prvd_id as prvdId,
+		err_num*1.00/10000 as infractionNum,
+		err_num_gp*1.00/10000 as infractionNumMom,
+		trim (cast(err_num_per as
+		decimal(18,2))) as qtyPercent,
+		trim (cast(err_num_per_gp as
+		decimal(18,2))) as qtyPercentMom,
+		err_chnl as infractionChnlNum,
+		err_chnl_gp as infractionChnlNumMom,
+		trim (cast(err_chnl_per as
+		decimal(18,2))) as infractionChnlPercent,
+		trim (cast(err_chnl_per_gp as
+		decimal(18,2))) as infractionChnlPercentMom
+		from hpbus.sum_zdtl_3000_selldet
+		where cty_id=10000
+		and focus_cd=#{concern}
+		and prvd_id=#{prvdId}
+		and
+		aud_trm=#{audTrm}
+	</select>
+
+
+	<!--8.9号之前使用-后台未提供最新表 风险地图底部图片-异常销售-相关数据 <select id="getMapBottomData" resultMap="zdtlData" 
+		parameterType="com.hpe.cmca.pojo.ParameterData"> <if test="prvdId == 10000"> 
+		sel t1.infractionNum ,t1.qtyPercent,t1.infractionNum-t2.infractionNum as 
+		infractionNumMom,t1.qtyPercent-t2.qtyPercent as qtyPercentMom, t1.infractionChnlNum,t1.infractionChnlPercent,t1.infractionChnlNum-t2.infractionChnlNum 
+		as infractionChnlNumMom, t1.infractionChnlPercent-t2.infractionChnlPercent 
+		as infractionChnlPercentMom from (sel sum(infraction_num)*1.00/10000 as infractionNum, 
+		sum(infraction_num)*1.00/sum(tol_num) as qtyPercent, sum(errChnlQty) as infractionChnlNum, 
+		sum(errChnlQty)*1.00/sum(totalChnlQty) as infractionChnlPercent from hpbus.sum_zdtl_3000_prvd 
+		where focus_cd=#{concern} and aud_trm=#{audTrm} group by aud_trm ) as t1, 
+		(sel sum(infraction_num)*1.00/10000 as infractionNum, sum(infraction_num)*1.00/sum(tol_num) 
+		as qtyPercent, sum(errChnlQty) as infractionChnlNum, sum(errChnlQty)*1.00/sum(totalChnlQty) 
+		as infractionChnlPercent from hpbus.sum_zdtl_3000_prvd where focus_cd=#{concern} 
+		and aud_trm=cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) 
+		as date format 'YYYYMMDD') as varchar(6)) group by aud_trm )as t2 </if> <if 
+		test="prvdId != 10000"> sel t1.infractionNum ,t1.qtyPercent,t1.infractionNum-t2.infractionNum 
+		as infractionNumMom,t1.qtyPercent-t2.qtyPercent as qtyPercentMom, t1.infractionChnlNum,t1.infractionChnlPercent,t1.infractionChnlNum-t2.infractionChnlNum 
+		as infractionChnlNumMom, t1.infractionChnlPercent-t2.infractionChnlPercent 
+		as infractionChnlPercentMom from (sel infraction_num*1.00/10000 as infractionNum, 
+		infraction_num*1.00/tol_num as qtyPercent, errChnlQty as infractionChnlNum, 
+		errChnlQty*1.00/totalChnlQty as infractionChnlPercent from hpbus.sum_zdtl_3000_prvd 
+		where focus_cd=#{concern} and aud_trm=#{audTrm} and prvd_id=#{prvdId} and 
+		totalChnlQty>0 and tol_num>0 ) as t1, (sel infraction_num*1.00/10000 as infractionNum, 
+		infraction_num*1.00/tol_num as qtyPercent, errChnlQty as infractionChnlNum, 
+		errChnlQty*1.00/totalChnlQty as infractionChnlPercent from hpbus.sum_zdtl_3000_prvd 
+		where focus_cd=#{concern} and aud_trm=cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6)) 
+		and prvd_id=#{prvdId} and tol_num>0 and totalChnlQty>0 )as t2 </if> </select> -->
+
+	<!--8.3号之前使用-后变更-变更原因：地图下方数据要求改变 <select id="getMapBottomData1" resultMap="zdtlData" 
+		parameterType="com.hpe.cmca.pojo.ParameterData"> sel t1.errQty as infractionNum 
+		,t1.qtyPercent as qtyPercent,t1.errQty-t2.errQty as infractionNumMom,t1.qtyPercent-t2.qtyPercent 
+		as qtyPercentMom from (sel <if test="prvdId != 10000"> errQty*1.00/10000 
+		as errQty, qtyPercent </if> <if test="prvdId == 10000"> sum(errQty)*1.00/sum(totalNum) 
+		as qtyPercent, sum(errQty)*1.00/10000 as errQty </if> from hpbus.Sum_zdtl_3000_prvdcty_new 
+		where focus_cd='3001' and Aud_trm=#{audTrm} and prvd_id='10000' <if test="prvdId 
+		!= 10000"> and regionId=#{prvdId} </if> <if test="prvdId == 10000"> group 
+		by aud_trm </if>) as t1, (sel <if test="prvdId != 10000"> errQty*1.00/10000 
+		as errQty, qtyPercent </if> <if test="prvdId == 10000"> sum(errQty)*1.00/sum(totalNum) 
+		as qtyPercent, sum(errQty)*1.00/10000 as errQty </if> from hpbus.Sum_zdtl_3000_prvdcty_new 
+		where focus_cd='3001' and Aud_trm=cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6)) 
+		and prvd_id='10000' <if test="prvdId != 10000"> and regionId=#{prvdId} </if> 
+		<if test="prvdId == 10000"> group by aud_trm </if>)as t2 </select> -->
+	<!-- 风险地图底部图片-套利-相关数据-old-地图下方数据要求改变-update by 2017.08.03 <select id="getMapBottomCJData" 
+		resultMap="zdtlData" parameterType="com.hpe.cmca.pojo.ParameterData"> sel 
+		t1.errQty as infractionNumCJ,t1.qtyPercent as qtyPercentCJ,t1.errQty-t2.errQty 
+		as infractionNumMomCJ,t1.qtyPercent-t2.qtyPercent as qtyPercentMomCJ from 
+		(sel <if test="prvdId != 10000"> errQty, qtyPercent </if> <if test="prvdId 
+		== 10000"> sum(errQty)/1.00/sum(totalNum) as qtyPercent, sum(errQty) as errQty 
+		</if> from hpbus.Sum_zdtl_3000_prvdcty_cj_new where focus_cd='3001' and Aud_trm=#{audTrm} 
+		and prvd_id='10000' <if test="prvdId != 10000"> and regionId=#{prvdId} </if> 
+		<if test="prvdId == 10000"> group by aud_trm </if>) as t1, (sel <if test="prvdId 
+		!= 10000"> errQty, qtyPercent </if> <if test="prvdId == 10000"> sum(errQty)*1.00/sum(totalNum) 
+		as qtyPercent, sum(errQty) as errQty </if> from hpbus.Sum_zdtl_3000_prvdcty_cj_new 
+		where focus_cd='3001' and Aud_trm=cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6)) 
+		and prvd_id='10000' <if test="prvdId != 10000"> and regionId=#{prvdId} </if> 
+		<if test="prvdId == 10000"> group by aud_trm </if>)as t2 </select> -->
+	<!-- 终端套利-地市渠道级别信息-top50-add by hufei 2017.7.21 -->
+	<select id="getChnlTable" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		sel chnl_id,chnl_name,chnl_type,infraction_num as infractionNum,
+		infraction_num*1.00/tol_num as qtyPercent,ROW_NUMBER() OVER (ORDER BY
+		qtyPercent DESC,infraction_num DESC) AS rn
+		from hpbus.Sum_zdtl_3000_new
+		where tol_num>0 and Aud_trm=#{audTrm}
+		and cty_id=#{ctyId} 
+		<![CDATA[
+		QUALIFY ROW_NUMBER() OVER (ORDER BY qtyPercent DESC,infraction_num DESC)<=50
+		]]>
+	</select>
+
+	<!-- 终端套利-根据渠道名称查询渠道信息-add by hufei 2017.8.7 -->
+	<select id="getChnlByChnlName" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		sel chnl_id,chnl_name,chnl_type,infraction_num as infractionNum,
+		infraction_num*1.00/tol_num as qtyPercent,ROW_NUMBER() OVER (ORDER BY
+		qtyPercent DESC) AS rn
+		from hpbus.Sum_zdtl_3000_new
+		where tol_num>0 and Aud_trm=#{audTrm}
+		and cty_id=#{ctyId} 
+		<![CDATA[
+		QUALIFY ROW_NUMBER() OVER (ORDER BY qtyPercent DESC,infraction_num DESC)<=50
+		]]>
+		and chnl_name like '%${chnlName}%'
+	</select>
+
+	<!-- 终端套利渠道基本信息 -->
+	<select id="getChnlBaseInfo" resultType="java.util.Map"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select cor_chnl_id,chnl_nm,cor_chnl_typ,chnl_level, chnl_addr,
+		busn_bgn_tm, chnl_basic_typ,chnl_stat,chnl_basic_typ,rgn_form,
+		cnty_nm,b.CMCC_prvd_nm_short as CMCC_prvd_nm_short
+		from ( select
+		cor_chnl_id,
+		chnl_nm,
+		case
+		when cor_chnl_typ =1 then '自营厅'
+		when cor_chnl_typ =2 then '委托经营厅'
+		when cor_chnl_typ =3 then '社会代理网点'
+		when cor_chnl_typ =4 then '24小时自助营业厅'
+		else '无'
+		end as cor_chnl_typ,
+		case
+		when chnl_level =1 then '一星级'
+		when chnl_level =2 then '二星级'
+		when chnl_level =3 then '三星级'
+		when chnl_level =4 then '四星级'
+		when chnl_level =5 then '五星级'
+		when chnl_level =6 then '六星级'
+		else '无'
+		end as chnl_level,
+		chnl_addr,
+		busn_bgn_tm,
+		case
+		when chnl_stat =1 then '正常运营'
+		when chnl_stat =2 then '暂停营业/预注销'
+		when chnl_stat =3 then '已关店/注销'
+		else '无'
+		end as chnl_stat,
+		case
+		when chnl_basic_typ=1 then '普通自营厅'
+		when chnl_basic_typ=2 then '品牌店'
+		when chnl_basic_typ=3 then '旗舰店'
+		when chnl_basic_typ=4 then '24小时自助营业厅'
+		when chnl_basic_typ=5 then '指定专营店'
+		when chnl_basic_typ=6 then '特约代理点'
+		else '无'
+		end as chnl_basic_typ,
+		case
+		when rgn_form =1 then '商业区'
+		when rgn_form =2 then '交通枢纽'
+		when rgn_form =3 then '居民住宅区'
+		when rgn_form =4 then '商务办公区'
+		when rgn_form =5 then '学校区域'
+		when rgn_form =6 then '工矿厂区和工业园区'
+		when rgn_form =7 then '旅游景区'
+		else '无'
+		end as rgn_form,
+		cnty_nm,
+		rgn_nm,
+		CMCC_Prov_id,
+		CMCC_prov_prvd_id
+		from hpbus.TB_SVC_CORCHNL_BASIC
+		where cor_chnl_id=#{chnlId})a
+		join HPMGR.TB_SUM_PRVD_NAME b on
+		a.CMCC_prov_prvd_id=b.CMCC_prov_prvd_id and
+		a.CMCC_Prov_id=b.CMCC_prvd_cd
+	</select>
+
+	<!-- 终端套利-渠道-异常销售趋势 -->
+	<select id="getChnlTrend" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,coalesce(t2.qtyPercent,0) as
+		qtyPercent,t2.infractionNum
+		from
+		(SELECT aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201510' and Aud_trm<=#{audTrm} and Aud_trm>cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))
+		]]>
+		group by aud_trm) as t1
+		left join
+		(
+		sel Aud_trm,infraction_num*1.00/tol_num as
+		qtyPercent,infraction_num as infractionNum
+		from hpbus.Sum_zdtl_3000_new
+		where chnl_id= #{chnlId}
+		and focus_cd=#{concern}
+		and tol_num>0
+		and Aud_trm in
+		(select distinct aud_trm
+		from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 3
+			 		and aud_trm<=#{audTrm}
+					and aud_trm>='201510'
+				]]>))as
+		t2
+		on t1.aud_trm = t2.aud_trm
+		order by t1.Aud_trm;
+	</select>
+
+
+	<!-- 获取金额排名-柱状图 -add by hufei 2017.7.21 -->
+	<select id="getAmountColumnData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select t1.CMCC_prov_prvd_nm,t2.errAmt as infractionAmtCJ
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join(
+			sel regionId,errAmt/10000.00 as errAmt
+			from hpbus.sum_zdtl_3000_prvdcty_cj_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id='10000') as t2
+			on t1.CMCC_prov_prvd_id=t2.regionId
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	]]>
+			order by t2.errAmt desc,t1.CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select t1.CMCC_prvd_nm_short as prvdName,t2.errAmt as infractionAmtCJ
+			from (select CMCC_prvd_cd,
+			CMCC_prvd_nm_short
+			from HPMGR.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id=#{prvdId} ) as t1
+			left join(
+			sel regionId,errAmt/10000.00 as errAmt
+			from hpbus.sum_zdtl_3000_prvdcty_cj_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id=#{prvdId}) as t2
+			on t1.CMCC_prvd_cd=t2.regionId
+			order by t2.errAmt desc,t1.CMCC_prvd_cd
+		</if>
+	</select>
+	<!-- 获取套利金额占比排名-柱状图 -add by hufei 2017.7.27 -->
+	<select id="getAmountPercentColumnData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select t1.CMCC_prov_prvd_nm,t2.errPercent
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join(
+			sel regionId,errPercent
+			from hpbus.sum_zdtl_3000_prvdcty_cj_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id='10000') as t2
+			on t1.CMCC_prov_prvd_id=t2.regionId
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	]]>
+			order by t2.errPercent desc,t1.CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select t1.CMCC_prvd_nm_short as prvdName,t2.errPercent
+			from (select CMCC_prvd_cd,
+			CMCC_prvd_nm_short
+			from HPMGR.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id=#{prvdId} ) as t1
+			left join(
+			sel regionId,errPercent
+			from hpbus.sum_zdtl_3000_prvdcty_cj_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id=#{prvdId}) as t2
+			on t1.CMCC_prvd_cd=t2.regionId
+			order by t2.errPercent desc,t1.CMCC_prvd_cd
+		</if>
+	</select>
+
+	<!-- 获取异常销售数量排名-柱状图 -add by hufei 2017.7.27 -->
+	<select id="getNumberColumnData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select t1.CMCC_prov_prvd_nm,t2.errQty
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join(
+			sel regionId,errQty*1.00/10000 as errQty,qtyPercent
+			from hpbus.Sum_zdtl_3000_prvdcty_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id='10000') as t2
+			on t1.CMCC_prov_prvd_id=t2.regionId
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	]]>
+			order by t2.errQty desc,t2.qtyPercent desc,t1.CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select t1.CMCC_prvd_nm_short as prvdName,t2.errQty
+			from (select CMCC_prvd_cd,
+			CMCC_prvd_nm_short
+			from HPMGR.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id=#{prvdId} ) as t1
+			left join(
+			sel regionId,errQty*1.00/10000 as errQty,qtyPercent
+			from hpbus.Sum_zdtl_3000_prvdcty_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id=#{prvdId}) as t2
+			on t1.CMCC_prvd_cd=t2.regionId
+			order by t2.errQty desc,t2.qtyPercent desc,t1.CMCC_prvd_cd
+		</if>
+	</select>
+
+
+	<!-- 获取异常销售占比排名-柱状图 -add by hufei 2017.7.21 -->
+	<select id="getPercentColumnData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select t1.CMCC_prov_prvd_nm,t2.qtyPercent
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join(
+			sel regionId,qtyPercent,errQty
+			from hpbus.Sum_zdtl_3000_prvdcty_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id='10000') as t2
+			on t1.CMCC_prov_prvd_id=t2.regionId
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	]]>
+			order by t2.qtyPercent desc,t2.errQty desc,t1.CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select t1.CMCC_prvd_nm_short as prvdName,t2.qtyPercent
+			from (select CMCC_prvd_cd,
+			CMCC_prvd_nm_short
+			from HPMGR.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id=#{prvdId} ) as t1
+			left join(
+			sel regionId,qtyPercent,errQty
+			from hpbus.Sum_zdtl_3000_prvdcty_new
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id=#{prvdId}) as t2
+			on t1.CMCC_prvd_cd=t2.regionId
+			order by t2.qtyPercent desc,t2.errQty desc,t1.CMCC_prvd_cd
+		</if>
+	</select>
+
+	<!-- 获取异常销售占比排名-折线图 -add by hufei 2017.7.21 -->
+	<select id="getPercentLineData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,coalesce(t2.qtyPercent,0) as
+		qtyPercent,coalesce(t2.errQty,0) as infractionNum
+		from
+		(SELECT aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201510' and Aud_trm<=#{audTrm}
+		]]>
+		group by aud_trm) as t1
+		left join
+		(select aud_trm,
+		<if test="prvdId != 10000">
+			qtyPercent, errQty*1.00/10000 as errQty
+		</if>
+		<if test="prvdId == 10000">
+			sum(errQty)*1.00/sum(totalNum) as qtyPercent,
+			sum(errQty)*1.00/10000 as errQty
+		</if>
+		from hpbus.Sum_zdtl_3000_prvdcty_new
+		where focus_cd=#{concern}
+		and Aud_trm in
+		(select distinct aud_trm
+		from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 3
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201510'
+			]]>)
+		and prvd_id='10000'
+		<if test="prvdId != 10000">
+			and regionId=#{prvdId}
+		</if>
+		<if test="prvdId == 10000">
+			group by aud_trm
+		</if>
+		)as t2
+		on t1.aud_trm = t2.aud_trm
+		order by t1.Aud_trm;
+
+	</select>
+
+	<!-- 获取套利金额趋势-折线图 -add by hufei 2017.7.21 -->
+	<select id="getAmountLineData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,coalesce(t2.errAmt,0) as infractionAmtCJ
+		from
+		(SELECT aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201510' and Aud_trm<=#{audTrm}
+		]]>
+		group by aud_trm) as t1
+		left join
+		(select aud_trm,
+		<if test="prvdId != 10000">
+			errAmt
+		</if>
+		<if test="prvdId == 10000">
+			sum(errAmt) as errAmt
+		</if>
+		from hpbus.sum_zdtl_3000_prvdcty_cj_new
+		where focus_cd=#{concern}
+		and
+		aud_trm in(
+		select distinct aud_trm
+		from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 3
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201510'
+			]]>)
+		and prvd_id='10000'
+		<if test="prvdId != 10000">
+			and regionId=#{prvdId}
+		</if>
+		<if test="prvdId == 10000">
+			group by aud_trm
+		</if>
+		)as t2
+		on t1.aud_trm = t2.aud_trm
+		order by t1.Aud_trm;
+	</select>
+
+
+	<!-- 获取异常销售渠道占比趋势-折线图 -add by hufei 2017.7.31 -->
+	<select id="getPercentChnlLineData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,
+		coalesce(t2.infractionChnlPercent,0) as
+		infractionChnlPercent,
+		coalesce(t2.infractionChnlNum,0) as
+		infractionChnlNum
+		from
+		(SELECT aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201510' and Aud_trm<=#{audTrm}
+		]]>
+		group by aud_trm) as t1
+		left join
+		(select aud_trm,
+		err_chnl_per as infractionChnlPercent,
+		errChnlQty
+		as infractionChnlNum
+		from hpbus.sum_zdtl_3000_prvd
+		where focus_cd=#{concern}
+		and Aud_trm in(
+		select distinct aud_trm
+		from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 3
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201510'
+			]]>)
+		and totalChnlQty>0
+		and prvd_id=#{prvdId}
+		)as t2
+		on t1.aud_trm = t2.aud_trm
+		order by t1.Aud_trm;
+	</select>
+
+	<!-- 获取异常销售渠道占比排名-柱状图 -add by hufei 2017.7.31 -->
+	<select id="getPercentChnlColumnData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			<if test="audTrm==''">
+			<![CDATA[	sel CMCC_prov_prvd_nm as
+				prvdName
+				from hpmgr.ref_dm_cmcc_prov_prvd_cd
+
+				where CMCC_prov_prvd_id <> 10000
+				order by CMCC_prov_prvd_id;]]>
+			</if>
+			<if test="audTrm !=''"></if>
+			select t1.CMCC_prov_prvd_nm,t2.infractionChnlPercent
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join(
+			sel prvd_id,
+			errChnlQty,
+			err_chnl_per as infractionChnlPercent
+			from hpbus.Sum_zdtl_3000_prvd
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}) as t2
+			on t1.CMCC_prov_prvd_id=t2.prvd_id
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	]]>
+			order by t2.infractionChnlPercent desc,t2.errChnlQty
+			desc,t1.CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			<if test="audTrm==''">
+				select
+				CMCC_prvd_nm_short as prvdName
+				from
+				HPMGR.TB_SUM_PRVD_NAME
+				where
+				CMCC_prov_prvd_id=#{prvdId} order by
+				CMCC_prvd_cd
+			</if>
+			<if test="audTrm !=''">
+				select t1.CMCC_prvd_nm_short as prvdName,t2.infractionChnlPercent
+				from (select CMCC_prvd_cd,
+				CMCC_prvd_nm_short
+				from HPMGR.TB_SUM_PRVD_NAME
+				where CMCC_prov_prvd_id=#{prvdId} ) as t1
+				left join(
+				sel cty_id,
+				infraction_num,
+				err_chnl_per as infractionChnlPercent
+				from hpbus.sum_zdtl_3000_cty
+				where focus_cd=#{concern}
+				and Aud_trm=#{audTrm}
+				and prvd_id=#{prvdId}) as t2
+				on t1.CMCC_prvd_cd=t2.cty_id
+				order by t2.infractionChnlPercent desc,t2.infraction_num
+				desc,t1.CMCC_prvd_cd
+			</if>
+		</if>
+	</select>
+
+	<!-- 获取异常销售渠道数量排名-柱状图 -add by hufei 2017.7.31 -->
+	<select id="getNumberChnlColumnData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select t1.CMCC_prov_prvd_nm,t2.errChnlQty
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join(
+			sel prvd_id,
+			errChnlQty,
+			err_chnl_per as infractionChnlPercent
+			from hpbus.Sum_zdtl_3000_prvd
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}) as t2
+			on t1.CMCC_prov_prvd_id=t2.prvd_id
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	]]>
+			order by t2.errChnlQty
+			desc,t2.infractionChnlPercent,t1.CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select t1.CMCC_prvd_nm_short as prvdName,t2.infractionChnlNum
+			from (select CMCC_prvd_cd,
+			CMCC_prvd_nm_short
+			from HPMGR.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id=#{prvdId} ) as t1
+			left join(
+			sel cty_id,
+			infraction_num as infractionChnlNum,
+			err_chnl_per as
+			infractionChnlPercent
+			from hpbus.sum_zdtl_3000_cty
+			where focus_cd=#{concern}
+			and Aud_trm=#{audTrm}
+			and prvd_id=#{prvdId}) as t2
+			on t1.CMCC_prvd_cd=t2.cty_id
+			order by t2.infractionChnlNum desc,t2.infractionChnlPercent
+			desc,t1.CMCC_prvd_cd
+		</if>
+	</select>
+
+	<!-- 获取统计分析-增量分析数据- add by hufei 2017.8.23 -->
+	<select id="getIncrementalData" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			sel a.CMCC_prov_prvd_nm,b.qtyPercentMom,a.CMCC_prov_prvd_id as prvdId
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as a
+			left join (
+			sel prvd_id,
+			cast(err_num_per_gp as decimal(18,2)) as qtyPercentMom
+			from hpbus.sum_zdtl_3000_selldet
+			where cty_id=10000
+			and focus_cd='3001,3002,3004,3005'
+			and aud_trm=#{audTrm}
+			)as b
+			on a.CMCC_prov_prvd_id=b.prvd_id
+			order by b.qtyPercentMom desc, a.CMCC_prov_prvd_id;
+		</if>
+	</select>
+	<!--废弃原因：8.23需求变更。返回值由异常销售数量改为异常销售数量占比； 获取统计分析-增量分析数据- add by hufei 2017.8.8 
+		<select id="getIncrementalData1" resultMap="zdtlData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+		<if test="prvdId == 10000"> sel a.CMCC_prov_prvd_nm,b.err_num_gp as infractionNumMom,a.CMCC_prov_prvd_id 
+		as prvdId from hpmgr.ref_dm_cmcc_prov_prvd_cd as a left join ( sel prvd_id,err_num_gp 
+		from hpbus.sum_zdtl_3000_selldet where cty_id=10000 and focus_cd='3001,3002,3004,3005' 
+		and aud_trm=#{audTrm} )as b on a.CMCC_prov_prvd_id=b.prvd_id order by b.err_num_gp 
+		desc, a.CMCC_prov_prvd_id; </if> </select> -->
+	<!-- 获取统计分析-违规类型分布-饼图- add by hufei 2017.8.9 -->
+	<select id="getTypeDistributePie" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select errQty_3001,
+		errQty_3002,
+		errQty_3004,
+		errQty_3005
+		from hpbus.Sum_zdtl_3000_report
+		where focus_cd='3000'
+		and aud_trm=#{audTrm}
+		and prvd_id=#{prvdId}
+		<!-- 需求确认，违规类型分布只显示异常销售的数据-update by hufei -20170828 <if test="parameterType 
+			== 'tlzd'"> select errQty_3001, errQty_3002, errQty_3004, errQty_3005 from 
+			hpbus.Sum_zdtl_3000_report_cj where focus_cd='3000' and aud_trm=#{audTrm} 
+			and prvd_id=#{prvdId} </if> -->
+	</select>
+
+	<!-- 获取统计分析-违规类型分布-堆积图- add by hufei 2017.8.10 -->
+	<select id="getTypeDistributeStack" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select a.aud_trm as audTrm,coalesce(b.errQty_3001,0)as errQty_3001,
+		coalesce(b.errQty_3002,0)as errQty_3002,
+		coalesce(b.errQty_3004,0)as
+		errQty_3004,
+		coalesce(b.errQty_3005,0)as errQty_3005  
+		<![CDATA[
+	from
+		(SELECT aud_trm
+		FROM	hpmgr.busi_model_notify 
+		where Aud_trm <=#{audTrm}  and aud_trm>='201510'
+		group by aud_trm)a
+		left join 
+		(
+		select aud_trm,
+			errQty_3001,
+			errQty_3002,
+			errQty_3004,
+			errQty_3005
+		from hpbus.Sum_zdtl_3000_report
+		where focus_cd='3000'
+			and  aud_trm in(
+			select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 3
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201510'
+			)
+		]]>
+		and prvd_id=#{prvdId}) as b
+		on a.aud_trm=b.aud_trm
+		order by a.aud_trm;
+		<!-- 需求确认，违规类型分布只显示异常销售的数据-update by hufei -20170828 <if test="parameterType 
+			== 'tlzd'"> select a.aud_trm as audTrm,coalesce(b.errQty_3001,0)as errQty_3001, 
+			coalesce(b.errQty_3002,0)as errQty_3002, coalesce(b.errQty_3004,0)as errQty_3004, 
+			coalesce(b.errQty_3005,0)as errQty_3005 <![CDATA[ from (SELECT aud_trm FROM 
+			hpmgr.busi_model_notify where Aud_trm <= '201706'and aud_trm>='201510' group 
+			by aud_trm)a left join ( select aud_trm, errQty_3001, errQty_3002, errQty_3004, 
+			errQty_3005 from hpbus.Sum_zdtl_3000_report_cj where focus_cd='3000' and 
+			aud_trm in(SELECT Aud_trm FROM hpmgr.busi_audit_trm_conf where Switch =1 
+			and Subject_code = 3 and aud_trm>='201510' and aud_trm<='201706' group by 
+			aud_trm) ]]> and prvd_id='10000') as b on a.aud_trm=b.aud_trm order by a.aud_trm; 
+			</if> -->
+	</select>
+
+	<!-- 获取统计分析-排名汇总- add by hufei 2017.8.22 -->
+	<select id="getRankTable" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			sel case when CMCC_prov_prvd_id=10000 then 0 else 1 end as flag,
+			ROW_NUMBER() OVER (ORDER BY flag,b.qtyPercent
+			DESC,a.CMCC_prov_prvd_id)-1 as rn,
+			a.CMCC_prov_prvd_nm,b.*
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as a
+			left join (
+			sel
+			prvd_id,
+			prvd_nm as prvdName,
+			errCtyQty as errCityNum,
+			tol_sell_num as tolSellNum,
+			err_num as infractionNum,
+			cast(err_num_per as decimal(18,2)) as qtyPercent,
+			cast(err_num_per_gp as decimal(18,2)) as qtyPercentMom,
+			tol_sell_chnl as tolSellChnlNum,
+			err_chnl as infractionChnlNum,
+			cast(err_chnl_per as decimal(18,2)) as infractionChnlPercent,
+			cast(err_chnl_per_gp as decimal(18,2)) as infractionChnlPercentMom
+			from hpbus.sum_zdtl_3000_selldet
+			where aud_trm=#{audTrm}
+			and focus_cd=#{concern}
+			and cty_id=10000
+			)as b
+			on a.CMCC_prov_prvd_id=b.prvd_id
+			order by rn;
+		</if>
+		<if test="prvdId != 10000">
+			sel case when cty_id=10000 then 0 else 1 end as flag,
+			<if
+				test="prvdId != 10100 and prvdId!=10200 and prvdId!=10300 and prvdId!=10400">
+				ROW_NUMBER() OVER (ORDER BY flag,err_num_per DESC)-1 as rn,
+			</if>
+			<if
+				test="prvdId == 10100 or prvdId==10200 or prvdId==10300 or prvdId==10400">
+				ROW_NUMBER() OVER (ORDER BY flag,err_num_per DESC) as rn,
+			</if>
+			cty_id as prvdId,
+			case when cty_nm='全省' then prvd_nm else cty_nm end as prvdName,
+			errCtyQty as errCityNum,
+			tol_sell_num as tolSellNum,
+			err_num as infractionNum,
+			cast(err_num_per as decimal(18,2)) as qtyPercent,
+			cast(err_num_per_gp as decimal(18,2)) as qtyPercentMom,
+			tol_sell_chnl as tolSellChnlNum,
+			err_chnl as infractionChnlNum,
+			cast(err_chnl_per as decimal(18,2)) as infractionChnlPercent,
+			cast(err_chnl_per_gp as decimal(18,2)) as infractionChnlPercentMom
+			from hpbus.sum_zdtl_3000_selldet
+			where aud_trm=#{audTrm}
+			and focus_cd=#{concern}
+			and prvd_id=#{prvdId}
+			<if
+				test="prvdId == 10100 or prvdId==10200 or prvdId==10300 or prvdId==10400">
+		<![CDATA[
+		and cty_nm<>'全省'
+		]]>
+			</if>
+			order by rn;
+		</if>
+	</select>
+
+
+	<!-- 终端套利-统计分析-审计报告-异常销售基本信息- add by 2017.08.23 -->
+	<select id="getReportInfo" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		sel aud_trm as audTrm,
+		focus_cd as concern,
+		case
+		when focus_cd='3001' then '沉默串码'
+		when focus_cd='3002' then '养机'
+		when focus_cd='3004' then '拆包'
+		when focus_cd='3005' then '跨省串货'
+		else '合计' end as concernName,
+		tol_sell_num as tolSellNum,
+		err_num as
+		infractionNum,
+		trim (cast(err_num_per as decimal(18,2))) as qtyPercent,
+		err_num_hb as infractionNumMOM,
+		intarb_num as infractionNumCJ,
+		trim
+		(cast(intarb_num_per as decimal(18,2))) as qtyPercentCJ,
+		err_chnl as
+		infractionChnlNum,
+		trim (cast(err_chnl_per as decimal(18,2))) as
+		infractionChnlPercent,
+		trim (cast(err_chnl_per_gp as decimal(18,2))) as
+		infractionChnlPercentMom
+		from hpbus.sum_zdtl_3000_selldet
+		where aud_trm=#{audTrm}
+		and focus_cd
+		in('3001','3002','3004','3005','3001,3002,3004,3005')
+		<![CDATA[
+		and prvd_id=#{prvdId}
+		and cty_id=10000
+		]]>
+		order by focus_cd;
+	</select>
+
+	<!-- 终端套利-统计分析-整改问责-整改问责统计-近六个月-柱状图- add by 2017.08.25 -->
+	<select id="getRectifyForSixColumn" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,CMCC_prov_prvd_nm,count(*) as rectifyNum
+		from hpbus.sum_zdtl_3000_sfwz_mid
+ 	<![CDATA[
+    where  focus_cd='3000' 
+           and aud_trm<=#{audTrm}
+           and aud_trm>='201602'
+           and aud_trm>cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))
+  	group by prvd_id,CMCC_prov_prvd_nm
+ 	]]>
+		order by rectifyNum desc,prvd_id
+	</select>
+	<!-- 终端套利-统计分析-整改问责-整改问责统计-累计达到整改次数-柱状图- add by 2017.08.28 -->
+	<select id="getRectifyColumn" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,
+		CMCC_prov_prvd_nm,
+		count(*) as rectifyNum
+		from hpbus.sum_zdtl_3000_sfwz_mid
+ 	<![CDATA[
+    where focus_cd='3000' 
+    	and aud_trm<=#{audTrm}
+        and aud_trm>='201602'
+  	group by prvd_id,CMCC_prov_prvd_nm
+ 	 ]]>
+		order by rectifyNum desc,prvd_id
+	</select>
+	<!-- 终端套利-统计分析-整改问责-整改问责统计-达到整改数量趋势-折线图- add by 2017.08.28 -->
+	<select id="getRectifyLine" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,coalesce(t2.rectifyNum,0) as rectifyNum
+		from
+		(SELECT aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201602' and Aud_trm<=#{audTrm}
+		
+		group by aud_trm) as t1
+	left join
+		(	select Aud_trm,count(*) as rectifyNum 
+ 		from hpbus.sum_zdtl_3000_sfwz_mid
+        where  focus_cd='3000' 
+        	and Aud_trm in
+			(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 3
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201602'
+			)
+		]]>
+		group by Aud_trm) as t2
+		on t1.aud_trm=t2.Aud_trm
+		order by t1.aud_trm
+	</select>
+	<!-- 终端套利-统计分析-整改问责-整改问责统计-近六个月-柱状图- add by 2017.08.25 -->
+	<select id="getAccountForSixColumn" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,CMCC_prov_prvd_nm,count(*) as rectifyNum
+		from hpbus.sum_zdtl_3000_sfwz
+	<![CDATA[
+	where focus_cd='3000' 
+        and standard='1'
+        and aud_trm<=#{audTrm}
+        and aud_trm>='201602'
+        and aud_trm>cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))
+  	group by prvd_id,CMCC_prov_prvd_nm
+ 	 ]]>
+		order by rectifyNum desc,prvd_id
+	</select>
+
+	<!-- 终端套利-统计分析-整改问责-整改问责统计-累计达到问责次数-柱状图- add by 2017.09.01 -->
+	<select id="getAccountabilityColumn" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,
+		CMCC_prov_prvd_nm,
+		count(*) as rectifyNum
+		from hpbus.sum_zdtl_3000_sfwz
+	<![CDATA[
+	where focus_cd='3000' 
+		 and aud_trm<=#{audTrm}
+         and aud_trm>='201602'
+  	group by prvd_id,CMCC_prov_prvd_nm
+ 	 ]]>
+		order by rectifyNum desc,prvd_id
+	</select>
+	<!-- 终端套利-统计分析-整改问责-整改问责统计-达到问责数量趋势-折线图- add by 2017.08.28 -->
+	<select id="getAccountabilityLine" resultMap="zdtlData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,coalesce(t2.rectifyNum,0) as rectifyNum
+		from
+		(SELECT aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201602' and Aud_trm<=#{audTrm}
+		]]>
+		group by aud_trm) as t1
+		left join
+		( select Aud_trm,count(*) as rectifyNum
+		from hpbus.sum_zdtl_3000_sfwz
+         <![CDATA[
+        where focus_cd='3000' 
+        	and standard='1' 
+        	and aud_trm in
+			(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 3
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201602'
+			)
+			]]>
+		group by Aud_trm) as t2
+		on t1.aud_trm=t2.Aud_trm
+		order by t1.aud_trm
+	</select>
+
+	<!-- 终端套利-统计分析-重点关注渠道- add by 2017.08.28 -->
+	<select id="getFocusThingTable" resultType="java.util.Map"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		SELECT ranking as rn,chnl_name as chnlName,chnl_id as chnlId,
+		coalesce(CMCC_prvd_nm_short,'-') as prvdName,
+		coalesce(Aud_trm,'-') as
+		Aud_trm,
+		coalesce(tol_num,'-') as tol_num,
+		coalesce(infraction_num,'-')
+		as infraction_num,
+		coalesce(trim (cast(per_num_tmp*100 as
+		decimal(18,2)) (FORMAT 'ZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(20))),'-') as
+		per_num,
+		coalesce(m1_Aud_trm,'-') as m1_Aud_trm,
+		coalesce(m1_tol_num,'-') as m1_tol_num,
+		coalesce(trim
+		(cast(m1_per_num_tmp*100 as decimal(18,2)) (FORMAT
+		'ZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(20))),'-') as m1_per_num,
+		coalesce(m1_infraction_num,'-') as m1_infraction_num,
+		coalesce(m2_Aud_trm,'-') as m2_Aud_trm,
+		coalesce(m2_tol_num,'-') as
+		m2_tol_num,
+		coalesce(trim (cast(m2_per_num_tmp*100 as decimal(18,2))
+		(FORMAT 'ZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(20))),'-') as m2_per_num,
+		coalesce(m2_infraction_num,'-') as m2_infraction_num
+		FROM hpbus.sum_3000_chnl_top10
+		where Aud_trm=#{audTrm}
+		order by ranking;
+	</select>
+
+</mapper>

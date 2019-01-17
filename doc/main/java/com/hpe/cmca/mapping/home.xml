@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="home">
+
+	<select id="getCtyList" resultType="Map" parameterType="Map">
+		select * from HPMGR.TB_SUM_PRVD_NAME where CMCC_prvd_cd = #{prvdId}
+	</select>
+
+	<select id="qdykInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select
+		Aud_trm as audTrm,
+		errQty as  errQty,
+		qtyPercent as qtyPercent,
+		case
+			when substr(abs_fbQtyPercent,1,4)='下降' then -1
+			when substr(abs_fbQtyPercent,1,4)='上升' then  1
+			else 0
+		end as fbQtyPercentFlag,
+		substr(abs_fbQtyPercent,5) as fbQtyPercent
+		from	hppdata.Sum_qdyk_2002_prvdtl where prvd_id=${prvdId} and chnl_class=0 and Aud_trm=${audTrm}
+	</select>
+
+	<select id="zdtlInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select
+		Aud_trm as audTrm,
+		errQty as  errQty,
+		qtyPercent as qtyPercent,
+		case
+			when substr(abs_fbQtyPercent,1,4)='下降' then -1
+			when substr(abs_fbQtyPercent,1,4)='上升' then  1
+			else 0
+		end as fbQtyPercentFlag,
+		substr(abs_fbQtyPercent,5) as fbQtyPercent
+		from hppdata.Sum_zdtl_3000_report where  prvd_id=${prvdId} and focus_cd=3000 and Aud_trm=${audTrm}
+	</select>
+
+	<select id="yjkInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+	 <if test="prvdId=='10000' ">
+	select audTrm, a.err(FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errAmt,a.per(FORMAT 'ZZ9.99%')(VARCHAR(7)) as qtyPercent,abs(a.per-b.per)(FORMAT 'ZZ9.99')(VARCHAR(7)) as fbQtyPercent,case when a.per-b.per>=0 then 1 else -1 end as fbQtyPercentFlag
+	from (SELECT aud_trm as audTrm, sum(errAmt) as err,sum(tolAmt)as tol,(case when tol =0 then 0 else err*1.0000/tol end)*100 as per
+	FROM hppdata.sum_yjk_prvdmap where aud_trm=${audTrm} and concern_id='1000' group by 1)a left join
+	(SELECT sum(errAmt) as err,sum(tolAmt)as tol,(case when tol =0 then 0 else err*1.0000/tol end)*100 as per
+	FROM hppdata.sum_yjk_prvdmap where aud_trm=
+	substr(cast( add_months(cast(${audTrm}||'01'as date format 'yyyyMMdd') ,-1)as date format 'yyyyMMdd'),1,6)
+	and concern_id='1000' )b on 1=1
+	</if>
+	<if test="prvdId!='10000' ">
+	select audTrm,a.err(FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errAmt,a.per(FORMAT 'ZZ9.99%')(VARCHAR(7)) as qtyPercent,abs(a.per-b.per)(FORMAT 'ZZ9.99')(VARCHAR(7)) as fbQtyPercent,case when a.per-b.per>=0 then 1 else -1 end as fbQtyPercentFlag
+	from (SELECT aud_trm as audTrm,  sum(errAmt) as err,sum(tolAmt)as tol,(case when tol =0 then 0 else err*1.0000/tol end)*100 as per
+	FROM hppdata.sum_yjk_prvdmap where aud_trm=${audTrm} and concern_id='1000' and regionId=${prvdId} group by 1)a left join
+	(SELECT sum(errAmt) as err,sum(tolAmt)as tol,(case when tol =0 then 0 else err*1.0000/tol end)*100 as per
+	FROM hppdata.sum_yjk_prvdmap where aud_trm=
+	substr(cast( add_months(cast(${audTrm}||'01'as date format 'yyyyMMdd') ,-1)as date format 'yyyyMMdd'),1,6)
+	and concern_id='1000'  and regionId=${prvdId})b on 1=1
+	</if>
+	</select>
+
+	<select id="getPermission" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select
+		status
+		from hpmgr.busi_permission
+		where  id =1
+	</select>
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.JkyjMapper">
+
+	<!-- 监控预警-->
+	<!-- 取专题信息 -->
+	<select id="getSubjectInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select 
+		subject_id,
+		subject_name,
+		module_num
+		from hppdata.sum_subject_all
+	</select>
+	<!-- 取专题下模块信息 -->
+	<select id="getModuleInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select subject_id,
+		  module_name,
+       	  module_id,
+          sql_text_column,
+          columns_name,
+          sql_text_line,
+          line_name,
+          sql_text_dui,
+          dui_name
+		from hppdata.sum_model_all
+		where 1=1
+		<if test="subjectId != null">
+		and subject_id =#{subjectId}
+		</if>
+		<if test="moduleId != null">
+		and module_id =#{moduleId}
+		</if>
+	</select>
+	
+	<!-- 取模块下的关注点 -->
+	<select id="getConcernInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select 
+		 concern_id,
+		 concern_name,
+		 concern_params
+		from hppdata.sum_concern_all
+		where module_id =#{moduleId}
+	</select>
+	<!-- 获取图形参数 -->
+	<select id="getChartInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		${sqlChart}
+	</select>
+	<!-- 获取柱形图形参数 -->
+	<select id="getColumnInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		${sqlColumnChart}
+		<!-- select prvdName,yctfNum,hfzsNum,jfzyNum,jfzsNum from table -->
+	</select>
+	
+	
+	
+	
+</mapper>
+

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>审计开关</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/css/cmca/sjkg.css">
+    <!--  <link rel="stylesheet" href="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.css">
+    <script src="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.js"></script> -->
+    <link rel="stylesheet" href="/cmca/resource/plugins/bootstrap-switch/bootstrap-switch.css">
+</head>
+
+<body class="light_style">
+    <form id="queryParam">
+        <!-- 专题ID -->
+        <input type="hidden" id="subjectId" value="1" />
+        <!-- 各专题关注点-默认为汇总 -->
+        <input type="hidden" id="focusCd" value="" />
+        <!-- 专题下关注点数量 -->
+        <input type="hidden" id="focusNum" value="" />
+        <!-- 审计年 -->
+        <input type="hidden" id="auditYear" value="" />
+        <!-- 审计月 -->
+        <input type="hidden" id="selMonth" value="" />
+        <!-- 审计周期 -->
+        <input type="hidden" id="audTrm" value="" />
+        <!-- 是否自动生成 -->
+        <input type="hidden" id="isAuto" value="false" />
+        <!-- 登录所属角色 -->
+        <input type="hidden" id="roleId" value="" />
+    </form>
+    <div class="wrapper">
+        <!-- 公共头部 -->
+        <div class="public_header">
+            <p>数据审计平台</p>
+        </div>
+        <!-- 公共主体 -->
+        <div class="public_main">
+            <!-- 侧边栏 -->
+            <div class="public_side_bar" id="navHref">
+                <!-- ≤1366侧边栏 -->
+                <ul class="small_bar" id="smallSideBar">
+                    <li class="title_icon home_icon">
+                        <a href="javascript:;" class="nav_icon" data="navHome">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>首页
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjizhuanti"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计专题
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYktl">
+                            <span class="iconfont icon-yangkataoli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>养卡套利
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navZdtl">
+                            <span class="iconfont icon-zhongduantaol"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>社会渠道终端套利
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYjk">
+                            <span class="iconfont icon-youjiaqia"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>有价卡管理违规
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navKhqf">
+                            <span class="iconfont icon-kehuqianfei"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>客户欠费
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYgyccz">
+                            <span class="iconfont icon-yuangongyichang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>员工异常业务操作
+                        </a>
+                    </li>
+                    <li class="content_icon dzqglwg_item">
+                        <a href="javascript:;" class="nav_icon" data="navDzqglwg">
+                            <span class="iconfont icon-dzqglwg"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>电子券管理违规
+                        </a>
+                    </li>
+                    <li class="content_icon llglwg_item">
+                        <a href="javascript:;" class="nav_icon" data="navLlglwg">
+                            <span class="iconfont icon-llglwg"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>流量管理违规
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjigenjin"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计跟进
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjgjZgxx">
+                            <span class="iconfont icon-zhenggaixinxi"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>整改信息
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjgjWzxx">
+                            <span class="iconfont icon-wenzexinxi"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>问责信息
+                        </a>
+                    </li>
+                    <li class="title_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-yewuguanli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>业务管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navXqgl">
+                            <span class="iconfont icon-fabuxuqiu"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>需求管理
+                        </a>
+                    </li>
+                    <li class="content_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjikaiguan"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计开关
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjbg">
+                            <span class="iconfont icon-baogaoxaizai"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>报告下载
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navCsgl">
+                            <span class="iconfont icon-canshuguanli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>参数管理
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-yewugjianongjiyujing"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>风险监控
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navQfgl">
+                            <span class="iconfont icon-arrears-status"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>欠费管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navZbgl">
+                            <span class="iconfont icon-zhangben"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>账本管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYxzygl">
+                            <span class="iconfont icon-canshuguanli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>营销资源管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navKdgl">
+                            <span class="iconfont icon-kuandaitianchong"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>宽带管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navWlwgl">
+                            <span class="iconfont icon-iotwulianwang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>物联网管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+						<a href="javascript:;" class="nav_icon" data="navYkgl">
+							<span class="iconfont icon-ykgl"></span>
+						</a>
+						<a href="javascript:;" class="nav_tip">
+							<i class="caret_left"></i>养卡管理
+						</a>
+					</li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-gerengongzuoqu"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>个人工作区
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjbgys">
+                            <span class="iconfont icon-shenjibaogaoyushen"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计报告预审
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navQxcx">
+                            <span class="iconfont icon-quanxianchaxun"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>权限查询
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navRzcx">
+                            <span class="iconfont icon-rizhi"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>日志查询
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjzlgl">
+                            <span class="iconfont icon-shujuzhiliang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>数据质量管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navWtfk">
+                        <span class="iconfont icon-question-feedba"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                        <i class="caret_left"></i>问题报送及反馈
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjrw">
+                        <span class="iconfont icon-gongrengongzuoqu"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                        <i class="caret_left"></i>审计任务管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navfileModelConfig">
+                        <span class="iconfont icon-shujuzhiliang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                        <i class="caret_left"></i>报告模板配置
+                        </a>
+                    </li>
+                    <li class="title_icon">
+			            <a href="javascript:;" class="nav_icon">
+			              <span class="iconfont icon-yuanshujushenjigongju"></span>
+			            </a>
+			            <a href="javascript:;" class="nav_tip">
+			              <i class="caret_left"></i>审计工具
+			            </a>
+			          </li>
+			          <li class="content_icon">
+			            <a href="javascript:;" class="nav_icon" data="navSjcx">
+			              <span class="iconfont icon-ysjcx-icon-shujuchaxun"></span>
+			            </a>
+			            <a href="javascript:;" class="nav_tip">
+			              <i class="caret_left"></i>审计数据集市管理
+			            </a>
+			          </li>
+                </ul>
+                <!-- ＞1366px侧边栏 -->
+                <ul class="big_bar" id="bigSideBar">
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0);" data="navHome" onclick="navLocation(this);">
+                                <span class="glyphicon glyphicon-home"></span>首页
+                            </a>
+                        </h5>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-shenjizhuanti"></span>审计专题
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navYktl">养卡套利</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navZdtl">社会渠道终端套利</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYjk">有价卡管理违规</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navKhqf">客户欠费</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYgyccz">员工异常业务操作</a>
+                            </li>
+                            <li class="dzqglwg_item">
+                                <a href="javascript:void(0)" data="navDzqglwg">电子券管理违规</a>
+                            </li>
+                            <li class="llglwg_item">
+                                <a href="javascript:void(0)" data="navLlglwg">流量管理违规</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-shenjigenjin"></span>审计跟进
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navSjgjZgxx">整改信息</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjgjWzxx">问责信息</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="active">
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-yewuguanli"></span>业务管理
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navXqgl">需求管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" class="active">审计开关</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjbg">报告下载</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navCsgl">参数管理</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-yewugjianongjiyujing"></span>风险监控
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navQfgl">欠费管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navZbgl">账本管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYxzygl">营销资源管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navKdgl">宽带管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navWlwgl">物联网管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYkgl">养卡管理</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-gerengongzuoqu"></span>个人工作区
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navSjbgys">审计报告预审</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navQxcx">权限查询</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navRzcx">日志查询</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjzlgl">数据质量管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navWtfk">问题报送及反馈</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjrw">审计任务管理</a>
+                            </li>
+                            <li><a href="javascript:void(0)" data="navfileModelConfig">报告模板配置</a></li>
+                        </ul>
+                    </li>
+                     <li>
+					  <h5 class="nav_title">
+					     <a href="javascript:void(0)">
+					        <span class="iconfont icon-yuanshujushenjigongju"></span>审计工具
+					        <i class="caret_up"></i>
+					     </a>
+					   </h5>
+					  <ul class="nav_list">
+					        <li>
+					          <a href="javascript:void(0)" data="navSjcx">审计数据集市管理</a>
+					        </li>
+					  </ul>
+				  </li>
+                </ul>
+            </div>
+            <!-- 主体展示内容 -->
+            <div class="main_content clear_float">
+                <!-- 顶部导航 -->
+                <div class="row top_nav">
+                    <ol class="breadcrumb">
+                        <li>业务管理</li>
+                        <li class="active">审计开关</li>
+                    </ol>
+                </div>
+                <!-- 顶部筛选/查询/新增 -->
+                <form class="form-inline top_search">
+                    <div class="form-group">
+                        <label class="col-xs-4" for="chooseSpecial">专题名称</label>
+                        <div class="col-xs-8 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseSpecial" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="specialNameWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" value="" id="specialNameList">
+                                    <!-- 后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-xs-3" for="chooseTime">审计月</label>
+                        <div class="col-xs-7 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseTime" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="timeListWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" id="timeList">
+                                    <!-- 后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group fr">
+                        <button class="btn btn-primary" id="searchBtn" type="button">查询</button>
+                        <button class="btn btn-primary" id="addBtn" type="button" data-toggle="modal" data-target="#myModal"
+                            style="display:none">新增</button>
+                    </div>
+                </form>
+
+                <!-- 主体展示内容 -->
+                <div class="row main_show_wrap" id="mainShowWrap">
+                    <div id="mainShow" class="col-xs-12">
+                        <div class="row component">
+                            <!-- 控件1 -->
+                            <div class="chart_item col-xs-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading blue_heading">
+                                        <div class="panel-title clear_float">
+                                            <h6 class="fl">审计开关状态分布图</h6>
+                                            <ul class="list-inline fr top_legend">
+                                                <li class="line_lenged red"></li>
+                                                <li>界面开启</li>
+                                                <li class="line_lenged blue"></li>
+                                                <li>下载开启</li>
+                                                <li class="line_lenged none"></li>
+                                                <li>关闭</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="chart_wrap ganttWrapWrap" id="ganttWrapWrapShow2">
+                                            <div class="chart gantt_wrap" id="ganttWrap" style="width: 1500px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 控件2 -->
+                            <div class="chart_item col-xs-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading green_heading">
+                                        <div class="panel-title clear_float">
+                                            <h6 class="fl" id="calTitleH6"></h6>
+                                            <ul class="list-inline fr top_legend">
+                                                <li class="cycle_lenge yellow"></li>
+                                                <li id="calTitleli1">系统界面,报告及清单下载</li>
+                                                <li class="cycle_lenge red"></li>
+                                                <li id="calTitleli2">系统界面</li>
+                                                <li class="cycle_lenge blue"></li>
+                                                <li id="calTitleli3">报告及清单下载</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="chart_wrap" id="contentShowWrap2">
+                                            <div class="chart content_show" id="contentShow2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="component">
+                            <div class="panel panel-default">
+                                <div class="panel-heading yellow_heading">
+                                    <div class="panel-title clear_float">
+                                        <h6 class="fl">审计开关列表</h6>
+                                    </div>
+                                </div>
+                                <div class="panel-footer clear_float panel_footer_table_style_color">
+                                    <div class="col-xs-12 table_wrap" id="fenxiFourNav1FiveNav1Con">
+                                        <table id="rankingAllTable" class="table table-bodered table-striped"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="1" role="dialog" style="z-index:9999" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <!-- 中间搜索区域 -->
+                    <div class="row main_search col-smx-4">
+                        <label class="col-xs-3" for="chooseModalSpecial">专题名称</label>
+                        <div class="col-xs-5 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseModalSpecial" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="modelSpecialNameWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" value="" id="modelSpecialNameList">
+                                    <!-- 		后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row main_search col-smx-4">
+                        <label class="col-xs-3" for="chooseModelTime">审计月</label>
+                        <div class="col-xs-5 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="请选择" id="chooseModelTime" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="modelTimeWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" value="" id="modelTimeList">
+                                    <!-- 		后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row main_search col-smx-4">
+                        <label class="col-xs-3" for="chooseModalType">类型</label>
+                        <div class="col-xs-5 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="请选择" id="chooseModalType" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="modelTypeWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" value="" id="modelTypeList">
+                                    <!-- 		后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row main_search col-smx-4">
+                        <label class="col-xs-3" for="chooseModelSwitch">开关状态</label>
+                        <div class="col-xs-4 dropdown_con" id="switchLargeChecked">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btnOK" id="sjkgAddBtnOK" disabled>确认</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消
+                        </button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal -->
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/cmca/resource/plugins/echarts/echarts.min.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/cmca-common.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/sjkg/sjkgData.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/sjkg/sjkg.js"></script>
+    <script type="text/javascript" src="/cmca/resource/plugins/bootstrap-switch/bootstrap-switch.js"></script>
+</body>
+
+</html>

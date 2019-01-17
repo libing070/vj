@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 个人 -->
+<mapper namespace="DZQ6000">
+
+<select id="auditReport_select_sum_6002" resultType="java.util.Map" parameterType="java.util.Map">
+	SELECT aud_trm as audTrm,
+		cmcc_prov_prvd_nm as prvdName,
+		trim(cmcc_amt (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as sumAmt,
+		cmcc_sum_num as sumNum,
+		trim(cmcc_err_amt (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,
+		cmcc_err_num as errNum,
+		trim (cmcc_err_amt_per*100.00 (FORMAT 'ZZ9.99%')(VARCHAR(7))) as errAmtPer
+	FROM hpbus.sum_dzq_prvd_6002
+  	WHERE aud_trm =#{statCycle}
+  		and cmcc_prov_prvd_id=#{provinceCode};
+  </select>
+</mapper>

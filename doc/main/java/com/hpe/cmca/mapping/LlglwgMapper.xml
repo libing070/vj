@@ -1,0 +1,1329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.LlglwgMapper">
+<resultMap type="com.hpe.cmca.pojo.LlglwgData"  id="llglwgData">
+        <result property="audTrm" column="aud_trm"/>
+        <result property="rn" column="rn"/>
+		<result property="prvdId" column="cmcc_prov_prvd_id"/>
+		<result property="ctyId" column="CMCC_prvd_cd"/>
+		<result property="prvdName" column="CMCC_prov_prvd_nm"/>
+		<result property="errTrafficNumber" column="yszs_sum_strm_cap"/>
+		<result property="errTrafficPercent" column="yszs_propor"/>
+		<result property="illegalGroupNumber" column="yszs_cnt_org"/>
+		<result property="illegalGroupPercent" column="yszs_cnt_org_zb"/>
+		
+		<result property="errTrafficTotle" column="yszs_sum_cnt"/>
+		
+		<result property="trafficValueTotle" column="giv_value_tol"/>
+		<result property="trafficTotle" column="giv_value_tol"/>
+		<result property="subsTotle" column="giv_subs_tol"/>
+		<result property="errSubsTotle" column="infrac_subs_cnt"/>
+		
+		<result property="paySystemSubsOrg" column="tf_cnt_org"/>
+		<result property="paySystemValueOrg" column="tf_sum_strm_cap"/>
+		<result property="paySystemNumber" column="tf_sum_cnt"/>
+		<result property="paySystemPhoneTotle" column="tf_sum_msisdn"/>
+		<result property="errPaySystemPhoneTotle" column="yszs_sum_msisdn"/>
+		<result property="errPaySystemPhonePer" column="yszs_propor"/>
+        <result property="errTrafficNumberMom" column="yszs_sum_strm_cap_zf"/>
+            
+        <result property="errHighFrequency" column="hf_value"/>
+		<result property="errHighLimit" column="hq_value"/>
+        <result property="abnormalSubs" column="yk_value"/>
+</resultMap>
+
+<resultMap type="com.hpe.cmca.pojo.LlglwgBottomData"  id="llglwgBottomData">
+		<result property="errTrafficNumber" column="yszs_sum_strm_cap"/>
+		<result property="errTrafficNumberMom" column="yszs_sum_strm_cap_zf"/>
+		<result property="errTrafficPercent" column="yszs_propor"/>
+		<result property="errTrafficPercentMom" column="yszs_propor_zf"/>
+		
+	    <result property="errTrafficTotle" column="infrac_cnt"/>
+		<result property="errTrafficTotleMom" column="infrac_cnt_zf"/>
+		<result property="errSubsTotle" column="infrac_subs_cnt"/>
+		<result property="errSubsTotleMom" column="infrac_subs_cnt_zf"/>
+		
+		<result property="illegalGroupNumber" column="yszs_cnt_org"/>
+		<result property="illegalGroupNumberMom" column="yszs_cnt_org_zf"/>
+		<result property="paySystemGroupNumber" column="tf_cnt_org"/>
+		<result property="paySystemGroupNumberMom" column="tf_cnt_org_zf"/>
+</resultMap>
+
+<!-- *************************************************************************************************************************-->
+<!-- 结果集映射 从实体对象到关系数据库 -->
+<resultMap type="com.hpe.cmca.pojo.LlglwgForZgwzPojo"  id="LlglwgForZgwzPojo">
+	<result property="auditMonth" column="aud_trm"/>
+	<result property="provinceId" column="cmcc_prov_prvd_id"/>
+	<result property="provinceName" column="cmcc_prov_prvd_nm"/>
+	<result property="currNumForColumn" column="c"/>
+	<result property="currNumForLine" column="oci"/>
+	<result property="company" column="CMCC_prov_prvd_nm"/>
+	<result property="groupFlag" column="org_cust_id"/>
+	<result property="groupName" column="org_nm"/>
+	<result property="wgtm" column="wgtm"/>
+	<result property="wgType" column="wg_type"/>
+	
+	<!-- 新增 -->
+	<result property="initPrvdId" column="cmcc_prov_prvd_id"/>
+	<result property="initPrvdNm" column="CMCC_prov_prvd_nm"/>
+	<result property="initPrvdData" column="bpnOne"/>
+	
+	
+	<result property="initCityId" column="cmcc_prvd_cd"/>
+	<result property="initCityNm" column="CMCC_prvd_nm_short"/>
+	<result property="initCityData" column="bpnTwo"/>
+</resultMap>
+<!-- ************************************************************************************************* -->
+<!-- 结果集映射 从实体对象到关系数据库 -->
+<resultMap type="com.hpe.cmca.pojo.LlglwgCompanyInfoPojo"  id="LlglwgCompanyInfoPojo">
+	<result property="orgCustId" column="org_cust_id"/>
+	<result property="companyName" column="org_nm"/>
+	<result property="formName" column="busn_form"/>
+	<result property="modeName" column="busn_mode_cd"/>
+	<result property="prvdName" column="prvd_nm"/>
+	<result property="city" column="cmcc_prvd_nm_short"/>
+	<!-- 新增 -->
+	<result property="audTrm" column="aud_trm"/>
+	<result property="prvdId" column="prvd_id"/>
+	<result property="cityId" column="jt_cmcc_prvd_id"/>
+	<result property="isNotWgCurrMonth" column="err_aud_trm"/>
+	<result property="tfSum" column="tf_sum_strm_cap"/>
+	<result property="tfSumStrmPrvdPer" column="tf_sum_strm_prvd_per"/>
+	<result property="tfSumStrmAllerrPer" column="tf_sum_strm_allerr_per"/>
+	<result property="tfSumCnt" column="tf_sum_cnt"/>
+	<result property="tfCntMsisdn" column="tf_cnt_msisdn"/>
+	<result property="avgStrm" column="avg_strm"/>
+	<result property="memberStabRate" column="member_stab_rate"/>
+	<result property="ctyLevelRate" column="cty_level_rate"/>
+	<result property="a3" column="a3"/>
+	<result property="SumDt" column="sum_dt"/>
+	<result property="duociSum" column="duoci_sum"/>
+	<result property="duochuSum" column="duochu_sum"/>
+	
+	<!-- 重点关注集团属性 -->
+	<result property="focusOrgId" column="aoci"/>
+	<result property="focusOrgName" column="aon"/>
+	<result property="focusPrvdId" column="apid"/>
+	<result property="focusPrvdName" column="apn"/>
+	<result property="currIsNotWg" column="beat"/>
+	<result property="currAudTrm" column="bat"/>
+	<result property="currTfSum" column="btssc"/>
+	<result property="currTfSumStrmPrvdPer" column="btsspp"/>
+	<result property="currTfSumStrmAllerrPer" column="btssap"/>
+	<result property="oneMonthAgoIsNotWg" column="ceat"/>
+	<result property="oneMonthAgoAudTrm" column="cat"/>
+	<result property="oneMonthAgoTfSum" column="ctssc"/>
+	<result property="oneMonthAgoTfSumStrmPrvdPer" column="ctsspp"/>
+	<result property="oneMonthAgoTfSumStrmAllerrPer" column="ctssap"/>
+	<result property="twoMonthAgoIsNotWg" column="deat"/>
+	<result property="twoMonthAgoAudTrm" column="dat"/>
+	<result property="twoMonthAgoTfSum" column="dtssc"/>
+	<result property="twoMonthAgoTfSumStrmPrvdPer" column="dtsspp"/>
+	<result property="twoMonthAgoTfSumStrmAllerrPer" column="dtssap"/>
+</resultMap>
+<!-- ************************************************************************************************* -->
+<!-- 整改/问责具体信息实体类对应关系 -->
+<resultMap type="com.hpe.cmca.pojo.LlglwgForZgwzInfoTablePojo"  id="LlglwgForZgwzInfoTablePojo">
+	<result property="zgaudTrm" column="aud_trm"/>
+	<result property="prvdName" column="prvd_nm"/>
+	<result property="prvdId" column="prvd_id"/>
+	<result property="orgNm" column="org_nm"/>
+	<result property="orgCustId" column="org_cust_id"/>
+	<result property="prvdTfllSum" column="prvd_lltf_strm"/>
+	<result property="prvdYszsSum" column="prvd_yszs_strm"/>
+	<result property="zg1pe" column="zg1per"/>
+	<result property="orgYszsllSum" column="org_yszs_strm"/>
+	<result property="allOrgWgzsSum" column="all_lltf_strm"/>
+	<result property="zg2pe" column="zg2per"/>
+	<result property="wgAud" column="wg_aud"/>
+	<result property="wgType" column="wg_type"/>
+	<result property="wzType" column="wz_type"/>
+</resultMap>
+<!-- *************************************************************************************************************************** -->
+
+<!-- 整改/问责具体信息实体类对应关系 -->
+<resultMap type="com.hpe.cmca.pojo.LltfForSumOrgPojo"  id="LltfForSumOrgPojo">
+	<result property="rankOrg" column="rank_org"/>
+	<result property="rankPrvd" column="rank_prvd"/>
+	<result property="audTrm" column="aud_trm"/>
+	<result property="prvdId" column="cmcc_prov_prvd_id"/>
+	<result property="prvdName" column="CMCC_prov_prvd_nm"/>
+	<result property="cityId" column="cmcc_prov_id"/>
+	<result property="cityName" column="jt_cmcc_prvd_nm_short"/>
+	<result property="busnMode" column="busn_mode_nm"/>
+	<result property="busnForm" column="busn_form_nm"/>
+	<result property="orgNm" column="org_nm"/>
+	<result property="orgCustId" column="org_cust_id"/>
+	<result property="sumStrmCap" column="sum_strm_cap"/>
+	<result property="strmCapPer" column="strm_cap_per"/>
+	<result property="sumCnt" column="sum_cnt"/>
+	<result property="sumMission" column="sum_msisdn"/>
+	<result property="avgStrmCap" column="avg_strm_cap"/>
+	<result property="memberStabRate" column="member_stab_rate"/>
+	<result property="ctyLevelRate" column="cty_level_rate"/>
+	<result property="a3" column="a3"/>
+	<result property="duociSum" column="duoci_sum"/>
+	<result property="duochuSum" column="duochu_sum"/>
+</resultMap>
+
+<!-- *************************************************************************************************************************** -->
+
+<!-- 流量管理违规-风险地图 -->
+<select id="getMapData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001 and prvdId==10000 and parameterType=='trafficNumColumn'">
+    select t1.CMCC_prov_prvd_nm,
+        t1.CMCC_prov_prvd_id as prvdId,
+     	case when yszs_sum_strm_cap is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_sum_strm_cap DESC)  else 0 end  as rn,
+        t2.yszs_sum_strm_cap as errTrafficNumber
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_sum_strm_cap
+        from hpbus.sum_lltf_prvd_webcard
+        <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficNumber desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7001 and prvdId!=10000 and parameterType=='trafficNumColumn'">
+    select t1.CMCC_prvd_nm_short as prvdName,
+        CMCC_prvd_cd as ctyId,
+        case when yszs_sum_strm_cap is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_sum_strm_cap DESC)  else 0 end  as rn,
+    	t2.yszs_sum_strm_cap as errTrafficNumber
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_sum_strm_cap
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficNumber desc,t1.CMCC_prvd_cd;
+    </if>
+    <if test="concern == 7001 and prvdId==10000 and parameterType=='trafficPercentColumn'">
+    select t1.CMCC_prov_prvd_nm,
+        t1.CMCC_prov_prvd_id as prvdId,
+        case when yszs_propor is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_propor DESC)  else 0 end  as rn,
+        t2.yszs_propor as errTrafficPercent
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_propor*100 as yszs_propor
+        from hpbus.sum_lltf_prvd_webcard
+        <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficPercent desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7001 and prvdId!=10000  and parameterType=='trafficPercentColumn'">
+    select t1.CMCC_prvd_nm_short as prvdName,
+        CMCC_prvd_cd as ctyId,
+        case when yszs_propor is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_propor DESC)  else 0 end  as rn,
+    	t2.yszs_propor as errTrafficPercent
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_propor*100 as yszs_propor
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficPercent desc,t1.CMCC_prvd_cd;
+    </if>
+    
+    <if test="concern == 7001 and prvdId==10000 and parameterType=='illegalGroupNumColumn'">
+    select t1.CMCC_prov_prvd_nm,
+        t1.CMCC_prov_prvd_id as prvdId,
+        case when yszs_cnt_org is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_cnt_org DESC)  else 0 end  as rn,
+        t2.yszs_cnt_org as illegalGroupNumber
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_cnt_org
+        from hpbus.sum_lltf_prvd_webcard
+    <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by illegalGroupNumber desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+     <if test="concern == 7001 and prvdId!=10000 and parameterType=='illegalGroupNumColumn'">
+    select t1.CMCC_prvd_nm_short as prvdName,
+        CMCC_prvd_cd as ctyId,
+        case when yszs_cnt_org is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_cnt_org DESC)  else 0 end  as rn,
+    	t2.yszs_cnt_org as illegalGroupNumber
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_cnt_org
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by illegalGroupNumber desc,t1.CMCC_prvd_cd;
+    </if>
+    
+    <if test="concern == 7001 and prvdId==10000 and parameterType=='illegalGroupPercentColumn'">
+    select t1.CMCC_prov_prvd_nm,
+        t1.CMCC_prov_prvd_id as prvdId,
+        case when yszs_cnt_org_zb is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_cnt_org_zb DESC)  else 0 end  as rn,
+        t2.yszs_cnt_org_zb as illegalGroupPercent
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_cnt_org_zb*100 as yszs_cnt_org_zb
+        from hpbus.sum_lltf_prvd_webcard
+    <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by illegalGroupPercent desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7001 and prvdId!=10000 and parameterType=='illegalGroupPercentColumn'">
+    select t1.CMCC_prvd_nm_short as prvdName,
+        CMCC_prvd_cd as ctyId,
+        case when yszs_cnt_org_zb is not null then ROW_NUMBER() OVER (ORDER BY t2.yszs_cnt_org_zb DESC)  else 0 end  as rn,
+    	t2.yszs_cnt_org_zb as illegalGroupPercent
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_cnt_org_zb*100 as yszs_cnt_org_zb
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by illegalGroupPercent desc,t1.CMCC_prvd_cd;
+    </if>
+    <if test="concern == 7003 and prvdId==10000">
+     select t1.CMCC_prov_prvd_nm,
+        t1.CMCC_prov_prvd_id as prvdId,
+        case when infrac_value is not null then ROW_NUMBER() OVER (ORDER BY t2.infrac_value DESC)  else 0 end  as rn,
+        t2.infrac_value as errTrafficNumber
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	     select prvd_id,
+	         prvd_nm,
+	         infrac_value
+	     from hpbus.sum_llzs_prvd_webcard
+	     where aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficNumber desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7003 and prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+        CMCC_prvd_cd as ctyId,
+        case when infrac_value is not null then ROW_NUMBER() OVER (ORDER BY t2.infrac_value DESC)  else 0 end  as rn,
+    	t2.infrac_value as errTrafficNumber
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+     select cty_id,cty_nm,infrac_value
+    from hpbus.sum_llzs_city_webcard
+    where prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficNumber desc,t1.CMCC_prvd_cd;
+	</if>
+</select>
+
+<!-- 流量管理违规-风险地图-地图下钻-异常流量赠送-7003-重点关注营销案 -->
+<select id="getFocusOfferOfCityTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+select  ROW_NUMBER() OVER (ORDER BY infrac_value desc) as rn,offer_nm, offer_cd,giv_value_tol,giv_cnt_tol, giv_subs_tol,
+		infrac_value, infrac_cnt, infrac_subs_cnt,infrac_value_pre*100 as infrac_value_pre
+from	hpbus.sum_llzs_offer_info_prvd 
+<![CDATA[
+where	aud_trm =#{audTrm}
+	and	prvd_id =#{prvdId}
+	and cty_id=#{ctyId}
+order	by rn
+QUALIFY ROW_NUMBER() OVER (ORDER BY infrac_value DESC)<=100;
+]]>
+</select>
+<!-- 流量管理违规-统计分析-地图下钻-疑似违规流量转售集团客户信息-->
+<select id="getFocusOrgCustomerOfCityTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">	
+    SELECT	ROW_NUMBER() OVER (ORDER BY sum_strm_cap desc) as rn, busn_mode_nm, org_nm, org_cust_id, sum_strm_cap,
+		strm_cap_per*100 as strm_cap_per, sum_cnt, sum_msisdn, avg_strm_cap
+	FROM	hpbus.sum_lltf_7001_org
+	<![CDATA[
+	where aud_trm=#{audTrm}
+	    and cmcc_prov_prvd_id=#{prvdId}
+	    and cmcc_prov_id=#{ctyId}
+	order by rn
+	QUALIFY ROW_NUMBER() OVER (ORDER BY sum_strm_cap DESC)<=100;
+	]]>
+</select>
+
+<!-- 流量管理违规-风险地图-下方卡片 -->
+<select id="getMapBottomData" resultMap="llglwgBottomData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001">
+	select  yszs_sum_strm_cap,
+	    yszs_sum_strm_cap_zf,
+	    yszs_propor*100 as yszs_propor,
+	    yszs_propor_zf*100 as yszs_propor_zf,
+	    tf_cnt_org,
+	    tf_cnt_org_zf,
+	    yszs_cnt_org,
+	    yszs_cnt_org_zf
+    from hpbus.sum_lltf_prvd_webcard
+    where  aud_trm=#{audTrm}
+        and cmcc_prov_prvd_id=#{prvdId}
+    </if>
+    <if test="concern == 7003">
+	select   infrac_value as errTrafficNumber,
+	    infrac_value_zf as errTrafficNumberMom,
+	    infrac_value_pre*100 as errTrafficPercent,
+	    infrac_value_pre_zf*100 as errTrafficPercentMom,
+	    infrac_cnt,
+	    infrac_cnt_zf,
+	    infrac_subs_cnt,
+	    infrac_subs_cnt_zf
+	from hpbus.sum_llzs_prvd_webcard
+	where aud_trm=#{audTrm}
+	    and prvd_id=#{prvdId}
+    </if>
+</select>
+
+<!-- 流量管理违规-审计结果-流量数量异常-柱状图 -->
+<select id="getTrafficNumColumnData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001 and prvdId==10000">
+    select t1.CMCC_prov_prvd_nm,
+        t2.yszs_sum_strm_cap as errTrafficNumber
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_sum_strm_cap
+        from hpbus.sum_lltf_prvd_webcard
+        <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficNumber desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7001 and prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+    	t2.yszs_sum_strm_cap as errTrafficNumber
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_sum_strm_cap
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficNumber desc,t1.CMCC_prvd_cd;
+    </if>
+    <if test="concern == 7003 and prvdId==10000">
+     select t1.CMCC_prov_prvd_nm,
+        t2.infrac_value as errTrafficNumber
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	     select prvd_id,
+	         prvd_nm,
+	         infrac_value
+	     from hpbus.sum_llzs_prvd_webcard
+	     where aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficNumber desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7003 and prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+    	t2.infrac_value as errTrafficNumber
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+     select cty_id,cty_nm,infrac_value
+    from hpbus.sum_llzs_city_webcard
+    where prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficNumber desc,t1.CMCC_prvd_cd;
+	</if>
+</select>
+
+<!-- 流量管理违规-审计结果-流量占比异常-柱状图 -->
+<select id="getTrafficPercentColumnData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001 and prvdId==10000">
+    select t1.CMCC_prov_prvd_nm,
+        t2.yszs_propor as errTrafficPercent
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_propor*100 as yszs_propor
+        from hpbus.sum_lltf_prvd_webcard
+        <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficPercent desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7001 and prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+    	t2.yszs_propor as errTrafficPercent
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_propor*100 as yszs_propor
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficPercent desc,t1.CMCC_prvd_cd;
+    </if>
+    <if test="concern == 7003 and prvdId==10000">
+     select t1.CMCC_prov_prvd_nm,
+        t2.infrac_value_pre as errTrafficPercent
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	     select prvd_id,
+	         prvd_nm,
+	         infrac_value_pre *100 as infrac_value_pre
+	     from hpbus.sum_llzs_prvd_webcard
+	     where aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	<![CDATA[
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by errTrafficPercent desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="concern == 7003 and prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+    	t2.infrac_value_pre as errTrafficPercent
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+     select cty_id,cty_nm,infrac_value_pre*100 as infrac_value_pre
+    from hpbus.sum_llzs_city_webcard
+    where prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by errTrafficPercent desc,t1.CMCC_prvd_cd;
+	</if>
+</select>
+
+<!--流量管理违规-审计结果-疑似违规流量转售-疑似违规转售集团客户数-柱状图-->
+<select id="getIllegalGroupNumColumnData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="prvdId==10000">
+    select t1.CMCC_prov_prvd_nm,
+        t2.yszs_cnt_org as illegalGroupNumber
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_cnt_org
+        from hpbus.sum_lltf_prvd_webcard
+    <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by illegalGroupNumber desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+    	t2.yszs_cnt_org as illegalGroupNumber
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_cnt_org
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by illegalGroupNumber desc,t1.CMCC_prvd_cd;
+    </if>
+</select>
+
+<!--流量管理违规-审计结果-疑似违规流量转售-疑似违规转售集团客户数占比-柱状图-->
+<select id="getIllegalGroupPercentColumnData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="prvdId==10000">
+    select t1.CMCC_prov_prvd_nm,
+        t2.yszs_cnt_org_zb as illegalGroupPercent
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	    select  cmcc_prov_prvd_id,
+            CMCC_prov_prvd_nm as prvdName,
+            yszs_cnt_org_zb*100 as yszs_cnt_org_zb
+        from hpbus.sum_lltf_prvd_webcard
+    <![CDATA[
+        where  aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.cmcc_prov_prvd_id
+	where t1.CMCC_prov_prvd_id<>'10000'
+	order by illegalGroupPercent desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+    <if test="prvdId!=10000">
+    select t1.CMCC_prvd_nm_short as prvdName,
+    	t2.yszs_cnt_org_zb as illegalGroupPercent
+	from (select CMCC_prvd_cd,
+		CMCC_prvd_nm_short
+		from HPMGR.TB_SUM_PRVD_NAME
+		where CMCC_prov_prvd_id=#{prvdId} ) as t1 
+	left join( 
+    select  cty_id,cty_nm,yszs_cnt_org_zb*100 as yszs_cnt_org_zb
+    from hpbus.sum_lltf_city_webcard
+    where cmcc_prov_prvd_id=#{prvdId}
+        and aud_trm=#{audTrm}) as t2 
+	on	t1.CMCC_prvd_cd=t2.cty_id 
+    order by illegalGroupPercent desc,t1.CMCC_prvd_cd;
+    </if>
+</select>
+
+<!-- 流量管理违规-审计结果-流量数量异常-折线图 -->
+<select id="getTrafficLineData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001">
+    select t1.aud_trm,coalesce(t2.yszs_sum_strm_cap,0) as errTrafficNumber,coalesce(t2.yszs_propor,0) as errTrafficPercent
+	from
+		(SELECT aud_trm
+		FROM	hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201710' and aud_trm<=#{audTrm}
+		group by aud_trm) as t1
+	left join(
+	    select  aud_trm,yszs_sum_strm_cap,yszs_propor*100 as yszs_propor
+        from hpbus.sum_lltf_prvd_webcard
+        where  cmcc_prov_prvd_id=#{prvdId}
+            and aud_trm in(
+            select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 7
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201710')
+        )as t2
+	on t1.aud_trm = t2.aud_trm
+	order by t1.aud_trm;
+    ]]>
+    </if>
+    <if test="concern == 7003">
+    select t1.aud_trm,coalesce(t2.infrac_value,0) as errTrafficNumber,coalesce(t2.infrac_value_pre,0) as errTrafficPercent
+	from
+		(SELECT aud_trm
+		FROM	hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201710' and aud_trm<=#{audTrm}
+		group by aud_trm) as t1
+	left join(
+	    select  aud_trm,infrac_value,infrac_value_pre*100 as infrac_value_pre
+        from hpbus.sum_llzs_prvd_webcard
+        where  prvd_id=#{prvdId}
+            and aud_trm in(
+            select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 7
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201710')
+        )as t2
+        ]]>
+	on t1.aud_trm = t2.aud_trm
+	order by t1.aud_trm;
+    </if>
+</select>
+
+<!-- 流量管理违规-审计结果-集团异常-折线图 -->
+<select id="getIllegalGroupLineData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    select t1.aud_trm,coalesce(t2.yszs_cnt_org,0) as illegalGroupNumber,coalesce(t2.yszs_cnt_org_zb,0) as illegalGroupPercent
+	from
+		(SELECT aud_trm
+		FROM	hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201710' and aud_trm<=#{audTrm}
+		group by aud_trm) as t1
+	left join(
+	    select  aud_trm,yszs_cnt_org,yszs_cnt_org_zb*100 as yszs_cnt_org_zb
+        from hpbus.sum_lltf_prvd_webcard
+        where  cmcc_prov_prvd_id=#{prvdId}
+            and aud_trm in(
+            select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 7
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201710')
+        )as t2
+        ]]>
+	on t1.aud_trm = t2.aud_trm
+	order by t1.aud_trm;
+</select>
+<!-- 流量管理违规-统计分析-排名汇总 -->
+<select id="getRankTable" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001 and prvdId==10000">
+    select ROW_NUMBER() OVER (ORDER BY t2.yszs_sum_strm_cap desc,t1.CMCC_prov_prvd_id)-1 as rn,
+        t1.CMCC_prov_prvd_nm,tf_cnt_org,tf_sum_strm_cap,tf_sum_cnt,
+        tf_sum_msisdn,yszs_cnt_org,yszs_sum_strm_cap,
+        yszs_sum_cnt,yszs_sum_msisdn,yszs_propor
+    from (
+        SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+		FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd ) as t1
+	LEFT JOIN (
+	    select cmcc_prov_prvd_id,tf_cnt_org,tf_sum_strm_cap,tf_sum_cnt,
+            tf_sum_msisdn,yszs_cnt_org,yszs_sum_strm_cap,
+            yszs_sum_cnt,yszs_sum_msisdn,yszs_propor*100 as yszs_propor
+        from hpbus.sum_lltf_prvd_webcard
+        where aud_trm=#{audTrm}) as t2
+    ON	t1.CMCC_prov_prvd_id = t2.cmcc_prov_prvd_id
+	order by rn;
+    </if>
+    <if test="concern == 7001 and prvdId!=10000">
+    select 
+        <if test="prvdId != 10100 and prvdId!=10200 and prvdId!=10300 and prvdId!=10400" >
+        ROW_NUMBER() OVER (ORDER BY yszs_sum_strm_cap desc,cmcc_prov_prvd_id)-1 as rn,
+        </if>
+        <if test="prvdId == 10100 or prvdId==10200 or prvdId==10300 or prvdId==10400" >
+		ROW_NUMBER() OVER (ORDER BY yszs_sum_strm_cap desc,cmcc_prov_prvd_id) as rn,
+		</if>
+        case when cty_nm='全省' then cmcc_prov_prvd_nm else cty_nm end as prvdName,
+        tf_cnt_org,tf_sum_strm_cap,tf_sum_cnt,
+        tf_sum_msisdn,yszs_cnt_org,yszs_sum_strm_cap,
+        yszs_sum_cnt,yszs_sum_msisdn,yszs_propor*100 as yszs_propor
+    from hpbus.sum_lltf_city_webcard
+    where aud_trm=#{audTrm}
+           and cmcc_prov_prvd_id=#{prvdId}
+        <if test="prvdId == 10100 or prvdId==10200 or prvdId==10300 or prvdId==10400" >
+		<![CDATA[
+		and cty_nm<>'全省'
+		]]>
+		</if>
+    order by rn;
+    </if>
+    <if test="concern == 7003 and prvdId==10000">
+    select t1.CMCC_prov_prvd_nm,
+        ROW_NUMBER() OVER (ORDER BY t2.infrac_value desc,t1.CMCC_prov_prvd_id)-1 as rn,
+        t2.infrac_value_pre as errTrafficPercent,
+        giv_value_tol as trafficValueTotle, 
+        giv_cnt_tol as trafficTotle, 
+        giv_subs_tol as subsTotle,
+		infrac_value as errTrafficNumber, 
+		infrac_cnt as errTrafficTotle, 
+		infrac_subs_cnt as errSubsTotle
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join(
+	     select prvd_id,giv_value_tol, giv_cnt_tol, giv_subs_tol,
+		     infrac_value, infrac_cnt, infrac_subs_cnt,infrac_value_pre*100 as infrac_value_pre
+	     from hpbus.sum_llzs_prvd_webcard
+	     where aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	order by rn;
+    </if>
+    <if test="concern == 7003 and prvdId!=10000">
+    select  case when cty_nm='全省' then prvd_nm else cty_nm end as prvdName,
+        <if test="prvdId != 10100 and prvdId!=10200 and prvdId!=10300 and prvdId!=10400" >
+        ROW_NUMBER() OVER (ORDER BY infrac_value desc,cty_id)-1 as rn,
+        </if>
+        <if test="prvdId == 10100 or prvdId==10200 or prvdId==10300 or prvdId==10400" >
+		 ROW_NUMBER() OVER (ORDER BY infrac_value desc,cty_id) as rn,
+		</if>
+        giv_value_tol as trafficValueTotle, 
+        giv_cnt_tol as trafficTotle, 
+        giv_subs_tol as subsTotle,
+		infrac_value as errTrafficNumber, 
+		infrac_cnt as errTrafficTotle, 
+		infrac_subs_cnt as errSubsTotle,
+		infrac_value_pre*100 as errTrafficPercent
+    from hpbus.sum_llzs_city_webcard
+    where prvd_id=#{prvdId}
+        and aud_trm=#{audTrm} 
+        <if test="prvdId == 10100 or prvdId==10200 or prvdId==10300 or prvdId==10400" >
+		<![CDATA[
+		and cty_nm<>'全省'
+		]]>
+		</if>
+    order by rn;
+	</if>
+</select>
+<!-- 流量管理违规-统计分析-增量分析 -->
+<select id="getIncrementalData" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="concern == 7001">
+    select t1.CMCC_prov_prvd_id,
+        t1.CMCC_prov_prvd_nm,
+        yszs_sum_strm_cap_zf
+    from (
+        SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+		FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd ) as t1
+	left join(
+	    select cmcc_prov_prvd_id,yszs_sum_strm_cap_zf
+        from hpbus.sum_lltf_prvd_webcard
+        where aud_trm=#{audTrm}) as t2
+    ON	t1.CMCC_prov_prvd_id = t2.cmcc_prov_prvd_id
+	ORDER BY yszs_sum_strm_cap_zf desc,t1.CMCC_prov_prvd_id;
+    </if>
+    <if test="concern == 7003">
+    select t1.CMCC_prov_prvd_id,
+        t1.CMCC_prov_prvd_nm,
+        t2.infrac_value_zf as errTrafficNumberMom
+    from(
+        SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+	    from hpmgr.ref_dm_cmcc_prov_prvd_cd) as  t1
+	left join(
+	     select prvd_id,infrac_value_zf
+	     from hpbus.sum_llzs_prvd_webcard
+	     where aud_trm=#{audTrm})as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	<![CDATA[
+	ORDER BY t2.infrac_value_zf desc,t1.CMCC_prov_prvd_id;
+    ]]>
+    </if>
+</select>
+<!-- 流量管理违规-统计分析-重点关注地市-->
+<select id="getFocusCityTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+    select  aud_trm, rank_china, prvd_nm, cty_nm,
+       giv_value_tol, giv_cnt_tol, giv_subs_tol,
+       infrac_value, infrac_cnt,infrac_subs_cnt,infrac_value_pre*100 as infrac_value_pre
+	from hpbus.sum_llzs_city_new
+	<![CDATA[
+	where aud_trm = #{audTrm} 
+		and rank_china <= 50
+	order by rank_china;
+	]]>
+</select>
+
+<!-- 流量管理违规-统计分析-重点关注渠道-->
+<select id="getFocusChnlTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="prvdId==10000">
+    select rank_china as rn, chnl_nm, chnl_id, prvd_nm, cty_nm,
+           giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+           infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre*100 as infrac_value_pre
+	from hpbus.sum_llzs_chnl_top
+	<![CDATA[
+	where aud_trm = #{audTrm}
+	    and rank_china<=100
+		order by rn;
+	]]>
+	</if>
+    <if test="prvdId!=10000">
+    select rank_prvd as rn,chnl_nm, chnl_id, prvd_nm, cty_nm, 
+           giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+           infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre*100 as infrac_value_pre
+	from hpbus.sum_llzs_chnl_prvd
+	<![CDATA[
+	where aud_trm = #{audTrm}
+		and prvd_id = #{prvdId}
+		and rank_prvd<=100
+	order by rn;
+	]]>
+	</if>
+</select>
+
+<!-- 流量管理违规-统计分析-重点关注营销案-->
+<select id="getFocusOfferTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="prvdId==10000">
+    select aud_trm,rank_china as rn, trim(offer_nm) as offer_nm , trim(offer_cd) as offer_cd, prvd_nm, cty_nm, 
+           giv_value_tol, giv_cnt_tol,giv_subs_tol,infrac_value, infrac_cnt,infrac_subs_cnt,infrac_value_pre*100 as infrac_value_pre
+	from hpbus.sum_llzs_offer_info_top
+	<![CDATA[
+	where aud_trm = #{audTrm} 
+		and rank_china<=100
+	order by rn;
+	]]>
+	</if>
+    <if test="prvdId!=10000">
+   select aud_trm,rank_prvd as rn, offer_nm, offer_cd, prvd_nm, cty_nm, 
+           giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+           infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre*100 as infrac_value_pre
+	from hpbus.sum_llzs_offer_info_prvd
+	<![CDATA[
+	where aud_trm = #{audTrm}
+		and prvd_id =#{prvdId}
+		and rank_prvd<=100
+	order by rn;
+	]]>
+	</if>
+</select>
+<!-- 流量管理违规-统计分析-重点关注用户- 地图下钻后的也是如此-->
+<select id="getFocusUserTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+<if test="flagId!='city' and prvdId==10000">
+select	subs_id, infrac_value, infrac_cnt, yk_flag,
+		hf_flag, hq_flag, abn_flag, rank_infrac_typ
+from	hpbus.sum_llzs_subs_webtable
+<![CDATA[
+where infrac_typ=#{parameterType} 
+    and prvd_id=10000
+    and cty_id=10000
+    and aud_trm=#{audTrm}
+    and rank_infrac_typ<=100
+order by rank_infrac_typ;
+]]>
+</if>
+<if test="flagId!='city' and prvdId!=10000">
+select	subs_id, infrac_value, infrac_cnt, yk_flag,
+		hf_flag, hq_flag, abn_flag, rank_infrac_typ
+from	hpbus.sum_llzs_subs_webtable
+<![CDATA[
+where infrac_typ=#{parameterType}
+    and prvd_id=10000 
+    and cty_id=#{prvdId}
+    and aud_trm=#{audTrm}
+    and rank_infrac_typ<=100
+order by rank_infrac_typ;
+]]>
+</if>
+<if test="flagId=='city'">
+select	subs_id, infrac_value, infrac_cnt, yk_flag,
+		hf_flag, hq_flag, abn_flag, rank_infrac_typ
+from	hpbus.sum_llzs_subs_webtable
+<![CDATA[
+where infrac_typ=#{parameterType}
+    and prvd_id=#{prvdId} 
+    and cty_id=#{ctyId}
+    and aud_trm=#{audTrm}
+    and rank_infrac_typ<=100
+order by rank_infrac_typ;
+]]>
+</if>
+
+</select>
+
+<!-- 流量管理违规-统计分析-重点关注集团客户-->
+<select id="getFocusOrgCustomerTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+    <if test="flagId!='city' and prvdId==10000">
+    SELECT	rank_org as rn, CMCC_prov_prvd_nm,jt_cmcc_prvd_nm_short, busn_mode_nm, org_nm, org_cust_id, sum_strm_cap,
+		strm_cap_per*100 as strm_cap_per, sum_cnt, sum_msisdn, avg_strm_cap
+	FROM	hpbus.sum_lltf_7001_org
+	<![CDATA[
+	where aud_trm=#{audTrm}
+	     and rank_org<=100
+	order by rn;
+	]]>
+	</if>
+    <if test="flagId!='city' and prvdId!=10000">
+    SELECT	rank_prvd as rn, CMCC_prov_prvd_nm,jt_cmcc_prvd_nm_short, busn_mode_nm, org_nm, org_cust_id, sum_strm_cap,
+		strm_cap_per*100 as strm_cap_per, sum_cnt, sum_msisdn, avg_strm_cap
+	FROM	hpbus.sum_lltf_7001_org
+	<![CDATA[
+	where aud_trm=#{audTrm}
+	    and cmcc_prov_prvd_id=#{prvdId}
+	    and rank_org<=100
+	order by rn;
+	]]>
+	</if>
+	<if test="flagId=='city'">
+    SELECT	ROW_NUMBER() OVER (ORDER BY sum_strm_cap desc) as rn, busn_mode_nm, org_nm, org_cust_id, sum_strm_cap,
+		strm_cap_per*100 as strm_cap_per, sum_cnt, sum_msisdn, avg_strm_cap
+	FROM	hpbus.sum_lltf_7001_org
+	<![CDATA[
+	where aud_trm=#{audTrm}
+	    and cmcc_prov_prvd_id=#{prvdId}
+	    and cmcc_prov_id=#{ctyId}
+	order by rn
+	QUALIFY ROW_NUMBER() OVER (ORDER BY sum_strm_cap DESC)<=100;
+	]]>
+	</if>
+	
+</select>
+<!-- 流量管理违规-统计分析-违规类型分析-饼图   -->
+<select id="getTypeDistributePie" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData">
+    select hf_value,hq_value,yk_value 
+    from hpbus.sum_llzs_prvd_new
+    where aud_trm=#{audTrm}
+        and prvd_id=#{prvdId};
+</select>
+<!-- 流量管理违规-统计分析-违规类型分析-趋势图  -->
+<select id="getTypeDistributeStack" resultMap="llglwgData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+    select a.aud_trm as audTrm,coalesce(b.hf_value,0)as hf_value,
+		coalesce(b.hq_value,0)as hq_value,
+		coalesce(b.yk_value,0)as yk_value 
+		<![CDATA[
+	from(
+	    select aud_trm
+		FROM	hpmgr.busi_model_notify 
+		where Aud_trm <=#{audTrm}  and aud_trm>='201710'
+		group by aud_trm)a
+    left join(
+        select aud_trm,hf_value,hq_value,yk_value 
+		from hpbus.sum_llzs_prvd_new
+		where  prvd_id=#{prvdId}
+			and  aud_trm in(
+			select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 7
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201710'
+			)) as b
+		]]>
+		on a.aud_trm=b.aud_trm
+	order by a.aud_trm;
+</select>
+<!-- 流量转移7001审计报告 -->
+	<select id="getLlzyAuditReport" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+		 sel 
+			aud_trm,
+			CMCC_prov_prvd_nm,
+			tf_cnt_org,
+			cast (tf_sum_strm_cap as decimal(18,2)) as tf_sum_strm_capTmp,
+			trim (tf_sum_strm_capTmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as tf_sum_strm_cap,
+			yszs_cnt_org,
+			cast (yszs_sum_strm_cap as decimal(18,2)) as yszs_sum_strm_capTmp,
+			trim (yszs_sum_strm_capTmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as yszs_sum_strm_cap,
+			cast (yszs_propor*100 as decimal(18,2)) as yszs_proporTMP,
+			trim (yszs_proporTMP(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as yszs_propor,
+			yszs_sum_cnt
+			from hpbus.sum_lltf_7001_prvd
+			<where>  
+				<if test="audTrm != null">
+		 			and aud_trm =#{audTrm}
+		 		</if>  
+		 		<if test="prvdId != null">
+		 			and cmcc_prov_prvd_id =#{prvdId}
+		 		</if>  
+			</where> 
+		
+	</select>
+	
+	<!-- 流量赠送7003审计报告 -->
+	<select id="getLlzsAuditReport" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+		sel aud_trm,
+			prvd_nm,
+			trim (giv_value_tol(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as giv_value_tol,
+			trim (infrac_value(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as infrac_value, 
+			cast(infrac_value_pre*100 as decimal(18,2)) as infrac_value_preTMP,
+			trim (infrac_value_preTMP(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as infrac_value_pre,
+			infrac_cnt
+			from hpbus.sum_llzs_prvd_new
+			<where>  
+				<if test="audTrm != null">
+		 			and aud_trm =#{audTrm}
+		 		</if>  
+		 		<if test="prvdId != null">
+		 			and prvd_id =#{prvdId}
+		 		</if>  
+			</where> 
+	</select>
+	
+	<!-- ************************************************************************************************************************** -->
+		<!-- 各省六个月内达到<整改>标准次数排名——柱状图 -->
+		<select id="getAmountColumnDataForChangeStandardSixMonth" resultMap="LlglwgForZgwzPojo" parameterType="Map">
+		 <![CDATA[
+		 SELECT a.CMCC_prov_prvd_nm ,  count(b.prvd_nm) AS c
+		 FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd a 
+		 RIGHT JOIN  ( SELECT * FROM 
+                           hpbus.det_lltf_7001_zg 
+                           WHERE aud_trm > #{sixMonthDate} 
+                           AND aud_trm <= #{currDate}
+                           AND wg_type LIKE 'zg%') b 
+        ON  a.CMCC_prov_prvd_cd = b. prvd_id        
+        GROUP BY a.CMCC_prov_prvd_nm
+        HAVING a.CMCC_prov_prvd_nm <> '全公司'
+        ORDER BY  c DESC ]]>
+	</select>
+	<!-- 各省累计达到<整改>次数排名——柱状图 -->
+	<select id="getAmountColumnDataForChangeStandardAll" resultMap="LlglwgForZgwzPojo" parameterType="Map">
+		 <![CDATA[
+		 SELECT a.CMCC_prov_prvd_nm ,  count(b.prvd_nm) AS c
+		 FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd a 
+		 RIGHT JOIN  ( SELECT * FROM 
+                           hpbus.det_lltf_7001_zg
+                           WHERE aud_trm BETWEEN '201809' AND  #{currDate}
+                           AND wg_type LIKE 'zg%'
+                          ) b 
+         ON  a.CMCC_prov_prvd_cd = b.prvd_id        
+         GROUP BY a.CMCC_prov_prvd_nm
+         HAVING a.CMCC_prov_prvd_nm <> '全公司'
+         ORDER BY  c DESC ]]>
+	</select>
+	<!-- 达到<整改>标准省公司数量趋势——折线图 -->
+	<select id="getRectifiyLineDataForChangeStandardAll" resultMap="LlglwgForZgwzPojo" parameterType="Map">
+		 <![CDATA[
+			SELECT aud_trm , count(distinct prvd_id)  as oci
+			FROM   hpbus.det_lltf_7001_zg
+			WHERE wg_type LIKE 'zg%' 
+			AND aud_trm BETWEEN #{dateStart} AND #{dateEnd}
+			GROUP BY aud_trm ORDER BY aud_trm
+		]]>
+	</select>
+	
+	<!-- ************************************************************************************************************************** -->
+		<!-- 各省六个月内达到<问责>标准次数排名——柱状图 -->
+		<select id="getAccountForSixColumn" resultMap="LlglwgForZgwzPojo" parameterType="Map">
+		 <![CDATA[
+			SELECT a.CMCC_prov_prvd_nm ,  count(distinct b.aud_trm) AS c
+		 	FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd a 
+			 RIGHT JOIN  (select *
+			from hpbus.det_lltf_7001_wz
+			where aud_trm<=#{currDate}
+			and aud_trm> #{sixMonthDate}) b 
+			ON  a.CMCC_prov_prvd_cd = b. prvd_id  
+			 HAVING a.CMCC_prov_prvd_nm <> '全公司'
+			group by a.CMCC_prov_prvd_nm
+			order by c desc
+		 ]]>
+	</select>
+	<!-- 各省累计达到<问责>次数排名——柱状图 -->
+	<select id="getAccountabilityColumn" resultMap="LlglwgForZgwzPojo" parameterType="Map">
+		 <![CDATA[
+		SELECT a.CMCC_prov_prvd_nm ,  count(distinct b.aud_trm) AS c
+		 	FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd a 
+			 RIGHT JOIN  (select *
+			from hpbus.det_lltf_7001_wz
+			where aud_trm BETWEEN '201809' AND #{currDate}
+			) b 
+			ON  a.CMCC_prov_prvd_cd = b. prvd_id  
+			 HAVING a.CMCC_prov_prvd_nm <> '全公司'
+			group by a.CMCC_prov_prvd_nm
+			order by c desc
+		 ]]>
+	</select>
+	<!-- 达到<问责>标准省公司数量趋势——折线图 -->
+	<select id="getAccountabilityLine" resultMap="LlglwgForZgwzPojo" parameterType="Map">
+		 <![CDATA[
+			SELECT aud_trm , count(distinct prvd_id)  AS oci
+			FROM   hpbus.det_lltf_7001_wz
+			WHERE wz_type LIKE 'wz%' 
+			AND aud_trm BETWEEN #{dateStart} AND #{dateEnd}
+			GROUP BY aud_trm 
+			ORDER BY aud_trm
+		]]>
+	</select>
+	
+	<!-- 根据当前审计月或省份ID查询当前<整改>省份详细信息 -->
+	<select id="getChangeAccountInfoTableForZg" resultMap="LlglwgForZgwzInfoTablePojo" parameterType="Map">
+				SELECT	aud_trm, prvd_id, prvd_nm, org_cust_id, org_nm, prvd_yszs_strm,
+				            prvd_lltf_strm, zg1per, org_yszs_strm, all_lltf_strm, zg2per,
+				            wg_aud, wg_type
+				FROM	hpbus.det_lltf_7001_zg 
+				WHERE aud_trm = #{audTrm}
+			<if test="prvdId != '10000'">
+				AND prvd_id = #{prvdId}
+			</if>
+	</select>
+	<!-- 根据当前审计月或省份ID查询当前被<问责>的有哪些省份 -->
+	<select id="getWzCompanyByAudTrmAndPrvdId" resultMap="LlglwgForZgwzInfoTablePojo" parameterType="Map">
+			SELECT distinct aud_trm , prvd_id , prvd_nm
+			FROM	hpbus.det_lltf_7001_wz  
+			WHERE aud_trm = #{audTrm}
+			<if test="prvdId != '10000'">
+			    AND prvd_id = #{prvdId}	
+			</if>
+	</select>
+	<!-- 查询所有<问责>的集合 -->
+	<select id="getAllWzCompanyList" resultMap="LlglwgForZgwzInfoTablePojo" parameterType="Map">
+		SELECT	aud_trm, prvd_id, prvd_nm, org_cust_id, org_nm, prvd_lltf_strm,
+			prvd_yszs_strm, zg1per, org_yszs_strm, all_lltf_strm, zg2per,
+			wg_aud, wgtm, wg_type, wz_type
+		FROM	hpbus.det_lltf_7001_wz
+	</select>
+	
+	<!-- 根据当前审计月及公司ID查询当前被<问责>公司的详细信息 -->
+	<select id="getWtDetailsByCompanyIdAndaudTrm" resultMap="LlglwgForZgwzInfoTablePojo"  parameterType="Map">
+		SELECT	aud_trm, prvd_id, prvd_nm, org_cust_id, org_nm, prvd_yszs_strm,
+				    prvd_lltf_strm, zg1per, org_yszs_strm, all_lltf_strm, zg2per,
+				    wg_aud, wg_type
+		FROM	hpbus.det_lltf_7001_wz WHERE prvd_id = #{prvdId} 
+	</select>
+	
+	<!-- 根据集团编号及省份编号查询当前集团名称及业务类型 -->
+	<select id="getCompanyInfoByCompanyID" resultMap="LlglwgCompanyInfoPojo" >
+			SELECT DISTINCT  prvd_nm,
+		 		        org_cust_id, org_nm, busn_mode_cd,
+		 	 	        busn_form, cmcc_prvd_nm_short , prvd_id
+			FROM	hpbus.det_lltf_cxgj
+			WHERE  org_cust_id = #{orgCustId}
+			AND aud_trm = #{audTrm}
+			<if test="prvdId != '10000'">
+			      AND prvd_id = #{prvdId}	
+			</if>
+	</select>
+	
+		<!-- 根据集团公司表示及集团所在省份查询当前集团违规月份 -->
+	<select id="getConpamyWgList" resultType="java.lang.String" >
+		SELECT distinct aud_trm
+		FROM	hpbus.det_lltf_cxgj 
+		WHERE  org_cust_id = #{orgCustId}
+		AND prvd_id = #{prvdId}	
+		AND err_aud_trm = '是'
+		order by aud_trm
+	</select>
+	
+	<!-- 重点关注集团用户信息 -->
+	<select id="getFocusGroupTable" resultMap="LlglwgCompanyInfoPojo">
+		select  
+			distinct b.org_cust_id  as aoci, b.org_nm as aon ,  b.prvd_id as apid , b.prvd_nm as apn,
+			b.err_aud_trm as beat  , b.aud_trm as bat , 
+			b.tf_sum_strm_cap as btssc,b. tf_sum_strm_prvd_per as btsspp , 
+			b.tf_sum_strm_allerr_per as btssap ,
+			c.aud_trm as cat , c.err_aud_trm as ceat , c.tf_sum_strm_cap as ctssc , 
+			c.tf_sum_strm_prvd_per as ctsspp , c.tf_sum_strm_allerr_per as ctssap , 
+			d.aud_trm as dat , d.err_aud_trm as deat , d.tf_sum_strm_cap as dtssc , 
+			d.tf_sum_strm_prvd_per as dtsspp , d.tf_sum_strm_allerr_per as dtssap 
+			 from 
+			(select  org_cust_id,prvd_id , org_nm , prvd_nm
+			  from  hpbus.det_lltf_cxgj 
+			 group by 1,2,3,4) a
+			 right join 
+			   (select org_nm , prvd_nm , aud_trm , org_cust_id,  prvd_id ,  err_aud_trm,
+			           tf_sum_strm_cap,
+			           tf_sum_strm_prvd_per,
+			           tf_sum_strm_allerr_per 
+			     from  hpbus.det_lltf_cxgj 
+			    where aud_trm=#{currDate}
+			     AND err_aud_trm =  '是' 
+			    <if test="prvdId != '10000'">
+			    AND prvd_id = #{prvdId}	
+				</if>
+			    ) b
+			  on a.org_cust_id = b.org_cust_id
+			 and a.prvd_id = b.prvd_id
+			left join  
+			   (select aud_trm ,  org_cust_id, prvd_id ,  err_aud_trm,
+			           tf_sum_strm_cap,
+			           tf_sum_strm_prvd_per,
+			           tf_sum_strm_allerr_per 
+			     from  hpbus.det_lltf_cxgj 
+			    where aud_trm=#{lastDateOne}) c
+			  on a.org_cust_id = c.org_cust_id
+			 and a.prvd_id = c.prvd_id
+			left join 
+			   (select aud_trm ,  org_cust_id,  prvd_id ,err_aud_trm,
+			           tf_sum_strm_cap,
+			           tf_sum_strm_prvd_per,
+			           tf_sum_strm_allerr_per 
+			     from  hpbus.det_lltf_cxgj 
+			    where aud_trm=#{lastDateTwo}) d
+			  on a.org_cust_id = d.org_cust_id
+			 and a.prvd_id = d.prvd_id
+			 and b.aud_trm = #{currDate}
+			 order by btssc desc
+	</select>
+
+	<!-- 展示该集团客户自审计月被判定为疑似转售流量的审计月对应数据。 -->
+	<select id="getYszsllAudTrmData" resultMap="LltfForSumOrgPojo">
+		SELECT	rank_org, rank_prvd, aud_trm, cmcc_prov_prvd_id, CMCC_prov_prvd_nm,
+		            cmcc_prov_id, jt_cmcc_prvd_nm_short, busn_mode_nm, busn_form_nm,
+		            org_nm, org_cust_id, sum_strm_cap, strm_cap_per, sum_cnt, sum_msisdn,
+		            avg_strm_cap, member_stab_rate, cty_level_rate, a3, sum_dt, duoci_sum,
+		            duochu_sum
+		FROM	hpbus.sum_lltf_7001_org
+		WHERE aud_trm BETWEEN  #{startDate} 
+		AND #{audTrm}
+		AND org_cust_id = #{orgCustId}
+	</select>
+	
+	<!-- 联动查询省份数据-->
+	<select id="getDataForMapLinkageForPrvd" resultMap="LlglwgForZgwzPojo">
+	<![CDATA[
+			SELECT a.cmcc_prov_prvd_id ,   a.CMCC_prov_prvd_nm ,  COUNT( b.prvd_nm) AS bpnOne
+			FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd a 
+			LEFT JOIN  ( SELECT * FROM
+	                           hpbus.det_lltf_cxgj 
+	                           WHERE aud_trm=#{audTrm}
+	                           and err_aud_trm='是'
+	                            ) b 
+	        ON  a.CMCC_prov_prvd_cd = b. prvd_id        
+	        GROUP BY a.CMCC_prov_prvd_nm ,  a.cmcc_prov_prvd_id 
+	        HAVING a.CMCC_prov_prvd_nm <> '全公司'
+	        ]]>
+	</select>
+	<!-- 联动查询地市公司数据-->
+	<select id="getDataForMapLinkageForCity" resultMap="LlglwgForZgwzPojo">
+	<![CDATA[
+			SELECT  A.cmcc_prvd_cd  , a.CMCC_prvd_nm_short , COUNT( B.cmcc_prvd_nm_short) AS bpnTwo FROM
+                           hpmgr.TB_SUM_PRVD_NAME  A 
+                           LEFT JOIN(
+                           SELECT * FROM  hpbus.det_lltf_cxgj 
+                           )   B 
+                           ON A.cmcc_prvd_cd = B.jt_cmcc_prvd_id
+                           GROUP BY A.cmcc_prvd_cd , a.CMCC_prvd_nm_short
+                           WHERE B. aud_trm=#{audTrm}
+                           and B.err_aud_trm='是'
+                           and b.prvd_id = #{prvdId}
+	        ]]>
+	</select>
+	
+	<!-- 查询所有省份名称-->
+	<select id="getAllPrvdNameList" resultType="java.lang.String">
+	<![CDATA[
+			SELECT 	  CMCC_prov_prvd_nm
+		 	FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd 
+	        ]]>
+	</select>
+	<!-- 查询所有省份ID-->
+	<select id="getAllPrvdIdList" resultType="java.lang.String">
+	<![CDATA[
+			SELECT 	  CMCC_prov_prvd_nm
+		 	FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd 
+	        ]]>
+	</select>
+	
+	<!-- 查询所有省份ID-->
+	<select id="getPrvdNameByID" resultType="java.lang.String">
+	<![CDATA[
+			SELECT 	  CMCC_prov_prvd_nm
+		 	FROM     hpmgr.ref_dm_cmcc_prov_prvd_cd 
+		 	WHERE CMCC_prov_prvd_cd = #{prvdId}
+	        ]]>
+	</select>
+	
+	<!-- 查询当前省份再当前月被问责的所有信息-->
+	<select id="getWzCompanyForCurrMonth" resultMap="LlglwgForZgwzInfoTablePojo">
+	<![CDATA[
+					SELECT	aud_trm, prvd_id, prvd_nm, org_cust_id, org_nm, prvd_yszs_strm,
+				    prvd_lltf_strm, zg1per, org_yszs_strm, all_lltf_strm, zg2per,
+				    wg_aud, wg_type
+					FROM	hpbus.det_lltf_7001_wz WHERE prvd_id = #{prvdId} 
+					AND aud_trm = #{audTrm}
+	        ]]>
+	</select>
+
+<!-- 查询当前省份再当前月被问责的所有信息-->
+	<select id="getSixMonthInfo" resultMap="LlglwgForZgwzInfoTablePojo">
+	<![CDATA[
+		SELECT	aud_trm, prvd_id, prvd_nm, org_cust_id, org_nm, prvd_yszs_strm,
+				    prvd_lltf_strm, zg1per, org_yszs_strm, all_lltf_strm, zg2per,
+				    wg_aud, wg_type
+					FROM	hpbus.det_lltf_7001_wz 
+					WHERE  zg_aud = #{currYearAndMonth}
+					AND aud_trm = #{audTrm}
+					
+	        ]]>
+					<if test="prvdId!=10000">
+					AND prvd_id = #{prvdId} 
+					</if>
+	</select>
+	
+</mapper>

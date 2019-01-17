@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.AudTrmMapper">
+
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.AudTrmData"  id="audTrmData">
+		
+		<result property="audTrm" column="aud_trm"/>
+		<result property="switchStatus" column="switch_state"/>
+		
+	</resultMap>
+	<!-- 查询审计月，与2.0系统相同 -2018.1.14因为新的审计开关已上线，废弃
+	<select id="getAudTrmData" resultMap="audTrmData" parameterType="java.lang.String">
+	<if test="_parameter != '' and _parameter != null">
+	SELECT	distinct Aud_trm, Switch
+	FROM	hpmgr.busi_audit_trm_conf where Switch =1 	and Subject_code = #{_parameter} 
+	order by Aud_trm desc
+	</if>
+	</select>
+	-->
+	<!-- 查询审计月列表-->
+	<select id="getAudTrmData" resultMap="audTrmData" parameterType="java.util.Map">
+	SELECT	distinct aud_trm, switch_state
+	FROM	hpmgr.busi_audit_switch_conf 
+	where switch_state >=#{switchState} 	
+		and subject_code =#{subjectId} 
+		and switch_type=1
+	order by Aud_trm desc
+	</select>
+	<!-- 查询审计月的审计报告是否打开 -->
+	<select id="getAttributeByAudTrmAndUser" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	subject_code,aud_trm, switch_state
+	FROM	hpmgr.busi_audit_switch_conf 
+	where switch_state >=#{switchState} 	
+		and subject_code =#{subjectId} 
+		and switch_type=2
+		and aud_trm=#{audTrm}
+	</select>
+	
+		
+</mapper>
+

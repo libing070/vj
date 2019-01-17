@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.CompareTagMapper">
+
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+    <resultMap type="com.hpe.cmca.pojo.CompareTag" id="compareTag">
+
+        <result property="id" column="id"/>
+        <result property="tagId" column="tag_id"/>
+        <result property="tagName" column="tag_name"/>
+        <result property="tagBelongPrvdId" column="tag_belong_prvd_id"/>
+        <result property="tagBelongSubId" column="tag_belong_sub_id"/>
+        <result property="tagType" column="tag_type"/>
+        <result property="tagFileType" column="tag_file_type"/>
+        <result property="tagZipPath" column="tag_zip_path"/>
+        <result property="tagFileNm" column="tag_file_nm"/>
+        <result property="tagSheetNm" column="tag_sheet_nm"/>
+        <result property="tagLocationType" column="tag_location_type"/>
+        <result property="tagPrvdLocation" column="tag_prvd_location"/>
+        <result property="tagLocation" column="tag_location"/>
+        <result property="tagParagr" column="tag_paragr"/>
+        <result property="tagAffix" column="tag_affix"/>
+        <result property="tagComputRule" column="tag_comput_rule"/>
+        <result property="tagValue" column="tag_value"/>
+
+    </resultMap>
+
+    <!-- 查询审计月列表-->
+    <select id="getCompareTag" resultMap="compareTag" parameterType="java.util.Map">
+        SELECT id, tag_id, tag_name, tag_belong_prvd_id, tag_belong_sub_id,tag_comput_rule,
+        tag_type, tag_file_type, tag_zip_path, tag_file_nm, tag_sheet_nm,
+        tag_location_type, tag_prvd_location, tag_location,tag_paragr, tag_affix,
+        tag_value
+        FROM hpmgr.busi_compare_tag
+        where tag_status =0
+        <!--<if test="subjectId!=null">-->
+        and tag_belong_sub_id = #{subjectId}
+        <!--</if>-->
+        order by tag_belong_prvd_id desc,tag_type,tag_file_type,tag_zip_path,tag_file_nm,tag_sheet_nm,tag_id
+    </select>
+
+    <update id="updateTagValue" parameterType="java.util.Map">
+        update hpmgr.busi_compare_tag set tag_value = #{tagValue}
+        where id = #{id}
+    </update>
+
+
+    <!-- 查询tag的value-->
+    <select id="getValueByTagId" resultMap="compareTag" parameterType="java.util.Map">
+    SELECT	id, tag_id, tag_name, tag_belong_prvd_id, tag_belong_sub_id,tag_comput_rule,
+		tag_type, tag_file_type, tag_zip_path, tag_file_nm, tag_sheet_nm,
+		tag_location_type, tag_prvd_location, tag_location,tag_paragr, tag_affix,
+		tag_value
+    FROM	hpmgr.busi_compare_tag
+    where tag_id = #{tagId}
+    and tag_belong_prvd_id =#{prvdId}
+    and tag_belong_sub_id = #{subjectId}
+	</select>
+
+
+    <!-- 查询tag的value-->
+    <select id="getChinaValueByTagId" resultMap="compareTag" parameterType="java.util.Map">
+    SELECT	id, tag_id, tag_name, tag_belong_prvd_id, tag_belong_sub_id,tag_comput_rule,
+		tag_type, tag_file_type, tag_zip_path, tag_file_nm, tag_sheet_nm,
+		tag_location_type, tag_prvd_location, tag_location,tag_paragr, tag_affix,
+		tag_value
+    FROM	hpmgr.busi_compare_tag
+    where tag_id = #{tagId}
+    and tag_belong_sub_id = #{subjectId}
+	</select>
+
+
+    <!-- 查询tag的value-->
+    <select id="getCompareRule" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT id, tag_id, tag_id_comp, tag_value, tag_value_comp, tag_belong_prvd_id,
+        tag_belong_sub_id, comp_rule, comp_status
+        FROM hpmgr.busi_compare_rule
+        where
+        <!-- comp_status = 0 and -->
+        tag_belong_sub_id = #{subjectId}
+        order by tag_belong_prvd_id desc,tag_id
+    </select>
+
+    <update id="updateCompStatus" parameterType="java.util.Map">
+        update hpmgr.busi_compare_rule set
+        tag_value = #{tagValue}
+        ,tag_value_comp = #{tagValueComp}
+        ,comp_status = #{compStatus}
+            where id = #{id}
+        </update>
+
+
+    <!-- 查询tag的value-->
+    <select id="getCompareResult" resultType="java.util.Map" parameterType="java.util.Map">
+    select
+    row_number()over(order by a.tag_belong_prvd_id,b.tag_file_nm)as order_num,
+    a.tag_id,a.tag_id_comp,
+    b.tag_name as field_name,
+    c.tag_file_nm as word_name,c.tag_value as word_value,
+    b.tag_file_nm as excel_name,b.tag_value as excel_value,'数值不匹配' as compare_result,current_timestamp as create_datetime
+    from
+    (SELECT	 tag_id, tag_id_comp, tag_belong_prvd_id, tag_value, tag_value_comp
+    FROM	hpmgr.busi_compare_rule  where tag_belong_sub_id =#{subjectId} and comp_status=2)a
+    left join
+    (SELECT	 tag_id, tag_name, tag_belong_prvd_id, tag_file_nm,tag_value
+    FROM	hpmgr.busi_compare_tag where tag_belong_sub_id =#{subjectId})b
+    on a.tag_belong_prvd_id =b.tag_belong_prvd_id and a.tag_id=b.tag_id
+    left join
+    (SELECT	 tag_id, tag_name, tag_belong_prvd_id, tag_file_nm,tag_value
+    FROM	hpmgr.busi_compare_tag where tag_belong_sub_id =#{subjectId})c
+    on a.tag_belong_prvd_id =c.tag_belong_prvd_id and a.tag_id_comp=c.tag_id
+    order by order_num
+    </select>
+
+
+    <update id="updateCompStatusBy4Ids" parameterType="java.util.Map">
+        update hpmgr.busi_compare_rule set
+        tag_value = #{tagValue}
+        ,tag_value_comp = #{tagValueComp}
+        ,comp_status = #{compStatus}
+          where
+            tag_id = #{tagId}
+            and tag_id_comp =  #{tagIdComp}
+            and tag_belong_sub_id =  #{subjectId}
+            and tag_belong_prvd_id = #{prvdId}
+
+
+        </update>
+
+
+    <update id="updateTagValueItr" parameterType="java.util.List">
+        update hpmgr.busi_compare_tag
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="tag_value =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.tagValue !=null">
+                        when id=#{item.id} then #{item.tagValue}
+                    </if>
+                    <if test="item.tagValue == null">
+                        when id=#{item.id} then hpmgr.busi_compare_tag.tag_value--原数据
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+
+        </update>
+
+    <update id="updateCompareResultItr" parameterType="java.util.List">
+        update hpmgr.busi_compare_rule
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="tag_value =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.tagValue !=null">
+                        when id=#{item.id} then #{item.tagValue}
+                    </if>
+                    <if test="item.tagValue == null">
+                        when id=#{item.id} then hpmgr.busi_compare_rule.tag_value--原数据
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="tag_value_comp =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.tagValueComp !=null">
+                        when id=#{item.id} then #{item.tagValueComp}
+                    </if>
+                    <if test="item.tagValueComp == null">
+                        when id=#{item.id} then hpmgr.busi_compare_rule.tag_value_comp--原数据
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="comp_status =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.compStatus !=null">
+                        when id=#{item.id} then #{item.compStatus}
+                    </if>
+                    <if test="item.compStatus == null">
+                        when id=#{item.id} then hpmgr.busi_compare_rule.comp_status--原数据
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+
+    </update>
+</mapper>
+

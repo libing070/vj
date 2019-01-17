@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="llzyMapper">
+<!--
+	<cache
+        eviction="LRU"
+        flushInterval="1800000"
+        size="4096"
+        readOnly="true" />
+  -->      
+
+	<!-- 流量转移7000审计报告 -->
+	<select id="getLlzyAuditReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+		 sel 
+			 aud_trm,
+			CMCC_prov_prvd_nm,
+			tf_cnt_org,
+			cast (tf_sum_strm_cap as decimal(18,2)) as tf_sum_strm_capTmp,
+			trim (tf_sum_strm_capTmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as tf_sum_strm_cap,
+			yszs_cnt_org,
+			cast (yszs_sum_strm_cap as decimal(18,2)) as yszs_sum_strm_capTmp,
+			trim (yszs_sum_strm_capTmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as yszs_sum_strm_cap,
+			cast (yszs_propor*100 as decimal(18,2)) as yszs_proporTMP,
+			trim (yszs_proporTMP(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as yszs_propor,
+			yszs_sum_cnt
+			from hpbus.sum_lltf_7001_prvd
+			<where>  
+				<if test="statCycle != null">
+		 			and aud_trm =#{statCycle}
+		 		</if>  
+		 		<if test="provinceCode != null">
+		 			and cmcc_prov_prvd_id =#{provinceCode}
+		 		</if>  
+			</where> 
+		
+	</select>
+	
+	<!-- 流量赠送8000审计报告 -->
+	<select id="getLlzsAuditReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+		sel aud_trm,
+			prvd_nm,
+			trim (giv_value_tol(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as giv_value_tol,
+			trim (infrac_value(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as infrac_value, 
+			cast(infrac_value_pre*100 as decimal(18,2)) as infrac_value_preTMP,
+			trim (infrac_value_preTMP(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as infrac_value_pre,
+			infrac_cnt
+			from hpbus.sum_llzs_prvd_new
+			<where>  
+				<if test="statCycle != null">
+		 			and aud_trm =#{statCycle}
+		 		</if>  
+		 		<if test="provinceCode != null">
+		 			and prvd_id =#{provinceCode}
+		 		</if>  
+			</where> 
+		
+	</select>
+
+</mapper>
+

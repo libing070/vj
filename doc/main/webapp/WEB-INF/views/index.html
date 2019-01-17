@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>审计首页</title>
+    <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.css">
+    <script src="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/css/cmca/home.css">
+</head>
+
+<body>
+    <form id="queryParam">
+        <!-- 登录所属角色 -->
+        <input type="hidden" id="roleId" value="" />
+    </form>
+
+    <div class="wrapper row">
+        <!-- 头部导航条 -->
+        <ul class="header_nav row">
+            <li>
+                <a href="javascript:void(0);" title="暂未开通此功能">操作手册</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" title="暂未开通此功能">
+                    <span class="icon-url"></span>内审云平台</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" title="暂未开通此功能">
+                    <span class="icon-url"></span>大智慧审计</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" title="暂未开通此功能">
+                    <span class="icon-url"></span>内审管理平台</a>
+            </li>
+        </ul>
+        <!-- 个人中心 -->
+        <div class="personal-center col-md-2 col-xs-2">
+            <h3>
+                <span class="icon-logo"></span>数据审计平台</h3>
+            <div class="personal-details">
+                <div class="personal-user">
+                    <div class="personal-icon">
+                        <span class="glyphicon glyphicon-user"></span>
+                    </div>
+                    <p class="personal-name" id="username">
+                        <!-- 后台获取数据 -->
+                    </p>
+                    <p class="logintimes">登录
+                        <span id="logintime">
+                            <!-- 后台获取数据 -->
+                        </span>次</p>
+                </div>
+                <div class="current-time">
+                    <h4 class="time-now" id="time-now"></h4>
+                    <p class="YTD" id="YTD"></p>
+                    <p class="week" id="Week"></p>
+                </div>
+            </div>
+            <div class="hint" id="hintCon">
+                <div class="hint-icon">
+                    <i class="icon-horn"></i>
+                </div>
+                <div id="hintListcon" class="hintListcon">
+                    <div class="gundongmain">
+                        <ul id="hintList1">
+                            <!-- 后台获取数据 -->
+                        </ul>
+                        <ul id="hintList2"></ul>
+                    </div>
+                </div>
+            </div>
+            <ul class="my-permission">
+                <li>
+                    <a href="/cmca/xqgl/index" id="myNeed">
+                        <span class="icon-myneed"></span>我的需求
+                        <span class="frequency fr">-</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/cmca/xqgl/index" id="todoList">
+                        <span class="icon-mytodo"></span>我的待办待阅
+                        <span class="frequency fr">-</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/cmca/wtfk/index" id="feedback">
+                        <span class="icon-result"></span>问题报送及反馈
+                        <span class="frequency fr">-</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="wdqx" href="/cmca/qxcx/indexMine">
+                        <span class="icon-lock"></span>我的权限
+                        <span class="frequency fr"></span>
+                    </a>
+                </li>
+            </ul>
+            <dl class="browsing-history" id="browsingHistory">
+                <dt>
+                    <span class="icon-watch"></span>最近常用</dt>
+                <!-- <dd><a href="javascript:void(0);">社会渠道终端套利</a></dd>
+                <dd><a href="javascript:void(0);">养卡套利</a></dd>
+                <dd><a href="javascript:void(0);">客户欠费</a></dd>
+                <dd><a href="javascript:void(0);">有价卡管理违规</a></dd> -->
+            </dl>
+            <ul class="my-rool row">
+                <li>
+                    <a href="javascript:void(0);">
+                        <span class="icon-model"></span>系统管理</a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);">
+                        <span class="icon-tool"></span>审计工具</a>
+                </li>
+                <li>
+                    <a href="javascript:void(0);">
+                        <span class="icon-config"></span>配置管理</a>
+                </li>
+            </ul>
+            <div class="search">
+                <div class="form-group">
+                    <label class="sr-only" for="search">搜索</label>
+                    <input type="search" class="form-control" id="search" placeholder="搜索">
+                    <span class="icon-search"></span>
+                </div>
+                <ul class="topresult_list" id="resultList">
+                    <!-- 后台传输数据 -->
+                </ul>
+            </div>
+        </div>
+        <!-- 专题栏 -->
+        <div class="special-bar col-md-10 col-xs-10 row " id="specialCon">
+            <div class="clear_float" id="navHref">
+                <!-- 专题栏左侧 -->
+                <div class="special-left col-md-5 col-xs-5">
+                    <div class="module-unit">
+                        <dl id="Con_cxsj">
+                            <dt>
+                                <span class="dtSpan">持续审计
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd class="ui-state-default" id="unitYktl" data="navYktl">
+                                <a href="javascript:void(0);" class="unitname" name="yktl">
+                                    <span class="icon-yktl"></span>养卡套利</a>
+                            </dd>
+                            <dd class="ui-state-default" id="unitKhqf" data="navKhqf">
+                                <a href="javascript:void(0);" class="unitname" name="khqf">
+                                    <span class="icon-khqf"></span>客户欠费</a>
+                            </dd>
+                            <dd class="ui-state-default" id="unitZdtl" data="navZdtl">
+                                <a href="javascript:void(0);" class="unitname" name="zdtl">
+                                    <span class="icon-zdtl"></span>社会渠道终端套利</a>
+                            </dd>
+                            <dd class=" ui-state-default" id="unitYjk" data="navYjk">
+                                <a href="javascript:void(0);" class="unitname" name="yjk">
+                                    <span class="icon-yjk "></span>有价卡管理违规</a>
+                            </dd>
+                            <dd class=" ui-state-default" id="unitYgyccz" data="navYgyccz">
+                                <a href="javascript:void(0);" class="unitname" name="ygyc">
+                                    <span class="icon-ygyccz"></span>员工异常业务操作</a>
+                            </dd>
+                            <dd class=" ui-state-default dzqglwg_item" id="unitDzqglwg" data="navDzqglwg">
+                                <a href="javascript:void(0);" class="unitname" name="dzqglwg">
+                                    <span class="icon-yczsdzq"></span>电子券管理违规</a>
+                            </dd>
+                            <dd class=" ui-state-default llglwg_item" id="unitLlglwg" data="navLlglwg">
+                                <a href="javascript:void(0);" class="unitname" name="llglwg">
+                                    <span class="icon-ycllzs"></span>流量管理违规</a>
+                            </dd>
+                        </dl>
+                        <ul class="rool">
+                            <li class="dot_active"></li>
+                            <li></li>
+                        </ul>
+                    </div>
+                    <!--<div class="module-unit">
+                        <dl id="Con_ztsj">
+                            <dt>
+                                <span class="dtSpan">专项审计
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd id="unitSoxsj" data="navSoxsj">
+                                <a href="javascript:void(0);" class="unitname" name="soxsj">
+                                    <span class="icon-sox"></span>SOX审计</a>
+                            </dd>
+                            <dd id="unitJzsj" data="navJzsj">
+                                <a href="javascript:void(0);" class="unitname" name="jzsj">
+                                    <span class="icon-jzsj"></span>经责审计</a>
+                            </dd>
+                            <dd id="unitJyyjsj" data="navJyyjsj">
+                                <a href="javascript:void(0);" class="unitname" name="jyyjsj">
+                                    <span class="icon-jyyj "></span>经营业绩审计</a>
+                            </dd>
+                            <dd id="unitGcjssj" data="navGcjssj">
+                                <a href="javascript:void(0);" class="unitname" name="gcjssj">
+                                    <span class="icon-gcjssj"></span>工程建设审计</a>
+                            </dd>
+                        </dl>
+                        <ul class="rool"></ul>
+                    </div>-->
+                    <div class="module-unit">
+                        <dl id="Con_ywjkjyj">
+                            <dt>
+                                <span class="dtSpan">风险监控
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd data1="navQfgl" id="unitArrearage" domain1Code="lp1_qfgl">
+                                <a href="javascript:void(0);" class="unitname">
+                                    <span class="iconfont icon-arrears-status"></span>欠费管理
+                                </a>
+                            </dd>
+                            <dd data1="navZbgl" id="unitBooks" domain1Code="lp1_zbgl">
+                                <a href="javascript:void(0);" class="unitname">
+                                    <span class="iconfont icon-zhangben"></span>账本管理
+                                </a>
+                            </dd>
+                            <dd data1="navYxzygl" id="unitResource" domain1Code="lp1_yxzygl">
+                                <a href="javascript:void(0);" class="unitname">
+                                    <span class="iconfont icon-ziyuan"></span>营销资源管理
+                                </a>
+                            </dd>
+                            <dd data1="navKdgl" id="unitBroad" domain1Code="lp1_kdgl">
+                                <a href="javascript:void(0);" class="unitname">
+                                    <span class="iconfont icon-kuandaitianchong"></span>宽带管理
+                                </a>
+                            </dd>
+                            <dd data1="navIotgl" id="unitIoT" domain1Code="lp1_wlwgl">
+                                <a href="javascript:void(0);" class="unitname">
+                                    <span class="iconfont icon-iotwulianwang"></span>物联网管理
+                                </a>
+                            </dd>
+                            <dd data1="navIotgl" id="unitYk" domain1Code="lp1_ykgl">
+                                <a href="javascript:void(0);" class="unitname">
+                                    <span class="iconfont icon-ykgl"></span>养卡管理
+                                </a>
+                            </dd>
+                        </dl>
+                        <div class="selcetWrap hide">
+                            <dl>
+                                <dt>二级业务域:</dt>
+                                <dd class="form-group" id="domain2NameWrap">
+                                    <select class="form-control" id="domain2NameList">
+                                        <!-- 后台获取 -->
+                                    </select>
+                                </dd>
+                            </dl>
+                            <dl>
+                                <dt>审计月:</dt>
+                                <dd class="form-group" id="timeListWrap">
+                                    <select class="form-control" id="timeList">
+                                        <!-- 后台获取 -->
+                                    </select>
+                                </dd>
+                            </dl>
+                            <button class="btn">进入</button>
+                        </div>
+                        <!--<ul class="rool">
+                            <li class="dot_active"></li>
+                            <li></li>
+                        </ul>-->
+                    </div>
+                </div>
+                <!-- 专题中间 -->
+                <div class="special-center col-md-3 col-xs-3">
+                    <div class="module-unit">
+                        <dl id="Con_sjgj">
+                            <dt>
+                                <span class="dtSpan">审计跟进
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd id="unitZgqk" data="navSjgjZgxx">
+                                <a href="javascript:void(0);" class="unitname" name="zgqk">
+                                    <span class="iconfont icon-zhenggaixinxi"></span>整改信息</a>
+                            </dd>
+                            <dd id="unitWzqk" data="navSjgjWzxx">
+                                <a href="javascript:void(0);" class="unitname" name="wzqk">
+                                    <span class="iconfont icon-wenzexinxi"></span>问责信息</a>
+                            </dd>
+                            <dd id="unitSjcgyy" data="navSjcgyy">
+                                <a href="javascript:void(0);" class="unitname" name="sjcgyy">
+                                    <span class="icon-sjgj-sjcg"></span>审计成果运用</a>
+                            </dd>
+                            <dd id="unitDkz1">
+                                <a href="javascript:void(0);">
+                                    <span class="icon-dkz"></span>待扩展</a>
+                            </dd>
+                        </dl>
+                        <ul class="rool"></ul>
+                    </div>
+                    <div class="module-unit margin_topywgl">
+                        <dl id="Con_ywgl">
+                            <dt>
+                                <span class="dtSpan">业务管理
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd id="unitXqgl" data="navXqgl">
+                                <a href="javascript:void(0);" class="unitname" name="xqgl">
+                                    <span class="icon-ywgl-xqgl "></span>需求管理</a>
+                            </dd>
+                            <dd id="unitBgxz" data="navSjbg">
+                                <a href="javascript:void(0);" class="unitname" name="bgxz">
+                                    <span class="icon-ywgl-bgxz"></span>报告下载</a>
+                            </dd>
+                             <dd class="" id="unitCsgl" data="navCsgl">
+                                <a href="javascript:void(0);" class="unitname" name="csgl">
+                                    <span class="iconfont icon-canshuguanli"></span>参数管理</a>
+                            </dd>
+                            <dd id="unitSjkg" data="navSjkg">
+                                <a href="javascript:void(0);" class="unitname" name="sjkg">
+                                    <span class="icon-ywgl-sjkg"></span>审计开关</a>
+                            </dd>
+                        </dl>
+                        <ul class="rool"></ul>
+                    </div>
+                    <!--<div class="module-unit">
+                        <dl id="Con_cxda">
+                            <dt>
+                                <span class="dtSpan">诚信档案
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd id="unitPfjz" data="navPfjz">
+                                <a href="javascript:void(0);" class="unitname" name="pfjz">
+                                    <span class="icon-cxda-pfjz"></span>评分机制</a>
+                            </dd>
+                            <dd id="unitPfbz" data="navPfbz">
+                                <a href="javascript:void(0);" class="unitname" name="pfbz">
+                                    <span class="icon-cxda-pfbz"></span>评分标准</a>
+                            </dd>
+                            <dd id="unitCxda" data="navCxda">
+                                <a href="javascript:void(0);" class="unitname" name="cxda">
+                                    <span class="icon-cxda-cxda"></span>诚信档案</a>
+                            </dd>
+                            <dd id="unitDkz2">
+                                <a href="javascript:void(0);">
+                                    <span class="icon-dkz"></span>待扩展</a>
+                            </dd>
+                        </dl>
+                        <ul class="rool"></ul>
+                    </div>-->
+                </div>
+                <!-- 专题右侧 -->
+                <div class="special-right col-md-3 col-xs-3">
+                    <div class="module-unit">
+                        <dl id="Con_grgzq">
+                            <dt>
+                                <span class="dtSpan">个人工作区
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd class="hide" id="unitZzbbfx" data="navZzbbfx">
+                                <a href="javascript:void(0);" class="unitname" name="zzbbfx">
+                                    <span class="icon-grgzq-zzbb"></span>自助报表分析</a>
+                            </dd>
+                            <dd class="hide" id="unitSjts" data="navSjts">
+                                <!-- 数据探索客户演示-by xsw 20180302 -->
+                                <a href="/eap/home/index" class="unitname" name="rool">
+                                    <span class="icon-grgzq-sjts"></span>数据探索</a>
+                            </dd>
+                            <dd class="hide" id="unitSjdpz" data="navSjdpz">
+                                <a href="javascript:void(0);" class="unitname" name="deploy">
+                                    <span class="icon-grgzq-sjdpz"></span>审计点配置</a>
+                            </dd>
+                            <dd class="" id="unitBgmbpz" data="navfileModelConfig">
+                                <a href="javascript:void(0);" class="unitname"  name="deploy">
+                                    <span class="icon-grgzq-bgmb"></span>报告模板配置</a>
+                            </dd>
+                            <!-- 权限判断 权限查询、审计报告预审 是否显示 -->
+                            <dd class="hide" id="unitMxjk" data="navMxjk">
+                                <a href="javascript:void(0);" class="unitname" name="mxgl">
+                                    <span class="icon-mxgl-mxjk"></span>模型监控</a>
+                            </dd>
+                            <dd class="" id="unitSjbgys" data="navSjbgys">
+                                <a href="javascript:void(0);" class="unitname" name="mxgl">
+                                    <span class="iconfont icon-shenjibaogaoyushen"></span>审计报告预审</a>
+                            </dd>
+                            <dd class="" id="unitSjzlgl" data="navSjzlgl">
+                                <a href="javascript:void(0);" class="unitname" name="mxgl">
+                                    <span class="icon-ywgl-sjzl"></span>数据质量管理</a>
+                            </dd>
+                            <dd class="" id="unitSjrw" data="navSjrw">
+                                <a href="javascript:void(0);" class="unitname" name="mxgl">
+                                    <span class="iconfont icon-question-feedba"></span>审计任务管理</a>
+                            </dd>
+                             <dd class="" id="unitRzcx" data="navRzcx">
+                                <a href="javascript:void(0);" class="unitname" name="xtgl">
+                                    <span class="iconfont icon-rizhi"></span>日志查询</a>
+                            </dd>
+                            <dd class="" id="unitQxcx" data="navQxcx">
+                                <a href="javascript:void(0);" class="unitname" name="xtgl">
+                                    <span class="iconfont icon-quanxianchaxun"></span>权限查询</a>
+                            </dd>
+                            <dd class="hide" id="unitGjgl" data="navGjgl">
+                                <a href="javascript:void(0);" class="unitname" name="xtgl">
+                                    <span class="icon-mxgl-gjgl"></span>告警管理</a>
+                            </dd>
+                             <dd class="" id="unitWtfk" data="navWtfk">
+                                <a href="javascript:void(0);" class="unitname" name="xtgl">
+                                    <span class="iconfont icon-question-feedba"></span>问题报送及反馈</a>
+                            </dd>
+                            <dd class="add_bg" data-toggle="modal" data-target=".bs-example-modal-lg">
+                                <a href="javascript:void(0);">
+                                    <span class="icon-add"></span>
+                                </a>
+                            </dd>
+                        </dl>
+                        <ul class="rool">
+                            <li class="dot_active"></li>
+                            <li></li>
+                        </ul>
+                    </div>
+                    <div class="module-unit margin_topsjgj">
+                        <dl id="Con_ywgl">
+                            <dt>
+                                <span class="dtSpan">审计工具
+                                    <span class="icon-add-radus hide" data-toggle="modal" data-target=".bs-example-modal-lg">+</span>
+                                </span>
+                            </dt>
+                            <dd id="unitXqgl" data="navSjcx">
+                                <a href="javascript:void(0);" class="unitname" name="sjcx">
+                                    <span class="iconfont icon-yuanshujushenjigongju" ></span>审计数据集市管理
+                                </a>
+                            </dd>
+                        </dl>
+                        <ul class="rool"></ul>
+                    </div>
+                    <div class="redact fr" id="redactIcon" data-toggle="modal" data-target=".bs-example-modal-lg">
+                        <a href="javascript:void(0);">编辑工作区</a>
+                    </div>
+                </div> 
+            </div>
+        </div>
+        <!-- 模态框 -->
+        <div class="modal fade bs-example-modal-lg redact-modal" id="redact-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">持续审计工作区</h4>
+                    </div>
+                    <div class="modal-body row">
+                        <div class="select-area fl">
+                            <h4>全部内容</h4>
+                            <dl id="list1">
+                                <dt class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="checkAll1">全选
+                                    </label>
+                                </dt>
+                            </dl>
+                        </div>
+                        <div class="switch-con fl">
+                            <button type="button" class="btn btn-primary switch-to ">
+                                <i class="glyphicon glyphicon-chevron-right"></i>
+                            </button>
+                            <button type="button" class="btn btn-default switch-recall">
+                                <i class="glyphicon glyphicon-chevron-left"></i>
+                            </button>
+                        </div>
+                        <div class="select-area fl">
+                            <h4>已选内容</h4>
+                            <dl id="list2">
+                                <dt class="checkbox ">
+                                    <label>
+                                        <input type="checkbox" id="checkAll2">全选
+                                    </label>
+                                    <span class="icon_sort_left" title="请选中一个专题进行排序"></span>
+                                    <span class="icon_sort_right" title="请选中一个专题进行排序"></span>
+                                </dt>
+
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="editCancel">取消</button>
+                        <button type="button" class="btn btn-primary active_btn" id="editConfirm">确认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="foot">
+        <p>copyright@2014 ALL Rights Reserved 京ICP证000000号</p>
+        <p>中国移动内审部</p>
+    </div>
+    <div class="hide">
+        <a href="/cmca/SynchronizeTwoSys/index">synchronizeTwoSys</a>
+    </div>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/cmca-common.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/home/home.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/home/homeData.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+/* 深色主题 */
+.dark_theme {
+  background-color: #1a1b24;
+}
+
+/* 按钮 */
+.dark_theme .btn {
+  border-color: #f8a900;
+  background-color: transparent;
+}
+
+.dark_theme .active_btn {
+  border: 1px solid #f8a900;
+  background-color: #f8a900;
+  color: #fff;
+}
+
+.dark_theme .btn:hover,
+.dark_theme .btn:focus {
+  border: 1px solid #f8a900;
+  color: #fff;
+  background-color: #f8a900;
+}
+
+.dark_theme input {
+  cursor: pointer;
+}
+
+.dark_theme input:focus {
+  border-color: #f8a900;
+}
+
+/* bootstrap-table */
+.dark_theme thead th:first-child {
+  border-left: 1px solid #535666 !important;
+}
+
+.dark_theme table td {
+  color: #C6C3C6;
+}

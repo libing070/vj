@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="DataCompareMapper">
+
+	<!-- 批量添加比对结果 -->
+	<insert id="insertList" parameterType="com.hpe.cmca.pojo.DataCompare">
+     insert into  hpmgr.busi_data_compare_log
+    (order_num,field_name,word_name,word_value,excel_name,excel_value,compare_result,
+    create_datetime,isdel)
+    VALUES
+    (#{orderNum}, #{fieldName},
+     #{wordName}, #{wordValue},
+     #{excelName},#{excelValue},
+     #{compareResult},#{createDatetime},#{isdel})
+   </insert>
+
+
+	<!-- 查询比对结果列表 -->
+	<select id="selDataCompare"  resultType="java.util.Map"
+		parameterType="java.util.Map" >
+	sel
+		order_num,field_name,word_name,word_value,excel_name,excel_value,compare_result,create_datetime
+		from hpmgr.busi_data_compare_log  where isdel=0
+		order by create_datetime
+	</select>
+
+	<!-- 查询比对结果列表条数 -->
+	<select id="countDataCompare"  resultType="java.lang.Integer" parameterType="java.util.Map">
+		sel count(*) as totalCount  from hpmgr.busi_data_compare_log 	 where isdel=0
+	</select>
+
+	<select id="countDataCompares"  resultType="java.lang.Integer" parameterType="java.util.Map">
+		sel count(*) as totalCount  from hpmgr.busi_data_compare_log
+	</select>
+
+	<select id="getMaxOrderNum"  resultType="java.lang.Integer" parameterType="java.util.Map">
+		sel max(order_num) from hpmgr.busi_data_compare_log where isdel=0
+	</select>
+
+	<!-- 查询省份名称和代码列表 -->
+	<select id="getProvinceCode"  resultType="java.util.Map"
+		parameterType="java.util.Map" >
+	    sel  prvd_id ,short_name  from hpmgr.busi_workspace_org
+
+	</select>
+
+	<!-- 逻辑清除历史比对结果-->
+	<update id ="updateDataIsdel" parameterType="java.util.Map">
+	update hpmgr.busi_data_compare_log
+	set isdel=1
+	</update>
+
+	<!-- 获取审计月下拉 -->
+	<select id="getAuditMonth" resultType="java.util.Map" parameterType="java.util.Map">
+			SEL  distinct aud_trm
+			FROM	 hpmgr.busi_report_log   where subject_id=#{subjectId}  and  file_type in('audReport','auditPm')
+			and file_path is not null  order by aud_trm desc
+	</select>
+
+	<!-- 查询比对专题 -->
+	<select id="selectSubject" resultType="java.util.Map"
+		parameterType="java.util.Map" >
+		select  id,name  from hpmgr.busi_stat_subject  where id in(1,2,3,6,4,7)
+		 order by id
+	</select>
+</mapper>
+

@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="commonMapper">
+<!--
+	<cache
+        eviction="LRU"
+        flushInterval="1800000"
+        size="4096"
+        readOnly="true" />
+   -->
+	<select id="dict_common" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT id,
+			biz_value as bizValue,
+			biz_type as bizType,
+			biz_text as bizText,
+			order_index as orderIndex,
+			script,
+			remark,
+			is_active as isActive
+		FROM HPMGR.dict_common
+		<where>
+		     <if test="bizType!=null">
+		 		 bizType=#{bizType}
+		 	 </if>
+		</where>
+		ORDER BY bizType, orderIndex
+	</select>
+
+	<select id="dict_yjkType" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			yjk_typ_cd as id,
+			yjk_typ_cd as bizValue,
+			'YJK' as bizType,
+			yjk_typ_name as bizText,
+			yjk_typ_cd as orderIndex,
+
+			desc_txt as remark
+		FROM HPMGR.dim_yjk_typ
+
+		ORDER BY bizType, orderIndex
+	</select>
+
+	<select id="dict_infractionType" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			 biz_code as id,
+			 biz_code as bizValue,
+			concern_id as bizType,
+			 name as bizText,
+			biz_code as orderIndex,
+
+			 biz_code as remark
+		FROM HPMGR.busi_stat_concern_rule
+		where 1=1
+
+		<if test="bizType!=null">
+			and concern_id=#{concernId}
+		</if>
+
+		ORDER BY bizType, orderIndex
+	</select>
+
+		<select id="dict_offer" resultType="java.util.HashMap" parameterType="java.util.Map">
+
+		SELECT	distinct(dataReport.offer_cd) as id,
+		 		id as bizValue,
+				id as bizType,
+				offer_type.offer_nm  as bizText,
+				id as orderIndex,
+				id as remark
+		FROM	HPBUS.Sum_yjk_1006 as dataReport left join HPBUS.TB_SVC_OFFER_INFO as offer_type
+		on dataReport.offer_cd = offer_type.offer_cd
+		ORDER BY bizType, orderIndex
+	</select>
+
+	<select id="dict_yjk_vc_stat" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			 yjk_vc_stat_cd as id,
+			 yjk_vc_stat_cd as bizValue,
+			yjk_vc_stat_cd as bizType,
+			 yjk_vc_stat_name as bizText,
+			yjk_vc_stat_cd as orderIndex,
+
+			 yjk_vc_stat_cd as remark
+		FROM  HPMGR.Dim_yjk_vc_stat
+		where <![CDATA[ yjk_vc_stat_cd <> 500]]>
+
+		ORDER BY bizType, orderIndex
+	</select>
+
+
+
+	<select id="dict_yjk_focus" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	id as id,
+		biz_code as bizValue,
+		'YJK_FOCUS' as bizType,
+		name as bizText,
+		biz_code as orderIndex,
+		memo as remark
+
+		FROM	HPMGR.busi_stat_concern
+
+		WHERE subject_id=1
+
+		<![CDATA[ and biz_code<>1000]]>
+
+		ORDER BY orderIndex
+	</select>
+
+
+	<select id="dict_zdtl_focus" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT  biz_code as id, 'ZDTL_FOCUS' as bizType, biz_code as bizValue,name as bizText, id as orderIndex
+		FROM HPMGR.busi_stat_concern
+		WHERE subject_id=3 <![CDATA[AND id>30 AND biz_code<>'3003']]>
+		ORDER BY biz_code
+	</select>
+
+	<select id="dict_province" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	prvd_id as id,
+			'province' as bizType,
+			CAST(prvd_id as VARCHAR(12)) as bizValue,
+			short_name as bizText,
+			prvd_id as orderIndex,
+			''  as remark
+		FROM HPMGR.busi_workspace_org
+		ORDER BY id
+	</select>
+
+	<select id="dict_company" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	prvd_id as id,
+			'company' as bizType,
+			CAST(prvd_id as VARCHAR(12)) as bizValue,
+			prvd_name as bizText,
+			prvd_id as orderIndex,
+			''  as remark
+		FROM HPMGR.busi_workspace_org
+
+		ORDER BY id
+	</select>
+
+	<select id="dict_auditTrm_conf" resultType="java.util.HashMap" parameterType="java.util.Map" useCache="false" >
+	SELECT	Aud_trm as audTrm,concern_Id as concernId
+	FROM	HPMGR.busi_audit_trm_conf
+	WHERE switch=1
+	ORDER BY concern_Id, aud_trm DESC
+	</select>
+
+		<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="provinceList">
+		<result property="name" column="name"/>
+		<result property="company" column="company"/>
+		<result property="provinceCode" column="provinceCode"/>
+	</resultMap>
+
+	<select id="selectProvinceList" resultMap="provinceList" parameterType="java.util.Map">
+		SELECT CMCC_prov_prvd_nm as name,  CMCC_prov_prvd_nm as company, CMCC_prov_prvd_id as provinceCode, eff_dt, end_dt
+		FROM HPMGR.ref_dm_cmcc_prov_prvd_cd
+	</select>
+
+			<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="cityList">
+		<result property="name" column="name"/>
+		<result property="CityCode" column="CityCode"/>
+		<result property="provinceCode" column="provinceCode"/>
+	</resultMap>
+
+	<select id="selectCityList" resultMap="cityList" parameterType="java.util.Map">
+		SELECT CMCC_prvd_nm_short as name,   CMCC_prvd_cd as cityCode, CMCC_prov_prvd_id as provinceCode
+		FROM HPMGR.TB_SUM_PRVD_NAME
+		where 1=1
+
+		<if test="bizType!=null">
+			and CMCC_prov_prvd_id=#{provinceCode}
+		</if>
+
+		order by CMCC_prov_prvd_id ,CMCC_prvd_cd
+	</select>
+
+	<resultMap type="java.util.Map"  id="ReportFileIdMap">
+		<result property="id" column="id"/>
+		<result property="modelNotifyId" column="model_notify_id"/>
+		<result property="fileName" column="file_name"/>
+		<result property="filePath" column="file_path"/>
+		<result property="downloadUrl" column="download_url"/>
+		<result property="createTime" column="create_time"/>
+		<result property="createPerson" column="create_person"/>
+	</resultMap>
+
+	<select id="selectAudReportFileId" resultMap="ReportFileIdMap" parameterType="java.util.Map">
+			SELECT 	reportFile.*,row_number() OVER(ORDER BY reportFile.create_time desc) RN
+			FROM	HPMGR.busi_report_file   as reportFile
+			where reportFile.file_type='audReport'
+			and reportFile.audit_monthly=#{auditMonthly}
+			and reportFile.audit_subject=#{auditSubject}
+			and reportFile.aduitor=#{aduitor}
+			and reportFile.audit_concern=#{auditConcern}
+			QUALIFY RN =1
+	</select>
+
+	<select id="selectAudDetailFileId" resultMap="ReportFileIdMap" parameterType="java.util.Map">
+			SELECT 	reportFile.*,row_number() OVER(ORDER BY reportFile.create_time desc) RN
+			FROM	HPMGR.busi_report_file  as reportFile
+			where reportFile.file_type='audDetail'
+			and reportFile.audit_monthly=#{auditMonthly}
+			and reportFile.audit_subject=#{auditSubject}
+			and reportFile.aduitor=#{aduitor}
+			and reportFile.audit_concern=#{auditConcern}
+			QUALIFY RN =1
+	</select>
+
+	<!-- 更新下一数据块的上一数据块左下右上坐标 -->
+	<update id="updatePoint" parameterType="com.hpe.cmca.pojo.confInfo">
+		update hpmgr.busi_auto_file_config
+		set
+		excel_name = #{excelName},
+		excel_code = #{excelCode},
+		sheet_name = #{sheetName},
+		sheet_code = #{sheetCode},
+		v_point_l_d = #{vPointLD},
+		h_point_l_d = #{hPointLD},
+		v_point_r_u = #{vPointRU},
+		h_point_r_u = #{hPointRU}
+		where block_code = #{blockCode}
+	</update>
+
+	<!-- 更新当前数据块真实坐标 -->
+	<update id="updateRealPoint" parameterType="com.hpe.cmca.pojo.confInfo">
+		update hpmgr.busi_auto_file_config
+		set
+		v_point_real = #{vPointReal},
+		h_point_real = #{hPointReal}
+		where block_code = #{blockCode}
+	</update>
+
+		<!-- 更新新插入数据块的信息 -->
+	<update id="updateNewBlockInfo" parameterType="com.hpe.cmca.pojo.confInfo">
+		update hpmgr.busi_auto_file_config
+		set
+		excel_name = #{excelName},
+		excel_code = #{excelCode},
+		sheet_name = #{sheetName},
+		sheet_code = #{sheetCode},
+		v_h = #{vH},
+		block_title = #{blockTitle},
+		direction = #{direction},
+		cell_content = #{cellContent},
+		query_sql = #{querySql},
+		word_font = #{wordFont},
+		word_size = #{wordSize},
+		word_color = #{wordColor},
+		v_point_relate = #{vPointRelate},
+		h_point_relate = #{hPointRelate},
+		status = 0
+		where block_code = #{blockCode}
+	</update>
+
+	<select id="getRowsCountById" parameterType="com.hpe.cmca.pojo.confInfo" resultType="java.util.HashMap">
+		SELECT	count(*)as cnt
+		FROM	hpmgr.busi_auto_file_config where block_code = #{blockCode};
+	</select>
+
+	<select id="getBlockCodeLikeCode" parameterType="com.hpe.cmca.pojo.confInfo" resultType="java.util.HashMap">
+		<![CDATA[
+		SELECT	Max(block_code)
+		FROM	hpmgr.busi_auto_file_config where status = 2 and block_code like #{excelCode}||'_'||#{sheetCode}||'_%';
+		]]>
+	</select>
+
+	<insert id="insertNewRow" parameterType="com.hpe.cmca.pojo.confInfo">
+		INSERT	INTO hpmgr.busi_auto_file_config
+		(block_code, excel_code,excel_name, sheet_code,sheet_name, v_h, direction,block_title ,cell_content, query_sql,
+		word_font, word_size, word_color, v_point_relate, h_point_relate,
+		v_point_l_d, h_point_l_d, v_point_r_u, h_point_r_u, v_point_real,
+		h_point_real, status)
+		VALUES
+		(#{blockCode}, #{excelCode},#{excelName}, #{sheetCode}, #{sheetName},
+		null,null, null,null,
+		null,null,null,
+		null, null, null,
+		#{vPointLD}, #{hPointLD}, #{vPointRU},#{hPointRU},null, null,2);
+	</insert>
+
+	<insert id="insertNewBlock" parameterType="java.util.Map">
+		INSERT	INTO hpmgr.busi_auto_file_config
+		(block_code, focus_cd, excel_code, excel_name, sheet_code,
+		sheet_name, v_h, direction, block_title, is_widthtb, has_audtrm,
+		col_location, col_type, cell_content, query_sql, is_null_set,
+		default_val, spe_null_col, spe_default_val, word_font, word_size,
+		word_color, v_point_relate, h_point_relate, v_point_l_d, h_point_l_d,
+		v_point_r_u, h_point_r_u, v_point_real, h_point_real, status)
+		VALUES
+		(#{blockCode}, #{focusCd},#{excelCode},#{excelName}, #{sheetCode}, #{sheetName},
+		#{vH},#{direction}, #{blockTitle},#{isWidthTb}, #{hasAudTrm},
+		#{colLocation}, #{colType},
+		#{cellContent},#{querySql},#{isNullSet},
+		#{defaultVal}, #{speNullCol}, #{speDefaultVal},
+		#{wordFont},#{wordSize},#{wordColor},
+		#{vPointRelate}, #{hPointRelate},
+		#{vPointLD}, #{hPointLD}, #{vPointRU},#{hPointRU},
+		#{vPointReal},#{hPointReal},
+		0);
+	</insert>
+
+	<select id="getFileGenList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<![CDATA[
+		SELECT	id, block_code,focus_cd, excel_code, excel_name, sheet_code, sheet_name,
+		v_h, direction,block_title,is_widthtb,aud_trm_start,has_audtrm,col_location,col_type,cell_content, query_sql,
+		is_null_set,default_val,spe_null_col,spe_default_val,
+		word_font, word_size,
+		word_color, v_point_relate, h_point_relate, v_point_l_d, h_point_l_d,
+		v_point_r_u, h_point_r_u, v_point_real, h_point_real, status,aud_trm_op, complex_pattern, complex_title,text_type,col_width,merge_cell
+		FROM	hpmgr.busi_auto_file_config where status <> 1 and focus_cd = #{focusCd} order by block_code;
+		]]>
+	</select>
+
+	<select id="executeSql" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<![CDATA[${querySql} ]]>
+	</select>
+
+	<select id="getPrvdOrCtyName" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="prvdId==10000">
+			SELECT	 CMCC_prov_prvd_nm as prvdOrCtyName
+			FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd
+			order by CMCC_prov_prvd_id
+		</if>
+		<if test="prvdId!=null and prvdId!=10000 ">
+			select CMCC_prvd_nm_short as prvdOrCtyName from HPMGR.TB_SUM_PRVD_NAME where CMCC_prov_prvd_id = #{prvdId}
+			order by  CMCC_prov_prvd_id
+		</if>
+
+
+	</select>
+
+		<!-- 更新专题下所有数据块的状态 -->
+	<update id="updateStatusByFocusCd" parameterType="java.util.Map">
+		update hpmgr.busi_auto_file_config
+		set
+		status = #{status}
+		where focus_cd = #{focusCd}
+	</update>
+
+	<!-- 更新专题下所有数据块的状态 -->
+	<update id="updateStatusById" parameterType="java.util.Map">
+		update hpmgr.busi_auto_file_config
+		set
+		status = #{status}
+		where id = #{id}
+	</update>
+
+	<!-- 获取对应省份和专题word文件配置信息 -->
+	<select id="selectWordConfig" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	id, block_code, subject_id, prvd_id,word_code, word_name,text_or_table, block_content,
+		query_sql,per_index,show_by_flag,show_flag,order_type,order_range, font_family, font_size, color, bold, italic, strike,
+		underline, text_position, alignment, indentation_first_line,
+		spacing_before, page_break, tb_width,cell_width,tb_height,cell_color,tb_rows,tb_cols,merge_cell,additional_show,additional_show_sql,merge_last,loop_text,external_sql,status
+		FROM	hpmgr.busi_word_file_config
+		where 1=1
+		and subject_id = #{subjectId}
+		and status = #{status}
+		and prvd_id = #{prvdId}
+		order by block_code
+	</select>
+
+
+	<select id="selectAutoInfo" resultType="java.util.Map" parameterType="java.util.Map">
+	SELECT * from hpbus.busi_auto_task_info
+	</select>
+
+
+
+	<select id="selectWordPath" resultType="java.util.Map" parameterType="java.util.Map">
+	SELECT	id, model_notify_id, file_name, file_path, download_url,
+		file_type, audit_monthly, audit_subject, aduitor, audit_concern,
+		create_time, create_person
+FROM	hpmgr.busi_report_file_new
+where file_type='audReport'
+and audit_monthly=#{audTrm} and audit_subject=#{subjectId} and aduitor=#{prvdId}
+	</select>
+
+
+</mapper>
+

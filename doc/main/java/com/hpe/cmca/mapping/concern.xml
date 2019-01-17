@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间  设置缓存时间 <cache/> -->
+<mapper namespace="ConcernMapper">
+
+	<cache
+        eviction="LRU"
+        flushInterval="1800000"
+        size="4096"
+        readOnly="true" />
+   
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="concernInfoMap">
+		<result property="id" column="id"/>
+		<result property="subjectId" column="subject_id"/>
+		<result property="bizCode" column="biz_code"/>
+		<result property="name" column="name"/>
+		<result property="requestUrl" column="request_url"/>
+		<result property="memo" column="memo"/>
+		<result property="report" column="report"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="pageInfoMap">
+		<result property="id" column="id"/>
+		<result property="concernId" column="concern_id"/>
+		<result property="name" column="name"/>
+		<result property="category" column="category"/>
+		<result property="cycleType" column="cycle_type"/>
+		<result property="startCycle" column="start_cycle"/>
+		<result property="endCycle" column="end_cycle"/>
+		<result property="requestUrl" column="request_url"/>
+		<result property="memo" column="memo"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="pageDataMap">
+		<result property="id" column="id"/>
+		<result property="pageId" column="page_id"/>
+		<result property="dataType" column="data_type"/>
+		<result property="resName" column="res_name"/>
+		<result property="refName" column="ref_name"/>
+		<result property="refValue" column="ref_value"/>
+		<result property="memo" column="memo"/>
+		<result property="handler" column="handler"/>
+		<result property="config" column="config"/>
+	</resultMap>
+
+	
+	<!-- 根据concernId查询concern的信息-->
+	<select id="selectConcernInfo" resultMap="concernInfoMap"  parameterType="java.util.Map">
+		select * from HPMGR.busi_stat_concern where id=#{concernId}
+	</select>
+	
+	<!-- 根据concernId查询concern的信息-->
+	<select id="selectConcernInfoByCode" resultMap="concernInfoMap"  parameterType="java.util.Map">
+		select * from HPMGR.busi_stat_concern where biz_code=#{bizCode}
+	</select>
+	
+	<!-- 根据subjectId查询concern的信息-->
+	<select id="selectConcernList" resultMap="concernInfoMap"  parameterType="java.util.Map">
+		select * from HPMGR.busi_stat_concern where subject_id = #{subjectId} order by order_index
+	</select>
+	<!-- 根据concernId查询concern的子页面的子页面信息列表-->
+	<select id="selectPageInfos" resultMap="pageInfoMap"  parameterType="java.util.Map">
+		<if test="category==null">
+			select * from HPMGR.busi_stat_concern_page where concern_id=#{concernId} 	
+			<if test="parentId>=0">
+				and parent_id=#{parentId} 
+			</if>
+			
+			<if test="parentId==null">
+				and parent_id=0 
+			</if>
+			order by id
+		</if>
+		<if test="category!=null">
+			select * from HPMGR.busi_stat_concern_page where parent_id in( 	
+				select id from HPMGR.busi_stat_concern_page 
+				where concern_id=#{concernId} 	
+				and category=#{category}
+			)order by id
+		</if>
+	</select>	
+	<!-- 根据concernId查询concern的子页面信息列表-->
+	<select id="selectDataInfos" resultMap="pageDataMap"  parameterType="java.util.Map">
+		select * from HPMGR.busi_stat_concern_data where page_id=#{pageId} order by id
+	</select>
+	
+	
+	<!-- 根据category查询concern的具体子页面信息-->
+	<select id="selectSubPageInfo" resultMap="pageInfoMap"  parameterType="java.util.Map">
+		select * from HPMGR.busi_stat_concern_page where concern_id=#{concernId} and category=#{category} order by id
+	</select>
+	
+    <!-- 根据category查询concern的子页面的数据  暂时没有判断页面的生命周期-->
+	<select id="selectSubPageData" resultMap="pageDataMap"  parameterType="java.util.Map">
+		select data.* 
+		from HPMGR.busi_stat_concern_page page, busi_stat_concern_data data 
+		where page.concern_id=#{concernId} and page.category=#{category} and page.id=data.page_id
+	</select>	
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="selectPointReport">
+		<result property="bizCode" column="biz_code"/>
+		<result property="name" column="name"/>
+		<result property="memo" column="memo"/>
+		<result property="report" column="report"/>
+	</resultMap>
+
+	<!-- 根据concernId查询关注点的检查点描述 -->
+	<select id="selectPointReport" resultMap="selectPointReport"  parameterType="java.util.Map">		
+		SELECT id, concern_id, biz_code, name, memo, report, create_time, create_person
+		FROM HPMGR.busi_stat_concern_rule
+		WHERE concern_id=#{concernId}
+		ORDER BY id asc 
+	</select>
+	
+		<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="concernAttr">
+		<result property="id" column="id"/>
+		<result property="concernId" column="concern_id"/>
+		<result property="attrType" column="attr_type"/>
+		<result property="attrName" column="attr_name"/>
+		<result property="attrValue" column="attr_value"/>
+		<result property="createTime" column="create_time"/>
+		<result property="createPerson" column="create_person"/>
+	</resultMap>
+
+	<!-- 根据concernId查询关注点的属性列表 -->
+	<select id="selecConcernAttr" resultMap="concernAttr"  parameterType="java.util.Map">		
+		SELECT	id, concern_id, attr_type, attr_name, attr_value, create_time, create_person
+		FROM	HPMGR.busi_stat_concern_attr
+		WHERE   concern_id=#{concernId}
+		ORDER BY id asc 
+	</select>
+	
+	<!-- WHERE subject_id=3 AND id>30 -->
+	<select id="selectConcernName" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		SELECT  id as id, 'CONCERN_NAME' as bizType, trim(id(varchar(11))) as bizValue,name as bizText, id as orderIndex  
+		FROM HPMGR.busi_stat_concern 
+		 
+		ORDER BY id
+	</select>
+	
+</mapper> 
+

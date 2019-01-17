@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+	    <param name="Encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{HH:mm:ss}][%-5p][%c{1}][line:%L]:%m%n"/>
+		</layout>
+	</appender>
+
+	<appender name="cmca.log" class="org.apache.log4j.DailyRollingFileAppender">
+	    <param name="Encoding" value="UTF-8" />
+		<param name="Append" value="true"/>
+		<param name="File" value="/weblogic/domains/hp_domain/hp_web/caLog/cmca.log"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{HH:mm:ss}][%-5p][%c{1}][line:%L]:%m%n"/>
+		</layout>
+	</appender>
+
+	<logger name="org.springframework">
+		<level value="DEBUGGER"/>
+		<appender-ref ref="cmca.log"/>
+	</logger>
+
+	<logger name="java.sql">
+		<level value="DEBUGGER"/>
+		<appender-ref ref="cmca.log"/>
+	</logger>
+	
+	<logger name="com.ibatis">
+		<level value="DEBUGGER"/>
+		<appender-ref ref="cmca.log"/>
+	</logger>
+	
+	<logger name="com.hpe">
+		<level value="DEBUGGER"/>
+		<appender-ref ref="cmca.log"/>
+	</logger>
+	
+	<logger name="edu.yale">
+		<level value="DEBUGGER"/>
+		<appender-ref ref="cmca.log"/>
+	</logger>
+
+	<root>
+		<level value="DEBUGGER"/>
+		<appender-ref ref="CONSOLE"/>
+	</root>
+
+</log4j:configuration>

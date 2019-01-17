@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 个人 -->
+<mapper namespace="YGYC5003">
+	<!-- 审计报告第一页的各关注点分述 -->
+	<select id="auditReport_selectSum_5003" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		<if test="provinceCode!=10000">
+			SELECT total_Opr,
+			total_Acct,
+			total_Time,
+			total_Amt_10000
+			FROM HPBUS.YGYC_Sum_Prvd_5003
+			WHERE 1=1
+			<if test="statCycle!=null">
+				AND Aud_trm = #{statCycle}
+			</if>
+				AND prvd_id = #{provinceCode}
+		</if>
+		<if test="provinceCode==10000">
+					SELECT	SUM(total_Opr) as total_Opr,
+					SUM(total_Acct) as total_Acct,
+					SUM(total_Time) as total_Time,
+					SUM(total_Amt_10000) as total_Amt_10000
+			FROM	HPBUS.YGYC_Sum_Prvd_5003
+			WHERE	1=1
+			<if test="statCycle!=null">
+				AND Aud_trm = #{statCycle}
+			</if>
+		</if>
+	</select>
+	<!-- No1_省 -->
+	<select id="auditReport_selectNo1_prvd" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		<if test="provinceCode!=10000">
+		SELECT  Aud_trm,
+	COUNT(DISTINCT opr_id) 	AS total_Opr,
+	COUNT(DISTINCT acct_id) 	AS total_Acct,
+	COUNT(*)			AS total_Time,
+	SUM(trade_amt) / 10000.00	AS total_Amt_10000,
+	SUM(trade_amt) / COUNT(DISTINCT opr_id) / 10000.0000 AS aveAcctWAmt
+	FROM	(SELECT	A2.*
+	FROM	(SELECT DISTINCT acct_id, city_id 
+	FROM HPBUS.YGYC_Sum_Acct_5003 
+	WHERE 1=1
+		 <if test="statCycle!=null">
+			AND Aud_trm = #{statCycle}
+		</if>
+			AND prvd_id = #{provinceCode}
+		<![CDATA[AND prvd_no <= 50]]>)	A1
+	INNER JOIN (SELECT * FROM HPBUS.Det_YGYC_5003
+	 WHERE 1=1 
+		<if test="statCycle!=null">
+			AND Aud_trm = #{statCycle}
+		</if>
+			AND prvd_id = #{provinceCode}
+		)	A2
+	ON	A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id
+	)	B
+	GROUP BY Aud_trm
+	</if>
+		<if test="provinceCode==10000">
+			SELECT  Aud_trm,
+			COUNT(DISTINCT opr_id) 	AS total_Opr,
+			COUNT(DISTINCT acct_id) 	AS total_Acct,
+			COUNT(*)			AS total_Time,
+			SUM(trade_amt) / 10000.00	AS total_Amt_10000,
+			SUM(trade_amt) / COUNT(DISTINCT opr_id) / 10000.0000 AS aveAcctWAmt
+		FROM	(SELECT	A2.*
+			FROM	(SELECT DISTINCT acct_id, city_id FROM HPBUS.YGYC_Sum_Acct_5003 WHERE  1=1
+					<if test="statCycle!=null">
+						AND Aud_trm = #{statCycle}
+					</if>
+					<![CDATA[AND china_no <= 50]]>)	A1
+			INNER JOIN (SELECT * FROM HPBUS.Det_YGYC_5003 WHERE  1=1
+					<if test="statCycle!=null">
+						AND Aud_trm = #{statCycle}
+					</if>)	A2
+			ON	A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id
+			)	B
+		GROUP BY Aud_trm
+		</if>
+	</select>
+	<!-- No1_全国 -->
+	<select id="auditReport_selectNo1_china" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		<if test="provinceCode!=10000">
+		SELECT  Aud_trm,
+	COUNT(DISTINCT opr_id) 	AS total_Opr,
+	COUNT(DISTINCT acct_id) 	AS total_Acct,
+	COUNT(*)			AS total_Time,
+	SUM(trade_amt) / 10000.00	AS total_Amt_10000,
+	SUM(trade_amt) / COUNT(DISTINCT opr_id) / 10000.0000 AS aveAcctWAmt
+	FROM	(SELECT	A2.*
+	FROM	(SELECT DISTINCT acct_id, city_id FROM HPBUS.YGYC_Sum_Acct_5003 
+		WHERE 1 = 1
+		<if test="statCycle!=null">
+			AND Aud_trm = #{statCycle}
+		</if>
+		 AND prvd_id = #{provinceCode}
+		<![CDATA[AND china_no <= 50]]> )	A1
+	INNER JOIN (SELECT * FROM HPBUS.Det_YGYC_5003 
+		WHERE 1 = 1
+		<if test="statCycle!=null">
+			AND Aud_trm = #{statCycle}
+		</if>
+		 AND prvd_id = #{provinceCode})	A2
+	ON	A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id
+	)	B
+	GROUP BY Aud_trm
+	</if>
+	<if test="provinceCode==10000">
+	SELECT  Aud_trm,
+			COUNT(DISTINCT opr_id) 	AS total_Opr,
+			COUNT(DISTINCT acct_id) 	AS total_Acct,
+			COUNT(*)			AS total_Time,
+			SUM(trade_amt) / 10000.00	AS total_Amt_10000,
+			SUM(trade_amt) / COUNT(DISTINCT opr_id) / 10000.0000 AS aveAcctWAmt
+		FROM	(SELECT	A2.*
+			FROM	(SELECT DISTINCT acct_id, city_id FROM HPBUS.YGYC_Sum_Acct_5003 WHERE  1=1
+					<if test="statCycle!=null">
+						AND Aud_trm = #{statCycle}
+					</if>
+					<![CDATA[AND china_no <= 50]]>)	A1
+			INNER JOIN (SELECT * FROM HPBUS.Det_YGYC_5003 WHERE  1=1
+					<if test="statCycle!=null">
+						AND Aud_trm = #{statCycle}
+					</if>)	A2
+			ON	A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id
+			)	B
+		GROUP BY Aud_trm
+	</if>
+	</select>
+	<!-- 高额赠送话费排名前5的公司 -->
+	<select id="auditReport_selectCom_top5" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			SELECT china_no as rankNo
+			,prvd_name as comName
+			,total_Amt
+			,total_Time
+			,total_Subs
+			FROM HPBUS.YGYC_Sum_Prvd_5003
+			WHERE 1=1
+			<if test="statCycle!=null">
+				and Aud_trm = #{statCycle}
+			</if>
+			<![CDATA[AND china_no
+			<= 5]]>
+			ORDER BY china_no
+		</if>
+
+		<if test="provinceCode!=10000">
+			SELECT prvd_no as rankNo
+			,city_name as comName
+			,total_Amt
+			,total_Time
+			,total_Subs
+			FROM HPBUS.YGYC_Sum_City_5003
+			WHERE 1=1
+			<if test="statCycle!=null">
+				and Aud_trm = #{statCycle}
+			</if>
+			<if test="provinceCode!=null">
+				AND prvd_id = #{provinceCode}
+			</if>
+			<![CDATA[AND prvd_no <= 5]]>
+			ORDER BY
+			prvd_no
+		</if>
+	</select>
+
+
+	<!-- 对赠送话费金额排名前10账户高额赠送的工号 -->
+	<select id="auditReport_selectUser_top10" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			SELECT RANK(total_Amt) AS ygyc_no
+			,acct_id
+			,prvd_name
+			,city_name
+			,staff_id
+			,total_Time
+			,total_Amt
+			,msisdn
+			,subs_id
+			,'全国' AS weidu
+			FROM
+			HPBUS.YGYC_Sum_Acct_5003_10
+			WHERE 1=1
+			<if test="statCycle!=null">
+				and Aud_trm = #{statCycle}
+			</if>
+			<![CDATA[QUALIFY RANK(total_Amt) <= 10]]>
+		</if>
+
+		<if test="provinceCode!=10000">
+			SELECT ygyc_no
+			,acct_id
+			,prvd_name
+			,city_name
+			,staff_id
+			,total_Time
+			,total_Amt
+			,msisdn
+			,subs_id
+			,weidu
+			FROM
+			HPBUS.YGYC_Sum_Acct_5003_10
+			WHERE
+			1=1
+			<if test="statCycle!=null">
+				and Aud_trm = #{statCycle}
+			</if>
+			<if test="provinceCode!=null">
+				AND prvd_id = #{provinceCode}
+			</if>
+			ORDER BY ygyc_no
+		</if>
+	</select>
+
+
+</mapper>
+

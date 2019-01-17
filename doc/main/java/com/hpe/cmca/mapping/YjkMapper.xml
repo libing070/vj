@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.YjkMapper">
+<!--
+<typeAliases>
+	<typeAlias type="com.hpe.cmca.pojo.YjkData" alias="yjkData"/>
+</typeAliases>-->
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.YjkData"  id="yjkData">		
+		<result property="concernId" column="concern_id"/>
+		<result property="concernName" column="concern_nm"/>
+		<result property="audTrm" column="Aud_trm"/>
+		<result property="prvdId" column="prvd_id"/>
+		<result property="prvdName" column="prvd_name"/>
+		<result property="ctyId" column="cty_id"/>
+		<result property="ctyName" column="cty_name"/>
+		<result property="infractionNum" column="errQty"/>
+		<result property="totalNum" column="totalNum"/>
+		<result property="infractionNumTmp" column="errQtyTmp"/>
+		<result property="totalNumTmp" column="totalNumTmp"/>
+		<result property="numPercent" column="qtyPercent"/>
+		<result property="infractionAmt" column="errAmt"/>
+		<result property="tolAmt" column="tolAmt"/>
+		<result property="amtPercent" column="errPercent"/>
+		<result property="cntArea" column="cntArea"/>
+		<result property="rn" column="rn"/>
+		<result property="numPercentOrder" column="numPercentOrder"/>
+		<result property="amtPercentOrder" column="amtPercentOrder"/>		
+		<result property="infractionNumMom" column="errQtyMom"/>
+		<result property="infractionNumMomTmp" column="errQtyMomTmp"/>	
+		<result property="numPercentMom" column="qtyPercentMom"/>			
+		<result property="infractionAmtMom" column="errAmtMom"/>				
+		<result property="amtPercentMom" column="errPercentMom"/>
+		<result property="errQtyLrr" column="errqty_lrr"/>
+		<result property="errAmtLrr" column="erramt_lrr"/>
+		<result property="crmNum" column="crm_num"/>
+		<result property="vcNum" column="vc_num"/>
+		<result property="allNum" column="all_num"/>
+		<result property="yjkStat" column="yjk_stat"/>
+	</resultMap>
+	
+	<resultMap type="com.hpe.cmca.pojo.ZGWZData"  id="zgwzData">
+		<result property="audTrm" column="Aud_trm"/>	
+		<result property="issueNum" column="issue_num"/>
+		<result property="issueRn" column="issue_rn"/>
+		<result property="issuePrvdName" column="issue_prvd_name"/> 
+		<result property="issueInfo" column="issue_info"/> 
+		<result property="issueDetail" column="issue_detail"/> 
+		<result property="issueAdvice" column="issue_advice"/> 
+		<result property="issueDemand" column="issue_demand"/> 
+		<result property="issueTime" column="issue_time"/> 
+		<result property="issueDeadline" column="issue_deadline"/>
+	</resultMap>
+	<!-- 风险地图数据 old
+	<select id="getMapData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			SELECT	
+			concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, errQty,
+			totalNum, qtyPercent, errAmt, tolAmt, errPercent, cntArea,
+			row_number()over(partition by Aud_trm,concern_id order by errPercent desc)as rn
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern}
+		</if>
+		<if test="prvdId != 10000">
+			SELECT	
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvdName as prvd_name, 
+			regionId as cty_id,
+			regionName as cty_name,
+			errQty,totalNum, qtyPercent, errAmt, tolAmt, errPercent,
+			row_number()over(partition by prvd_id,Aud_trm,concern_id order by errPercent desc)as rn
+			FROM	HPBUS.sum_yjk_ctymap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern} and prvd_id = #{prvdId} <![CDATA[and  regionId<>0]]>
+		</if>
+	</select>-->
+	
+	<!-- 风险地图数据-->
+	<select id="getMapData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select 
+			b.concern_id, b.concern_nm, b.Aud_trm, 
+			a.CMCC_prov_prvd_id as prvd_id,a.CMCC_prov_prvd_nm as prvd_name,
+			b.errQty,
+			b.totalNum, b.qtyPercent, b.errAmt, b.tolAmt, b.errPercent, b.cntArea,
+			b.rn
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd a
+			left join
+			(SELECT	
+			concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, errQty,
+			totalNum, qtyPercent, errAmt/10000 as errAmt, tolAmt/10000 as tolAmt, errPercent, cntArea,
+			amtper_rk as rn
+			FROM	hpbus.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern})b
+			on a.CMCC_prov_prvd_id = b.prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select 
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvd_name, 
+			a.CMCC_prvd_cd as cty_id,
+			a.CMCC_prvd_nm_short as cty_name,
+			errQty,totalNum, qtyPercent, errAmt, tolAmt, errPercent,
+			rn
+			from
+			(select * from hpmgr.TB_SUM_PRVD_NAME where  CMCC_prov_prvd_id =#{prvdId})a
+			left join 
+			(SELECT	
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvdName as prvd_name, 
+			regionId as cty_id,
+			regionName as cty_name,
+			errQty,totalNum, qtyPercent, errAmt/10000 as errAmt, tolAmt/10000 as tolAmt, errPercent,
+			amtper_rk as rn
+			FROM	hpbus.sum_yjk_ctymap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern} and prvd_id = #{prvdId} <![CDATA[and  regionId<>0]]>
+			)b
+			on a.CMCC_prvd_cd=b.cty_id and a.CMCC_prov_prvd_id=b.prvd_id
+		</if>
+	</select>
+	
+	<!-- 地图下方数据 old
+	<select id="getMapBottomData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.concern_id,a.concern_nm,a.Aud_trm,a.prvd_id,a.prvd_name,
+			a.errQty1 as errQty,
+			a.errQty1 - b.errQty1 as errQtyMom,
+			a.qtyPercent,
+			a.qtyPercent - b.qtyPercent as qtyPercentMom,
+			a.errAmt1 as errAmt,
+			a.errAmt1 - b.errAmt1 as errAmtMom,
+			a.errPercent,
+			a.errPercent - b.errPercent as errPercentMom,
+			a.totalNum1 as totalNum,
+			a.tolAmt1 as tolAmt
+			from 
+			(SELECT	
+			concern_id, concern_nm, Aud_trm, 
+			10000 as prvd_id, '全公司' as prvd_name, 
+			sum(errQty) as errQty1,
+			sum(totalNum)as totalNum1, 			
+			case when totalNum1 =0 then 0 else errQty1*1.0000/totalNum1 end as qtyPercent,		
+			sum(errAmt) as errAmt1,
+			sum(tolAmt)as tolAmt1,
+			case when tolAmt1 =0 then 0 else errAmt1*1.0000/tolAmt1 end as errPercent
+			FROM	HPBUS.sum_yjk_prvdmap
+			where Aud_trm = #{audTrm} and concern_id = #{concern}
+			group by Aud_trm,concern_id,concern_nm
+			)a
+			left join
+			(SELECT	
+			concern_id, concern_nm, Aud_trm, 
+			10000 as prvd_id, '全公司' as prvd_name, 
+			sum(errQty) as errQty1,
+			sum(totalNum)as totalNum1, 			
+			case when totalNum1 =0 then 0 else errQty1*1.0000/totalNum1 end as qtyPercent,		
+			sum(errAmt) as errAmt1, 
+			sum(tolAmt)as tolAmt1,
+			case when tolAmt1 =0 then 0 else errAmt1*1.0000/tolAmt1 end as errPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where Aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6)) 
+			and concern_id = #{concern}
+			group by Aud_trm,concern_id,concern_nm)b
+			on a.prvd_id = b.prvd_id and a.concern_id = b.concern_id
+		</if>
+		<if test="prvdId != 10000">
+			select a.concern_id,a.concern_nm,a.Aud_trm,a.prvd_id,a.prvd_name,
+			a.errQty,
+			a.errQty - b.errQty as errQtyMom,
+			a.qtyPercent,
+			a.qtyPercent - b.qtyPercent as qtyPercentMom,
+			a.errAmt,
+			a.errAmt - b.errAmt as errAmtMom,
+			a.errPercent,		
+			a.errPercent - b.errPercent as errPercentMom,
+			a.totalNum,
+			a.tolAmt
+			from 
+			(SELECT	
+			concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, 
+			errQty,
+			totalNum, 			
+			case when totalNum =0 then 0 else errQty*1.0000/totalNum end as qtyPercent,		
+			errAmt, 
+			tolAmt,
+			case when tolAmt =0 then 0 else errAmt*1.0000/tolAmt end as errPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern}
+			and regionId = #{prvdId}
+			)a 
+			left join
+			(SELECT	
+			concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, 
+			errQty,
+			totalNum, 			
+			case when totalNum =0 then 0 else errQty*1.0000/totalNum end as qtyPercent,		
+			errAmt, 
+			tolAmt,
+			case when tolAmt =0 then 0 else errAmt*1.0000/tolAmt end as errPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where Aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6)) 
+			and concern_id = #{concern}
+			and regionId = #{prvdId})b
+			on a.prvd_id = b.prvd_id and a.concern_id = b.concern_id
+		</if>
+	</select>-->
+	
+	<!-- 地图下方数据 -->
+	<select id="getMapBottomData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		SELECT	
+		concern_id, concern_nm, Aud_trm, 
+		regionId as prvd_id, regionName as prvd_name, 	
+		errQty,
+		errqty_dif as errQtyMom,
+		qtyPercent,
+		errqty_per_dif as qtyPercentMom,			
+		errAmt*1.0000/10000 as errAmt, 
+		erramt_dif*1.0000/10000 as errAmtMom,
+		errPercent,
+		erramt_per_dif as errPercentMom,
+		totalNum,
+		tolAmt
+		FROM	hpbus.sum_yjk_prvdmap 
+		where Aud_trm = #{audTrm} and concern_id = #{concern}
+		and regionId = #{prvdId}
+	</select>
+	
+	
+	
+	
+		<!-- 有价卡违规数量占比柱状图 old
+	<select id="getColumnNumData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.prvd_id,a.prvd_name,
+			coalesce(qtyPercent,0)as qtyPercent
+			from
+			(select	CMCC_prov_prvd_cd as prvd_id, CMCC_prov_prvd_nm as prvd_name
+			FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd 
+			<![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+			select	concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, errQty,
+			totalNum, qtyPercent, errAmt, tolAmt, errPercent, cntArea
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern})b
+			on a.prvd_id = b.prvd_id
+			order by qtyPercent desc		
+		</if>
+		<if test="prvdId != 10000">
+			select a.prvd_id,a.cty_id,a.cty_name,
+			coalesce(qtyPercent,0)as qtyPercent
+			from
+		    (SELECT CMCC_prov_prvd_id as prvd_id,CMCC_prvd_cd as cty_id, 
+		    CMCC_prvd_nm_short as cty_name
+			FROM	hpmgr.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id =#{prvdId})a
+		    left join 
+		    (SELECT	
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvdName as prvd_name, 
+			regionId as cty_id,
+			regionName as cty_name,
+			errQty,totalNum, qtyPercent, errAmt, tolAmt, errPercent
+			FROM	HPBUS.sum_yjk_ctymap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern} and prvd_id = #{prvdId} <![CDATA[and  regionId<>0]]>)b
+			on a.prvd_id  = b.prvd_id and a.cty_id = b.cty_id
+			order by qtyPercent desc			
+		</if>
+	</select> -->
+	
+	
+	<!-- 有价卡违规数量占比柱状图 -->
+	<select id="getColumnNumData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.prvd_id,a.prvd_name,errQty,
+			coalesce(qtyPercent,0)as qtyPercent
+			from
+			(select	CMCC_prov_prvd_cd as prvd_id, CMCC_prov_prvd_nm as prvd_name
+			FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd 
+			<![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+			select	concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, errQty,
+			totalNum, qtyPercent, errAmt, tolAmt, errPercent, cntArea
+			FROM	hpbus.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern})b
+			on a.prvd_id = b.prvd_id
+			order by qtyPercent desc,errQty desc,a.prvd_id		
+		</if>
+		<if test="prvdId != 10000">
+			select a.prvd_id,a.cty_id,a.cty_name,errQty,
+			coalesce(qtyPercent,0)as qtyPercent
+			from
+		    (SELECT CMCC_prov_prvd_id as prvd_id,CMCC_prvd_cd as cty_id, 
+		    CMCC_prvd_nm_short as cty_name
+			FROM	hpmgr.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id =#{prvdId})a
+		    left join 
+		    (SELECT	
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvdName as prvd_name, 
+			regionId as cty_id,
+			regionName as cty_name,
+			errQty,totalNum, qtyPercent, errAmt, tolAmt, errPercent
+			FROM	hpbus.sum_yjk_ctymap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern} and prvd_id = #{prvdId} <![CDATA[and  regionId<>0]]>)b
+			on a.prvd_id  = b.prvd_id and a.cty_id = b.cty_id
+			order by qtyPercent desc,errQty desc,a.prvd_id			
+		</if>
+	</select>
+	
+	
+	
+	<!-- 有价卡违规金额占比柱状图 old
+	<select id="getColumnAmtData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.prvd_id,a.prvd_name,
+			coalesce(errPercent,0)as errPercent
+			from
+			(select	CMCC_prov_prvd_cd as prvd_id, CMCC_prov_prvd_nm as prvd_name
+			FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd 
+			<![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+			select	concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, errQty,
+			totalNum, qtyPercent, errAmt, tolAmt, errPercent, cntArea
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern})b
+			on a.prvd_id = b.prvd_id
+			order by errPercent desc		
+		</if>
+		<if test="prvdId != 10000">
+			select a.prvd_id,a.cty_id,a.cty_name,
+			coalesce(errPercent,0)as errPercent
+			from
+		    (SELECT CMCC_prov_prvd_id as prvd_id,CMCC_prvd_cd as cty_id, 
+		    CMCC_prvd_nm_short as cty_name
+			FROM	hpmgr.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id =#{prvdId})a
+		    left join 
+		    (SELECT	
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvdName as prvd_name, 
+			regionId as cty_id,
+			regionName as cty_name,
+			errQty,totalNum, qtyPercent, errAmt, tolAmt, errPercent
+			FROM	HPBUS.sum_yjk_ctymap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern} and prvd_id = #{prvdId} <![CDATA[and  regionId<>0]]>)b
+			on a.prvd_id  = b.prvd_id and a.cty_id = b.cty_id
+			order by errPercent desc			
+		</if>
+	</select>-->
+	
+	<!-- 有价卡违规金额占比柱状图 -->
+	<select id="getColumnAmtData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.prvd_id,a.prvd_name,errAmt,
+			coalesce(errPercent,0)as errPercent
+			from
+			(select	CMCC_prov_prvd_cd as prvd_id, CMCC_prov_prvd_nm as prvd_name
+			FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd 
+			<![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+			select	concern_id, concern_nm, Aud_trm, 
+			regionId as prvd_id, regionName as prvd_name, errQty,
+			totalNum, qtyPercent, errAmt, tolAmt, errPercent, cntArea
+			FROM	hpbus.sum_yjk_prvdmap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern})b
+			on a.prvd_id = b.prvd_id
+			order by errPercent desc,errAmt desc,a.prvd_id		
+		</if>
+		<if test="prvdId != 10000">
+			select a.prvd_id,a.cty_id,a.cty_name,errAmt,
+			coalesce(errPercent,0)as errPercent
+			from
+		    (SELECT CMCC_prov_prvd_id as prvd_id,CMCC_prvd_cd as cty_id, 
+		    CMCC_prvd_nm_short as cty_name
+			FROM	hpmgr.TB_SUM_PRVD_NAME
+			where CMCC_prov_prvd_id =#{prvdId})a
+		    left join 
+		    (SELECT	
+			concern_id, concern_nm, Aud_trm, prvd_id,
+			prvdName as prvd_name, 
+			regionId as cty_id,
+			regionName as cty_name,
+			errQty,totalNum, qtyPercent, errAmt, tolAmt, errPercent
+			FROM	hpbus.sum_yjk_ctymap 
+			where Aud_trm = #{audTrm} and concern_id = #{concern} and prvd_id = #{prvdId} <![CDATA[and  regionId<>0]]>)b
+			on a.prvd_id  = b.prvd_id and a.cty_id = b.cty_id
+			order by errPercent desc,errAmt desc,a.prvd_id			
+		</if>
+	</select>
+	
+		<!-- 有价卡违规金额占比折线图 old
+	<select id="getLineAmtData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.aud_trm,coalesce(b.errPercent,0)as errPercent  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>=201604]]>
+			group by aud_trm)a
+			left join 
+			(SELECT	 Aud_trm,
+			sum(errAmt) as errAmt1, 
+			sum(tolAmt)as tolAmt1,
+			case when tolAmt1 =0 then 0 else errAmt1*1.0000/tolAmt1 end as errPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where  concern_id = #{concern} and 
+			Aud_trm in(SELECT	Aud_trm FROM hpmgr.busi_audit_trm_conf where Switch =1 and Subject_code = 1 group by aud_trm)
+			group by Aud_trm
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm,coalesce(b.errPercent,0)as errPercent  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>=201604]]>
+			group by aud_trm)a
+			left join 
+			(SELECT	  Aud_trm,errPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where  concern_id = #{concern} and regionId = #{prvdId} and
+			Aud_trm in(SELECT Aud_trm FROM hpmgr.busi_audit_trm_conf where Switch =1 and Subject_code = 1 group by aud_trm)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+	</select>-->
+	
+	<!-- 有价卡违规金额占比折线图 -->
+	<select id="getLineAmtData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+			select a.aud_trm,coalesce(b.errPercent,0)as errPercent  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201604']]>
+			group by aud_trm)a
+			left join 
+			(SELECT	  Aud_trm,errPercent
+			FROM	hpbus.sum_yjk_prvdmap 
+			where  concern_id = #{concern} and regionId = #{prvdId} and
+			Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 1
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201604'
+			]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+	</select>
+	
+		<!-- 有价卡违规数量占比折线图 old
+	<select id="getLineNumData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			select a.aud_trm,coalesce(b.qtyPercent,0)as qtyPercent  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>=201604]]>
+			group by aud_trm)a
+			left join 
+			(SELECT	 Aud_trm,
+			sum(errQty) as errQty1, 
+			sum(totalNum)as totalNum1,
+			case when totalNum1 =0 then 0 else errQty1*1.0000/totalNum1 end as qtyPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where  concern_id = #{concern} and 
+			Aud_trm in(SELECT	Aud_trm FROM hpmgr.busi_audit_trm_conf where Switch =1 and Subject_code = 1 group by aud_trm)
+			group by Aud_trm
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm,coalesce(b.qtyPercent,0)as qtyPercent  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>=201604]]>
+			group by aud_trm)a
+			left join 
+			(SELECT	  Aud_trm,qtyPercent
+			FROM	HPBUS.sum_yjk_prvdmap 
+			where  concern_id = #{concern} and regionId = #{prvdId} and
+			Aud_trm in(SELECT Aud_trm FROM hpmgr.busi_audit_trm_conf where Switch =1 and Subject_code = 1 group by aud_trm)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+	</select>-->
+	
+	<!-- 有价卡违规数量占比折线图 -->
+	<select id="getLineNumData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+			select a.aud_trm,coalesce(b.qtyPercent,0)as qtyPercent  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201604']]>
+			group by aud_trm)a
+			left join 
+			(SELECT	  Aud_trm,qtyPercent
+			FROM	hpbus.sum_yjk_prvdmap 
+			where  concern_id = #{concern} and regionId = #{prvdId} and
+			Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 1
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201604'
+			]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+	</select>
+	
+	<!-- 有价卡生命周期 old-->
+	<select id="getCrmVsVcData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">
+ 		 select 
+ 		 yjk_stat,
+ 		 case 
+			 when yjk_stat='生成'  then '1'
+			 when yjk_stat='激活'  then '2'
+			 when yjk_stat='已使用'  then '3'
+			 when yjk_stat='锁定'  then '4'
+		 end as yjk_stat_no,
+ 		 sum(crm_num)as crm_num ,
+ 		 sum(vc_num) as vc_num,
+ 		 sum(all_num) as all_num 
+ 		 from 
+ 		 hpbus.crm_vc_num_diff 
+ 		 where aud_trm= ${audTrm}  
+ 		 <if test="prvdId != 10000">
+ 		 and prvd_id = #{prvdId}
+		</if>
+		 <if test="prvdId == 10000">
+		 and 1=1
+		</if>
+ 		 group by  yjk_stat order by yjk_stat_no
+	</select>
+	
+	
+	<!-- 获取有价卡增量分析数据-全国 add by pxl 2017.08.09-->
+	<select id="getIncrementalData" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		
+	sel t1.CMCC_prov_prvd_nm as prvd_name,t2.errAmtMom,t1.CMCC_prov_prvd_id as prvd_id
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join (
+		select 
+		erramt_dif as errAmtMom,
+		regionId as prvd_id
+		from
+		hpbus.sum_yjk_prvdmap
+		where aud_trm = #{audTrm} and concern_id = #{concern}	
+		)as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	order by t2.errAmtMom desc, t1.CMCC_prov_prvd_id;
+	</select>
+	
+	<!-- 统计分析->统计报表->违规类型分布(饼图) -->
+	<select id="getAmountPie" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select  concern_id,cast(errQty*1.0000/10000 as decimal(18,2))as errQtyTmp 
+		from hpbus.sum_yjk_prvdmap 
+		where aud_trm = #{audTrm} and regionId = #{prvdId}
+	</select>
+	
+	<!-- 统计分析->统计报表->违规占比趋势(堆积图) -->
+	<select id="getPerTrend" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">
+			select a.aud_trm,coalesce(b.errQtyTmp,0)as errQtyTmp,c.biz_code as  concern_id from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201604']]>
+			group by aud_trm)a join(
+			SELECT	distinct biz_code
+			FROM	hpmgr.busi_stat_concern where subject_id=1 and biz_code in ('1001','1002','1003','1004','1005')
+			)c on 1=1
+			left join 
+			(SELECT	  Aud_trm,concern_id,
+			cast(errQty*1.0000/10000 as decimal(18,2))as errQtyTmp
+			FROM	hpbus.sum_yjk_prvdmap 
+			where   regionId = #{prvdId} and 
+			Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 1
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201604'
+			]]>) 
+			)b
+			on a.aud_trm = b.aud_trm and c.biz_code = b.concern_id
+			order by a.aud_trm
+
+	</select>
+	<!-- 统计分析->整改问责要求 不用，冠峰统一实现三个老专题的接口-->
+	<select id="getZGWZReq" resultMap="zgwzData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<![CDATA[	
+		SELECT row_number()over(order by prvd_id)as issue_rn,prvd_name as issue_prvd_name,
+		case when infraction_typ = '100000' then '有价卡整体违规金额占比超过1%'
+		      when  infraction_typ = '100301' then '"有价卡销售前已被充值"违规金额占审计期间充值有价卡金额的比例超过0.1%'
+		      when  infraction_typ = '100502' then '有价卡已充值但未在VC系统标记"已充值"状态违规金额占审计期间充值有价卡金额的比例超过0.1% '
+		end as issue_info,
+		case when infraction_typ = '100000' then Aud_trm||'审计月，'||prvd_name||'公司有价卡整体违规金额占比'||trim(per_amt(FORMAT 'ZZ9.99%')(VARCHAR(7)))||'，违规金额'||trim(amt(FORMAT 'ZZZ,ZZZZ,Z99.99')(VARCHAR(14)))||'元。'
+		      when  infraction_typ = '100301' then Aud_trm||'审计月，'||prvd_name||'公司该违规类型涉及金额'||trim(amt(FORMAT 'ZZZ,ZZZZ,Z99.99')(VARCHAR(14)))||'元，违规金额占比'||trim(per_amt(FORMAT 'ZZ9.99%')(VARCHAR(7)))||'。'
+		      when  infraction_typ = '100502' then Aud_trm||'审计月，'||prvd_name||'公司该违规类型涉及数量'||trim(cnt(FORMAT 'ZZZ,ZZZZ,Z99')(VARCHAR(14)))||'张，涉及金额'||trim(amt(FORMAT 'ZZZ,ZZZZ,Z99.99')(VARCHAR(14)))||'元，违规金额占比'||trim(per_amt(FORMAT 'ZZ9.99%')(VARCHAR(7)))||'。 '
+		end as issue_detail,
+		case when infraction_typ = '100000' then '加大有价卡入库、销售、充值等各环节的管控力度，加强系统间数据同步和业务稽核手段，完善工作机制，提升工作成效。'
+		      when  infraction_typ = '100301' then '加大有价卡销售等环节的管控力度，加强业务稽核手段，提升工作成效。'
+		      when  infraction_typ = '100502' then '加大有价卡充值等环节的管控力度，加强业务稽核手段，提升工作成效。 '
+		end as issue_advice,
+		substr(Aud_trm,1,4 )||'年'||substr(Aud_trm,5,2 )||'月' as issue_time,
+		substr(add_months(cast(Aud_trm as date format 'YYYYMM'),3) ,1,4 )||'年'||substr(add_months(cast(Aud_trm as date format 'YYYYMM'),3) ,6,2 )||'月' as issue_deadline
+	 	FROM   hpbus.busi_yjk_zgwz_zg
+		WHERE Aud_trm = #{audTrm};
+		]]>
+	</select>
+	
+	<!-- 统计分析->整改问责6个月统计 -->
+	<select id="getZGWZColumn1" resultMap="zgwzData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<![CDATA[
+		select prvd_id,prvd_name as issue_prvd_name,
+		count(distinct aud_trm)as issue_num
+		FROM   hpbus.busi_yjk_zgwz_zg where aud_trm <=#{audTrm} and aud_trm >substr(cast(add_months(cast(#{audTrm} as date format 'YYYYMM'),-6)as date format 'YYYYMM') ,1,6 )
+		group by prvd_id,prvd_name		
+		order by issue_num desc
+		]]>
+	</select>
+	
+	<!-- 统计分析->整改问责累计统计 -->
+	<select id="getZGWZColumn2" resultMap="zgwzData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<![CDATA[
+		select prvd_id,prvd_name as issue_prvd_name,
+		count(distinct aud_trm)as issue_num
+		FROM   hpbus.busi_yjk_zgwz_zg where aud_trm <=#{audTrm} and aud_trm>='201606'
+		group by prvd_id,prvd_name 
+		order by issue_num desc
+		]]>
+	</select>
+	
+	<!-- 统计分析->整改问责累计统计 -->
+	<select id="getZGWZLine" resultMap="zgwzData" parameterType="com.hpe.cmca.pojo.ParameterData">
+			<![CDATA[
+			select a.aud_trm,coalesce(b.issue_num,0)as issue_num  from
+			(SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where Aud_trm <=#{audTrm} and aud_trm>='201606'
+			group by aud_trm)a
+			left join 
+			(
+			select aud_trm,
+			count(distinct prvd_id)as issue_num
+			FROM   hpbus.busi_yjk_zgwz_zg where Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 1
+			 	and aud_trm<=#{audTrm}
+				and aud_trm>='201606') 
+			group by aud_trm
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+			]]>
+	</select>
+	
+	
+	<!-- 统计分析->审计报告 -->
+	<select id="getAuditReport" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select 
+		concern_id,
+		case 
+			when concern_id =1000  then '有价卡专题汇总'
+			when concern_id =1001  then '未按规定在系统间加载'
+			when concern_id =1002  then '有价卡违规激活'
+			when concern_id =1003  then '有价卡违规销售'
+			when concern_id =1004  then '退换后的坏卡或报废卡未封锁'
+			when concern_id =1005  then '有价卡违规重复使用'
+		end as concern_nm,
+		cast(totalNum*1.0000/10000 as decimal(18,2)) as totalNumTmp ,	
+		cast(tolAmt*1.0000/10000 as decimal(18,2)) as tolAmt  ,
+ 		cast(errQty*1.0000/10000 as decimal(18,2)) as errQtyTmp,
+ 		cast(errAmt*1.0000/10000 as decimal(18,2)) as errAmt,
+ 		qtyPercent,
+ 		errPercent,
+ 		errqty_per_dif as qtyPercentMom, 		
+ 		erramt_per_dif as errPercentMom
+ 		from hpbus.sum_yjk_prvdmap
+		where aud_trm =#{audTrm} and regionId = #{prvdId} 
+	</select>
+	
+	<!-- 统计分析->排名汇总 -->
+	<select id="getYjkPmhz" resultMap="yjkData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId == 10000">
+			<![CDATA[
+			select c.*
+			from 
+			(SELECT b.CMCC_prov_prvd_nm as prvd_name,
+			coalesce(a.totalNum,null)as totalNum,coalesce(a.errQty,null)as errQty,coalesce(a.qtyPercent,null)as qtyPercent,coalesce(a.errqty_lrr,null)as errqty_lrr,coalesce(a.tolAmt,null)as tolAmt,
+			coalesce(a.errAmt,null)as errAmt,coalesce(a.errPercent,null)as errPercent,coalesce(a.erramt_lrr,null)as erramt_lrr	,
+			0 as rn
+			from 
+			(SELECT	CMCC_prov_prvd_cd, CMCC_prov_prvd_nm
+			 FROM	
+			 hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd=10000 )b
+			 left join
+			(SELECT regionName as prvd_name,regionId,
+			totalNum, errQty, qtyPercent, errqty_lrr,
+			tolAmt,errAmt, errPercent, erramt_lrr	
+			FROM	hpbus.sum_yjk_prvdmap where  regionId = 10000 and   concern_id =#{concern} and Aud_trm = #{audTrm}
+			)a
+			on a.regionId = b.CMCC_prov_prvd_cd			
+			union all		
+			SELECT b.CMCC_prov_prvd_nm as prvd_name,
+			coalesce(a.totalNum,null)as totalNum,coalesce(a.errQty,null)as errQty,coalesce(a.qtyPercent,null)as qtyPercent,coalesce(a.errqty_lrr,null)as errqty_lrr,coalesce(a.tolAmt,null)as tolAmt,
+			coalesce(a.errAmt,null)as errAmt,coalesce(a.errPercent,null)as errPercent,coalesce(a.erramt_lrr,null)as erramt_lrr	,
+			row_number()over(order by a.errPercent desc)as rn
+			from 
+			(SELECT	CMCC_prov_prvd_cd, CMCC_prov_prvd_nm
+			 FROM	
+			 hpmgr.ref_dm_cmcc_prov_prvd_cd  where CMCC_prov_prvd_cd <>10000)b
+			 left join
+			(
+			SELECT regionName as prvd_name,regionId,
+			totalNum, errQty, qtyPercent, errqty_lrr,
+			tolAmt,errAmt, errPercent, erramt_lrr	
+			FROM	hpbus.sum_yjk_prvdmap where  regionId <>10000 and   concern_id =#{concern} and Aud_trm = #{audTrm}
+			)a
+			on a.regionId = b.CMCC_prov_prvd_cd)c
+			order by  c.rn
+			]]>
+		</if>
+		<if test="prvdId == 10100 or prvdId == 10200 or prvdId == 10300 or prvdId == 10400">
+			<![CDATA[
+			SELECT a.* from (
+			SELECT 0 as rn,regionName as prvd_name,
+			totalNum, errQty, qtyPercent, errqty_lrr,
+			tolAmt,errAmt, errPercent, erramt_lrr	
+			FROM	hpbus.sum_yjk_prvdmap where  regionId = #{prvdId} and   concern_id = #{concern} and Aud_trm = #{audTrm}
+			)a
+			order by a.rn
+			]]>
+		</if>
+		<if test="prvdId != 10000 and prvdId != 10100 and prvdId != 10200 and prvdId != 10300 and prvdId != 10400">
+			<![CDATA[
+			SELECT a.* from (
+			SELECT 0 as rn,regionName as prvd_name,
+			totalNum, errQty, qtyPercent, errqty_lrr,
+			tolAmt,errAmt, errPercent, erramt_lrr	
+			FROM	hpbus.sum_yjk_prvdmap where  regionId = #{prvdId} and   concern_id = #{concern} and Aud_trm = #{audTrm}
+			union all
+			SELECT row_number()over(order by errPercent desc)as rn,	 regionName as prvd_name,
+			totalNum, errQty, qtyPercent, errqty_lrr,
+			tolAmt,errAmt, errPercent, erramt_lrr	
+			FROM	hpbus.sum_yjk_ctymap where  prvd_id = #{prvdId} and   concern_id = #{concern} and Aud_trm = #{audTrm}
+			)a
+			order by a.rn
+			]]>
+		</if>
+	</select>
+</mapper>
+

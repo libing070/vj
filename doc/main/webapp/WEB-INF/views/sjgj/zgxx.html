@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>整改信息</title>
+  <link rel="stylesheet" href="/cmca/resource/plugins/bootstrap-select/bootstrap-select.min.css">
+  <link rel="stylesheet" href="/cmca/resource/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" href="/cmca/resource/plugins/webuploader/webuploader.css">
+  <link rel="stylesheet" href="/cmca/resource/css/cmca/sjgj.css">
+  <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+  <script type="text/javascript" src="/cmca/resource/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+</head>
+
+<body class="light_style">
+  <form id="queryParam">
+    <input type="hidden" value="" id="editRow">
+    <!-- 登录所属角色 -->
+    <input type="hidden" id="roleId" value="" />
+  </form>
+  <div class="wrapper" id="wrapper">
+    <!-- 公共头部 -->
+    <div class="public_header">
+      <p>数据审计平台</p>
+    </div>
+    <!-- 公共主体 -->
+    <div class="public_main">
+      <!-- 侧边栏 -->
+      <div class="public_side_bar" id="navHref">
+        <!-- ≤1366侧边栏 -->
+        <ul class="small_bar" id="smallSideBar">
+          <li class="title_icon home_icon">
+            <a href="javascript:;" class="nav_icon" data="navHome">
+              <span class="glyphicon glyphicon-home"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>首页
+            </a>
+          </li>
+          <li class="title_icon">
+            <a href="javascript:;" class="nav_icon">
+              <span class="iconfont icon-shenjizhuanti"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>审计专题
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navYktl">
+              <span class="iconfont icon-yangkataoli"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>养卡套利
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navZdtl">
+              <span class="iconfont icon-zhongduantaol"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>社会渠道终端套利
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navYjk">
+              <span class="iconfont icon-youjiaqia"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>有价卡管理违规
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navKhqf">
+              <span class="iconfont icon-kehuqianfei"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>客户欠费
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navYgyccz">
+              <span class="iconfont icon-yuangongyichang"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>员工异常业务操作
+            </a>
+          </li>
+          <li class="content_icon dzqglwg_item">
+            <a href="javascript:;" class="nav_icon" data="navDzqglwg">
+              <span class="iconfont icon-dzqglwg"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>电子券管理违规
+            </a>
+          </li>
+          <li class="content_icon llglwg_item">
+            <a href="javascript:;" class="nav_icon" data="navLlglwg">
+              <span class="iconfont icon-llglwg"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>流量管理违规
+            </a>
+          </li>
+          <li class="title_icon active">
+            <a href="javascript:;" class="nav_icon">
+              <span class="iconfont icon-shenjigenjin"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>审计跟进
+            </a>
+          </li>
+          <li class="content_icon active">
+            <a href="javascript:;" class="nav_icon">
+              <span class="iconfont icon-zhenggaixinxi"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>整改信息
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navSjgjWzxx">
+              <span class="iconfont icon-wenzexinxi"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>问责信息
+            </a>
+          </li>
+          <li class="title_icon">
+            <a href="javascript:;" class="nav_icon">
+              <span class="iconfont icon-yewuguanli"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>业务管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navXqgl">
+              <span class="iconfont icon-fabuxuqiu"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>需求管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navSjkg">
+              <span class="iconfont icon-shenjikaiguan"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>审计开关
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navSjbg">
+              <span class="iconfont icon-baogaoxaizai"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>报告下载
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navCsgl">
+              <span class="iconfont icon-canshuguanli"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>参数管理
+            </a>
+          </li>
+          <li class="title_icon">
+            <a href="javascript:;" class="nav_icon">
+              <span class="iconfont icon-yewugjianongjiyujing"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>风险监控
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navQfgl">
+              <span class="iconfont icon-arrears-status"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>欠费管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navZbgl">
+              <span class="iconfont icon-zhangben"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip lg_nav_tip">
+              <i class="caret_left"></i>账本管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navYxzygl">
+              <span class="iconfont icon-canshuguanli"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>营销资源管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navKdgl">
+              <span class="iconfont icon-kuandaitianchong"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>宽带管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navWlwgl">
+              <span class="iconfont icon-iotwulianwang"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>物联网管理
+            </a>
+          </li>
+          <li class="content_icon">
+						<a href="javascript:;" class="nav_icon" data="navYkgl">
+							<span class="iconfont icon-ykgl"></span>
+						</a>
+						<a href="javascript:;" class="nav_tip">
+							<i class="caret_left"></i>养卡管理
+						</a>
+					</li>
+          <li class="title_icon">
+            <a href="javascript:;" class="nav_icon">
+              <span class="iconfont icon-gerengongzuoqu"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>个人工作区
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navSjbgys">
+              <span class="iconfont icon-shenjibaogaoyushen"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>审计报告预审
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navQxcx">
+              <span class="iconfont icon-quanxianchaxun"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>权限查询
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navRzcx">
+              <span class="iconfont icon-rizhi"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>日志查询
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navSjzlgl">
+              <span class="iconfont icon-shujuzhiliang"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>数据质量管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navWtfk">
+              <span class="iconfont icon-question-feedba"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>问题报送及反馈
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navSjrw">
+              <span class="iconfont icon-gongrengongzuoqu"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>审计任务管理
+            </a>
+          </li>
+          <li class="content_icon">
+            <a href="javascript:;" class="nav_icon" data="navfileModelConfig">
+              <span class="iconfont icon-shujuzhiliang"></span>
+            </a>
+            <a href="javascript:;" class="nav_tip">
+              <i class="caret_left"></i>报告模板配置
+            </a>
+          </li>
+          <li class="title_icon">
+			            <a href="javascript:;" class="nav_icon">
+			              <span class="iconfont icon-yuanshujushenjigongju"></span>
+			            </a>
+			            <a href="javascript:;" class="nav_tip">
+			              <i class="caret_left"></i>审计工具
+			            </a>
+			          </li>
+			          <li class="content_icon">
+			            <a href="javascript:;" class="nav_icon" data="navSjcx">
+			              <span class="iconfont icon-ysjcx-icon-shujuchaxun"></span>
+			            </a>
+			            <a href="javascript:;" class="nav_tip">
+			              <i class="caret_left"></i>审计数据集市管理
+			            </a>
+			          </li>
+        </ul>
+        <!-- ＞1366px侧边栏 -->
+        <ul class="big_bar" id="bigSideBar">
+          <li>
+            <h5 class="nav_title">
+              <a href="javascript:void(0);" data="navHome" onclick="navLocation(this);">
+                <span class="glyphicon glyphicon-home"></span>首页
+              </a>
+            </h5>
+          </li>
+          <li>
+            <h5 class="nav_title">
+              <a href="javascript:void(0)">
+                <span class="iconfont icon-shenjizhuanti"></span>审计专题
+                <i class="caret_up"></i>
+              </a>
+            </h5>
+            <ul class="nav_list">
+              <li>
+                <a href="javascript:void(0)" data="navYktl">养卡套利</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navZdtl">社会渠道终端套利</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navYjk">有价卡管理违规</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navKhqf">客户欠费</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navYgyccz">员工异常业务操作</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navDzqglwg">电子券管理违规</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navLlglwg">流量管理违规</a>
+              </li>
+            </ul>
+          </li>
+          <li class="active">
+            <h5 class="nav_title">
+              <a href="javascript:void(0)">
+                <span class="iconfont icon-shenjigenjin"></span>审计跟进
+                <i class="caret_up"></i>
+              </a>
+            </h5>
+            <ul class="nav_list">
+              <li>
+                <a href="javascript:void(0)" class="active">整改信息</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navSjgjWzxx">问责信息</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <h5 class="nav_title">
+              <a href="javascript:void(0)">
+                <span class="iconfont icon-yewuguanli"></span>业务管理
+                <i class="caret_up"></i>
+              </a>
+            </h5>
+            <ul class="nav_list">
+              <li>
+                <a href="javascript:void(0)" data="navXqgl">需求管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navSjkg">审计开关</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navSjbg">报告下载</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navCsgl">参数管理</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <h5 class="nav_title">
+              <a href="javascript:void(0)">
+                <span class="iconfont icon-yewugjianongjiyujing"></span>风险监控
+                <i class="caret_up"></i>
+              </a>
+            </h5>
+            <ul class="nav_list">
+              <li>
+                <a href="javascript:void(0)" data="navQfgl">欠费管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navZbgl">账本管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navYxzygl">营销资源管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navKdgl">宽带管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navWlwgl">物联网管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navYkgl">养卡管理</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <h5 class="nav_title">
+              <a href="javascript:void(0)">
+                <span class="iconfont icon-gerengongzuoqu"></span>个人工作区
+                <i class="caret_up"></i>
+              </a>
+            </h5>
+            <ul class="nav_list">
+              <li>
+                <a href="javascript:void(0)" data="navSjbgys">审计报告预审</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navQxcx">权限查询</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navRzcx">日志查询</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navSjzlgl">数据质量管理</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navWtfk">问题报送及反馈</a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" data="navSjrw">审计任务管理</a>
+              </li>
+              <li><a href="javascript:void(0)" data="navfileModelConfig">报告模板配置</a></li>
+            </ul>
+          </li>
+         <li>
+			  <h5 class="nav_title">
+			     <a href="javascript:void(0)">
+			        <span class="iconfont icon-yuanshujushenjigongju"></span>审计工具
+			        <i class="caret_up"></i>
+			     </a>
+			   </h5>
+			  <ul class="nav_list">
+			        <li>
+			          <a href="javascript:void(0)" data="navSjcx">审计数据集市管理</a>
+			        </li>
+			  </ul>
+		  </li>
+        </ul>
+      </div>
+      <!-- 主体展示内容 -->
+      <div class="main_content clear_float">
+        <!-- 顶部导航 -->
+        <div class="row top_nav">
+          <ol class="breadcrumb">
+            <li>审计跟进</li>
+            <li class="active">整改信息</li>
+          </ol>
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
+            <ul class="nav nav-tabs">
+              <li class="active">
+                <a href="#zgInfo" data-toggle="tab">整改信息</a>
+              </li>
+              <li>
+                <a href="#zgwzStatistics" data-toggle="tab">整改统计</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="zgInfo">
+            <!-- 顶部条件筛选 -->
+            <form class="form-inline search_form common_search_form" role="form" id="searchForm">
+              <div class="clear_float">
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="prvdList" class="control-label col-xs-4">公司</label>
+                    <div class="col-xs-8">
+                      <select class="selectpicker" name="a" id="prvdList" data-size="5" data-width="100%">
+                        <option value="" selected>全国</option>
+                        <!-- 后台请求据 -->
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="SubjectList" class="control-label col-xs-4">通报专题</label>
+                    <div class="col-xs-8">
+                      <select class="selectpicker" name="b" id="SubjectList" data-size="5" data-width="100%">
+                        <option value="" selected>全部</option>
+                        <!-- 后台请求数据 -->
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="accountabilityStatus" class="control-label col-xs-4">是否问责</label>
+                    <div class="col-xs-8">
+                      <select id="accountabilityStatus" name="h">
+                        <option value="2" selected>不限</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="pastDueStatus" class="control-label col-xs-4">是否已过要求反馈日期</label>
+                    <div class="col-xs-8">
+                      <select id="pastDueStatus" name="j">
+                        <option value="2" selected>不限</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="correcttatus" class="control-label col-xs-4">是否已整改</label>
+                    <div class="col-xs-8">
+                      <select id="correcttatus" name="i">
+                        <option value="2" selected>不限</option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="addIncome" class="control-label col-xs-4">增加收入(万元)</label>
+                    <div class="col-xs-8">
+                      <select id="addIncome" name="w">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="clear_float hide">
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="investment" class="control-label col-xs-4">节约成本（投资）（万元）</label>
+                    <div class="col-xs-8">
+                      <select id="investment" name="x">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="recoverDamage" class="control-label col-xs-4">挽回损失(万元)</label>
+                    <div class="col-xs-8">
+                      <select id="recoverDamage" name="y">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="avoidRisk" class="control-label col-xs-4">规避风险(万元)</label>
+                    <div class="col-xs-8">
+                      <select id="avoidRisk" name="z">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="perfectSystem" class="control-label col-xs-4">完善制度</label>
+                    <div class="col-xs-8">
+                      <select id="perfectSystem" name="AA">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="improveProcess" class="control-label col-xs-4">改进流程</label>
+                    <div class="col-xs-8">
+                      <select id="improveProcess" name="AB">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="ITsystem" class="control-label col-xs-4">IT系统改造</label>
+                    <div class="col-xs-8">
+                      <select id="ITsystem" name="AC">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="clear_float hide">
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="putRight" class="control-label col-xs-4">纠正错误或强化执行</label>
+                    <div class="col-xs-8">
+                      <select id="putRight" name="AD">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="revisePortNum" class="control-label col-xs-4">修订接口数</label>
+                    <div class="col-xs-8">
+                      <select id="revisePortNum" name="AE">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="errCase" class="control-label col-xs-4">违规流量赠送营销案数</label>
+                    <div class="col-xs-8">
+                      <select id="errCase" name="AF">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="affirmSell" class="control-label col-xs-4">确认转售集团客户数</label>
+                    <div class="col-xs-8">
+                      <select id="affirmSell" name="AG">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label for="shutDownSell" class="control-label col-xs-4">关停转售集团客户数</label>
+                    <div class="col-xs-8">
+                      <select id="shutDownSell" name="AH">
+                        <option value="2" selected>不限</option>
+                        <option value="1">空</option>
+                        <option value="0">非空</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="clear_float">
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label class="control-label col-xs-4">期数开始时间</label>
+                    <div class="col-xs-8">
+                      <input class="form-control" name="c1" type="text" id="periodsStartDate" placeholder="选择日期"
+                        readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label class="control-label col-xs-4">期数结束时间</label>
+                    <div class="col-xs-8">
+                      <input class="form-control" name="c2" type="text" id="periodsEndDate" placeholder="选择日期" readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label class="control-label col-xs-4">创建开始时间</label>
+                    <div class="col-xs-8">
+                      <input class="form-control" name="CREATE_TIME_BEG" type="text" id="creatStartDate" placeholder="选择日期"
+                        readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-2">
+                  <div class="form-group">
+                    <label class="control-label col-xs-4">创建结束时间</label>
+                    <div class="col-xs-8">
+                      <input class="form-control" name="CREATE_TIME_END" type="text" id="creatEndDate" placeholder="选择日期"
+                        readonly>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-1">
+                  <a href="javascript:;" id="showMoreBtn">更多</a>
+                </div>
+                <div class="col-xs-3 text-right">
+                  <button type="button" class="btn btn-primary" id="searchBtn">查询</button>
+                </div>
+              </div>
+            </form>
+            <!-- 结果展示 -->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h5 class="panel-title clear_float">
+                  <p class="fl" style="margin-top: 8px;">整改信息</p>
+                  <div class="fr behav_btns">
+                    <button type="button" class="btn btn-small btn-primary" id="addBtn">新建</button>
+                    <button type="button" id="editBtn" class="btn btn-primary">修改</button>
+                    <button type="button" id="deleteBtn" class="btn btn-primary">删除</button>
+                    <button type="button" id="templateDownBtn" class="btn btn-primary">模板下载</button>
+                    <div id="selectFile" style="display:inline-block;vertical-align:middle;">
+                      <button type="button" class="btn btn-primary">导入</button>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="exportBtn">导出</button>
+                  </div>
+                </h5>
+              </div>
+              <div class="panel-body statistics_zgxx_result">
+                <table data-toggle="table" id="statisticsResult">
+                  <thead>
+                    <tr>
+                      <td>数据加载中，请稍等...</td>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+            <div class="row err_info">
+              <p id="errInfo" class="col-xs-12"></p>
+            </div>
+          </div>
+          <div class="tab-pane fade in" id="zgwzStatistics">
+            <!-- 顶部查询条件 -->
+            <form class="form-inline clear_float search_form" role="form" id="searchTimesForm">
+              <div class="form-group">
+                <label for="statisStartDate">查询期数开始时间</label>
+                <input class="form-control" name="C1" type="text" id="statisStartDate" placeholder="选择日期" readonly>
+              </div>
+              <div class="form-group">
+                <label for="statisEndDate">查询期数结束时间</label>
+                <input class="form-control" name="C2" type="text" id="statisEndDate" placeholder="选择日期" readonly>
+              </div>
+              <div class="form-group fr">
+                <button type="button" class="btn btn-primary" id="zgwxTimesSearchBtn">查询</button>
+                <button type="button" class="btn btn-primary" id="zgwxTimesExportBtn">查询结果导出</button>
+              </div>
+            </form>
+            <!-- 结果展示 -->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h5 class="panel-title clear_float">
+                  整改问责次数统计
+                </h5>
+              </div>
+              <div class="panel-body zgwz_times_result">
+                <table id="zgwzTimesResult">
+                  <thead>
+                    <tr>
+                      <td>数据加载中，请稍等...</td>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 新建弹出框 -->
+        <!-- 模态框（Modal） -->
+        <div class="modal fade add_zgxx" id="operationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+          aria-hidden="true" data-keyboard="false" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" aria-hidden="true" id="closeModal">×</button>
+                <h4 class="modal-title" id="modalLabel"></h4>
+              </div>
+              <div class="modal-body">
+                <form class="form-horizontal common_search_form" role="form" id="operationForm" accept-charset="UTF-8">
+                  <div class="form-group">
+                    <label for="addPrvdList" class="col-xs-2 control-label">公司</label>
+                    <div class="col-xs-10 must_item">
+                      <i>*</i>
+                      <select class="selectpicker" name="a" id="addPrvdList" data-size="5" data-width="100%">
+                        <!-- 后台请求据 -->
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addSubjectList" class="col-xs-2 control-label">通报专题</label>
+                    <div class="col-xs-10 must_item">
+                      <i>*</i>
+                      <select class="selectpicker" name="b" id="addSubjectList" data-size="5" data-width="100%">
+                        <!-- 后台请求数据 -->
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addPeriods" class="col-xs-2 control-label">期数</label>
+                    <div class="col-xs-10 must_item">
+                      <i>*</i>
+                      <input type="text" class="form-control" name="c" id="addPeriods" placeholder="请选择日期" readonly>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addSymbolContent" class="col-xs-2 control-label">发文号</label>
+                    <div class="col-xs-10">
+                      <textarea name="d" id="addSymbolContent" cols="30" rows="2" placeholder="请输入发文号" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过40字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addSymbolDate" class="col-xs-2 control-label">发文日期</label>
+                    <div class="col-xs-10 must_item">
+                      <i>*</i>
+                      <input type="text" name="e" class="form-control" id="addSymbolDate" placeholder="请选择日期" readonly>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="rectificationItems" class="col-xs-2 control-label">要求整改事项</label>
+                    <div class="col-xs-10">
+                      <textarea name="f" id="rectificationItems" cols="30" rows="5" placeholder="请输入要求整改事项" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="askRectificationDate" class="col-xs-2 control-label">要求反馈日期</label>
+                    <div class="col-xs-10 must_item">
+                      <input type="text" class="form-control" name="g" id="askRectificationDate" placeholder="请选择日期"
+                        readonly>
+                      <i>*</i>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="accountabilityStatus" class="control-label col-xs-2">是否问责</label>
+                    <div class="col-xs-10">
+                      <select id="accountabilityStatus" name="h">
+                        <option value="1">是</option>
+                        <option value="0" selected>否</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="correcttatus" class="control-label col-xs-2">是否已整改</label>
+                    <div class="col-xs-10">
+                      <select id="correcttatus" name="i">
+                        <option value="1">是</option>
+                        <option value="0" selected>否</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="pastDueStatus" class="control-label col-xs-2">是否已过要求反馈日期</label>
+                    <div class="col-xs-10">
+                      <select name="j" id="pastDueStatus">
+                        <option value="1">是</option>
+                        <option value="0" selected>否</option>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- <div class="form-group">
+                    <label for="addRectificationDate" class="col-xs-2 control-label">整改反馈日期</label>
+                    <div class="col-xs-10">
+                      <input name="k" type="text" class="form-control" id="addRectificationDate" placeholder="请选择日期"
+                        readonly>
+                    </div>
+                  </div> -->
+                  <div class="form-group">
+                    <label for="addReceiveSymbol" class="col-xs-2 control-label">收文号</label>
+                    <div class="col-xs-10">
+                      <textarea name="l" id="addReceiveSymbol" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过40字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addrReceiveSymbolDate" class="col-xs-2 control-label">收文日期</label>
+                    <div class="col-xs-10">
+                      <input name="m" type="text" class="form-control" id="addrReceiveSymbolDate" placeholder="请选择日期"
+                        readonly>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addInspectCause" class="col-xs-2 control-label">原因核查</label>
+                    <div class="col-xs-10">
+                      <textarea name="n" id="addInspectCause" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="getDescription" class="col-xs-2 control-label">取得经济效益情况描述</label>
+                    <div class="col-xs-10">
+                      <textarea name="o" id="getDescription" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="completeContent" class="col-xs-2 control-label">完善制度具体内容</label>
+                    <div class="col-xs-10">
+                      <textarea name="p" id="completeContent" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addImprove" class="col-xs-2 control-label">改进流程具体内容</label>
+                    <div class="col-xs-10">
+                      <textarea name="q" id="addImprove" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addITsystemContent" class="col-xs-2 control-label">IT系统改造具体内容</label>
+                    <div class="col-xs-10">
+                      <textarea name="r" id="addITsystemContent" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="corrector" class="col-xs-2 control-label">纠正错误或强化执行数量和具体内容</label>
+                    <div class="col-xs-10">
+                      <textarea name="s" id="corrector" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addIllegal" class="col-xs-2 control-label">员工异常业务操作核实的违规情况</label>
+                    <div class="col-xs-10">
+                      <textarea name="t" id="addIllegal" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="punisherNum" class="col-xs-2 control-label">内部员工惩处数量</label>
+                    <div class="col-xs-10">
+                      <input name="u" type="text" class="form-control four_val" id="punisherNum" placeholder="请输入数量">
+                      <span class="error_tip hide">只能是小于10000的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="disciplinalContent" class="col-xs-2 control-label">内部员工惩处具体内容</label>
+                    <div class="col-xs-10">
+                      <textarea name="v" id="disciplinalContent" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过2000字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addAddIncome" class="col-xs-2 control-label">增加收入（万元）</label>
+                    <div class="col-xs-10">
+                      <input name="w" type="text" class="form-control eight_val" id="addAddIncome" placeholder="请输入金额">
+                      <span class="error_tip hide">只能是8位数字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addInvestment" class="col-xs-2 control-label">节约成本（投资）（万元）</label>
+                    <div class="col-xs-10">
+                      <input name="x" type="text" class="form-control eight_val" id="addInvestment" placeholder="请输入金额">
+                      <span class="error_tip hide">只能是8位数字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addRecoverDamage" class="col-xs-2 control-label">挽回损失（万元）</label>
+                    <div class="col-xs-10">
+                      <input name="y" type="text" class="form-control eight_val" id="addRecoverDamage" placeholder="请输入金额">
+                      <span class="error_tip hide">只能是8位数字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="avoidRisk" class="col-xs-2 control-label">规避风险（万元）</label>
+                    <div class="col-xs-10">
+                      <input name="z" type="text" class="form-control eight_val" id="avoidRisk" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是8位数字</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addPerfectSystem" class="col-xs-2 control-label">完善制度</label>
+                    <div class="col-xs-10">
+                      <input name="AA" type="text" class="form-control two_val" id="addPerfectSystem" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于100的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addImproveProcess" class="col-xs-2 control-label">改进流程</label>
+                    <div class="col-xs-10">
+                      <input name="AB" type="text" class="form-control two_val" id="addImproveProcess" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于100的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addITsystem" class="col-xs-2 control-label">IT系统改造</label>
+                    <div class="col-xs-10">
+                      <input name="AC" type="text" class="form-control two_val" id="addITsystem" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于100的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="correctorNum" class="col-xs-2 control-label">纠正错误或强化执行</label>
+                    <div class="col-xs-10">
+                      <input name="AD" type="text" class="form-control two_val" id="correctorNum" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于100的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addRevisePortNum" class="col-xs-2 control-label">修订接口数</label>
+                    <div class="col-xs-10">
+                      <input name="AE" type="text" class="form-control two_val" id="addRevisePortNum" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于100的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group hide">
+                    <label for="adderrCaseNum" class="col-xs-2 control-label">违规流量赠送营销案数</label>
+                    <div class="col-xs-10">
+                      <input name="AF" type="text" class="form-control four_val" id="adderrCaseNum" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于10000的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group hide">
+                    <label for="addaffirmSellNum" class="col-xs-2 control-label">确认转售集团客户数</label>
+                    <div class="col-xs-10">
+                      <input name="AG" type="text" class="form-control four_val" id="addaffirmSellNum" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于10000的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group hide">
+                    <label for="addShutDownSellNum" class="col-xs-2 control-label">关停转售集团客户数</label>
+                    <div class="col-xs-10">
+                      <input name="AH" type="text" class="form-control four_val" id="addShutDownSellNum" placeholder="请输入数值">
+                      <span class="error_tip hide">只能是小于10000的整数</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="addRemark" class="col-xs-2 control-label">备注</label>
+                    <div class="col-xs-10">
+                      <textarea name="AI" id="addRemark" cols="30" rows="5" placeholder="请输入内容" class="form-control"></textarea>
+                      <span class="error_tip hide">不能超过500字</span>
+                    </div>
+                  </div>
+                  <input type="hidden" name="ID">
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="submitOperationForm">提交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 文件加载提示内容 -->
+        <div id="loading" class="loading_wrap">
+          <div class="loading_cont">
+            文件导入中，请稍后...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/cmca/resource/plugins/webuploader/webuploader.min.js"></script>
+  <script type="text/javascript" src="/cmca/resource/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript" src="/cmca/resource/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker-zh-CN.js"></script>
+  <script type="text/javascript" src="/cmca/resource/js/cmca/cmca-common.js"></script>
+  <script type="text/javascript" src="/cmca/resource/js/cmca/sjgj/zgxxData.js"></script>
+  <script type="text/javascript" src="/cmca/resource/js/cmca/sjgj/sjgj-common.js"></script>
+  <script type="text/javascript" src="/cmca/resource/js/cmca/sjgj/zgxx.js"></script>
+</body>
+
+</html>

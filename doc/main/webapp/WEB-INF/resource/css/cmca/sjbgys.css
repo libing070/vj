@@ -1,0 +1,50 @@
+/* 比对进度 */
+
+.main_content .comparison_btn.btn-default,
+.main_content .comparison_btn.btn-default:hover {
+    color: #333;
+    background-color: #ccc;
+    border-color: #ccc;
+}
+
+.main_content .top_search .col-xs-3 {
+    white-space: nowrap;
+}
+
+.main_content .progress_show {
+    overflow-y: auto;
+    height: 200px;
+}
+
+.main_content .comparison_result {
+    height: 200px;
+}
+
+.main_content .panel {
+    margin-bottom: 10px;
+}
+
+.main_content .panel-title {
+    font-size: 14px;
+}
+
+@media screen and (max-width: 1024px) and (min-width: 1366px) {
+    .main_content .comparison_result {
+        height: 370px;
+    }
+}
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .main_content .comparison_result {
+        height: 320px;
+    }
+}
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .main_content .progress_show {
+        height: 300px;
+    }
+    .main_content .comparison_result {
+        height: 400px;
+    }
+}

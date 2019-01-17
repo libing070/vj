@@ -1,0 +1,188 @@
+html,
+body,
+div,
+span,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+abbr,
+address,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+samp,
+small,
+strong,
+sub,
+sup,
+var,
+b,
+i,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+menu {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+    font-family: "Microsoft YaHei", 'arial';
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:focus,
+a:hover {
+    text-decoration: none;
+}
+
+input:focus {
+    border-color: #f8a900;
+}
+
+a,
+button,
+input {
+    outline: none;
+}
+
+button:focus {
+    outline: none !important;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+input,
+select {
+    vertical-align: middle;
+}
+
+img {
+    display: block;
+    border: 0;
+}
+
+/* 按钮颜色/边框初始化 */
+/* .btn {
+    border: 1px solid #f8a900;
+    background-color: transparent;
+}
+
+.active_btn {
+    border: 1px solid #f8a900;
+    background-color: #f8a900;
+    color: #fff;
+}
+
+.btn:hover,
+.btn:focus {
+    border: 1px solid #f8a900;
+    color: #fff;
+    background-color: #f8a900;
+}
+
+input {
+    cursor: pointer;
+}
+
+input:focus {
+    border-color: #f8a900;
+} */
+/* bootstrap/bootstrap-table样式初始化 */
+/* 初始化bootstrap-table插件分页样式 */
+/* .bootstrap-table .btn {
+    color: #ccc;
+    border: 1px solid #ccc;
+    background-color: transparent;
+}
+
+.bootstrap-table .btn:hover,
+.bootstrap-table .btn:focus {
+    border: 1px solid #ccc;
+    color: #ccc;
+    background-color: transparent;
+} */
+.bootstrap-table .fixed-table-container thead th .th-inner {
+    white-space: normal;
+}
+
+.bootstrap-table .table {
+    table-layout: fixed;
+}
+
+.bootstrap-table .table a {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* 表格 sortable 间距 */
+/* .fixed-table-container thead th .sortable {
+    padding-right: 15px;
+} */
+.baogao_down_wrap .fixed-table-container thead th .th-inner,
+.baogao_down_wrap table td {
+    font-size: 12px;
+}
+
+/* 表格字体颜色 */
+.public_main .main_content table a {
+    color: #3095f2;
+    word-wrap: break-word;
+}
+
+/* bootstrap部分样式初始化 */
+.breadcrumb {
+    margin-bottom: 0px;
+}
+
+.breadcrumb li {
+    font-size: 14px;
+    /* font-weight: bold; */
+}

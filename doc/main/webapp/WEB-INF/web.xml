@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    id="WebApp_1469599871105">
+    <display-name>cmca</display-name>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+			classpath:spring-mybatis.xml
+			classpath:applicationContext-job.xml
+		</param-value>
+    </context-param>
+
+	<context-param>
+		<param-name>CASLoginOut</param-name>
+		<param-value>http://10.248.12.24:8888/CAS/logout</param-value>
+	</context-param>
+	
+	<listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener> 
+    <listener>
+		<listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
+	</listener>
+	
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- CAS过滤器必须放在encodingFilter的下面！-->
+	<!-- CAS登出过滤器,必须放到CAS登录过滤器上面！-->
+	<filter>
+		<filter-name>CASSingleSignOutFilter</filter-name>
+		<filter-class>org.jasig.cas.client.session.SingleSignOutFilter</filter-class>
+	</filter>
+	<!--CAS登录过滤器,必须放到CAS登出过滤器下面！-->
+	<filter>
+		<filter-name>CAS Filter</filter-name>
+		<filter-class>com.hpe.cmca.filter.SSOFilter</filter-class>
+		<!--以下param-value中配置‘验证cas服务器存在’的地址，如北京移动的外网地址-->
+	<init-param>
+			<param-name>edu.yale.its.tp.cas.client.filter.aliveUrl</param-name>
+			<param-value>http://10.248.12.24:8888/CAS/login</param-value>
+		</init-param>
+		<!--以下param-value中配置‘cas服务器访问地址’的地址，如北京移动的内网地址-->
+		<init-param>
+			<param-name>edu.yale.its.tp.cas.client.filter.loginUrl</param-name>
+			<param-value>http://10.248.12.24:8888/CAS/login</param-value>
+		</init-param>
+		<init-param>
+			<param-name>edu.yale.its.tp.cas.client.filter.validateUrl</param-name>					 
+			<param-value>http://10.248.12.24:8888/CAS/serviceValidate</param-value>
+		</init-param>
+		<init-param>
+			<param-name>edu.yale.its.tp.cas.client.filter.serviceUrl</param-name>
+			<param-value>http://127.0.0.1:7001/cmca/home/index</param-value>
+		</init-param>
+		<init-param>
+			<param-name>edu.yale.its.tp.cas.client.filter.unprotectedUrl</param-name>
+			<param-value>.*jsp;.*html;.*gif;.*showValidateCode;.*js;.*verifyUser.*;.*cmcaapi.*;.*main_neishen.*;</param-value>
+		</init-param>
+		<init-param>
+			<param-name>ailk.component.privilege.session.key</param-name>
+			<param-value>ssoUSER</param-value>
+		</init-param>
+		<init-param>
+			<param-name>ailk.component.privilege.session.alertAlive</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>ailk.component.privilege.session.alertAlive.interval</param-name>
+			<param-value>5</param-value>
+		</init-param>
+
+	</filter>
+	<!---cas登录和登出的filter mapping放在encodingFilter 的filter Mapping下面，而且是必须的，否则会出现乱码，但是要放在所有filter mapping之前，否则跳转到客户端应用时不会显示首页面-->
+	<!--登出的Mapping必须放到登录的Mapping上面-->
+	<filter-mapping>
+   		<filter-name>CASSingleSignOutFilter</filter-name>
+   		<url-pattern>/logout/*</url-pattern>
+	</filter-mapping> 
+	
+	<!--登录的Mapping必须放到登出Mapping下面-->
+	<filter-mapping>
+		<filter-name>CAS Filter</filter-name>
+		<url-pattern>/home/index</url-pattern>
+	</filter-mapping> 
+	<filter-mapping>
+		<filter-name>CAS Filter</filter-name>
+		<url-pattern>/home</url-pattern>
+	</filter-mapping> 
+
+    <filter>
+        <filter-name>responseFilter</filter-name>
+        <filter-class>com.hpe.cmca.filter.ResponseFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>responseFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <servlet>
+        <servlet-name>SpringMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-mvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpringMVC</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+	<!-- 设置session 超时: session-config元素为Web应用中的javax.servlet.http.HttpSession对象定义参数。 session-timeout元素用来指定默认的会话超时时间间隔，以分钟为单位。该元素值必须为整数。 如果session-timeout元素的值为零或负数，则表示会话将永远不会超时。 下面是一个部署描述符，在用户最近访问HttpSession对象20分钟后，HttpSession对象默认为无效。 -->
+	<session-config>
+		<session-timeout>120</session-timeout>
+	</session-config>
+	
+		<!--系统欢迎页面 
+	<welcome-file-list>
+		<welcome-file>/main</welcome-file>
+	</welcome-file-list>
+	-->
+</web-app>

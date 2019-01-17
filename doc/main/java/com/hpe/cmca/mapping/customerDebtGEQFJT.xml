@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!--客户欠费   命名空间  集团开通新业务-->
+<mapper namespace="GEQFJT">
+ 	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="totalReport">
+		<result property="statCycle" column="statCycle"/>
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="count" column="errQty"/>
+		<result property="percent" column="qtyPercent"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map"  id="mapReport">
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="numberSum" column="errQty"/>
+		<result property="numberPrecent" column="qtyPrecent"/>
+		<result property="amountSum" column="errAmt"/>
+		<result property="amountPercent" column="amtPercent"/>
+		<result property="totalNum" column="totalNum"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="statReport">
+		<result property="id" column="id"/>
+		<result property="age" column="age"/>
+		<result property="name" column="name"/>
+		<result property="concernCode" column="concernCode"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="regionTableReport">
+		<result property="province" column="province"/>
+		<result property="cityCount" column="cityCount"/>
+		<result property="numberSum" column="numberErr"/>
+		<result property="numberPrecent" column="numberPrecent"/>
+		<result property="amountSum" column="amountErr"/>
+		<result property="amountPercent" column="amountPercent"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map"  id="typeTableReport">
+		<result property="busiType" column="busiType"/>
+		<result property="errType" column="errType"/>
+		<result property="numberSum" column="numberErr"/>
+		<result property="numberPrecent" column="numberPrecent"/>
+		<result property="amountSum" column="amountErr"/>
+		<result property="amountPercent" column="amountPercent"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="totalAuditReport">
+		<result property="statCycle" column="statCycle"/>
+		<result property="region" column="region"/>
+		<result property="numberSum" column="numberErr"/>
+		<result property="numberPrecent" column="numberPrecent"/>
+		<result property="amountSum" column="amountErr"/>
+		<result property="amountPercent" column="amountPercent"/>
+		<result property="concernCode" column="concernCode"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="pointAuditReport">
+		<result property="pointCode" column="pointCode"/>
+		<result property="name" column="name"/>
+		<result property="memo" column="memo"/>
+		<result property="numberSum" column="numberErr"/>
+		<result property="numberPrecent" column="numberPrecent"/>
+		<result property="amountSum" column="amountErr"/>
+		<result property="amountPercent" column="amountPercent"/>
+		<result property="concernCode" column="concernCode"/>
+	</resultMap>
+
+	
+	<!-- 一、总体情况 -->
+	<select id="totalReport_selectChinaMap" resultMap="mapReport" parameterType="java.util.Map">
+	<!-- 1.1 全国地图 -->
+	<if test="provinceCode==10000">		   	
+	   	select t1.CMCC_prov_prvd_nm as regionName,
+	   		   t1.CMCC_prov_prvd_id as regionId,
+	   		   t2.errQty,
+	   		   t2.qtyPercent,
+	   		   t2.totalNum	   		   
+	   	from   HPMGR.ref_dm_cmcc_prov_prvd_cd as t1
+	   	left join (
+   			select 
+   				prvd_id as regionId,
+				yc_cust_num as errQty, 
+				arrears_cust_num as totalNum,
+				cast(yc_zb as decimal(16,4))*100 qtyPercent				
+			from HPBUS.SUM_GRCUS_PRVD
+			<where> 1=1				
+			and arrears_cust_num>0
+			<if test="statCycle!=null">
+				and Aud_trm=#{statCycle}
+			</if>
+			<if test="audTrmSTR!=null">
+				and Aud_trm IN ${audTrmSTR}
+			</if>		
+			</where>				
+			) t2
+		on t1.CMCC_prov_prvd_id=t2.regionId
+		order by t2.qtyPercent desc
+	</if>	
+	<!-- 1.2 地市地图 -->
+	<if test="provinceCode!=10000">				
+		select
+			city_name as regionName,
+			city_id as regionId,			
+			yc_cust_num as errQty,				
+			arrears_cust_num as totalNum, 
+			cast(yc_zb as decimal(16,4))*100 qtyPercent				
+		from HPBUS.SUM_GRCUS_CITY
+		<where> 1=1
+		and arrears_cust_num > 0
+		and	prvd_id=#{provinceCode}
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+		<if test="audTrmSTR!=null">
+			and Aud_trm IN ${audTrmSTR}
+		</if>		
+		</where>				
+		order by qtyPercent desc
+	</if>
+	</select>
+	
+
+	<!-- 二、统计分析  2.1 地区趋势分析-->
+	<select id="statReport_timeTrend" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			Aud_trm AS statisticalObj,
+			sum(yc_cust_num) as errQty,				
+			sum(arrears_cust_num) as totalQty, 
+			case when totalQty=0 then 0 else cast(errQty as decimal(16,4))*100/totalQty end qtyPercent,
+			sum(yc_busi_num) as errAmount			
+		from HPBUS.SUM_GRCUS_CITY t			
+		WHERE 1=1		
+		<if test="params.dateF!=null">
+			<![CDATA[and statisticalObj >= #{params.dateF}]]>
+		</if>
+		<if test="params.dateT!=null">
+			<![CDATA[and statisticalObj <= #{params.dateT}]]>
+		</if>		
+		<if test="params.audTrmSTR!=null">
+			and statisticalObj IN ${params.audTrmSTR}
+		</if>			
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in ${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.city_id in ${params.selCityCodeSTR}
+		</if>		
+		GROUP BY statisticalObj
+	</select>
+
+	<!-- 2.1 地区横向对比"-->
+	<select id="statReport_areaTrend" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+			select dataReport.*,
+				   provReport.* 
+			from   (SELECT  t.prvd_id AS prvd_id,
+			 				t.aud_trm as audTrm,
+							count(distinct city_id) as cityCount,				
+							sum(yc_cust_num) as errQty,				
+							sum(arrears_cust_num) as totalQty, 
+							case when totalQty=0 then 0 else cast(errQty as decimal(16,4))*100/totalQty end qtyPercent,
+							sum(yc_busi_num) as errAmount				
+					from HPBUS.SUM_GRCUS_CITY t				
+					WHERE 1=1
+					<if test="params.dateT!=null">
+						<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+					</if>			 
+					<if test="params.userCityId!=10000">
+						and t.prvd_id = #{params.userCityId}
+					</if>
+					<if test="params.selProvCodeSTR!=null">
+						and t.prvd_id in ${params.selProvCodeSTR}
+					</if>
+					<if test="params.selCityCodeSTR!=null">
+						and t.city_id in ${params.selCityCodeSTR}
+					</if>
+					<if test="params.category=='tableReport_area'">
+						and t.yc_cust_num > 0	        		
+					</if>	
+					GROUP BY t.prvd_id, t.Aud_trm
+					) as dataReport
+			left join (select CMCC_prov_prvd_nm as statisticalObj,
+							  CMCC_prov_prvd_id as regionId  
+					  from    HPMGR.ref_dm_cmcc_prov_prvd_cd
+					  ) as provReport
+			on dataReport.prvd_id = provReport.regionId
+		</if>		
+		
+		<if test="params.groupByField=='cty_id'">
+			select dataReport.*,
+				   provReport.*
+			from   (SELECT
+					    t.city_name  as regionName,
+						t.city_id AS prvd_id,
+						t.aud_trm as audTrm,
+						sum(yc_cust_num) as errQty,				
+						sum(arrears_cust_num) as totalQty, 
+						case when totalQty=0 then 0 else cast(errQty as decimal(16,4))*100/totalQty end qtyPercent,
+						sum(yc_busi_num) as errAmount	
+					from 
+						HPBUS.SUM_GRCUS_CITY t				
+					WHERE 1=1
+					<if test="params.dateT!=null">
+						<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+					</if>			
+					<if test="params.userCityId!=10000">
+						and t.prvd_id = #{params.userCityId}
+					</if>
+					<if test="params.selProvCodeSTR!=null">
+						and t.prvd_id in ${params.selProvCodeSTR}
+					</if>
+					<if test="params.selCityCodeSTR!=null">
+						and t.city_id in ${params.selCityCodeSTR}
+					</if>
+					<if test="params.category=='provinceCount'">
+						and t.yc_cust_num > 0	        		
+					</if>
+					GROUP BY t.city_id, t.Aud_trm, t.city_name
+					
+					) as dataReport
+			left join (
+					SELECT prvd_name as statisticalObj,
+						   CMCC_prvd_cd as regionId  
+					FROM   HPMGR.TB_SUM_PRVD_NAME					
+					) as provReport
+			on dataReport.prvd_id = provReport.regionId
+		</if>
+	</select>
+	
+	<!-- 下钻明细 -->
+	<select id="prvd_detail" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+			 SELECT	Aud_trm,
+	 				prvd_id,
+	 				prvd_name,
+	 				city_id,
+	 				city_name,
+	 				org_cust_id,
+	 				org_nm,
+            		acct_age,
+            		dbt_amt,
+            		acct_prd_ytm_old,
+            		subscrb_eff_dt,
+            		org_svc_typ
+          		 FROM	HPBUS.DET_GRBUS_CITY t				
+			 WHERE  1=1
+			 <if test="params.dateT!=null">
+			 	<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			 </if>			
+			 <if test="params.audTrmSTR!=null">
+			 	and t.Aud_trm IN ${params.audTrmSTR}
+			 </if>			
+			 <if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in ${params.selProvCodeSTR}
+			 </if>				
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+		</if>
+		<if test="params.groupByField=='cty_id'">
+			SELECT	Aud_trm,
+	 				prvd_id,
+	 				prvd_name,
+	 				city_id as regionId,
+	 				city_name cty_name,
+	 				org_cust_id,
+	 				org_nm,
+            		acct_age,
+            		dbt_amt,
+            		acct_prd_ytm_old,
+            		subscrb_eff_dt,
+            		org_svc_typ
+          		 FROM	HPBUS.DET_GRBUS_CITY t				
+			 WHERE  1=1
+			 <if test="params.dateT!=null">
+			 	<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			 </if>			
+			 <if test="params.audTrmSTR!=null">
+			 	and t.Aud_trm IN ${params.audTrmSTR}
+			 </if>			
+			 <if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in ${params.selProvCodeSTR}
+			 </if>				
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+		</if>
+	</select>
+	
+	<!-- 2.1 下钻-->
+	<select id="statReport_xiazuan" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+					SELECT  city_name,
+							yc_cust_num,				
+							yc_zb,				
+							yc_busi_num					
+					from HPBUS.SUM_GRCUS_CITY t				
+					WHERE 1=1
+					<if test="params.dateT!=null">
+						<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+					</if>			 
+					<if test="params.userCityId!=10000">
+						and t.prvd_id = #{params.userCityId}
+					</if>
+					<if test="params.selProvCodeSTR!=null">
+						and t.prvd_id in ${params.selProvCodeSTR}
+					</if>
+					<if test="params.selCityCodeSTR!=null">
+						and t.city_id in ${params.selCityCodeSTR}
+					</if>
+					<if test="params.category=='tableReport_area'">
+						and t.yc_cust_num > 0	        		
+					</if>
+		</if>		
+		
+		<if test="params.groupByField=='cty_id'">
+			SELECT
+			    city_name,
+					yc_cust_num,				
+					yc_zb,				
+					yc_busi_num	
+			from 
+				HPBUS.SUM_GRCUS_CITY t				
+			WHERE 1=1
+			<if test="params.dateT!=null">
+				<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			</if>			
+			<if test="params.userCityId!=10000">
+				and t.prvd_id = #{params.userCityId}
+			</if>
+			<if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in ${params.selProvCodeSTR}
+			</if>
+			<if test="params.selCityCodeSTR!=null">
+				and t.city_id in ${params.selCityCodeSTR}
+			</if>
+			<if test="params.category=='provinceCount'">
+				and t.yc_cust_num > 0	        		
+			</if>
+		</if>
+	</select>
+		
+		
+	
+	<!-- 1.3 全国数量前五名表格 -->
+	<select id="totalReport_selectNumberTop5" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			select t.regionId,
+			       t.regionName,
+				   trim (t.yc_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+				   trim (t.arrears_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as tolQty,		
+				   trim ((case when t.qtyPercent_tmp is null then 0 else (cast(t.qtyPercent_tmp as decimal(16,4))*100) end)(FORMAT 'ZZ9.99%')(VARCHAR(7))) as qtyPercent,
+		
+				   row_number() OVER(ORDER BY yc_cust_num_tmp desc, qtyPercent_tmp desc) RN 
+			from (
+				select  
+						prvd_id as regionId,
+						prvd_name as regionName,	
+						coalesce(yc_cust_num,0) as yc_cust_num_tmp,	
+						coalesce(arrears_cust_num,0) as arrears_cust_num_tmp,	
+						yc_zb as qtyPercent_tmp		
+				from HPBUS.SUM_GRCUS_PRVD
+				where 1=1
+				and arrears_cust_num > 0
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>	
+					) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by yc_cust_num_tmp desc,qtyPercent_tmp desc, RN asc
+		</if>
+			
+		<!-- 1.4 地市数量前五名表格 -->
+		<if test="provinceCode!=10000">
+			select t.regionId,
+			       t.regionName,
+				   trim (t.yc_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+				   trim (t.arrears_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as tolQty,		
+				   trim ((case when t.qtyPercent_tmp is null then 0 else (cast(t.qtyPercent_tmp as decimal(16,4))*100) end)(FORMAT 'ZZ9.99%')(VARCHAR(7))) as qtyPercent,
+		
+				   row_number() OVER(ORDER BY yc_cust_num_tmp desc, qtyPercent_tmp desc) RN 
+			from (
+				select 
+						city_id as regionId,
+						city_name as regionName,		
+						coalesce(yc_cust_num,0) as yc_cust_num_tmp,				
+						coalesce(arrears_cust_num,0) as arrears_cust_num_tmp,	
+						yc_zb as qtyPercent_tmp
+				from HPBUS.SUM_GRCUS_CITY
+				where prvd_id=#{provinceCode}
+				and arrears_cust_num > 0
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>	
+					) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by yc_cust_num_tmp desc, qtyPercent_tmp desc, RN asc			
+		</if>
+	</select>
+
+	<!-- 1.5 全国占比前五名表格 -->
+	<select id="totalReport_selectPercentTop5" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			select t.regionId,
+		       t.regionName,
+			   trim (t.yc_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+			   trim (t.arrears_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as tolQty,		
+			   trim ((case when t.qtyPercent_tmp is null then 0 else (cast(t.qtyPercent_tmp as decimal(16,4))*100) end)(FORMAT 'ZZ9.99%')(VARCHAR(7))) as qtyPercent,
+	
+				row_number() OVER(ORDER BY qtyPercent_tmp desc, yc_cust_num_tmp desc) RN 
+			from (
+				select  
+					prvd_id as regionId,
+					prvd_name as regionName,
+					coalesce(yc_cust_num,0) as yc_cust_num_tmp,				
+					coalesce(arrears_cust_num,0) as arrears_cust_num_tmp,	
+					yc_zb as qtyPercent_tmp
+				from HPBUS.SUM_GRCUS_PRVD
+				where 1=1
+				and arrears_cust_num > 0
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>	
+					) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by qtyPercent_tmp desc, yc_cust_num_tmp desc, RN asc
+		</if>
+		
+		<!-- 1.6 地市占比前五名表格 -->
+		<if test="provinceCode!=10000">
+			select t.regionId,
+		       		t.regionName,
+			   		trim (t.yc_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+			   		trim (t.arrears_cust_num_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as tolQty,		
+			  		trim ((case when t.qtyPercent_tmp is null then 0 else (cast(t.qtyPercent_tmp as decimal(16,4))*100) end)(FORMAT 'ZZ9.99%')(VARCHAR(7))) as qtyPercent,
+	
+			   		row_number() OVER(ORDER BY qtyPercent_tmp desc, yc_cust_num_tmp desc) RN  
+			from (
+				select 
+					city_id as regionId,
+					city_name as regionName,
+					coalesce(yc_cust_num,0) as yc_cust_num_tmp,	
+					coalesce(arrears_cust_num,0) as arrears_cust_num_tmp,	
+					yc_zb as qtyPercent_tmp
+				from HPBUS.SUM_GRCUS_CITY
+				where 1=1 
+				and prvd_id=#{provinceCode}	
+				and arrears_cust_num > 0
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>	
+				) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by qtyPercent_tmp desc, yc_cust_num_tmp desc, RN asc			
+		</if>
+	</select>		
+		
+	<!-- 审计报告_总体信息  add by GuoXY 20160820 -->
+	<select id="auditReport_selectTotal" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			select 
+			coalesce(errQty_tmp,0) as errQty_tmp1,
+			trim (errQty_tmp1(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+			
+			coalesce(tolQty_tmp,0) as tolQty_tmp1,
+			trim (tolQty_tmp1(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as tolQty,
+			
+			trim(qtyPercent_tmp(FORMAT 'ZZ9.99%')(VARCHAR(7))) as qtyPercent,
+					
+					
+			coalesce(last_errQty_tmp,0) as last_errQty_tmp2,
+			trim (last_errQty_tmp2(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as last_errQty,
+			
+			coalesce(last_tolQty_tmp,0) as last_tolQty_tmp2,
+			trim (last_tolQty_tmp2(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as last_tolQty,
+			
+			trim(last_qtyPercent_tmp(FORMAT 'ZZ9.99%')(VARCHAR(7))) as last_qtyPercent,
+			
+			
+			(case when (qtyPercent_tmp-last_qtyPercent_tmp)>=0 then '上升'  else '下降' end) 
+				|| (trim (case when last_errQty_tmp=0 then 'N/A' else (cast((qtyPercent_tmp-last_qtyPercent_tmp) as decimal(16,4))(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end))  as abs_fbQtyPercent
+			
+			from (
+				select
+    				coalesce( sum(yc_cust_num), 0) as errQty_tmp, 
+					coalesce( sum(arrears_cust_num),0) as tolQty_tmp, 
+					case when tolQty_tmp=0 then 0 else cast(errQty_tmp as decimal(16,4))*100/tolQty_tmp end qtyPercent_tmp				
+				from HPBUS.SUM_GRCUS_PRVD
+				where 1=1
+				and Aud_trm=#{statCycle}
+			) t0, (
+				select 
+    				coalesce( sum(yc_cust_num), 0)  as last_errQty_tmp, 
+   					coalesce( sum(arrears_cust_num),0) as last_tolQty_tmp,
+					case when last_tolQty_tmp=0 then 0 else cast(last_errQty_tmp as decimal(16,4))*100/last_tolQty_tmp end last_qtyPercent_tmp
+				from  Hpbus.SUM_GRCUS_PRVD 
+				where 1=1 
+				and Aud_trm=cast((add_months(cast( #{statCycle} as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))
+			) t1
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			
+			coalesce(errQty_tmp,0) as errQty_tmp1,
+			trim (errQty_tmp1(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+			
+			coalesce(tolQty_tmp,0) as tolQty_tmp1,
+			trim (tolQty_tmp1(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as tolQty,
+			
+			trim(qtyPercent_tmp(FORMAT 'ZZ9.99%')(VARCHAR(7))) as qtyPercent,
+					
+					
+			coalesce(last_errQty_tmp,0) as last_errQty_tmp2,
+			trim (last_errQty_tmp2(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as last_errQty,
+			
+			coalesce(last_tolQty_tmp,0) as last_tolQty_tmp2,
+			trim (last_tolQty_tmp2(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as last_tolQty,
+			
+			trim(last_qtyPercent_tmp(FORMAT 'ZZ9.99%')(VARCHAR(7))) as last_qtyPercent,
+			
+			
+			(case when (qtyPercent_tmp-last_qtyPercent_tmp)>=0 then '上升'  else '下降' end) 
+				|| (trim (case when last_errQty_tmp=0 then 'N/A' else (cast((qtyPercent_tmp-last_qtyPercent_tmp) as decimal(16,4))(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end))  as abs_fbQtyPercent
+			
+			from (
+				select
+    				coalesce( sum(yc_cust_num), 0) as errQty_tmp, 
+					coalesce( sum(arrears_cust_num),0) as tolQty_tmp, 
+					case when tolQty_tmp=0 then 0 else cast(errQty_tmp as decimal(16,4))*100/tolQty_tmp end qtyPercent_tmp							
+				from HPBUS.SUM_GRCUS_CITY
+				where 1=1
+				and Aud_trm=#{statCycle}
+				and prvd_id=#{provinceCode}
+			) t0, (
+				select 
+    				coalesce( sum(yc_cust_num), 0) as last_errQty_tmp, 
+					coalesce( sum(arrears_cust_num),0) as last_tolQty_tmp, 
+					case when last_tolQty_tmp=0 then 0 else cast(last_errQty_tmp as decimal(16,4))*100/last_tolQty_tmp end last_qtyPercent_tmp
+				from  Hpbus.SUM_GRCUS_CITY 
+				where 1=1
+				and prvd_id=#{provinceCode}
+				and Aud_trm=cast((add_months(cast( #{statCycle} as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))
+			) t1
+		</if>
+	</select>	
+		
+	<!-- 审计报告_客户异常开通排名前5的业务  add by GuoXY 20160820 -->
+	<select id="auditReport_selectBusTypeTop5" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select t.*,
+			   row_number() OVER(ORDER BY errQty_temp desc) RN 
+		from (
+			select  
+				busi_typ as busType,
+				sum(busi_num) as errQty_temp,
+				trim (errQty_temp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty	
+			from HPBUS.SUM_GRBUS_PRVD
+			where 1=1 and busi_num>0
+			and Aud_trm=#{statCycle}
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}	
+			</if>
+			group by busType	
+		) as t <![CDATA[ QUALIFY  RN<=5]]>
+		order by errQty_temp desc, RN asc
+	</select>		
+	
+	<!-- 异常开通新业务的长期高额欠费集团客户数量排名前5的省公司 -->
+	<select id="auditReport_selectNumTop5" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select t.*,
+			   row_number() OVER(ORDER BY errQty desc) RN 
+		from (
+			select  
+				busi_typ as busType,
+				sum(busi_num) as errQty		
+			from HPBUS.SUM_GRBUS_PRVD
+			where 1=1
+			and Aud_trm=#{statCycle}
+			group by busType	
+		) as t <![CDATA[ QUALIFY  RN<=5]]>
+		order by errQty desc, RN asc
+	</select>		
+	<!-- 异常开通新业务的长期高额欠费集团客户数量占比排名前5的省公司 -->
+	<select id="auditReport_selectPercentTop5" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select t.*,
+			   row_number() OVER(ORDER BY errQty desc) RN 
+		from (
+			select  
+				busi_typ as busType,
+				sum(busi_num) as errQty		
+			from HPBUS.SUM_GRBUS_PRVD
+			where 1=1
+			and Aud_trm=#{statCycle}
+			group by busType	
+		) as t <![CDATA[ QUALIFY  RN<=5]]>
+		order by errQty desc, RN asc
+	</select>	
+</mapper>
+

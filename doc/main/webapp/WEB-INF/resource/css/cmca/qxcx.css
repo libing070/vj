@@ -1,0 +1,38 @@
+/* 权限查询界面样式 */
+
+.main_content .top_search>div {
+  white-space: nowrap;
+}
+
+.main_content .search_result {
+  height: 440px;
+}
+
+/* .main_content .panel-primary>.panel-heading {
+  color: #fff;
+  background-color: #0192d5;
+  border-color: #337ab7;
+} */
+
+.main_content .search_btn.btn-default,
+.main_content .search_btn.btn-default:hover {
+  color: #333;
+  background-color: #ccc;
+  border-color: #ccc;
+}
+
+.light_style .main_content .panel .panel-body {
+  margin: 0;
+}
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+  .main_content .search_result {
+    height: 570px;
+  }
+}
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+  .main_content .search_result {
+    height: 750px;
+  }
+}

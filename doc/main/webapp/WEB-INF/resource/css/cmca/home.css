@@ -1,0 +1,1834 @@
+body {
+    background-color: #3F5168;
+    background: url("/cmca/resource/images/bg/bg.png");
+}
+
+div {
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+.btn {
+    background-color: #f9f9f9;
+    border-color: #d9e0e8;
+    color: #d9e0e8;
+}
+
+.active_btn {
+    border: 1px solid #00A1ED;
+    background-color: #00A1ED;
+    color: #fff;
+}
+
+.btn:hover,
+.btn:focus {
+    border: 1px solid #00A1ED;
+    color: #fff;
+    background-color: #00A1ED;
+}
+
+.ui-state-default {
+    border: none;
+    background-color: #00A1ED;
+}
+
+.ui-state-default a,
+.ui-state-default a:link,
+.ui-state-default a:visited {
+    color: #ffffff;
+}
+
+
+/* 头部导航条 */
+
+.header_nav {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.header_nav li {
+    float: right;
+    padding: 0 16px;
+}
+
+.icon-url {
+    display: inline-block;
+    vertical-align: middle;
+    width: 20px;
+    height: 9px;
+    background: url('/cmca/resource/images/url.png') no-repeat;
+    background-size: 100% auto;
+    margin-right: 12px;
+    /*   -webkit-transform: scale(0.8, 0.8);
+  -moz-transform: scale(0.8, 0.8);*/
+}
+
+.header_nav li:nth-child(2) {
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #ffffff;
+}
+
+.header_nav li:nth-child(3) {
+    border-left: 1px solid #ffffff;
+}
+
+.header_nav li>a {
+    font-size: 12px;
+    color: #ffffff;
+    cursor: default;
+}
+
+
+/* 个人中心 */
+
+.wrapper>.col-md-2 {
+    width: 18%;
+    margin: 0 35px 0 40px;
+    padding: 0;
+}
+
+.wrapper>.col-md-10 {
+    width: 78%;
+}
+
+.personal-center {
+    position: relative;
+    overflow: hidden;
+    margin: 0 26px;
+    background: url("/cmca/resource/images/bg/personal-bg.png");
+}
+
+.personal-center h3 {
+    font-size: 16px;
+    text-align: center;
+    color: #ffffff;
+    padding: 7px 0;
+    background-color: #507279;
+    letter-spacing: 4px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    font-weight: 600;
+    line-height: 26px;
+}
+
+.personal-center .icon-logo {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 25px;
+    height: 25px;
+    margin: 0 10px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -366px -276px;
+    /* -webkit-transform: scale(0.8, 0.8);
+    -moz-transform: scale(0.8, 0.8); */
+}
+
+
+/* 个人信息 */
+
+.personal-center .personal-details {
+    position: relative;
+    padding: 6px 0;
+    overflow: hidden;
+    color: #ffffff;
+}
+
+.personal-center .personal-details .personal-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    border-radius: 100%;
+    background-color: #2399D5;
+}
+
+.personal-center .personal-details .personal-icon span {
+    font-size: 28px;
+    text-align: center;
+    line-height: 50px;
+    padding-left: 12px;
+}
+
+.personal-center .personal-details p {
+    font-size: 12px;
+}
+
+.personal-center .personal-details .personal-user {
+    float: left;
+    width: 40%;
+    position: relative;
+    overflow: hidden;
+}
+
+.personal-center .personal-details .personal-user p {
+    text-align: center;
+    min-height: 18px;
+}
+
+.personal-center .personal-details .current-time {
+    position: relative;
+    overflow: hidden;
+    float: left;
+    width: 58%;
+    min-height: 84px;
+    border-left: 1px solid #566D78;
+    padding-left: 16px;
+}
+
+.personal-center .personal-details .current-time .time-now {
+    font-size: 32px;
+    letter-spacing: 4px;
+    margin: 8px 0
+}
+
+
+/* 个人中心公共样式 */
+
+.personal-center .my-permission,
+.personal-center .browsing-history,
+.personal-center .my-rool {
+    border-top: 1px solid #5686A3;
+    padding: 11px;
+    overflow: hidden;
+}
+
+.personal-center .my-permission {
+    padding: 0px;
+}
+
+
+/* 个人中心提示 */
+
+.personal-center .hint {
+    position: relative;
+    overflow: hidden;
+    height: 24px;
+    width: 100%;
+    background-color: #ffffff;
+}
+
+.personal-center .hint .hint-icon {
+    float: left;
+    background-color: #007BED;
+    width: 28px;
+    height: 25px;
+    padding: 3px 6px;
+    margin-right: 6px;
+}
+
+.personal-center .hint .hint-icon .icon-horn {
+    display: inline-block;
+    background-image: url("/cmca/resource/images/sprite_171102.png");
+    background-position: -418px -202px;
+    width: 14px;
+    height: 13px;
+}
+
+.personal-center .hint .hintListcon {
+    height: 24px;
+    overflow: hidden;
+    margin-right: 6px;
+}
+
+.personal-center .hint .gundongmain {
+    float: left;
+    width: 800%;
+}
+
+.personal-center .hint ul {
+    height: 24px;
+    overflow: hidden;
+    position: relative;
+    float: left;
+}
+
+.personal-center .hint ul li {
+    float: left;
+    /*width: 170px;
+    text-overflow: ellipsis;
+    white-space: nowrap;*/
+}
+
+.personal-center .hint ul li a {
+    float: left;
+    font-size: 12px;
+    margin: 4px 8px;
+    color: #333333;
+}
+
+
+/*个人中心 权限  */
+
+.personal-center .my-permission {
+    position: relative;
+}
+
+.personal-center .my-permission li {
+    position: relative;
+    width: 100%;
+    color: #ffffff;
+}
+
+.personal-center .my-permission li:hover {
+    cursor: pointer;
+    background-color: #234466;
+}
+
+
+/* 图标 */
+
+.personal-center .my-permission li .icon-myneed {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 12px;
+    height: 15px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -418px -240px;
+    margin-right: 6px;
+}
+
+.personal-center .my-permission li .icon-mytodo {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 14px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -418px -163px;
+    margin-right: 6px;
+}
+
+.personal-center .my-permission li .icon-result {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 14px;
+    height: 15px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -418px -123px;
+    margin-right: 6px;
+}
+
+.personal-center .my-permission li .icon-lock {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 14px;
+    height: 16px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -418px -82px;
+    margin-right: 6px;
+}
+
+.personal-center .my-permission li a {
+    color: #ffffff;
+    font-size: 12px;
+    display: inline-block;
+    padding:10px 14px;
+}
+.personal-center .my-permission li a .frequency{
+    right: 21px;
+    position: absolute;
+    top: 34%
+} 
+
+
+/* 个人中心 最近常用 */
+
+.personal-center .browsing-history {
+    position: relative;
+    color: #ffffff;
+    padding: 10px 11px;
+    /*  max-height: 146px; */
+    min-height: 128px;
+}
+
+.personal-center .browsing-history dt {
+    font-size: 14px;
+}
+
+.personal-center .browsing-history dt .icon-watch {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -418px -42px;
+    margin-right: 6px;
+}
+
+.personal-center .browsing-history dd {
+    margin-left: 14px;
+    margin-top: 8px;
+    float: left;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+}
+
+.personal-center .browsing-history dd>a {
+    position: relative;
+    font-size: 12px;
+    color: #ffffff;
+    padding: 4px 16px;
+    cursor: default;
+}
+
+
+/* 个人中心 我的工具 */
+
+.personal-center .my-rool {
+    position: relative;
+    overflow: hidden;
+    margin: 0 2px;
+}
+
+.personal-center .my-rool li {
+    float: left;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50px;
+    width: 29%;
+    /*   width: 60px; */
+    height: 60px;
+    text-align: center;
+    line-height: 74px;
+    margin: 0px 4px;
+}
+
+.personal-center .my-rool li span {
+    position: absolute;
+    left: 35%;
+    top: 14%;
+    display: block;
+    text-align: center;
+}
+
+.personal-center .my-rool li:nth-child(1) {
+    background-color: #836F47;
+}
+
+.personal-center .my-rool li:nth-child(2) {
+    background-color: #169E6A;
+    margin: 0 4px;
+}
+
+.personal-center .my-rool li:nth-child(3) {
+    background-color: #175987;
+}
+
+.personal-center .my-rool li:nth-child(1) .icon-model {
+    width: 18px;
+    height: 20px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: 0px -334px;
+    -webkit-transform: scale(0.8, 0.8);
+    -moz-transform: scale(0.8, 0.8);
+}
+
+.personal-center .my-rool li:nth-child(2) .icon-tool {
+    width: 22px;
+    height: 22px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -103px -280px;
+    -webkit-transform: scale(0.8, 0.8);
+    -moz-transform: scale(0.8, 0.8);
+}
+
+.personal-center .my-rool li:nth-child(3) .icon-config {
+    width: 20px;
+    height: 15px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -43px -334px;
+    -webkit-transform: scale(0.8, 0.8);
+    -moz-transform: scale(0.8, 0.8);
+}
+
+.personal-center .my-rool li a {
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+    cursor: default;
+    /* letter-spacing: 2px; */
+}
+
+
+/* 个人中心 搜索 */
+
+.personal-center .search {
+    margin: 0 6px 15px 6px;
+    position: relative;
+    /* overflow: hidden; */
+}
+
+.topresult_list {
+    position: absolute;
+    /* top: -78px; */
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 100%;
+    color: #566D78;
+    border-radius: 4px;
+}
+
+.topresult_list li {
+    padding: 2px 14px;
+}
+
+.topresult_list li:hover {
+    background-color: #566D78;
+}
+
+.topresult_list li:hover a {
+    color: #fff;
+}
+
+.personal-center .search .icon-search {
+    position: absolute;
+    right: 4%;
+    top: 17%;
+    width: 16px;
+    height: 17px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -418px 0px;
+}
+
+.form-control {
+    height: 24px;
+    padding: 0px 12px;
+}
+
+
+/* 专题栏 */
+
+.special-bar {
+    position: relative;
+    padding-top: 38px;
+    margin-bottom: 4px;
+}
+
+
+/* .special-bar .icon-add-icon {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    background: url('/cmca/resource/images/add-icon.png') no-repeat;
+    background-size: 100% auto;
+} */
+
+.special-bar .icon-add-radus {
+    color: #ffffff;
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    line-height: 13px;
+    padding: 0 1px;
+    margin-left: 20px;
+    border: 1px solid #ffffff;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+
+/* 专题栏左侧 */
+
+.special-bar .col-md-3 {
+    width: 27%;
+}
+
+
+/* 专题单元 */
+
+.module-unit {
+    position: relative;
+    height: 170px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.module-unit>dl {
+    position: relative;
+    overflow: hidden;
+    height: 156px;
+}
+
+.special-left .module-unit>dl {
+    width: 100%;
+}
+
+.special-center .module-unit>dl,
+.special-right .module-unit>dl {
+    width: 100%;
+}
+
+.module-unit>dl dt {
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.module-unit>dl dd {
+    position: relative;
+    float: left;
+    width: 47%;
+    height: 64px;
+    text-align: center;
+    /* line-height: 64px; */
+    margin: 2px;
+}
+
+.module-unit>dl dd span {
+    display: block;
+    position: relative;
+    left: 41%;
+    margin-top: 12px;
+    transform: scale(0.6, 0.6);
+    -webkit-transform: scale(0.6, 0.6);
+    -moz-transform: scale(0.6, 0.6);
+}
+
+.module-unit>dl dd a {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.module-unit>ul {
+    position: absolute;
+    bottom: 0;
+    overflow: hidden;
+    padding-top: 4px;
+    margin-left: 86%;
+    height: 16px
+}
+
+.module-unit>ul li {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    width: 8px;
+    height: 8px;
+    background-color: #949BA4;
+    border-radius: 100%;
+    margin: 4px;
+    float: left;
+}
+
+.module-unit>ul .dot_active {
+    background-color: #ffffff;
+}
+
+
+/* 专题单元 增删改 */
+
+.module-unit>dl dd {
+    background-size: cover;
+    overflow: hidden;
+}
+
+.module-unit>dl dd ul {
+    position: absolute;
+    right: 0%;
+    top: 0%;
+    overflow: hidden;
+    display: none;
+}
+
+.module-unit>dl dd ul li {
+    cursor: pointer;
+    float: left;
+    width: 12px;
+    height: 12px;
+    text-align: center;
+    line-height: 7px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
+    margin: 2px 4px;
+    padding: 1px 0;
+    color: #ffffff;
+}
+
+.special-center .module-unit>dl dd ul li,
+.special-right .module-unit>dl dd ul li {
+    width: 10px;
+    height: 10px;
+    margin: 2px;
+    line-height: 4px;
+    font-size: 10px;
+}
+
+
+/* 专题左侧 */
+
+.special-left {
+    position: relative;
+    margin-right: -12px;
+    /*margin-left: 32px;*/
+}
+
+.special-left .module-unit:nth-child(1)>dl dd {
+    background-color: #1F7DBF;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg1.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg2.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg3.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg4.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(5) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg5.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(6) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg6.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(7) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg7.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd:nth-of-type(8) {
+    background-image: url("/cmca/resource/images/bg/cxsj_bg8.jpg");
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-yktl {
+    width: 40px;
+    height: 26px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -250px -169px;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-khqf {
+    width: 40px;
+    height: 32px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -250px 0px;
+    margin-bottom: -5px;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-zdtl {
+    width: 26px;
+    height: 36px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -315px 0px;
+    margin-top: 8px;
+    margin-bottom: -5px;
+    left: 44%;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-yjk {
+    width: 38px;
+    height: 25px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -57px -223px;
+    margin-top: 15px;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-ygyccz {
+    width: 36px;
+    height: 32px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: 0px -379px;
+    margin-top: 8px;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-yczsdzq {
+    width: 36px;
+    height: 26px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -61px -379px;
+    margin-top: 14px;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-ycllzs {
+    width: 30px;
+    height: 30px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -116px;
+    margin-top: 8px;
+}
+
+.special-left .module-unit:nth-child(1)>dl dd .icon-ycllzy {
+    width: 30px;
+    height: 34px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px 0px;
+    margin-top: 15px;
+}
+
+/* .special-left .module-unit:nth-child(2)>dl dd {
+    background-color: #75AB5D;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/ztsj_bg1.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/ztsj_bg2.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/ztsj_bg3.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/ztsj_bg4.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-sox {
+    width: 18px;
+    height: 34px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -315px -61px;
+    left: 45%;
+    margin-top: 6px;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-jzsj {
+    width: 25px;
+    height: 33px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -366px -57px;
+    left: 44%;
+    margin-top: 6px;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-jyyj {
+    width: 38px;
+    height: 34px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -185px -128px;
+    margin-top: 6px;
+} 
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-gcjssj {
+    width: 34px;
+    height: 34px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -250px -112px;
+    margin-top: 6px;
+}*/
+
+.special-left .module-unit:nth-child(2)>dl dd {
+    background-color: #eabc0e;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-arrears-status,
+.special-left .module-unit:nth-child(2)>dl dd .icon-zhangben,
+.special-left .module-unit:nth-child(2)>dl dd .icon-ziyuan,
+.special-left .module-unit:nth-child(2)>dl dd .icon-kuandaitianchong,
+.special-left .module-unit:nth-child(2)>dl dd .icon-iotwulianwang{
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    /* height: 33px; */
+    margin-bottom: -6px;
+}
+/* 2018.7.30 风险监控二级业务域 */
+.special-left .selcetWrap{
+    background-color: #ffffff;
+    color: #007BED;
+    position: absolute;
+    top: 22px;
+    width: 95.5%;
+    height: 100%;
+    text-align: center;
+    padding: 12px 0;
+}
+.special-left .selcetWrap dl{
+    display: inline-block;
+    width: 100%;
+    height: 20px;
+    position: relative;
+    padding: 26px 20px;
+}
+.special-left .selcetWrap dl dt{
+    float: left;
+    width: 100px;
+    text-align: right;
+}
+.special-left .selcetWrap dl dd{
+    float: left;
+    margin-left: 40px;
+}
+.special-left .selcetWrap dl dd select{
+    width: 180px;
+    text-align: center
+}
+.special-left .btn{
+    width: 90px;
+    padding: 4px 10px;
+    color: #ffffff;
+    background-color: #007BED;
+    margin: 34px auto;
+}
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/ywjk_bg1.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/ywjk_bg2.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/ywjk_bg3.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/ywjk_bg4.jpg");
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-ywjk-srbz {
+    width: 27px;
+    height: 32px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -366px 0px;
+    left: 44%;
+    margin-top: 6px;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-ywjk-sctg {
+    width: 38px;
+    height: 32px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -250px -57px;
+    margin-top: 6px;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-ywjk-khfw {
+    width: 38px;
+    height: 38px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -185px -65px;
+    margin-top: 6px;
+    margin-bottom: -4px;
+    left: 43%;
+}
+
+.special-left .module-unit:nth-child(2)>dl dd .icon-ykgl{
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    margin-bottom: -6px;
+}
+.special-left .module-unit:nth-child(2)>dl dd .icon-ywjk-cwgl {
+    width: 32px;
+    height: 32px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: 0px -223px;
+    margin-bottom: -4px;
+    left: 43%;
+}
+
+.special-left .module-unit:nth-child(1),.special-left .module-unit:nth-child(2){
+    height: 238px;
+}
+.special-left .module-unit:nth-child(1)>dl,.special-left .module-unit:nth-child(2)>dl{
+    height: 224px;
+}
+/* 专题中间 */
+
+.margin_topywgl{
+    margin-top:74px;
+}
+.special-center {
+    position: relative;
+    /*margin: 0 26px;*/
+}
+
+.special-center .module-unit:nth-child(1)>dl dd {
+    background-color: #D7653D;
+}
+
+.special-center .module-unit:nth-child(1)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/sjgj_bg1.jpg");
+}
+
+.special-center .module-unit:nth-child(1)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/sjgj_bg2.jpg");
+}
+
+.special-center .module-unit:nth-child(1)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/sjgj_bg3.jpg");
+}
+
+.special-center .module-unit:nth-child(1)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/sjgj_bg4.jpg");
+}
+
+.special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-sjcg {
+    width: 25px;
+    height: 26px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -366px -171px;
+}
+
+.special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-wzqk {
+    width: 22px;
+    height: 29px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -366px -222px;
+    left: 38%;
+    margin-bottom: -4px;
+}
+
+.special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-zgqk {
+    width: 23px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -55px -280px;
+    left: 38%;
+}
+.special-center .module-unit:nth-child(1)>dl dd .icon-wenzexinxi{
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    /* height: 33px; */
+    margin-bottom: -6px;
+}
+.special-center .module-unit:nth-child(1)>dl dd .icon-zhenggaixinxi{
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    /* height: 33px; */
+    margin-bottom: -6px;
+}
+.special-center .module-unit .icon-dkz {
+    width: 32px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -185px -187px;
+    left: 37%;
+    top: 8px;
+}
+.special-center .module-unit:nth-child(2)>dl dd ,dd[data="navCsgl"]{
+    background-color: #9158ba;
+}
+
+.special-right .module-unit:nth-child(2)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/ywgl_bg1.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/ywgl_bg2.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/ywgl_bg3.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/ywgl_bg4.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-ywgl-xqgl {
+    width: 28px;
+    height: 25px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -120px -223px;
+    left: 38%;
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-ywgl-bgxz {
+    width: 20px;
+    height: 27px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -315px -220px;
+    left: 42%;
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-ywgl-sjkg {
+    width: 26px;
+    height: 23px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -197px -280px;
+    left: 40%;
+    margin-top: 18px;
+}
+
+/* .special-center .module-unit:nth-child(2)>dl dd {
+    background-color: #714191;
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/cxda_bg1.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/cxda_bg2.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/cxda_bg3.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/cxda_bg4.jpg");
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-cxda-pfjz {
+    width: 30px;
+    height: 29px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: 0px -280px;
+    left: 38%;
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-cxda-pfbz {
+    width: 21px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -315px -169px;
+    left: 40%;
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-cxda-cxda {
+    width: 29px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -173px -223px;
+    left: 38%;
+} */
+
+
+/* 专题右侧 */
+
+.special-right {
+    position: relative;
+    margin: 0px;
+}
+
+.special-right .module-unit>ul {
+    margin-left: 80%;
+}
+
+.margin_topsjgj{
+    margin-top: 72px;
+}
+
+dd[data="navZzbbfx"],
+dd[data="navSjts"] {
+    background-color: #388d6c;
+}
+
+dd[data="navSjdpz"],
+dd[data="navBgmbpz"],
+dd[data="navfileModelConfig"]{
+    background-color: #236da1;
+}
+
+dd[data="navSjzlgl"],
+dd[data="navMxjk"],
+dd[data="navSjrw"],
+dd[data="navSjbgys"] {
+    background-color: rgba(255,216,0,0.5);
+}
+dd[data="navRzcx"],
+dd[data="navQxcx"],
+dd[data="navGjgl"],
+dd[data="navWtfk"]{
+    background-color: #8a6635;
+}
+dd[data="navSjcx"]{
+    background-color: #714191;
+}
+
+
+/* .special-right .module-unit:nth-child(2)>dl dd:nth-of-type(1) {
+    background-image: url("/cmca/resource/images/bg/grgzq_bg1.jpg");
+}
+
+.special-right .module-unit:nth-child(2)>dl dd:nth-of-type(2) {
+    background-image: url("/cmca/resource/images/bg/grgzq_bg2.jpg");
+}
+
+.special-right .module-unit:nth-child(2)>dl dd:nth-of-type(3) {
+    background-image: url("/cmca/resource/images/bg/grgzq_bg2.jpg");
+}
+
+.special-right .module-unit:nth-child(2)>dl dd:nth-of-type(4) {
+    background-image: url("/cmca/resource/images/bg/grgzq_bg3.jpg");
+}
+ */
+
+.special-right .module-unit:nth-child(1)>dl .add_bg {
+    background-color: #424f60;
+    background-image: url("/cmca/resource/images/bg/add_bg.jpg");
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-sjzl {
+    width: 32px;
+    height: 23px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -227px -223px;
+    left: 36%;
+    margin-top: 18px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-grgzq-zzbb {
+    width: 22px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -279px;
+    left: 40%;
+    margin-top: 13px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-grgzq-sjts {
+    width: 29px;
+    height: 25px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -332px;
+    left: 40%;
+    margin-top: 16px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-grgzq-sjdpz {
+    width: 24px;
+    height: 24px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -122px -379px;
+    left: 40%;
+    margin-top: 16px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-grgzq-bgmb {
+    width: 23px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -315px -120px;
+    left: 40%;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-add {
+    width: 40px;
+    height: 40px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -185px 0px;
+    left: 35%;
+}
+
+.special-center .module-unit:nth-child(2)>dl dd .icon-canshuguanli {
+    /* width: 24px;
+    height: 24px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -377px;
+    left: 41%; */
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    /* height: 33px; */
+    margin-bottom: -6px;
+}
+.special-right .module-unit:nth-child(1)>dl dd .icon-shenjibaogaoyushen {
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    margin-bottom: -6px;
+}
+.special-right .module-unit:nth-child(1)>dl dd .icon-quanxianchaxun,
+.special-right .module-unit:nth-child(1)>dl dd .icon-question-feedba {
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    margin-bottom: -6px;
+}
+.special-right .module-unit:nth-child(1)>dl dd .icon-mxgl-gjgl {
+    width: 30px;
+    height: 32px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -59px;
+    left: 38%;
+    margin-top: 8px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-mxgl-mxjk {
+    width: 24px;
+    height: 28px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -226px;
+    left: 41%;
+    margin-top: 13px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-mxgl-rzcx {
+    width: 26px;
+    height: 30px;
+    background-image: url('/cmca/resource/images/sprite_171102.png');
+    background-position: -459px -171px;
+    left: 40%;
+    margin-top: 11px;
+}
+
+.special-right .module-unit:nth-child(1)>dl dd .icon-rizhi {
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    /* height: 33px; */
+    margin-bottom: -6px;
+}
+.special-right .module-unit:nth-child(2)>dl dd .icon-yuanshujushenjigongju{
+    font-size: 28px;
+    left: 0;
+    margin-top: 6px;
+    margin-bottom: -6px;
+}
+/* 编辑工作区 */
+
+.redact {
+    position: relative;
+    right: 6%;
+    top: 14px;
+}
+
+.redact a {
+    font-size: 12px;
+    color: #ffffff;
+    border: 1px solid #566D78;
+    padding: 4px 18px;
+    border-radius: 25px;
+}
+
+a:focus {
+    outline: none;
+    /* outline: 5px auto -webkit-focus-ring-color; */
+    /* outline-offset: -2px; */
+}
+
+
+/* 模态框 */
+
+.modal-dialog {
+    margin-top: 7%;
+}
+
+.modal-header {
+    padding: 15px 15px 4px 15px;
+}
+
+.wrapper .redact-modal .modal-content .modal-header h4 {
+    font-size: 18px;
+    color: #333333;
+}
+
+.wrapper .redact-modal .modal-content .modal-body {
+    /*  padding: 21px 78px; */
+}
+
+.select-area {
+    position: relative;
+    margin: 10px 36px;
+    min-height: 290px;
+}
+
+.select-area a,
+.select-area a:focus,
+.select-area a:hover,
+.select-area a:visited {
+    color: #333333;
+}
+
+.select-area #list1 dd .grgzqList1 {
+    display: inline-block;
+    width: 100%;
+    padding: 5px 14px;
+    cursor: pointer;
+}
+
+.select-area #list1 dd .grgzqList1 span.glyphicon {
+    margin-right: 6px;
+}
+
+.select-area #list1 dd ul {
+    margin-left: 12px;
+}
+
+.icon_sort_left {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: pointer;
+    width: 11px;
+    height: 20px;
+    background: url('/cmca/resource/images/sort-left.png') no-repeat;
+    background-size: 100% auto;
+    margin-left: 70px;
+    margin-right: 8px;
+}
+
+.icon_sort_right {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: pointer;
+    width: 11px;
+    height: 20px;
+    background: url('/cmca/resource/images/sort-right.png') no-repeat;
+    background-size: 100% auto;
+}
+
+.wrapper .redact-modal .modal-content .modal-body .select-area h4 {
+    font-size: 16px;
+    color: #B1BBC9;
+    padding: 18px 0px;
+}
+
+.wrapper .redact-modal .modal-content .modal-body .select-area dl {
+    border: 1px solid #D9DFE7;
+    min-height: 256px;
+    min-width: 196px;
+    position: relative;
+    overflow: hidden;
+}
+
+.wrapper .redact-modal .modal-content .modal-body .select-area dl dt {
+    border-bottom: 1px solid #D9DFE7;
+    /* border-right: 1px solid #D9DFE7; */
+}
+
+.checkbox {
+    padding: 5px 20px;
+    margin: 0px;
+}
+
+.checkbox label {
+    padding-left: 14px;
+}
+
+.redact-modal .modal-content .modal-body dl dd input {
+    vertical-align: middle
+}
+
+.wrapper .redact-modal .modal-content .modal-body .switch-con {
+    margin-top: 22%;
+}
+
+.wrapper .redact-modal .modal-content .modal-body .switch-con button {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.wrapper .redact-modal .modal-content .modal-body .switch-con .btn {
+    padding: 6px 20px;
+}
+
+.wrapper .redact-modal .modal-content .modal-footer {
+    border: none;
+    padding-right: 80px;
+}
+
+.wrapper .redact-modal .modal-content .modal-footer .btn {
+    padding: 6px 30px;
+}
+
+.foot {
+    position: absolute;
+    bottom: 0%;
+    left: 44%;
+}
+
+.foot p {
+    font-size: 12px;
+    color: #ffffff;
+    text-align: center;
+}
+
+
+/* 底部 */
+
+
+/* 响应式 */
+
+
+/* 1024*768分辨率下，窗口高度为640px，上方的即为1024分辨率下，部分页面可能需要修改 */
+
+@media screen and (max-width: 1024px) {
+    .wrapper {
+        height: 640px;
+        overflow: hidden;
+    }
+    .wrapper>.col-md-2 {
+        margin: 0 18px 10px 30px;
+    }
+    /* 头部 */
+    .header_nav li {
+        padding: 0 14px;
+    }
+    .icon-url {
+        margin-right: 4px;
+    }
+    /* 个人中心  个人信息 */
+    .personal-center {
+        width: 185px;
+        float: left;
+    }
+    .personal-center .personal-details .personal-icon {
+        /* margin-left: 16px; */
+    }
+    .personal-center .personal-details .current-time {
+        padding-left: 10px
+    }
+    .personal-center .personal-details .current-time .time-now {
+        font-size: 24px;
+        margin: 12px 0;
+    }
+    .personal-center .my-permission,
+    .personal-center .browsing-history,
+    .personal-center .my-rool {
+        padding: 7px;
+    }
+    .personal-center .browsing-history {
+        padding: 14px 7px;
+    }
+    .personal-center .browsing-history dd {
+        margin-left: 8px;
+    }
+    .personal-center .browsing-history dd>a {
+        padding: 4px 13px;
+    }
+    /* 工具 */
+    .personal-center .my-rool {
+        margin: 0 2px;
+        padding: 14px 7px;
+    }
+    .personal-center .my-permission li{
+        padding: 0px 14px;
+    }
+    .personal-center .my-rool li {
+        /* width: 48px; */
+        height: 48px;
+        line-height: 67px;
+        margin: 0;
+    }
+    .personal-center .my-rool li a {
+        font-size: 10px;
+    }
+   
+    /* 单元 */
+    .special-bar>.col-md-6 {
+        width: 43.7%;
+    }
+    .special-bar .col-md-3{
+        width: 29.6%;
+    }
+    .special-bar>.col-md-3 {
+        width: 25%;
+    }
+    .special-left {
+        /* margin-left: 22px;*/
+    }
+    .special-center {
+        margin: 0 0px 0 4px;
+    }
+    .module-unit>dl dd {
+        width: 47%;
+    }
+    /* 单元右侧 加号图标 */
+    .special-center .module-unit .icon-dkz {
+        left: 30%;
+    }
+    .special-right .module-unit:nth-child(2)>dl dd .icon-add{
+        left: 26%;
+    }
+    /* 编辑 */
+    .redact {
+        right: 2%;
+    }
+    .special-left .selcetWrap dl dt{
+        width: 80px;
+    }
+    .special-left .selcetWrap dl dd{
+        margin-left: 20px;
+    }
+    .special-left .selcetWrap dl dd select{
+        width: 146px;
+    }
+}
+
+
+/* 1366*768分辨率，窗口高度为640px */
+
+@media screen and (max-width: 1366px) and (min-width: 1025px) {
+    .wrapper {
+        height: 640px;
+        overflow: hidden;
+    }
+}
+
+
+/* 1600*900分辨率下，窗口高度为770px */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .wrapper {
+        height: 770px;
+        overflow: hidden;
+    }
+    .icon-url {
+        width: 24px;
+        height: 11px;
+    }
+    .module-unit>dl dd a,
+    .redact a {
+        font-size: 14px;
+    }
+    .personal-center .personal-details {
+        padding: 20px 0px;
+    }
+    .personal-center .personal-details .personal-icon {
+        margin-bottom: 10px;
+    }
+    .personal-center .personal-details .current-time .time-now {
+        margin: 13px 0;
+    }
+    .personal-center .my-permission {
+        padding: 8px 0px;
+    }
+    .personal-center .my-permission li {
+        padding: 11px 14px;
+    }
+    .personal-center .browsing-history {
+        padding: 21px 11px;
+        /*  max-height: 178px; */
+        min-height: 200px
+    }
+    .personal-center .browsing-history dd {
+        margin-top: 16px;
+    }
+    .personal-center .my-rool {
+        padding: 21px 11px;
+    }
+    .form-control {
+        height: 30px;
+    }
+    .personal-center .my-rool li {
+        width: 68px;
+        height: 68px;
+        line-height: 84px;
+        margin: 0px 2px;
+    }
+    .module-unit>dl dd span {
+        margin-top: 18px;
+        left: 44%;
+    }
+    .special-right .module-unit>ul {
+        margin-left: 85%;
+    }
+    .special-left .module-unit:nth-child(2)>dl dd .icon-sox {
+        left: 47%;
+    }
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-gjgl {
+        left: 40%;
+    }
+    .special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-zgqk,
+    .special-center .module-unit .icon-dkz,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-xqgl,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-bgxz,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-sjkg,
+    .special-center .module-unit:nth-child(2)>dl dd .icon-cxda-cxda,
+    .special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-wzqk,
+    .special-center .module-unit:nth-child(2)>dl dd .icon-cxda-pfjz,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-sjzl,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-csgl,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-mxjk,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-rzcx {
+        left: 41%;
+    }
+    .special-right .module-unit:nth-child(2)>dl dd .icon-add {
+        left: 34%;
+    }
+    /* 单元 */
+    .module-unit {
+        height: 190px;
+    }
+    .module-unit>dl {
+        height: 178px;
+    }
+    .module-unit>dl dd {
+        height: 74px;
+    }
+    .module-unit>ul {
+        margin-left: 89%;
+    }
+
+    .special-left .module-unit:nth-child(1), .special-left .module-unit:nth-child(2),
+    .special-center .module-unit:nth-child(1), .special-center .module-unit:nth-child(2)
+    {
+        height: 268px;
+    }
+    .special-left .module-unit:nth-child(1)>dl, .special-left .module-unit:nth-child(2)>dl,
+    .special-center .module-unit:nth-child(1)>dl, .special-center .module-unit:nth-child(2)>dl{
+        height: 254px;
+    }
+    .margin_topywgl{
+        margin-top: 6px;
+    }
+    .margin_topsjgj{
+        margin-top: 84px;
+    }
+}
+
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    /* 风险监控 */
+    .special-left .selcetWrap dl dt{
+        width: 152px;
+    }
+    .special-left .selcetWrap dl dd select{
+        width: 250px;
+    }
+    .wrapper {
+        height: 900px;
+        overflow: hidden;
+    }
+    .personal-center .personal-details {
+        padding: 20px 0px;
+    }
+    .icon-url {
+        width: 24px;
+        height: 11px;
+    }
+    .personal-center h3,
+    .personal-center .my-permission li a,
+    .personal-center .my-permission li a,
+    .personal-center .browsing-history dt,
+    .personal-center .my-rool li a,
+    .module-unit>dl dd a,
+    .form-control {
+        font-size: 18px;
+    }
+    .header_nav li>a,
+    .personal-center .personal-details p,
+    .personal-center .hint ul li a,
+    .personal-center .browsing-history dd>a,
+    .module-unit>dl dt,
+    .redact a {
+        font-size: 16px;
+    }
+    .personal-center .hint,
+    .personal-center .hint .hint-icon,
+    .personal-center .hint .hintListcon {
+        height: 30px;
+    }
+    .personal-center .personal-details .personal-icon {
+        margin-bottom: 10px;
+    }
+    .personal-center .personal-details .current-time .time-now {
+        margin: 13px 0;
+    }
+    .personal-center .my-permission {
+        padding: 8px 0px;
+    }
+    .personal-center .my-permission li {
+        padding: 11px 14px;
+    }
+    .personal-center .browsing-history {
+        padding: 21px 11px;
+        /*  max-height: 178px; */
+        min-height: 170px
+    }
+    .personal-center .browsing-history dd {
+        margin-top: 16px;
+        line-height: 1.8
+    }
+    .personal-center .my-rool {
+        padding: 21px 11px;
+    }
+    .personal-center .my-rool li {
+        width: 88px;
+        height: 88px;
+        line-height: 104px;
+        margin: 0px 4px;
+    }
+    .personal-center .my-rool li span {
+        left: 41%;
+        top: 17%;
+    }
+    .personal-center .my-rool li:nth-child(1) .icon-model,
+    .personal-center .my-rool li:nth-child(2) .icon-tool,
+    .personal-center .my-rool li:nth-child(3) .icon-config {
+        webkit-transform: scale(1, 1);
+        -moz-transform: scale(1, 1);
+    }
+    .form-control {
+        height: 30px;
+    }
+    /* 单元 */
+    .module-unit {
+        height: 208px;
+    }
+    .module-unit>dl {
+        height: 198px;
+    }
+    .module-unit>dl dd {
+        height: 84px;
+    }
+    .module-unit>dl dd span,
+    .special-center .module-unit:nth-child(2)>dl dd .icon-cxda-pfbz,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-grgzq-zzbb,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-bgxz {
+        left: 43%;
+    }
+    .module-unit>ul {
+        margin-left: 90%;
+    }
+    .module-unit>dl dd span {
+        margin-top: 18px;
+        left: 44%;
+    }
+    .special-right .module-unit>ul {
+        margin-left: 87%;
+    }
+    .special-left .module-unit:nth-child(2)>dl dd .icon-sox {
+        left: 47%;
+    }
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-gjgl {
+        left: 40%;
+    }
+    .special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-zgqk,
+    .special-center .module-unit .icon-dkz,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-xqgl,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-bgxz,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-sjkg,
+    .special-center .module-unit:nth-child(2)>dl dd .icon-cxda-cxda,
+    .special-center .module-unit:nth-child(1)>dl dd .icon-sjgj-wzqk,
+    .special-center .module-unit:nth-child(2)>dl dd .icon-cxda-pfjz,
+    .special-right .module-unit:nth-child(1)>dl dd .icon-ywgl-sjzl,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-csgl,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-mxjk,
+    .special-right .module-unit:nth-child(2)>dl dd .icon-mxgl-rzcx {
+        left: 41%;
+    }
+    .special-right .module-unit:nth-child(2)>dl dd .icon-add {
+        left: 38%;
+    }
+    .special-left .module-unit:nth-child(1),.special-left .module-unit:nth-child(2){
+        height: 300px;
+    }
+    .special-left .module-unit:nth-child(1)>dl,.special-left .module-unit:nth-child(2)>dl{
+        height: 286px;
+    }
+    .margin_topywgl,.margin_topsjgj{
+        margin-top: 98px;
+    } 
+}

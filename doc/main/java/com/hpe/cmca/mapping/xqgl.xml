@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="xqgl">
+<!-- 增加新建需求 -->
+	<insert id="addRMS" parameterType="Map">
+		insert into  hppdata.busi_rmsmg_rms 
+		values(#{rms_id},#{rms_code},#{name},#{subject_code},#{prvd_id},#{rms_type},#{relationTime},#{content},#{create_id},current_timestamp,#{status},'1')
+	</insert>
+<!-- 增加审批记录 -->	
+	<insert id="addApproval" parameterType="Map">
+		INSERT	INTO hppdata.busi_rmsmg_approval(approval_id, user_id, node_id, status, approval_content, created_time,rms_code)
+		VALUES	
+		(#{approval_id}, #{user_id},#{node_id},#{status},#{approval_content}, current_timestamp,#{rms_code})		
+	</insert>
+<!-- 增加待办 -->
+    <insert id="addNeedDeal" parameterType="Map">
+    	<if test="user_id != null and user_id!= ''">
+			INSERT	INTO hppdata.busi_rmsmg_need_deal
+			(need_deal_id, user_id,rms_code, node_id)
+			VALUES
+			(#{need_deal_id},#{user_id},#{rms_code},#{node_id})
+        </if>
+        <if test="user_id == null or user_id ==''">
+			INSERT	INTO hppdata.busi_rmsmg_need_deal
+			(need_deal_id,rms_code, node_id)
+			VALUES
+			(#{need_deal_id},#{rms_code},#{node_id},#{remark})
+        </if>
+		
+	</insert>
+	<!-- 增加待阅已阅已办 -->
+	<insert id="addReadDeal" parameterType="Map">
+		INSERT	INTO hppdata.busi_rmsmg_read_deal
+		(read_deal_id, user_id, rms_code, status, node_id)
+		VALUES	
+		(#{read_deal_id},#{user_id},#{rms_code},#{stats},#{node_id})
+	</insert>
+	<!-- 增加附件路径入库 -->
+	<insert id="addAttach" parameterType="Map">
+		INSERT	INTO hppdata.busi_rmsmg_attach
+		VALUES
+		(#{attach_id},#{rms_code},#{attachURL})
+	</insert>
+	
+	<!-- 查询同一角色下非当前用户的用户ID -->
+	<select id="queryUser" resultType="Map" parameterType="Map">
+	select distinct hrru.user_id
+	from hpmgr.rmsmg_flow_node as hrfn
+	left join  hpmgr.rmsmg_role_user as hrru
+	on hrfn.role_id=hrru.role_id
+	where (hrfn.node_id=#{node_id} or hrru.user_id='xiaoyonggang') and hrru.user_id not in (#{user_id})
+	</select>
+	
+	<!-- 查询省当前需求个数 -->
+	<select id="selectRMSCode" resultType="Map" parameterType="Map">
+    	select t.prvd_id,t.current_serial from  hppdata.busi_rmsmg_serial  as t where t.prvd_id =#{prvd_id}
+ 	</select>
+ 	<select id="queryDefaultParams" resultType="Map" parameterType="Map">
+		select brr.*,hrfn.node_content,hru.user_name,brrd.*
+		from hppdata.busi_rmsmg_rms as brr
+		Inner join hppdata.busi_rmsmg_need_deal as brnd
+			on brr.rms_code=brnd.rms_code
+		LEFT JOIN hpmgr.rmsmg_flow_node as hrfn
+			on brnd.node_id=hrfn.node_id
+		LEFT JOIN hpmgr.rmsmg_user as hru
+			on brr.create_id= hru.user_id
+		LEFT JOIN hppdata.busi_rmsmg_read_deal as brrd
+			on brr.rms_code=brrd.rms_code
+        <if test="user_id != null">
+			and brrd.user_id=#{user_id}
+        </if>
+ 	</select>
+ 	<!-- 查询单个需求详情 -->
+ 	<select id="queryDetails" resultType="Map" parameterType="Map">
+    	SELECT	rms_id, rms_code, name, subject_code, prvd_id, rms_type,relationTime, rms_content, create_id, create_time,user_name
+    	FROM	hppdata.busi_rmsmg_rms as hbrr
+    	LEFT JOIN hpmgr.rmsmg_user as hru
+    	ON hbrr.create_id=hru.user_id 
+    	WHERE   rms_code=#{rms_code}
+ 	</select>
+ 	
+ 	
+ 	<!-- 查询下一审批人是否显示 -->
+ 	<select id="queryShowNextApprover" resultType="Map" parameterType="Map">
+    	select  hrfn.remark from hpmgr.rmsmg_flow_node as hrfn
+		left join hpmgr.rmsmg_role_user as hrru
+		on hrfn.role_id=hrru.role_id
+		where hrru.user_id=#{user_id}
+ 	</select>
+ 	
+ 	<!-- 查询下一审批人是否显示 -->
+ 	<select id="queryNodeShow" resultType="Map" parameterType="Map">
+ 		select hrfn.node_type
+		from hpmgr.rmsmg_flow_node as hrfn	
+		left join hppdata.busi_rmsmg_need_deal as brnd
+		on	brnd.node_id=hrfn.node_id
+		where brnd.rms_code=#{rms_code}
+ 	</select>
+ 	
+ 	<!-- 查询附件详情 -->
+ 	<select id="queryAttachDetails" resultType="Map" parameterType="Map">
+    	SELECT	distinct rms_code, url as attachName
+    	FROM	hppdata.busi_rmsmg_attach
+    	WHERE   rms_code=#{rms_code}
+ 	</select>
+ 	
+ 	<!-- 查询审批历史记录 -->
+ 	<select id="queryApproveHistory" resultType="Map" parameterType="Map">
+		SELECT	hbra.rms_code,hbra.node_id,hbra.status,hbra.approval_content,  hbra.created_time,hru.user_name,hrfn.name as node_name
+		FROM  hppdata.busi_rmsmg_approval as hbra
+		LEFT JOIN hpmgr.rmsmg_user as hru
+		ON hbra.user_id=hru.user_id
+		LEFT JOIN hpmgr.rmsmg_flow_node as hrfn
+		ON  hbra.node_id=hrfn.node_id
+		WHERE  rms_code=#{rms_code}
+		order by hbra.created_time desc
+ 	</select>
+ 	
+ 	<!-- 查询需求列表 -->
+ 	<select id="queryParams" resultType="Map" parameterType="Map">
+ 		select	distinct brr.*,hrfn.node_content,hru.user_name,hrfn.node_type
+		from  hppdata.busi_rmsmg_rms as brr
+		<choose>       
+      		<when	test="tabType == 'myNeedDeal'"> 
+            	Inner join hppdata.busi_rmsmg_need_deal as brnd
+				on brr.rms_code=brnd.rms_code
+      		</when>  
+      		<otherwise>  
+				LEFT JOIN hppdata.busi_rmsmg_need_deal as brnd
+				on brr.rms_code=brnd.rms_code 
+      		</otherwise>  
+		</choose>  
+		LEFT JOIN hpmgr.rmsmg_flow_node as hrfn
+			on	brnd.node_id=hrfn.node_id
+		<if	test="tabType == 'myNeedDeal'">
+			LEFT JOIN hpmgr.rmsmg_role_user as hrru
+				on hrru.role_id=hrfn.role_id
+		</if>
+		LEFT JOIN hpmgr.rmsmg_user as hru
+			on	brr.create_id= hru.user_id		
+		where	1=1
+		<choose>       
+      		<when	test="tabType == 'myNeedDeal'">  
+      			and brr.rms_code in(
+            		select rms_code from hppdata.busi_rmsmg_need_deal as brnd
+					left join  hpmgr.rmsmg_flow_node as hrfn on brnd.node_id=hrfn.node_id
+					left join  hpmgr.rmsmg_role_user  as hrru on   hrfn.role_id=hrru.role_id
+					where hrru.user_id=#{user_id} or brnd.user_id=#{user_id}
+				)
+	      	</when>  
+			<when	test="tabType == 'myNeedRead'">  
+            	and brr.rms_code in(
+					select rms_code 
+					from hppdata.busi_rmsmg_read_deal as brrd
+					where brrd.user_id=#{user_id}  and	brrd.status='0'
+				)
+      		</when>
+			<when	test="tabType == 'myCreate'">  
+            	and brr.create_id=#{user_id}
+      		</when>
+      		<when	test="tabType == 'myReadDeal'">  
+				and brr.rms_code in(
+					select rms_code 
+					from hppdata.busi_rmsmg_read_deal as brrd
+					<if test="readType == 3">
+					where brrd.user_id=#{user_id}  and	brrd.status in ('1','2')
+					</if>
+					<if test="readType != 3">
+					where brrd.user_id=#{user_id}  and	brrd.status=#{readType}
+					</if>
+					 
+				)
+      		</when> 	  
+      	<otherwise>  
+      		<if	test="prvd_id != null and prvd_id != '' and prvd_id != 10000">
+				and brr.prvd_id=#{prvd_id}
+			</if>
+      	</otherwise>  
+		</choose>
+ 		<if	test="status != null and status != '' and status != 'all'">
+			and  hrfn.node_type=#{status}
+		</if>
+		<if	test="rms_type != null and rms_type != '' and rms_type != 'all'">
+			and  brr.rms_type=#{rms_type}
+		</if>
+		<if	test="subject_code != null and subject_code != '' and subject_code != 'all'">
+			and  brr.subject_code=#{subject_code}
+		</if>
+		<if	test="timeType ==1">
+		<![CDATA[
+			and brr.create_time>=cast(#{startTime} as date format 'yymmdd') 
+			and brr.create_time<=cast(#{endTime} as date format 'yymmdd') 
+		]]>
+		</if>
+		<if	test="timeType != null and timeType != '' and timeType != 1 and timeType != 'all'">
+			and	brr.rms_code in(
+			select	rms_code 
+			from	hppdata.busi_rmsmg_approval as hbra
+			LEFT JOIN hpmgr.rmsmg_flow_node as hrfnt 
+			on	hbra.node_id=hrfnt.node_id
+			<![CDATA[
+			where hbra.created_time>=cast(#{startTime} as date format 'yymmdd') 
+			and hbra.created_time<=cast(#{endTime} as date format 'yymmdd')
+			]]>  
+			and hrfnt.node_type=#{timeType})
+		</if>
+		<if	test="sourcePrvd != null and sourcePrvd != '' and sourcePrvd != 1 and sourcePrvd != 10000">
+		and brr.prvd_id not in(10000)
+		</if>
+		<if	test="sourcePrvd == 10000">
+		and brr.prvd_id=#{sourcePrvd}
+		</if>
+		order by brr.create_time desc
+ 	</select>
+ 	
+ 	<!-- 查询当前及下一处理节点 -->
+ 	<select id="queryRoute" resultType="Map" parameterType="Map">
+ 		select   hrfr.from_node,hrfr.to_node
+		from hppdata.busi_rmsmg_need_deal as hbrnd
+		left join hpmgr.rmsmg_flow_route as hrfr
+		on hbrnd.node_id=hrfr.from_node
+		where  hbrnd.rms_code=#{rms_code}  and  hrfr.route_condition=#{route_condition}
+ 	</select>
+ 	<select id="queryCurrenId" resultType="Map" parameterType="Map">
+ 		select  hbrnd.node_id
+		from hppdata.busi_rmsmg_need_deal as hbrnd
+		where  hbrnd.rms_code=#{rms_code}
+ 	</select>
+ 	
+ 	<!-- 更新需求 -->
+ 	<update id="updateRMS" parameterType="Map">
+ 	update   hppdata.busi_rmsmg_rms 
+ 	set name=#{name},subject_code=#{subject_code},relationTime=#{relationTime},prvd_id=#{prvd_id}, rms_type=#{rms_type},rms_content=#{content} ,create_time=current_timestamp,status=#{status}
+ 	where rms_code=#{rms_code}
+ 	</update>
+ 	
+ 	<!-- 更新省当前需求个数 -->
+ 	<update id="updateRMSCode" parameterType="Map">
+		update hppdata.busi_rmsmg_serial set current_serial=#{current_serial} where prvd_id=#{prvd_id}
+    </update>
+    
+    <!-- 更新待阅已阅状态 -->
+    <update id="updateReadStauts" parameterType="Map">
+		update hppdata.busi_rmsmg_read_deal 
+		set status=#{status} 
+		where rms_code=#{rms_code}  and user_id=#{user_id}
+    </update>
+    
+    <!-- 更新待办表当前节点 -->
+    <update id="updateNeedDeal" parameterType="Map">
+		update	hppdata.busi_rmsmg_need_deal 
+		set	node_id=#{node_id},
+		<if	test="user_id != null and user_id != ''">
+			user_id=#{user_id}
+		</if>
+		<if	test="user_id == null or user_id == ''">
+			user_id='admin'
+		</if>
+		
+		where	rms_code=#{rms_code}
+    </update>
+    
+<!-- 刪除附件路徑 -->    
+    <delete id="deleteDBAttach"  parameterType="Map">
+         delete from hppdata.busi_rmsmg_attach where rms_code=#{rms_code}
+    </delete>
+<!--需求统计     环图 -->
+	<select id="selectRMSPie" resultType="Map" parameterType="Map">
+		SELECT trim(subject_code) as subject_code, trim(rms_type) as rms_type,count(*) as quantity
+		FROM hppdata.busi_rmsmg_rms
+		<if test="prvd_id != '10000'">
+			where prvd_id = #{prvd_id}
+		</if>
+		group by trim(subject_code), trim(rms_type)
+	</select>
+	<!--堆叠柱图需要排序时用  -->
+	<!--
+	<select id="getStackedColumnforOrder" resultType="Map" parameterType="Map">
+		SELECT prvd_id, trim(rms_type) as rms_type,count(*) as quantity
+		FROM hppdata.busi_rmsmg_rms where 1=1
+		<if test="prvd_id != '10000'">
+			and prvd_id = #{prvd_id}
+		</if>
+		<if test="year != ''">
+			and cast (create_time as  varchar(4)) = #{year}
+		</if>
+		group by prvd_id,trim(rms_type)
+	</select>
+	-->
+	<!--需求统计    堆叠柱图-->
+	<select id="getStackedColumn" resultType="Map" parameterType="Map">
+		SELECT prvd_id,trim(subject_code) as subject_code, trim(rms_type) as rms_type,count(*) as quantity
+		FROM hppdata.busi_rmsmg_rms where 1=1
+		<if test="prvd_id != '10000'">
+			and prvd_id = #{prvd_id}
+		</if>
+		<if test="year != ''">
+			and cast (create_time as  varchar(4)) = #{year}
+		</if>
+		group by prvd_id,trim(subject_code), trim(rms_type)
+	</select>
+</mapper>

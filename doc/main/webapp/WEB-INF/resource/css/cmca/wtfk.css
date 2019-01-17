@@ -1,0 +1,124 @@
+.feedbackWarp .panel-body{
+    height: 494px;
+    background-color: #fefefe;
+}
+.feedbackWarp .panel-heading{
+    overflow: hidden;
+}
+.feedbackWarp .panel-heading .btn{
+    text-align: right;
+    float: right;
+    margin-left: 10px;
+}
+.feedbackWarp .panel-heading span{
+    font-size: 16px;
+    line-height:30px;
+
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type="number"]{ -moz-appearance: textfield; }
+body.problemFormList{
+    overflow-y: scroll!important; 
+    overflow-x: scroll!important; 
+    overflow:-moz-scrollbars-vertical;
+}
+.problemFormList .problemForm{
+    width: 700px;
+    margin: 20px auto;
+}
+/* .problemForm .ConNew,.problemForm .ConReply,.problemForm .feedbackWarp{
+    width: 700px;
+    margin: 20px auto;
+} */
+.newWarp>li ,.replyWarp>li {
+    margin: 10px 0;
+}
+.newWarp>li label,.replyWarp>li label{
+    width: 90px;
+    height: 40px;
+    /* line-height: 40px; */
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    margin-right: 20px;
+}
+.newWarp .way label,.replyWarp .way label{
+    height: 20px;
+    line-height: 20px;
+}
+.newWarp>li input,.replyWarp>li input{
+    width: 160px;
+    padding: 6px 12px;
+    font-size: 14px;
+    height: 31px;
+    line-height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+.newWarp>li:first-child input{
+    width: 240px;
+}
+.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn){
+    width: 120px;
+}
+.newWarp>li textarea,.replyWarp li textarea{
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border-radius: 4px;
+    vertical-align: top;
+    resize:none;
+}
+.newWarp>li .wu-example,.replyWarp>li .wu-example,.newWarp>li .reQimg{
+    display: inline-block;
+    vertical-align: top;
+}
+.table{
+    margin-top: 10px;
+    font-size: 12px;
+}
+.table-bordered>tbody>tr>td,
+.table-bordered>tbody>tr>th,
+.table-bordered>tfoot>tr>td,
+.table-bordered>tfoot>tr>th,
+.table-bordered>thead>tr>td,
+.table-bordered>thead>tr>th{
+    width: 25%;
+}
+.bootstrap-table .table tr:nth-child(even),.bootstrap-table .table th{
+    background-color: #e8ecef;
+}
+.thumbnail .glyphicon-trash{
+    float: right;
+    margin-right: 20px;
+    cursor: pointer;
+}
+.newForm,.replyForm,.resultForm{
+    text-align: center;
+    margin-bottom: 30px;
+}
+.newForm .btn,.replyForm .btn,.resultForm .btn{
+    border: 1px solid #0192d5;
+    color: #0192d5;
+    background-color: #fff;
+}
+@media screen and (max-width: 1366px) {
+    .main_content .feedbackWarp {
+        height: 410px;
+    }
+}
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .light_style .feedbackWarp .panel-body {
+        height: 654px;
+    }
+}
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .light_style .feedbackWarp .panel-body {
+        height: 830px;
+    }
+}

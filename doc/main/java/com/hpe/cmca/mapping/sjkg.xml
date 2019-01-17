@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="sjkg">
+	<select id="querySwitchs_year" resultType="Map" parameterType="Map">
+		select distinct Aud_trm,
+				Subject_code,
+				Subject_name,
+				Concern_id,
+				Focus_code,
+				Focus_name,
+				Switch,
+				Opr_time,
+				Opr_person,
+				Opr_reason,
+				row_number()over(order by t.Focus_code asc) as RN
+		from hpmgr.busi_audit_trm_conf t where 
+		 t.Aud_trm like'${year}%'  and t.Subject_code=#{subjectCode}
+		order by RN <!-- add by GuoXY 20161215 搞个序号字段用于jqgrid显示 -->
+	</select>
+	
+	
+	
+	
+	
+	<select id="querySwitchs_Max_month" resultType="Map" parameterType="Map">
+		select max(Aud_trm) as Aud_trm
+		from hpmgr.busi_audit_trm_conf t where 
+		 t.Aud_trm like'${year}%'  and t.Subject_code=#{subjectCode}
+	</select>
+	
+		<select id="query_year" resultType="Map" parameterType="Map">
+		<!--
+			select v.aud_trm
+			from hpmgr.busi_model_notify v where
+		    status=5  and v.subject_id=#{subjectCode}
+		    group by  v.aud_trm  order by  v.aud_trm  desc
+		   -->
+		   
+		   select substr(v.aud_trm,1,4)as aud_trm,substr(v.aud_trm,1,4)as aud_trm1
+			from hpmgr.busi_model_notify v where
+		    status=5  and v.subject_id=#{subjectCode}
+		    group by  aud_trm1 order by aud_trm1 desc
+		   
+		   
+		</select>
+	
+	
+	
+	<select id="queryNotify_year" resultType="Map" parameterType="Map">
+	select v.aud_trm  from hpmgr.busi_model_notify v where v.aud_trm like'${year}%'
+	   and v.subject_id=#{subjectCode}  and status=5 
+	   group by  v.aud_trm 
+	   order by v.aud_trm desc
+	</select>
+	
+	
+	<select id="queryConcern" resultType="Map" parameterType="Map">
+		select biz_code,name from hpmgr.busi_stat_concern  t where t.subject_id=#{subjectCode} order  by t.biz_code ASC
+	</select>
+	<!-- hpmgr.busi_audit_trm_conf  开关表
+		 hpmgr.busi_model_notify 执行情况表
+		   查询出开关表中有 但是执行情况中没有的月份
+		 -->
+	<select id="queryMonth" resultType="Map" parameterType="Map">
+	 	select  v.aud_trm from hpmgr.busi_model_notify  v where  v.aud_trm like'${year}%' and v.subject_id=#{subjectCode}
+				and  v.aud_trm not in(
+		   			select t.aud_trm  from hpmgr.busi_audit_trm_conf t where t.aud_trm like'${year}%'  and 
+		   			t.Subject_code=#{subjectCode} group by t.aud_trm
+					)
+					and status=5
+	  group by  v.aud_trm order by v.aud_trm desc
+	</select>
+	
+	<select id="queryAllMonth" resultType="Map" parameterType="Map">
+	<!--
+	 	select  v.aud_trm from hpmgr.busi_model_notify  v where   v.subject_id=#{subjectCode}
+					and status=5
+	  group by  v.aud_trm order by v.aud_trm desc
+	--> 
+	  
+	  select  substr(max(v.aud_trm),1,4)as max_year,
+	  		  substr(max(v.aud_trm),5,2)as max_mon,
+	  		  substr(min(v.aud_trm),1,4)as min_year,
+	  		  substr(min(v.aud_trm),5,2)as min_mon,  
+	  		  count(distinct v.aud_trm)as cnt_aud_trm 
+	  		  from hpmgr.busi_model_notify  v where   v.subject_id=#{subjectCode} and status=5
+	</select>
+	
+	<select id="queryAllOpenMonth" resultType="Map" parameterType="Map">
+	<!--
+	 	select  v.aud_trm from hpmgr.busi_audit_trm_conf  v where   v.Subject_code=#{subjectCode}
+				and Switch = 1
+	 	 group by  v.aud_trm order by v.aud_trm desc
+	 -->
+	 select  count(distinct v.aud_trm)as cnt from hpmgr.busi_audit_trm_conf  v where   v.Subject_code=#{subjectCode}
+				and Switch = 1
+	</select>
+	
+	
+	
+	
+	
+		<select id="queryMonth_q" resultType="Map" parameterType="Map">
+		   			select t.aud_trm  from hpmgr.busi_audit_trm_conf t where t.aud_trm like'${year}%'  and 
+		   			t.Subject_code=#{subjectCode} group by t.aud_trm order by t.aud_trm desc
+		</select>
+	
+	
+	<select id="queryTable" resultType="Map" parameterType="Map">
+	 	select distinct Aud_trm,
+				Subject_code,
+				Subject_name,
+				Concern_id,
+				Focus_code,
+				Focus_name,
+				Switch,
+				Opr_time,
+				Opr_person,
+				Opr_reason,
+				row_number()over(order by t.Aud_trm desc) as RN
+		from hpmgr.busi_audit_trm_conf t where 
+			t.Aud_trm = #{audTrm} 
+		 	and t.Subject_code=#{subjectCode}
+		 	<if test="switchs != '' ">
+			and t.Switch=#{switchs}
+		</if>
+		 	
+		 <if test="concernId != 0 ">
+			 and Focus_code=#{concernId}
+		</if>
+		
+	</select>
+   <!-- 插入开关 
+      Aud_trm VARCHAR(14) CHARACTER SET LATIN CASESPECIFIC TITLE '审计月' NOT NULL,
+      Subject_code VARCHAR(10) CHARACTER SET LATIN CASESPECIFIC TITLE '专题编码' NOT NULL,
+      Subject_name VARCHAR(60) CHARACTER SET LATIN NOT CASESPECIFIC TITLE '专题名称' NOT NULL,
+      Concern_id SMALLINT TITLE '关注点ID',
+      Focus_code VARCHAR(10) CHARACTER SET LATIN CASESPECIFIC TITLE '关注点编码' NOT NULL,
+      Focus_name VARCHAR(60) CHARACTER SET LATIN CASESPECIFIC TITLE '关注点名称' NOT NULL,
+      Switch SMALLINT TITLE '开关0-1' NOT NULL,
+      Opr_time TIMESTAMP(6) FORMAT 'YYYYMMDDBHH:MI:SS' TITLE '操作日期' NOT NULL,
+      Opr_person VARCHAR(20) CHARACTER SET LATIN NOT CASESPECIFIC TITLE '操作人' NOT NULL,
+      Opr_reason VARCHAR(100) CHARACTER SET LATIN CASESPECIFIC TITLE '操作原因' NOT NULL)
+   -->
+    <insert id="addSwitchs" useGeneratedKeys="true" parameterType="Map">  
+        insert into hpmgr.busi_audit_trm_conf (Aud_trm,Subject_code,Subject_name,Concern_id,Focus_code,Focus_name,Switch,Opr_time,Opr_person,Opr_reason)   
+       	 values  
+        (#{Aud_trm},#{Subject_code},#{Subject_name},#{iConcern_id},#{Focus_code},#{Focus_name},#{Switch},#{Opr_time},#{Opr_person},'')  
+    </insert>  
+	<!-- 开关日志表 -->
+ 	<insert id="addSwitchsLog" useGeneratedKeys="true" parameterType="Map">  
+        insert into hpmgr.busi_User_Opr_log (Aud_trm,Focus_cds,switch,Opr_time,Opr_person,Opr_reason)   
+       	 values  
+        (#{Aud_trm},#{Focus_code},#{Switch},#{Opr_time},#{Opr_person},#{Opr_reason})  
+    </insert>  
+
+
+  	<update id="updateSwitchs"  parameterType="Map">  
+        update  hpmgr.busi_audit_trm_conf t set  Switch = #{Switch} ,Opr_time=#{Opr_time},Opr_person=#{Opr_person}
+       			where   t.Aud_trm = #{Aud_trm} and t.Subject_code=#{Subject_code}
+				
+    </update>  
+	<!-- 联动导入 busi_workspace_file  -->
+		<insert id="insertWorkSpaceFileFromReportFile" parameterType="Map">
+		INSERT INTO hpmgr.busi_workspace_file
+		(id,
+		prvd_id,
+		cty_id,
+		report_file_id,
+		file_name,
+		file_path,
+		download_url,
+		file_type,
+		audit_monthly,
+		audit_subject,
+		aduitor,
+		audit_concern,
+		audit_status,
+		down_status,
+		down_count,
+		expire_date,
+		create_time,
+		create_person)
+
+		SELECT id,
+		aduitor,
+		'',
+		id,
+		file_name,
+		file_path,
+		download_url,
+		file_type,
+		audit_monthly,
+		audit_subject,
+		aduitor,
+		audit_concern,
+		'yishenpi' audit_status,
+		'N' down_status,
+		0 down_count,
+		null,
+		CURRENT_TIMESTAMP create_time,
+		'sys' create_person
+		FROM hpmgr.busi_report_file
+		WHERE audit_concern IN (${focuses})
+		AND audit_monthly = ${Aud_trm}
+	</insert>
+	<!-- 删除我的工作台中可下载的文件 -->
+	<delete id="deleteWorkSpaceFileFromReportFile" parameterType="Map">
+		DELETE FROM  hpmgr.busi_workspace_file 
+		WHERE audit_concern IN (${focuses})
+		AND audit_monthly = ${Aud_trm}
+	</delete>
+
+
+
+
+
+</mapper>

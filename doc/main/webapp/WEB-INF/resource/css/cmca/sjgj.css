@@ -1,0 +1,266 @@
+.main_content form.search_form {
+  margin-bottom: 10px;
+  padding-top: 10px;
+  background-color: #fff;
+}
+
+.main_content form.search_form .form-group input {
+  height: 26px;
+  padding: 0 6px;
+  background-color: transparent;
+  border: 1px solid #adadad;
+  color: #333;
+}
+
+.main_content form.common_search_form .col-xs-2 {
+  padding: 0 10px;
+}
+
+.main_content form.common_search_form .form-group {
+  width: 100%;
+}
+
+.main_content form.common_search_form .form-group .col-xs-4,
+.main_content form.common_search_form .form-group .col-xs-8 {
+  padding: 0;
+}
+
+.main_content form.common_search_form .form-group input {
+  width: 100%;
+}
+
+.main_content form.common_search_form .form-group textarea {
+  padding: 0 6px;
+}
+
+.main_content form.common_search_form .form-group .error_tip {
+  color: #a94442;
+}
+
+.main_content form.common_search_form select {
+  width: 100%;
+  border-radius: 4px;
+  height: 26px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.main_content .panel .table {
+  table-layout: fixed;
+}
+
+.main_content .panel .table thead th {
+  vertical-align: middle !important;
+}
+
+.main_content .panel .table thead th.blue {
+  background-color: #95B3D7;
+}
+
+.main_content .panel .table thead th.yellow {
+  background-color: #FFFF66;
+}
+
+.main_content .panel .table thead th.gray {
+  background-color: #CCCCCC;
+}
+
+.main_content .panel .table thead th.green {
+  background-color: #99CC66;
+}
+
+.main_content .panel .table thead th.red {
+  background-color: #FF6666;
+}
+
+.main_content .panel .table tbody span.red {
+  color: #FF6666;
+}
+
+/* 页脚宽度设置 */
+
+.main_content .fixed-table-footer .table .inner50 {
+  width: 50px;
+}
+
+.main_content .fixed-table-footer .table .inner100 {
+  width: 100px;
+}
+
+.main_content .fixed-table-footer .table .inner130 {
+  width: 130px;
+}
+
+.main_content .fixed-table-footer .table .inner135 {
+  width: 135px;
+}
+
+.main_content .fixed-table-footer .table .inner150 {
+  width: 150px;
+}
+
+.main_content .fixed-table-footer .table .inner160 {
+  width: 160px;
+}
+
+.main_content .fixed-table-footer .table .inner180 {
+  width: 180px;
+}
+
+.main_content .fixed-table-footer .table .inner190 {
+  width: 190px;
+}
+
+.main_content .fixed-table-footer .table .inner200 {
+  width: 200px;
+}
+
+.main_content .fixed-table-footer .table .inner260 {
+  width: 260px;
+}
+
+.main_content .fixed-table-footer .table .inner400 {
+  width: 400px;
+}
+
+.main_content .fixed-table-footer .table .inner520 {
+  width: 520px;
+}
+
+.main_content .statistics_zgxx_result {
+  height: 312px;
+}
+
+.main_content .zgwz_times_result {
+  height: 400px;
+}
+
+.main_content .panel .table tr div.nowrap {
+  white-space: nowrap !important;
+}
+
+.main_content .panel .table tr div.line_break {
+  white-space: normal !important;
+}
+
+.main_content .add_zgxx .modal-body {
+  height: 450px;
+  overflow-y: scroll;
+}
+
+/* 新增必填信息 */
+
+.main_content .modal form.common_search_form label {
+  padding-top: 3px;
+}
+
+.main_content .modal .must_item {
+  position: relative;
+}
+
+.main_content .modal .must_item i {
+  position: absolute;
+  top: 7px;
+  left: -5px;
+  color: red;
+}
+
+/* 问责信息 */
+
+.main_content .statistics_wzxx_result {
+  height: 410px;
+}
+
+/* 操作按钮 */
+
+.main_content .behav_btns button {
+  margin-top: -2px;
+}
+
+.main_content .webuploader-pick {
+  height: 34px;
+  padding: 6px 12px;
+  border: 1px solid #0192d5;
+  border-radius: 4px;
+  background-color: #0192d5;
+  color: #fff;
+}
+
+/* 错误信息 */
+
+.main_content .err_info {
+  position: fixed;
+  bottom: 0;
+  color: #FF6666;
+  background-color: #fff;
+}
+
+/* 等待提示 */
+
+.main_content .loading_wrap {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+.main_content .loading_wrap .loading_cont {
+  width: 300px;
+  height: 100px;
+  line-height: 100px;
+  border-radius: 6px;
+  margin: 10% auto 0;
+  background-color: #F2F2F2;
+  text-align: center;
+  color: #000;
+  font-size: 24px;
+  box-shadow: 0 0 10px 0px rgba(0, 0, 0, .2);
+}
+
+/* 表单样式重置 */
+
+.main_content .form-control[disabled],
+.main_content .form-control[readonly],
+.main_content fieldset[disabled] .form-control {
+  background-color: #fff;
+}
+
+/* 日期插件样式重置 */
+
+body .datetimepicker td,
+body .datetimepicker th {
+  white-space: nowrap;
+}
+
+/* 响应式设计 */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+  .main_content .statistics_zgxx_result {
+    height: 444px;
+  }
+
+  .main_content .zgwz_times_result {
+    height: 520px;
+  }
+
+  .main_content .statistics_wzxx_result {
+    height: 540px;
+  }
+}
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+  .main_content .statistics_zgxx_result {
+    height: 650px;
+  }
+
+  .main_content .zgwz_times_result {
+    height: 700px;
+  }
+
+  .main_content .statistics_wzxx_result {
+    height: 720px;
+  }
+}

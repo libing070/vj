@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="rzcx">
+	<select id="getLogInfoList" resultType="Map"
+		parameterType="Map">
+		<!--审计通报日志 -->
+		<if test="logType == 1">
+			select case when t.audit_subject=1 then '有价卡违规管理' when t.audit_subject=2 then '养卡套利' when t.audit_subject=3 then '终端套利' when t.audit_subject=4 then '客户欠费' when t.audit_subject=5 then '员工异常操作' else t.audit_subject end as subject_name, t.audit_monthly as aud_trm, 
+			case when t.focus_cd=1000 or t.focus_cd=2000 or t.focus_cd=3000 then '汇总情况' when t.focus_cd=1001 then '未按规定在系统间同步加载' 
+			when t.focus_cd=1002 then '有价卡违规激活' when t.focus_cd=1003 then '有价卡违规销售'  when t.focus_cd=1005 then '有价卡违规重复使用' 
+			when t.focus_cd=1004 then '退换后的坏卡或报废卡未封锁' when t.focus_cd=1006 then '有价卡违规重复赠送' when t.focus_cd=1007 then '规定使用期限的促销赠送电子券到期未作废' when t.focus_cd=1009 then	'限本地使用的电子充值券违规异地使用' when t.focus_cd=2001 then '渠道养卡套利' when t.focus_cd=2002 then '渠道养卡' when t.focus_cd=3001 then '代理商沉默串码套利' when t.focus_cd=3002 then '代理商养机套利'
+			when t.focus_cd=3004 then '代理商终端拆包套利 ' when t.focus_cd=3005 then '代理商跨省窜货套利' else t.focus_cd end  as focus_name, 
+			case when t.op_type=1 then '文件生成' when t.op_type=2 then '文件下载' end as opr_type,
+			CAST(t.op_time AS DATE FORMAT'YYYY年MM月DD日') as opr_time, t.user_name as opr_person
+			from hpmgr.busi_notification_op t
+			where                                
+			<![CDATA[
+			CAST(t.audit_monthly AS DATE FORMAT'YYYYMM')<ADD_MONTHS (CAST(#{audTrmEnd} AS DATE FORMAT'YYYYMM'),1)
+			and CAST(t.audit_monthly AS DATE FORMAT'YYYYMM')>ADD_MONTHS (CAST(#{audTrmStart} AS DATE FORMAT'YYYYMM'), -1)
+			]]>
+			<if test="subjectid != '10'">
+			and t.audit_subject in (${subjectid})
+			</if>
+			<if test="operator != ''">
+			and t.user_name=#{operator}
+			</if>
+		</if>
+		<!-- 我的文件下载（报告下载、审计明细清单下载）日志表 case when opr_type=1 then '审计报告下载' when opr_type=2 then '审计结果明细清单下载' end as opr_type,-->
+		<if test="logType == 2 or logType == 3">
+			SELECT t.subject_name as subject_name, t.aud_trm as aud_trm, 
+			case when t.focus_code=1000 or t.focus_code=2000 or t.focus_code=3000 or t.focus_code=4000 or t.focus_code=5000 then '汇总情况' 
+			when t.focus_code=1001 then '未按规定在系统间同步加载' when t.focus_code=1002 then '有价卡违规激活' when t.focus_code=1003 then '有价卡违规销售'  when t.focus_code=1005 then '有价卡违规重复使用' 
+			when t.focus_code=1004 then	'退换后的坏卡或报废卡未封锁' when t.focus_code=1006 then '有价卡违规重复赠送' when t.focus_code=1007 then '规定使用期限的促销赠送电子券到期未作废' when t.focus_code=1009 then	'限本地使用的电子充值券违规异地使用'
+			 when t.focus_code=2001 then '渠道养卡套利' when t.focus_code=2002 then '渠道养卡' 
+			when t.focus_code=3001 then '代理商沉默串码套利' when t.focus_code=3002 then '代理商养机套利' when t.focus_code=3003 then '代理商空串码套利' when t.focus_code=3004 then '代理商终端拆包套利 ' when t.focus_code=3005 then '代理商跨省窜货套利'
+			 else t.focus_code end  as focus_name, 
+			case when t.prvdId=10000 then '集团' else t.prvd_name end as prvd_name,
+			CAST(opr_time AS DATE FORMAT'YYYY年MM月DD日') as opr_time, t.opr_person as opr_person, t.download_count as download_count
+			FROM hpmgr.aud_report_download_log t
+			where 
+			<![CDATA[
+			CAST(t.aud_trm AS DATE FORMAT'YYYYMM')<ADD_MONTHS (CAST(#{audTrmEnd} AS DATE FORMAT'YYYYMM'),1)
+			and CAST(t.aud_trm AS DATE FORMAT'YYYYMM')>ADD_MONTHS (CAST(#{audTrmStart} AS DATE FORMAT'YYYYMM'), -1)
+			]]>
+			<if test="logType == 2">
+			and opr_type=1
+			</if>
+			<if test="logType == 3">
+			and opr_type=2
+			</if>
+			<if test="subjectid != '10'">
+			and t.subject_code in (${subjectid})
+			</if>
+			<if test="operator != ''">
+			and t.opr_person=#{operator}
+			</if>
+		</if>
+		<!-- 数据质量稽核报告日志表  -->
+		<if test="logType == 4">
+			SELECT  case when t.subject_id=1 then '有价卡违规管理' when t.subject_id=2 then '养卡套利' when t.subject_id=3 then '终端套利' when t.subject_id=4 then '客户欠费' when t.subject_id=5 then '员工异常操作' else t.subject_id end as subject_name, t.aud_trm as aud_trm, 
+			t.check_name as excute_state,
+				substring(cast(t.latest_date as varchar(10)) from 0 for 11) as last_generate_time,
+		substring(cast(t.download_date as varchar(10)) from 0 for 11) as last_download_time,
+			download_person as opr_person, download_times as download_count
+			FROM hpmgr.busi_sjzl_file_info t
+			where 
+			<![CDATA[
+			CAST(t.Aud_trm AS DATE FORMAT'YYYYMM')<ADD_MONTHS (CAST(#{audTrmEnd} AS DATE FORMAT'YYYYMM'),1)
+			and CAST(t.Aud_trm AS DATE FORMAT'YYYYMM')>ADD_MONTHS (CAST(#{audTrmStart} AS DATE FORMAT'YYYYMM'), -1)
+			]]>
+			<if test="subjectid != '10'">
+			and t.subject_id in (${subjectid})
+			</if>
+			<if test="operator != ''">
+			and t.download_person=#{operator}
+			</if>
+		</if>
+		<!--参数管理日志 -->
+		<if test="logType == 5">
+			<!-- 真实表  old_id, old_value, new_id, new_value-->
+			SELECT t.edit_no as edit_no,  CAST(t.edit_time AS DATE FORMAT'YYYY年MM月DD日') as opr_time, t.edit_person as opr_person,
+			t.edit_code as opr_code,t.edit_col as opr_col,t.old_id as old_id, t.old_value as old_value,  t.new_id as new_id, t.new_value as new_value
+			FROM hpmgr.busi_ca_config_log t left join busi_ca_config tc on t.edit_code=tc.threshold_code
+			where  
+			<![CDATA[
+			t.edit_time<ADD_MONTHS (CAST(#{audTrmEnd} AS DATE FORMAT'YYYYMM'),1)
+			and t.edit_time>CAST(#{audTrmStart} AS DATE FORMAT'YYYYMM')
+			]]>
+			<if test="operator != ''">
+				and t.edit_person=#{operator}
+			</if>
+			<if test="subjectid != '10'">
+				 and tc.subject_id in (${subjectid})
+			</if>
+		</if>
+		<!--审计开关日志表 -->
+		<if test="logType == 6">
+			SELECT t.aud_trm as aud_trm,
+			<!-- case when t.focus_cds=1 or t.focus_cds=2 or t.focus_cds=3 then '汇总情况' when t.focus_cds=1001 then '未按规定在系统间同步加载' 
+			when trim(t.focus_cds)=1002 then '有价卡违规激活' when t.focus_cds=1003 then '有价卡违规销售'  when t.Focus_code=1005 then '有价卡违规重复使用' 
+			when t.focus_cds=1004 then	'退换后的坏卡或报废卡未封锁' when t.focus_cds=3001 then '代理商沉默串码套利' when t.Focus_code=3002 then '代理商养机套利'
+			when t.focus_cds=3004 then '代理商终端拆包套利 ' when t.focus_cds=3005 then '代理商跨省窜货套利' end  as focus_name,-->
+			t.focus_cds,
+			case when t.switch=0 then '审计开关关闭' when t.switch=1 then '审计开关打开 ' end  as opr_type,
+			CAST(t.Opr_time AS DATE FORMAT'YYYY年MM月DD日') as opr_time,
+			t.Opr_person as opr_person
+			FROM hpmgr.busi_User_Opr_log t
+			where 
+			<![CDATA[
+			CAST(t.aud_trm AS DATE FORMAT'YYYYMM')<ADD_MONTHS (CAST(#{audTrmEnd} AS DATE FORMAT'YYYYMM'),1)
+			and CAST(t.aud_trm AS DATE FORMAT'YYYYMM')>ADD_MONTHS (CAST(#{audTrmStart} AS DATE FORMAT'YYYYMM'), -1)
+			]]>
+			<if test="subjectid != '10'">
+			and SUBSTRING(trim(t.focus_cds) from 0 for 2) in (${subjectid})
+			</if>
+			<if test="operator != ''">
+			and t.Opr_person=#{operator}
+			</if>
+		</if>
+	</select>
+</mapper>

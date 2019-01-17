@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+
+<mapper namespace="com.hpe.cmca.interfaces.SjcxMapper">
+	<!-- 返回表结构 -->
+			<resultMap type="com.hpe.cmca.pojo.SJCXSubject"  id="sjcx">
+				<result property="tables" column="tables"/>
+				<result property="columnNm" column="column_nm"/>
+				<result property="columntitle" column="columntitle"/>
+				<result property="columnRank" column="column_rank"/>
+				<result property="columntypeId" column="columntype_id"/>
+				<result property="columntype" column="columntype"/>
+				<result property="columnLength" column="column_length"/>
+				<result property="flag" column="flag"/>
+				<result property="proColumn" column="pro_column"/>
+				<result property="nullColumn" column="null_column"/>
+			</resultMap>
+			
+			
+	<!-- 返回表层级 -->
+			<resultMap type="com.hpe.cmca.pojo.SJCXcd"  id="sjcxcd">
+		    	
+				<result property="firstClassMenu" column="first_class_menu"/> 
+				<result property="subjectNum" column="subject_num"/>
+				<result property="secondMenuId" column="second_menu_id"/>
+				<result property="secondLevelMenu" column="second_level_menu"/>
+				<result property="metadataTableId" column="metadata_table_id"/>
+				<result property="metadataTableNm" column="metadata_table_nm"/>
+				<result property="tableName" column="table_nm"/>
+				<result property="tableFilter" column="table_filter"/>
+				<result property="stateFlag" column="state_flag"/>
+			
+			</resultMap>
+			
+	<!-- 返回前端列表 -->
+			<select id="getTable"  resultMap="sjcxcd" >
+					select first_menu_id,first_class_menu,subject_num,second_menu_id,second_level_menu,metadata_table_id,metadata_table_nm,table_nm,table_filter,state_flag  from hpmgr.menu_source_table where state_flag=0 order by cast ( first_menu_id as Integer) asc,  cast (second_menu_id as Integer) asc,metadata_table_id asc;
+			</select>
+	
+	<!-- 返回审计月 -->
+			<select id="getAud"  resultType="String"  parameterType="String">
+					SELECT DISTINCT aud_trm from hpmgr.busi_audit_switch_conf where subject_code=#{id} and switch_state in (1,2) order by aud_trm desc;
+			</select>
+	
+	<!--获取表字段  -->
+			<select id="getCons"  resultMap="sjcx"  parameterType="String">
+				select * from hpmgr.metadata_colunns_arrange_new  where tables=#{tablenm} order by column_rank;
+			</select>
+			
+			
+	<!--获取所有表字段  -->
+			<select id="allCons"  resultMap="sjcx"  >
+				select * from hpmgr.metadata_colunns_arrange_new  ;
+			</select>
+			
+			
+	<!--获取表内容简单方法  -->
+			<select id="filterSin"  resultType="java.util.LinkedHashMap"  parameterType="String">
+				select top 2000  * from ${tableName} where #{tableFilter} #{filter} order by #{paix};
+			</select>
+			
+			
+	<!--获取表内容复杂查询  -->
+		<!-- 	<select id="filterSin"  resultType="java.util.LinkedHashMap"  parameterType="String">
+				select top 2000  * from ${tableName} where #{tableFilter} #{joi};
+			</select>	 -->
+				
+	<!--保存SQL  -->
+			<insert id="addSql"   parameterType="com.hpe.cmca.pojo.SJCXbc">
+				INSERT  INTO hpmgr.busi_audit_user_tem
+                 values
+                    (#{newSql},#{createTime},#{name},#{createPerson},#{subSql},#{tablenm});
+			</insert>
+			
+	<!--获取模板  -->
+			<select id="getTem"   resultType="com.hpe.cmca.pojo.SJCXbc" parameterType="String">
+				select * from hpmgr.busi_audit_user_tem order by createTime desc where tablenm=#{tablenm};
+			</select>
+		
+	<!-- 整体语句执行 -->
+			<select id="executeSql" resultType="java.util.LinkedHashMap" parameterType="String">
+				<![CDATA[${querySql} ]]>
+			</select>
+	<!-- 获取省份 -->		
+		<select id="getPrvd" resultType="com.hpe.cmca.pojo.SJCXsf" >	
+				SELECT	DISTINCT CMCC_prov_prvd_cd as id, CMCC_prov_prvd_nm as name
+         			 FROM  hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd not in '10000' order by id
+          </select>
+</mapper> 

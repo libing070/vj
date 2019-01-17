@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="ygycReport">
+<!--<cache eviction="LRU"  flushInterval="1800000"  size="4096" readOnly="true" />-->
+
+	<!--获取审计报告模板 -->
+	<select id="getModelContent" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT id, version_id, version_name, subject_id, word_or_excel,
+		report_content, update_time,isDefault
+	FROM hpmgr.busi_report_model 
+	where isDefault=1 
+		and subject_id=#{subjectId}
+		and word_or_excel = 2
+	</select>
+	
+	<!--异常高额积分赠送  -->
+	<select id="getYGYCJFZSdata" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select   
+		<if test="prvdId != 10000">
+			rank_no,
+ 		</if>
+		<if test="prvdId == 10000">
+			row_number() over(ORDER BY total_value desc) as rank_no,
+ 		</if>
+		Aud_trm,
+		prvd_name,
+		city_name,
+		staff_id,
+		<!-- msisdn, -->
+		subs_id,
+		total_value,
+		total_Amt,
+		trim (cast(total_value*1.00/10000  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as total_value_10000,
+		trim (cast(total_Amt*1.00/10000  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as total_Amt_10000,
+		total_Time
+	 	from hpbus.ygyc_prvd_det_5001
+ 		where Aud_trm =#{audTrm}  
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId != 10000">
+ 			<![CDATA[ and rank_no<=5]]>
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId == 10000">
+ 			<![CDATA[QUALIFY ROW_NUMBER() OVER (ORDER BY total_value DESC)<=5]]>
+ 		</if>
+ 		<if test="prvdId != 10000">
+ 		order by rank_no;
+ 		</if>
+ 		<if test="prvdId == 10000">
+ 		ORDER BY total_value desc;
+ 		</if> 		
+	</select>
+	<!--异常高额积分转移  -->
+	<select id="getYGYCJFZYdata" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select   
+		<if test="prvdId != 10000">
+			rank_no,
+ 		</if>
+		<if test="prvdId == 10000">
+			row_number() over(ORDER BY total_value desc) as rank_no,
+ 		</if>
+		Aud_trm,
+		prvd_name,
+		city_name,
+		staff_id,
+		<!-- msisdn, -->
+		subs_id,
+		total_value,
+		total_Amt,
+		trim (cast(total_value*1.00/10000  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as total_value_10000,
+		trim (cast(total_Amt*1.00/10000  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as total_Amt_10000,
+		total_Time
+	 	from hpbus.ygyc_prvd_det_5002
+ 		where Aud_trm =#{audTrm}   
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId != 10000">
+ 			<![CDATA[ and rank_no<=5]]>
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId == 10000">
+ 			<![CDATA[QUALIFY ROW_NUMBER() OVER (ORDER BY total_value DESC)<=5]]>
+ 		</if>
+ 		<if test="prvdId != 10000">
+ 		order by rank_no;
+ 		</if>
+ 		<if test="prvdId == 10000">
+ 		ORDER BY total_value desc;
+ 		</if> 		
+	</select>
+	<!--异常高额花费赠送  -->
+	<select id="getYGYCHFZSdata" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select   
+		<if test="prvdId != 10000">
+			rank_no,
+ 		</if>
+		<if test="prvdId == 10000">
+			row_number() over(ORDER BY total_value desc) as rank_no,
+ 		</if>
+		Aud_trm,
+		prvd_name,
+		city_name,
+		staff_id,
+		acct_id,
+		total_value,
+		trim (cast(total_value*1.00/10000  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as total_value_10000,
+		total_Time
+ 		from hpbus.ygyc_prvd_det_5003
+ 		where Aud_trm =#{audTrm}   
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+  		<if test="report!=null and report=='Top5' and prvdId != 10000">
+ 			<![CDATA[ and rank_no<=5]]>
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId == 10000">
+ 			<![CDATA[QUALIFY ROW_NUMBER() OVER (ORDER BY total_value DESC)<=5]]>
+ 		</if>
+ 		<if test="prvdId != 10000">
+ 		order by rank_no;
+ 		</if>
+ 		<if test="prvdId == 10000">
+ 		ORDER BY total_value desc;
+ 		</if> 		
+	</select>
+	<!--异常高额退费 -->
+	<select id="getYGYCGETFdata" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select   		
+		<if test="prvdId != 10000">
+			rank_no,
+ 		</if>
+		<if test="prvdId == 10000">
+			row_number() over(ORDER BY total_value desc) as rank_no,
+ 		</if>
+		Aud_trm,
+		prvd_name,
+		city_name,
+		staff_id,
+		acct_id,
+		total_value,
+		trim (cast(total_value*1.00/10000  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as total_value_10000,
+		total_Time
+ 		from hpbus.ygyc_prvd_det_5004
+ 		where Aud_trm =#{audTrm}  
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId != 10000">
+ 			<![CDATA[ and rank_no<=5]]>
+ 		</if>
+ 		<if test="report!=null and report=='Top5' and prvdId == 10000">
+ 			<![CDATA[QUALIFY ROW_NUMBER() OVER (ORDER BY total_value DESC)<=5]]>
+ 		</if>
+ 		<if test="prvdId != 10000">
+ 		order by rank_no;
+ 		</if>
+ 		<if test="prvdId == 10000">
+ 		ORDER BY total_value desc;
+ 		</if> 		
+	</select>
+	
+	<!--员工异常操作-积分赠送-5001-基本信息-自原有审计报告中提取、修改 -->
+	<select id="getYGYC5001BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		SEL <!-- COUNT(DISTINCT staff_id) as totalStaff,
+			COUNT(DISTINCT msisdn) as totalSubs, 
+			SUM(total_Time) as  totalTime,
+			SUM(total_value)/10000.00 as  totalWValue,
+			SUM(total_Amt)/10000.00 as  totalAmt10000,
+			totalWValue/totalSubs as perWValue,
+			totalAmt10000/totalSubs AS perAmt10000 -->
+			trim (COUNT(DISTINCT staff_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalStaff,
+			trim (COUNT(DISTINCT subs_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalSubs,
+			trim (SUM(total_Time) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalTime,
+			trim (cast(SUM(total_value)/10000.00 as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  totalWValue,
+			trim (cast(SUM(total_Amt)/10000.00 as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  totalAmt10000,
+			trim (cast(totalWValue/totalSubs as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  perWValue,
+			trim (cast(totalAmt10000/totalSubs as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  perAmt10000
+		FROM hpbus.ygyc_prvd_det_5001 
+		WHERE aud_trm = #{audTrm}
+			<if test="prvdId!=10000">
+			and prvd_id = #{prvdId}
+			</if>
+		GROUP BY aud_trm
+	</select>
+	<!--员工异常操作-积分转移-5002-基本信息-自原有审计报告中提取、修改 -->
+	<select id="getYGYC5002BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		SEL 
+		<!-- COUNT(DISTINCT staff_id) as totalStaff,
+			COUNT(DISTINCT msisdn) as totalSubs, 
+			SUM(total_Time) as  totalTime,
+			SUM(total_value)/10000.00 as  totalWValue,
+			SUM(total_Amt)/10000.00 as  totalAmt10000,
+			totalWValue/totalSubs as perWValue,
+			totalAmt10000/totalSubs AS perAmt10000 -->
+			trim (COUNT(DISTINCT staff_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalStaff,
+			trim (COUNT(DISTINCT subs_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalSubs,
+			trim (SUM(total_Time) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalTime,
+			trim (cast(SUM(total_value)/10000.00 as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  totalWValue,
+			trim (cast(SUM(total_Amt)/10000.00 as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  totalAmt10000,
+			trim (cast(totalWValue/totalSubs as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  perWValue,
+			trim (cast(totalAmt10000/totalSubs as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  perAmt10000
+		FROM hpbus.ygyc_prvd_det_5002 
+		WHERE aud_trm = #{audTrm}
+			<if test="prvdId!=10000">
+			and prvd_id = #{prvdId}
+			</if>
+		GROUP BY aud_trm
+	</select>
+	<!--员工异常操作-话费赠送-5003-基本信息-自原有审计报告中提取、修改 -->
+	<select id="getYGYC5003BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		SEL	 
+			<!-- COUNT(DISTINCT staff_id) as totalStaff,
+			COUNT(DISTINCT acct_id) as totalAcct,  
+			SUM(total_Time) as  totalTime,
+			SUM(total_value)/10000.00 as totalAmt10000,
+			totalAmt10000/totalAcct  AS perAmt10000 -->
+			trim (COUNT(DISTINCT staff_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalStaff,
+			trim (COUNT(DISTINCT acct_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalAcct,
+			trim (SUM(total_Time) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalTime,
+			trim (cast(SUM(total_value)/10000.00 as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  totalAmt10000,
+			trim (cast(totalAmt10000/totalAcct as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  perAmt10000
+		FROM	hpbus.ygyc_prvd_det_5003 
+		WHERE aud_trm = #{audTrm}
+			<if test="prvdId!=10000">
+			and prvd_id = #{prvdId}
+			</if>
+		GROUP BY aud_trm
+	</select>
+	<!--员工异常操作-异常退费-5004-基本信息-自原有审计报告中提取、修改 -->
+	<select id="getYGYC5004BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		SEL	 <!--  COUNT(DISTINCT staff_id) as totalStaff,
+			COUNT(DISTINCT acct_id) as totalAcct,  
+			SUM(total_Time) as  totalTime,
+			SUM(total_value)/10000.00 as totalAmt10000,
+			totalAmt10000/totalAcct  AS perAmt10000-->
+			trim (COUNT(DISTINCT staff_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalStaff,
+			trim (COUNT(DISTINCT acct_id) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalAcct,
+			trim (SUM(total_Time) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  totalTime,
+			trim (cast(SUM(total_value)/10000.00 as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  totalAmt10000,
+			trim (cast(totalAmt10000/totalAcct as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as  perAmt10000
+		FROM	hpbus.ygyc_prvd_det_5004 
+		WHERE aud_trm = #{audTrm}
+			<if test="prvdId!=10000">
+			and prvd_id = #{prvdId}
+			</if>
+		GROUP BY aud_trm
+	</select>
+	
+	
+	<!--员工异常操作-积分赠送-5001-基本信息-自原有审计报告中提取、修改 
+	<select id="getYGYC5001BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		<if test="prvdId!=10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT staff_id) AS totalStaff,
+			COUNT(DISTINCT subs_id) AS totalSubs,
+			COUNT(*) AS totalTime,
+			SUM(trade_value)/10000.00 AS totalWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as totalAmt10000,
+			SUM(trade_value)/10000.00/COUNT(DISTINCT subs_id) as  perWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00/COUNT(DISTINCT subs_id)  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT subs_id, msisdn, city_id
+				FROM HPBUS.YGYC_Sum_Subs_5001
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+				<![CDATA[AND china_no <=50]]>)A1
+			INNER JOIN (
+				SELECT Aud_trm,subs_id,msisdn,city_id,staff_id,trade_value
+				FROM HPBUS.Det_YGYC_5001_SUM
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+				AND  flag='subs50') A2
+			ON A1.subs_id = A2.subs_id AND A1.msisdn = A2.msisdn 
+				AND A1.city_id =A2.city_id)B
+		GROUP BY Aud_trm
+		</if>
+		<if test="prvdId==10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT staff_id) AS totalStaff,
+			COUNT(DISTINCT subs_id) AS totalSubs,
+			COUNT(*) AS totalTime,
+			SUM(trade_value) / 10000.00 AS totalWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as totalAmt10000,
+			SUM(trade_value)/10000.00/COUNT(DISTINCT subs_id) as  perWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00/COUNT(DISTINCT subs_id)  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as perAmt10000
+		FROM (SELECT A2.*
+			FROM (
+				SELECT DISTINCT subs_id, msisdn, city_id
+				FROM HPBUS.YGYC_Sum_Subs_5001 
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>  
+				<![CDATA[AND china_no <= 50]]>)A1
+			INNER JOIN (
+				SELECT Aud_trm,staff_id,subs_id, msisdn, city_id,trade_value
+				FROM HPBUS.Det_YGYC_5001_SUM 
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND  flag='subs50') A2
+			ON A1.subs_id = A2.subs_id AND A1.msisdn = A2.msisdn 
+				AND A1.city_id =A2.city_id) B
+		GROUP BY Aud_trm
+		</if>
+	</select>
+ 	-->
+	<!--员工异常操作-积分转移-5002-基本信息-自原有审计报告中提取、修改
+	<select id="getYGYC5002BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		<if test="prvdId!=10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT staff_id) AS totalStaff,
+			COUNT(DISTINCT subs_id) AS totalSubs,
+			COUNT(*) AS totalTime,
+			SUM(trade_value) / 10000.00 AS totalWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as totalAmt10000,
+			SUM(trade_value)/10000.00/COUNT(DISTINCT subs_id) as  perWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00/COUNT(DISTINCT subs_id)  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT subs_id, msisdn, city_id 
+				FROM HPBUS.YGYC_Sum_Subs_5002
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+				<![CDATA[AND china_no <= 50]]>)A1
+			INNER JOIN (
+				SELECT Aud_trm,staff_id,subs_id, msisdn, city_id,trade_value 
+				FROM HPBUS.Det_YGYC_5002_SUM
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+				AND  flag='subs50') A2
+			ON A1.subs_id = A2.subs_id AND A1.msisdn = A2.msisdn 
+				AND A1.city_id =A2.city_id)B
+			GROUP BY Aud_trm
+		</if>
+		<if test="prvdId==10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT staff_id) AS totalStaff,
+			COUNT(DISTINCT subs_id) AS totalSubs,
+			COUNT(*) AS totalTime,
+			SUM(trade_value) / 10000.00 AS totalWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as totalAmt10000,
+			SUM(trade_value)/10000.00/COUNT(DISTINCT subs_id) as  perWValue,
+			trim (cast(SUM(trade_value)*0.012/10000.00/COUNT(DISTINCT subs_id)  as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(19))) as perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT subs_id, msisdn, city_id 
+				FROM HPBUS.YGYC_Sum_Subs_5002 WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				<![CDATA[AND china_no <= 50]]>)A1
+			INNER JOIN (
+				SELECT Aud_trm,staff_id,subs_id, msisdn, city_id,trade_value
+				FROM HPBUS.Det_YGYC_5002_SUM 
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND  flag='subs50') A2
+			ON A1.subs_id = A2.subs_id AND A1.msisdn = A2.msisdn 
+				AND A1.city_id =A2.city_id) B
+			GROUP BY Aud_trm
+		</if>
+	</select>
+ 	-->
+	<!--员工异常操作-异常话费赠送-5003-基本信息-自原有审计报告中提取、修改
+	<select id="getYGYC5003BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		<if test="prvdId!=10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT opr_id) AS totalStaff,
+			COUNT(DISTINCT acct_id) AS totalAcct,
+			COUNT(*) AS totalTime,
+			SUM(trade_amt) / 10000.00 AS totalAmt10000,
+			SUM(trade_amt) / COUNT(DISTINCT acct_id) / 10000.00 AS perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT acct_id, city_id 
+				FROM HPBUS.YGYC_Sum_Acct_5003
+				WHERE 1 = 1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+				<![CDATA[AND china_no <= 100]]>) A1
+			INNER JOIN (
+				SELECT Aud_trm,opr_id,acct_id,city_id,trade_amt 
+				FROM HPBUS.Det_YGYC_5003_SUM
+				WHERE 1 = 1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+				AND  flag='acct100_qg') A2
+			ON A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id
+			) B
+			GROUP BY Aud_trm
+		</if>
+		<if test="prvdId==10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT opr_id) AS totalStaff,
+			COUNT(DISTINCT acct_id) AS totalAcct,
+			COUNT(*) AS totalTime,
+			SUM(trade_amt)/10000.00 AS totalAmt10000,
+			SUM(trade_amt)/COUNT(DISTINCT acct_id)/10000.00 AS perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT acct_id, city_id 
+				FROM HPBUS.YGYC_Sum_Acct_5003 WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				<![CDATA[AND china_no <= 100]]>)A1
+			INNER JOIN (
+				SELECT  acct_id, city_id,Aud_trm,opr_id,trade_amt
+				FROM HPBUS.Det_YGYC_5003_SUM 
+				WHERE 1=1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+					AND  flag='acct100_qg') A2
+			ON A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id) B
+		GROUP BY Aud_trm
+		</if>
+	</select>
+ 	-->
+	<!--员工异常操作-异常话费转移-5004-基本信息-自原有审计报告中提取、修改 
+	<select id="getYGYC5004BaseInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		<if test="prvdId!=10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT opr_id) AS totalStaff,
+			COUNT(DISTINCT acct_id) AS totalAcct,
+			COUNT(*) AS totalTime,
+			SUM(trade_amt) / 10000.00 AS totalAmt10000,
+			SUM(trade_amt) / COUNT(DISTINCT acct_id) / 10000.00 AS perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT acct_id, city_id 
+				FROM HPBUS.YGYC_Sum_Acct_5004
+				WHERE 1 = 1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				AND prvd_id = #{prvdId}
+		 	<![CDATA[AND china_no <= 100]]>)A1
+		INNER JOIN (
+			SELECT Aud_trm,acct_id,city_id,opr_id,trade_amt
+			FROM HPBUS.Det_YGYC_5004_SUM
+			WHERE 1=1
+			<if test="audTrm!=null">
+				AND Aud_trm = #{audTrm}
+			</if>
+			AND prvd_id = #{prvdId}
+			AND  flag='acct100') A2
+			ON A1.acct_id = A2.acct_id 
+				AND A1.city_id = A2.city_id) B
+		GROUP BY Aud_trm
+		</if>
+		<if test="prvdId==10000">
+		SELECT Aud_trm,
+			COUNT(DISTINCT opr_id) AS totalStaff,
+			COUNT(DISTINCT acct_id) AS totalAcct,
+			COUNT(*) AS totalTime,
+			SUM(trade_amt) / 10000.00 AS totalAmt10000,
+			SUM(trade_amt) / COUNT(DISTINCT acct_id) / 10000.00 AS perAmt10000
+		FROM (
+			SELECT A2.*
+			FROM (
+				SELECT DISTINCT acct_id, city_id 
+				FROM HPBUS.YGYC_Sum_Acct_5004
+				WHERE 1 = 1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+				<![CDATA[AND china_no <= 100]]>)A1
+			INNER JOIN (
+				SELECT Aud_trm,acct_id,city_id,opr_id,trade_amt
+				FROM HPBUS.Det_YGYC_5004_SUM 
+				WHERE 1 = 1
+				<if test="audTrm!=null">
+					AND Aud_trm = #{audTrm}
+				</if>
+					AND  flag='acct100') A2
+			ON A1.acct_id = A2.acct_id AND A1.city_id = A2.city_id) B
+		GROUP BY Aud_trm
+		</if>
+	</select>
+	-->
+	<select id="getYGYCreportQDdata" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select   	Aud_trm
+	 	from hpbus.ygyc_prvd_det_5001
+ 		where Aud_trm =#{audTrm}  
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+ 		union all
+ 		select   Aud_trm
+	 	from hpbus.ygyc_prvd_det_5002
+ 		where Aud_trm =#{audTrm}  
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+ 		union all
+ 		select   
+		Aud_trm
+ 		from hpbus.ygyc_prvd_det_5003
+ 		where Aud_trm =#{audTrm}  
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+ 		union all
+ 		select   
+		Aud_trm
+ 		from hpbus.ygyc_prvd_det_5004
+ 		where Aud_trm =#{audTrm}  
+ 		<if test="prvdId != 10000">
+ 			and prvd_id = #{prvdId}
+ 		</if>
+	</select>
+</mapper>

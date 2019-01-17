@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.ZgxxMapper">
+	
+	<select id="getZgxxData" resultType="com.hpe.cmca.pojo.ZgxxData" parameterType="com.hpe.cmca.pojo.ZgxxData">
+		SELECT	ID, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
+		S, T, U, V, W, X, Y, Z, AA, AB, AC, AD, AE, AF, AG, AH, AI, IS_EFFEC,CREATE_TIME_,CREATE_PERSON,LAST_UPDATE_TIME_,LAST_UPDATE_PERSON,row_number()over(order by C desc,B,A) as ORDER_NUM
+		FROM	hpmgr.busi_zgxx_info where IS_EFFEC=1
+		<if test="A != null and  A  !='0'.toString() and A!=''.toString()">and A =#{A}</if>                                                                    
+		<if test="B != null and  B  !='0'.toString() and B!=''.toString()">and B =#{B}</if>                                                                 
+		<if test="C1 != null and C1 !='0'.toString() and C1!=''.toString()"><![CDATA[and C >=#{C1}]]></if>                                                 
+		<if test="C2 != null and C2 !='0'.toString() and C2!=''.toString()"><![CDATA[and C <=#{C2}]]></if>                                                 
+		<if test="D != null and  D  !='0'.toString() and D!=''.toString()">and D =#{D}</if>                                                                 
+		<if test="E != null and  E  !='0'.toString() and E!=''.toString()">and E =#{E}</if>                                                                 
+		<if test="F != null and  F  !='0'.toString() and F!=''.toString()">and F =#{F}</if>                                                                 
+		<if test="G != null and  G  !='0'.toString() and G!=''.toString()">and G =#{G}</if>                                                                 
+		<if test="H != null and  H  ==1">and H =1</if>
+		<if test="H != null and  H  ==0">and H =0</if>                                                                  
+		<if test="I != null and  I  ==1">and I =1</if>  
+		<if test="I != null and  I  ==0">and I =0</if>                                                               
+		<if test="J != null and  J  ==1">and (cast(cast(current_date  as date format 'YYYY/MM/DD') as varchar(10))) > G AND I = 0</if>   
+		<if test="J != null and  J  ==0">and (cast(cast(current_date  as date format 'YYYY/MM/DD') as varchar(10))) &lt; G OR I = 1</if>                                                               
+		<if test="K != null and  K  !='0'.toString() and K!=''.toString()">and K =#{K}</if>                                                                 
+		<if test="L != null and  L  !='0'.toString() and L!=''.toString()">and L =#{L}</if>                                                                 
+		<if test="M != null and  M  !='0'.toString() and M!=''.toString()">and M =#{M}</if>                                                                 
+		<if test="N != null and  N  !='0'.toString() and N!=''.toString()">and N =#{N}</if>                                                                 
+		<if test="O != null and  O  !='0'.toString() and O!=''.toString()">and O =#{O}</if>                                                                 
+		<if test="P != null and  P  !='0'.toString() and P!=''.toString()">and P =#{P}</if>                                                                 
+		<if test="Q != null and  Q  !='0'.toString() and Q!=''.toString()">and Q =#{Q}</if>                                                                 
+		<if test="R != null and  R  !='0'.toString() and R!=''.toString()">and R =#{R}</if>                                                                 
+		<if test="S != null and  S  !='0'.toString() and S!=''.toString()">and S =#{S}</if>                                                                 
+		<if test="T != null and  T  !='0'.toString() and T!=''.toString()">and T =#{T}</if>                                                                 
+		<if test="U != null and  U  !=0">and U =#{U}</if>                                                                 
+		<if test="V != null and  V  !='0'.toString() and V!=''.toString()">and V =#{V}</if>                                                                 
+		<if test="W != null and  W  ==1">and W is null</if> 
+		<if test="W != null and  W  ==0">and W is not null</if>                                                                 
+		<if test="X != null and  X  ==1">and X is null</if> 
+		<if test="X != null and  X  ==0">and X is not null</if>                                                                
+		<if test="Y != null and  Y  ==1">and Y is null</if> 
+		<if test="Y != null and  Y  ==0">and Y is not null</if>                                                                
+		<if test="Z != null and  Z  ==1">and Z is null</if> 
+		<if test="Z != null and  Z  ==0">and Z is not null</if>                                                                
+		<if test="AA != null and AA ==1">and AA is null</if>  
+		<if test="AA != null and AA ==0">and AA is not null</if>                                                           
+		<if test="AB != null and AB ==1">and AB is null</if>  
+		<if test="AB != null and AB ==0">and AB is not null</if>                                                           
+		<if test="AC != null and AC ==1">and AC is null</if> 
+		<if test="AC != null and AC ==0">and AC is not null</if>                                                            
+		<if test="AD != null and AD ==1">and AD is null</if> 
+		<if test="AD != null and AD ==0">and AD is not null</if>                                                            
+		<if test="AE != null and AE ==1">and AE is null</if>  
+		<if test="AE != null and AE ==0">and AE is not null</if>                                                           
+		<if test="AF != null and AF ==1">and AF is null</if> 
+		<if test="AF != null and AF ==0">and AF is not null</if>                                                            
+		<if test="AG != null and AG ==1">and AG is null</if>  
+		<if test="AG != null and AG ==0">and AG is not null</if>                                                           
+		<if test="AH != null and AH ==1">and AH is null</if>  
+		<if test="AH != null and AH ==0">and AH is not null</if>                                                           
+		<if test="AI != null and AI !='0'.toString() and AI!=''.toString()">and AI =#{AI}</if>                                                             
+		                                                                                                                             
+		<if test="CREATE_TIME_BEG != null and CREATE_TIME_BEG !='0'.toString() and CREATE_TIME_BEG!=''.toString()"><![CDATA[and CREATE_TIME_ >=#{CREATE_TIME_BEG}]]></if>
+		<if test="CREATE_TIME_END != null and CREATE_TIME_END !='0'.toString() and CREATE_TIME_END!=''.toString()"><![CDATA[and CREATE_TIME_ <=#{CREATE_TIME_END}]]></if>
+	</select>
+	
+	<select id="getTotalZgxxData" resultType="Map" parameterType="com.hpe.cmca.pojo.ZgxxData">
+		SELECT	COUNT(A) A_, SUM(H) H_, SUM(I) I_, 
+		SUM(CASE WHEN (cast(cast(current_date  as date format 'YYYY/MM/DD') as varchar(10)) > G AND I = 0) THEN 1 ELSE 0 END) AS J_,
+		SUM(U) U_,SUM(cast(W as dec(20,8))) W_ ,SUM(cast(X as dec(20,8))) X_, 
+		SUM(cast(Y as dec(20,8))) Y_, 
+		SUM(Z) Z_, SUM(AA) AA_, SUM(AB) AB_, SUM(AC) AC_, SUM(AD) AD_, SUM(AE) AE_, SUM(AF) AF_, SUM(AG) AG_, SUM(AH) AH_
+		FROM	hpmgr.busi_zgxx_info where IS_EFFEC=1
+		<if test="A != null and  A  !='0'.toString() and A!=''.toString()">and A =#{A}</if>                                                                    
+		<if test="B != null and  B  !='0'.toString() and B!=''.toString()">and B =#{B}</if>                                                                 
+		<if test="C1 != null and C1 !='0'.toString() and C1!=''.toString()"><![CDATA[and C >=#{C1}]]></if>                                                 
+		<if test="C2 != null and C2 !='0'.toString() and C2!=''.toString()"><![CDATA[and C <=#{C2}]]></if>                                                 
+		<if test="D != null and  D  !='0'.toString() and D!=''.toString()">and D =#{D}</if>                                                                 
+		<if test="E != null and  E  !='0'.toString() and E!=''.toString()">and E =#{E}</if>                                                                 
+		<if test="F != null and  F  !='0'.toString() and F!=''.toString()">and F =#{F}</if>                                                                 
+		<if test="G != null and  G  !='0'.toString() and G!=''.toString()">and G =#{G}</if>                                                                 
+		<if test="H != null and  H  ==1">and H =1</if>
+		<if test="H != null and  H  ==0">and H =0</if>                                                                  
+		<if test="I != null and  I  ==1">and I =1</if>  
+		<if test="I != null and  I  ==0">and I =0</if>                                                               
+		<if test="J != null and  J  ==1">and (cast(cast(current_date  as date format 'YYYY/MM/DD') as varchar(10))) > G AND I = 0</if>   
+		<if test="J != null and  J  ==0">and (cast(cast(current_date  as date format 'YYYY/MM/DD') as varchar(10))) &lt; G OR I = 1</if>                                                              
+		<if test="K != null and  K  !='0'.toString() and K!=''.toString()">and K =#{K}</if>                                                                 
+		<if test="L != null and  L  !='0'.toString() and L!=''.toString()">and L =#{L}</if>                                                                 
+		<if test="M != null and  M  !='0'.toString() and M!=''.toString()">and M =#{M}</if>                                                                 
+		<if test="N != null and  N  !='0'.toString() and N!=''.toString()">and N =#{N}</if>                                                                 
+		<if test="O != null and  O  !='0'.toString() and O!=''.toString()">and O =#{O}</if>                                                                 
+		<if test="P != null and  P  !='0'.toString() and P!=''.toString()">and P =#{P}</if>                                                                 
+		<if test="Q != null and  Q  !='0'.toString() and Q!=''.toString()">and Q =#{Q}</if>                                                                 
+		<if test="R != null and  R  !='0'.toString() and R!=''.toString()">and R =#{R}</if>                                                                 
+		<if test="S != null and  S  !='0'.toString() and S!=''.toString()">and S =#{S}</if>                                                                 
+		<if test="T != null and  T  !='0'.toString() and T!=''.toString()">and T =#{T}</if>                                                                 
+		<if test="U != null and  U  !=0">and U =#{U}</if>                                                                 
+		<if test="V != null and  V  !='0'.toString() and V!=''.toString()">and V =#{V}</if>                                                                 
+		<if test="W != null and  W  ==1">and W is null</if> 
+		<if test="W != null and  W  ==0">and W is not null</if>                                                                 
+		<if test="X != null and  X  ==1">and X is null</if> 
+		<if test="X != null and  X  ==0">and X is not null</if>                                                                
+		<if test="Y != null and  Y  ==1">and Y is null</if> 
+		<if test="Y != null and  Y  ==0">and Y is not null</if>                                                                
+		<if test="Z != null and  Z  ==1">and Z is null</if> 
+		<if test="Z != null and  Z  ==0">and Z is not null</if>                                                                
+		<if test="AA != null and AA ==1">and AA is null</if>  
+		<if test="AA != null and AA ==0">and AA is not null</if>                                                           
+		<if test="AB != null and AB ==1">and AB is null</if>  
+		<if test="AB != null and AB ==0">and AB is not null</if>                                                           
+		<if test="AC != null and AC ==1">and AC is null</if> 
+		<if test="AC != null and AC ==0">and AC is not null</if>                                                            
+		<if test="AD != null and AD ==1">and AD is null</if> 
+		<if test="AD != null and AD ==0">and AD is not null</if>                                                            
+		<if test="AE != null and AE ==1">and AE is null</if>  
+		<if test="AE != null and AE ==0">and AE is not null</if>                                                           
+		<if test="AF != null and AF ==1">and AF is null</if> 
+		<if test="AF != null and AF ==0">and AF is not null</if>                                                            
+		<if test="AG != null and AG ==1">and AG is null</if>  
+		<if test="AG != null and AG ==0">and AG is not null</if>                                                           
+		<if test="AH != null and AH ==1">and AH is null</if>  
+		<if test="AH != null and AH ==0">and AH is not null</if>                                                           
+		<if test="AI != null and AI !='0'.toString() and AI!=''.toString()">and AI =#{AI}</if>                                                             
+		                                                                                                                             
+		<if test="CREATE_TIME_BEG != null and CREATE_TIME_BEG !='0'.toString() and CREATE_TIME_BEG!=''.toString()"><![CDATA[and CREATE_TIME_ >=#{CREATE_TIME_BEG}]]></if>
+		<if test="CREATE_TIME_END != null and CREATE_TIME_END !='0'.toString() and CREATE_TIME_END!=''.toString()"><![CDATA[and CREATE_TIME_ <=#{CREATE_TIME_END}]]></if>
+	</select>
+	
+	<select id="getExistZgxxData" resultType="com.hpe.cmca.pojo.ZgxxData" >
+		SELECT	 A, B, C
+		FROM hpmgr.busi_zgxx_info where IS_EFFEC=1
+	</select>
+	
+	<insert id="insertZgxxData" parameterType="com.hpe.cmca.pojo.ZgxxData">
+	INSERT INTO hpmgr.busi_zgxx_info
+	(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T,
+		U, V, W, X, Y, Z, AA, AB, AC, AD, AE, AF, AG, AH, AI, IS_EFFEC,CREATE_TIME_,CREATE_PERSON,LAST_UPDATE_TIME_,LAST_UPDATE_PERSON)
+	VALUES	
+	(#{A},#{B},#{C},#{D},#{E},#{F},#{G},#{H},#{I},#{J},
+	#{K},#{L},#{M},#{N},#{O},#{P},#{Q},#{R},#{S},#{T},#{U},
+	#{V},#{W},#{X},#{Y},#{Z},#{AA},#{AB},#{AC},#{AD},#{AE},
+	#{AF},#{AG},#{AH},#{AI},1,#{CREATE_TIME_},#{CREATE_PERSON},#{LAST_UPDATE_TIME_},#{LAST_UPDATE_PERSON})
+	</insert>
+	
+	<update id="updateZgxxData" parameterType="com.hpe.cmca.pojo.ZgxxData">
+	update hpmgr.busi_zgxx_info
+	set 
+	 A =#{A},B =#{B},C =#{C}, D =#{D},E =#{E},  F =#{F}, G =#{G}, H =#{H}, 
+	I =#{I}, J =#{J}, K =#{K},L =#{L},M =#{M},N =#{N},O =#{O},P =#{P},Q =#{Q},R =#{R},
+	S =#{S},T =#{T},U =#{U},V =#{V},W =#{W},X =#{X},Y =#{Y},Z =#{Z},AA =#{AA},AB =#{AB},AC =#{AC},AD =#{AD},AE =#{AE},AF =#{AF},
+	AG =#{AG},AH =#{AH},AI =#{AI},LAST_UPDATE_TIME_ = #{LAST_UPDATE_TIME_},LAST_UPDATE_PERSON= #{LAST_UPDATE_PERSON}
+	where ID = #{ID}
+	</update>
+	
+	<delete id="deleteZgxxData" parameterType="java.util.Map">
+	update hpmgr.busi_zgxx_info
+	set IS_EFFEC = 0,
+	LAST_UPDATE_TIME_ = #{LAST_UPDATE_TIME_},
+	LAST_UPDATE_PERSON= #{LAST_UPDATE_PERSON}
+	where 1=1
+		AND ID in <foreach item="item" index="index" collection="ids"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+	</delete>
+		
+		
+	<select id="getPrvd" resultType="com.hpe.cmca.pojo.ZgxxData" >
+		SELECT	distinct n.A
+		FROM	hpmgr.busi_zgxx_info n
+		left join 	hpmgr.ref_dm_cmcc_prov_prvd_cd m
+		on n.A = m.CMCC_prov_prvd_nm
+ 		where n.IS_EFFEC=1
+ 		order by m.Cmcc_prov_prvd_id
+	</select>
+	
+	<select id="getSubject" resultType="com.hpe.cmca.pojo.ZgxxData" >
+		SELECT	distinct B
+		FROM	hpmgr.busi_zgxx_info where IS_EFFEC=1
+	</select>
+	<select id="getTjData" resultType="java.util.Map"  parameterType="java.util.Map">
+		<![CDATA[${querySql}]]>
+	</select>
+	<select id="getTjAllData" resultType="java.util.Map" parameterType="java.util.Map">
+		<![CDATA[${querySql}]]>
+	</select>
+	<select id="getTjConfigData" resultType="java.util.Map">
+		SELECT	*
+		from hpmgr.busi_sjgj_tj_config
+		order by subject_id
+	</select>
+</mapper>
+

@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>养卡套利</title>
+    <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/css/dark-theme.css">
+    <link rel="stylesheet" href="/cmca/resource/css/dark-theme.css">
+
+</head>
+
+<body class="dark_theme">
+    <form id="queryParam">
+        <!-- 专题ID -->
+        <input type="hidden" id="subjectId" value="2" />
+        <!-- 省ID -->
+        <input type="hidden" id="prvdId" value="" />
+        <!-- 省名称字母 -->
+        <input type="hidden" id="prvdName" value="" />
+        <!-- 省名称汉字 -->
+        <input type="hidden" id="prvdNameZH" value="全公司" />
+        <!-- 地市ID -->
+        <input type="hidden" id="ctyId" value="" />
+        <!-- 审计时间 -->
+        <input type="hidden" id="audTrm" value="" />
+        <!-- 类别 -->
+        <input type="hidden" id="concern" value="">
+        <!-- 渠道ID -->
+        <input type="hidden" id="chnlId" value="">
+        <!-- 指标 -->
+        <input type="hidden" id="target" value="">
+        <!-- 养卡号码排名指标 -->
+        <input type="hidden" id="numTarget" value="">
+        <!-- 养卡渠道排名指标 -->
+        <input type="hidden" id="chnlTarget" value="">
+        <!-- 养卡号码趋势指标 -->
+        <input type="hidden" id="numTrendTarget" value="">
+        <!-- 养卡渠道趋势指标 -->
+        <input type="hidden" id="chnlTrendTarget" value="">
+        <!-- 指标标题 -->
+        <input type="hidden" id="targetTxt" value="">
+        <!-- 审计问责统计 关注点 -->
+        <input type="hidden" id="focusCd" value="zgtimes">
+        <!-- 重点关注下钻-省份ID -->
+        <input type="hidden" id="regionId" value="" />
+        <!-- 登录所属角色 -->
+        <input type="hidden" id="roleId" value="" />
+    </form>
+    <div class="wrapper" id="wrapper">
+        <!-- 公共头部 -->
+        <div class="public_header">
+            <p>数据审计平台</p>
+        </div>
+        <!-- 公共主体 -->
+        <div class="public_main">
+            <!-- 侧边栏 -->
+            <div class="public_side_bar" id="navHref">
+                <!-- ≤1366侧边栏 -->
+                <ul class="small_bar" id="smallSideBar">
+                    <li class="title_icon home_icon">
+                        <a href="javascript:;" class="nav_icon" data="navHome">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>首页
+                        </a>
+                    </li>
+                    <li class="title_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjizhuanti"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计专题
+                        </a>
+                    </li>
+                    <li class="content_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-yangkataoli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>养卡套利
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navZdtl">
+                            <span class="iconfont icon-zhongduantaol"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>社会渠道终端套利
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYjk">
+                            <span class="iconfont icon-youjiaqia"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>有价卡管理违规
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navKhqf">
+                            <span class="iconfont icon-kehuqianfei"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>客户欠费
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYgyccz">
+                            <span class="iconfont icon-yuangongyichang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>员工异常业务操作
+                        </a>
+                    </li>
+                    <li class="content_icon dzqglwg_item">
+                        <a href="javascript:;" class="nav_icon" data="navDzqglwg">
+                            <span class="iconfont icon-dzqglwg"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>电子券管理违规
+                        </a>
+                    </li>
+                    <li class="content_icon llglwg_item">
+                        <a href="javascript:;" class="nav_icon" data="navLlglwg">
+                            <span class="iconfont icon-llglwg"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>流量管理违规
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjigenjin"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计跟进
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjgjZgxx">
+                            <span class="iconfont icon-zhenggaixinxi"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>整改信息
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjgjWzxx">
+                            <span class="iconfont icon-wenzexinxi"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>问责信息
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-yewuguanli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>业务管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navXqgl">
+                            <span class="iconfont icon-fabuxuqiu"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>需求管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjkg">
+                            <span class="iconfont icon-shenjikaiguan"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计开关
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjbg">
+                            <span class="iconfont icon-baogaoxaizai"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>报告下载
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navCsgl">
+                            <span class="iconfont icon-canshuguanli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>参数管理
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-yewugjianongjiyujing"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>风险监控
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navQfgl">
+                            <span class="iconfont icon-arrears-status"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>欠费管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navZbgl">
+                            <span class="iconfont icon-zhangben"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>账本管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYxzygl">
+                            <span class="iconfont icon-canshuguanli"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>营销资源管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navKdgl">
+                            <span class="iconfont icon-kuandaitianchong"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>宽带管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navWlwgl">
+                            <span class="iconfont icon-iotwulianwang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>物联网管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navYkgl">
+                            <span class="iconfont icon-ykgl"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>养卡管理
+                        </a>
+                    </li>
+                    <li class="title_icon">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-gerengongzuoqu"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>个人工作区
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjbgys">
+                            <span class="iconfont icon-shenjibaogaoyushen"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计报告预审
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navQxcx">
+                            <span class="iconfont icon-quanxianchaxun"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>权限查询
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navRzcx">
+                            <span class="iconfont icon-rizhi"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>日志查询
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjzlgl">
+                            <span class="iconfont icon-shujuzhiliang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>数据质量管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navWtfk">
+                            <span class="iconfont icon-question-feedba"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>问题报送及反馈
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navSjrw">
+                            <span class="iconfont icon-gongrengongzuoqu"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计任务管理
+                        </a>
+                    </li>
+                    <li class="content_icon">
+                        <a href="javascript:;" class="nav_icon" data="navfileModelConfig">
+                        <span class="iconfont icon-shujuzhiliang"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                        <i class="caret_left"></i>报告模板配置
+                        </a>
+                    </li>
+                    <li class="title_icon">
+			            <a href="javascript:;" class="nav_icon">
+			              <span class="iconfont icon-yuanshujushenjigongju"></span>
+			            </a>
+			            <a href="javascript:;" class="nav_tip">
+			              <i class="caret_left"></i>审计工具
+			            </a>
+			          </li>
+			          <li class="content_icon">
+			            <a href="javascript:;" class="nav_icon" data="navSjcx">
+			              <span class="iconfont icon-ysjcx-icon-shujuchaxun"></span>
+			            </a>
+			            <a href="javascript:;" class="nav_tip">
+			              <i class="caret_left"></i>审计数据集市管理
+			            </a>
+			          </li>
+                </ul>
+                <!-- ＞1366px侧边栏 -->
+                <ul class="big_bar" id="bigSideBar">
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0);" data="navHome" onclick="navLocation(this);">
+                                <span class="glyphicon glyphicon-home"></span>首页
+                            </a>
+                        </h5>
+                    </li>
+                    <li class="active">
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-shenjizhuanti"></span>审计专题
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" class="active">养卡套利</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navZdtl">社会渠道终端套利</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYjk">有价卡管理违规</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navKhqf">客户欠费</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYgyccz">员工异常业务操作</a>
+                            </li>
+                            <li class="dzqglwg_item">
+                                <a href="javascript:void(0)" data="navDzqglwg">电子券管理违规</a>
+                            </li>
+                            <li class="llglwg_item">
+                                <a href="javascript:void(0)" data="navLlglwg">流量管理违规</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-shenjigenjin"></span>审计跟进
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navSjgjZgxx">整改信息</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjgjWzxx">问责信息</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-yewuguanli"></span>业务管理
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navXqgl">需求管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjkg">审计开关</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjbg">报告下载</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navCsgl">参数管理</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-yewugjianongjiyujing"></span>风险监控
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navQfgl">欠费管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navZbgl">账本管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYxzygl">营销资源管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navKdgl">宽带管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navWlwgl">物联网管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navYkgl">养卡管理</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-gerengongzuoqu"></span>个人工作区
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" data="navSjbgys">审计报告预审</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navQxcx">权限查询</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navRzcx">日志查询</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjzlgl">数据质量管理</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navWtfk">问题报送及反馈</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data="navSjrw">审计任务管理</a>
+                            </li>
+                            <li><a href="javascript:void(0)" data="navfileModelConfig">报告模板配置</a></li>
+                        </ul>
+                    </li>
+                      <li>
+					  <h5 class="nav_title">
+					     <a href="javascript:void(0)">
+					        <span class="iconfont icon-yuanshujushenjigongju"></span>审计工具
+					        <i class="caret_up"></i>
+					     </a>
+					   </h5>
+					  <ul class="nav_list">
+					        <li>
+					          <a href="javascript:void(0)" data="navSjcx">审计数据集市管理</a>
+					        </li>
+					  </ul>
+				  </li>
+                </ul>
+            </div>
+            <!-- 主体展示内容 -->
+            <div class="main_content">
+                <!-- 主体顶部搜索 -->
+                <div class="row main_search">
+                    <!-- 左侧tab展示 -->
+                    <div class="col-xs-3">
+                        <ul class="list-inline l_tab">
+                            <li class="active">
+                                <a href="javascript:;">养卡套利</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;">审计专题</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 中间搜索区域 -->
+                    <div class="col-xs-7">
+                        <label class="col-xs-2" for="chooseProvince">区域选择</label>
+                        <div class="col-xs-3 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseProvince" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="provinceListWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" value="" id="provinceList">
+                                    <!-- 后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                        <label class="col-xs-2" for="chooseTime">审计月</label>
+                        <div class="col-xs-3 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseTime" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="timeListWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" id="timeList">
+                                    <!-- 后台加载 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧三级导航 -->
+                    <div class="col-xs-2 pull-right">
+                        <ul class="list-inline three_nav" id="threeLvNav">
+                            <!-- 权限动态控制 -->
+                        </ul>
+                    </div>
+                </div>
+                <div class="row main_show_wrap clear_float">
+                    <!-- 主体左侧 -->
+                    <div class="main_l fl" id="mainLeftShow" style="width:40%;display:none;">
+                        <!-- 左侧中间切换按钮 -->
+                        <button class="btn l_btn public_btn" id="mainLeftBtn">
+                            <span class="caret_left"></span>
+                        </button>
+                        <!-- 左侧图表展示 -->
+                        <div class="l_show_wrap">
+                            <!-- 地图上方专题按钮 -->
+                            <div class="map_top_icon" id="contentTipBtn">
+                                <img class="img-responsive" src="/cmca/resource/images/yktl-icon.png">
+                            </div>
+                            <!-- 地图 -->
+                            <div class="map_wrap" id="mapWrap">
+                                <!-- 地图标题 -->
+                                <div class="map_title" id="mapTitle"></div>
+                                <!-- 地图下方提示按钮 -->
+                                <div class="map_btn map_tip_btn">
+                                    <button class="btn" id="mapTipBtn">
+                                        <span class="glyphicon glyphicon-info-sign"></span>
+                                    </button>
+                                </div>
+                                <!-- 下钻省地图返回按钮 -->
+                                <div class="map_btn map_back_btn">
+                                    <button class="btn back_btn" id="ProvBackBtn">返回</button>
+                                </div>
+                                <!-- 提示信息 -->
+                                <p class="dialog_tip content_tip" id="contentTip">
+                                    分析31省公司各渠道新入网用户三个月通信行为，判断是否存在养卡行为特征，揭示通过开通虚假用户号码套取营销资源的疑似号码清单和对应渠道。
+                                </p>
+                                <p class="dialog_tip note_tip" id="mapTip">
+                                    注：根据疑似养卡号码占比违规程度展示风险级别：红色：养卡占比大于3%；橙色：养卡占比大于1%并小于3%；绿色：养卡占比小于1%和无违规。</p>
+                                <!-- 地图展示区域 -->
+                                <div class="map_continer" id="chinaMap">
+                                    <!-- 后台数据 -->
+                                </div>
+                                <div class="map_nanhaiqundao" id="nanhaiQundao">
+                                    <img src="/cmca/resource/images/nanhaizhudao.png" alt="南沙群岛" style="width: 100%;height: 100%;">
+                                </div>
+                            </div>
+                            <!-- 地图底部卡片 -->
+                            <ul class="card_wrap position_card_wrap clear_float" id="cardContainer">
+                                <li class="card_item col-xs-6" style="padding-right: 0;">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card2">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>养卡号码数量（万个）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card1">0%
+                                                <i class="caret_down"></i>
+                                                <span>0%</span>
+                                            </dt>
+                                            <dd>养卡号码数量占比</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6" style="padding-right: 0;">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card4">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>养卡渠道数量（个）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card3">0%
+                                                <i class="caret_down"></i>
+                                                <span>0%</span>
+                                            </dt>
+                                            <dd>养卡渠道占比</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- 地图下钻 -->
+                        <div class="map_pop_table" id="mapTableDialog">
+                            <!-- 地图下钻到表格 -->
+                            <div class="map_to_table clear_float" id="mapToTable">
+                                <div class="table_title" id="dialogQudaoTableTitle">XX省XX市养卡套利信息</div>
+                                <div class="row top">
+                                    <label for="chooseType" class="col-xs-3">渠道名称</label>
+                                    <div class="col-xs-7">
+                                        <div class="input-group">
+                                            <input type="text" placeholder="请输入渠道名称关键字" value="" class="search form-control"
+                                                id="mapChnlName">
+                                            <span class="input-group-btn">
+                                                <button class="btn" id="searchBtn">
+                                                    <i class="glyphicon glyphicon-search"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn colse_btn">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                                <div class="col-xs-12 table_wrap" id="dialogQudaoTableWrap">
+                                    <table id="dialogQudaoTable">
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 主体右侧 -->
+                    <div class="main_r fr" id="mainRightShow" style="width:60%;display:none;">
+                        <!-- 右侧中间切换按钮 -->
+                        <button class="btn public_btn r_btn " id="mainRightBtn" style="display:none;">
+                            <span class="caret_right"></span>
+                        </button>
+                        <!-- 左侧地图下钻-渠道表格下钻 -->
+                        <div class="map_pop_table" id="TableToInfoWrap">
+                            <!-- 表格下钻到详细信息 -->
+                            <div class="col-xs-12 table_to_info" id="TableToInfo">
+                                <div class="row top">
+                                    <button class="btn colse_btn fr">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                                <div class="info_show" id="qudaoInfoShow">
+                                    <div class="show_con">
+                                        <h5 class="title">渠道基本信息</h5>
+                                        <div class="content_wrap">
+                                            <table id="ChnlBaseInfoTable" class="table table-bordered">
+                                                <tr>
+                                                    <td>渠道标识</td>
+                                                    <td>-</td>
+                                                    <td>开业时间</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>渠道名称</td>
+                                                    <td>-</td>
+                                                    <td>渠道状态</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>渠道类型</td>
+                                                    <td>-</td>
+                                                    <td>渠道基础类型</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>渠道星级</td>
+                                                    <td>-</td>
+                                                    <td>区域形态</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>归属地市</td>
+                                                    <td>-</td>
+                                                    <td>所属区域</td>
+                                                    <td>-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>渠道地址</td>
+                                                    <td colspan="3">-</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="show_con">
+                                        <h5 class="title">渠道养卡趋势</h5>
+                                        <div class="content_wrap">
+                                            <div id="qudaoChart" class="contet">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 右侧tab图表展示 -->
+                        <div class="tab-content">
+                            <!-- 三级tab-审计结果内容展示 -->
+                            <div class="tab-pane result_show_wrap" id="resultTabCon">
+                                <!-- 审计结果四级导航 -->
+                                <div class="row four_nav">
+                                    <ul class="list-inline col-xs-12">
+                                        <li class="col-xs-2 active" id="allqudaoBtn">全渠道</li>
+                                        <li class="col-xs-2" id="ziyouqudaoBtn">自有渠道</li>
+                                        <li class="col-xs-2" id="shehuiqudaoBtn">社会渠道</li>
+                                    </ul>
+                                </div>
+                                <!-- 审计结果图表展示 -->
+                                <div class="row">
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">养卡号码数量占比排名</p>
+                                            <div class="btn-group fr">
+                                                <button class="btn active_btn" id="numPercentOrderBtn">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="numAmtOrderBtn">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap1">
+                                            <div class="content_show" id="contentShow1">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">养卡渠道占比排名</p>
+                                            <div class="btn-group fr">
+                                                <button class="btn" id="chnlPercentOrderBtn">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="chnlAmtOrderBtn">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap2">
+                                            <div class="content_show" id="contentShow2">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">养卡号码数量占比趋势</p>
+                                            <div class="btn-group fr">
+                                                <button class="btn active_btn" id="numPercentTrendBtn">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="numAmtTrendBtn">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap3">
+                                            <div class="content_show" id="contentShow3">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">养卡渠道占比趋势</p>
+                                            <div class="btn-group fr">
+                                                <button class="btn active_btn" id="chnlPercentTrendBtn">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="chnlAmtTrendBtn">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap4">
+                                            <div class="content_show" id="contentShow4">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 三级tab-统计分析内容展示 -->
+                            <div class="tab-pane fenxi_show_wrap" id="fenxiTabCon">
+                                <!-- 统计分析四级导航 -->
+                                <div class="row four_nav">
+                                    <ul class="list-inline col-xs-12">
+                                        <!-- 权限动态控制 -->
+                                    </ul>
+                                </div>
+                                <!-- 统计分析内容展示 -->
+                                <div class="row tab-content">
+                                    <!-- 四级tab-统计报表内容展示 -->
+                                    <div class="col-xs-12 tab-pane" id="fenxiFourNav1Con">
+                                        <!-- 统计报表五级导航 -->
+                                        <div class="row five_nav">
+                                            <ul class="list-inline col-xs-12">
+                                                <!-- 权限动态控制 -->
+                                            </ul>
+                                        </div>
+                                        <!-- 五级tab-统计报表图表展示 -->
+                                        <div class="row tab-content">
+                                            <!-- 排名汇总 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav1Con">
+                                                <!-- 顶部关注点筛选 -->
+                                                <div class="row top">
+                                                    <label for="PMHZchooseType" class="col-xs-2">关注点：</label>
+                                                    <div class="col-xs-4 dropdown_con">
+                                                        <div class="input_wrap">
+                                                            <input type="text" value="全渠道" id="PMHZchooseType" readonly="readonly">
+                                                            <i class="caret_down"></i>
+                                                        </div>
+                                                        <div class="dropdown_menu">
+                                                            <ul class="dropdown_list" id="TypeList">
+                                                                <li>
+                                                                    <a data="0" href="javascript:;">全渠道</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="1" href="javascript:;">自有渠道</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="2" href="javascript:;">社会渠道</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- 排名汇总表格 -->
+                                                <table id="rankingAllTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 增量分析 -->
+                                            <div class="col-xs-12 tab-pane pubu_show" id="fenxiFourNav1FiveNav2Con">
+                                                <!-- 增量分析瀑布图 -->
+                                                <div id="pubuChart">
+                                                    <!-- 后台调取数据 -->
+                                                </div>
+                                                <!-- 瀑布图图例 -->
+                                                <div class="col-xs-12 pubu_legend">
+                                                    <ul class="list-inline">
+                                                        <li>
+                                                            <span class="red"></span>分省环比增加</li>
+                                                        <li>
+                                                            <span class="blue"></span>分省环比减少</li>
+                                                        <li>
+                                                            <span class="green"></span>全网环比增量</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <!-- 重点关注渠道 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav3Con">
+                                                <table id="tuchuQudaoTable">
+                                                    <!-- 调取后台数据 -->
+                                                </table>
+                                                <!-- 重点关注渠道下钻 -->
+                                                <div class="table_to_info clear_float" id="QudaoChartWrap">
+                                                    <div class="col-xs-12 clear_float">
+                                                        <button class="btn back_btn fr" id="qudaoChartBackBtn">返回</button>
+                                                    </div>
+                                                    <!-- 重点关注渠道下钻-渠道基本信息 -->
+                                                    <div class="info_item col-xs-12">
+                                                        <h5 class="title">渠道基本信息</h5>
+                                                        <table class="table table-bordered" id="qudaoInfoTable">
+                                                            <tr>
+                                                                <td>渠道标识</td>
+                                                                <td>-</td>
+                                                                <td>开业时间</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>渠道名称</td>
+                                                                <td>-</td>
+                                                                <td>渠道状态</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>渠道类型</td>
+                                                                <td>-</td>
+                                                                <td>渠道基础类型</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>渠道星级</td>
+                                                                <td>-</td>
+                                                                <td>区域形态</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>归属地市</td>
+                                                                <td>-</td>
+                                                                <td>所属区域</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>渠道地址</td>
+                                                                <td colspan="3">-</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <!-- 重点关注渠道下钻-趋势图 -->
+                                                    <div class="info_item col-xs-12">
+                                                        <h5 class="title">渠道趋势</h5>
+                                                        <div class="content_wrap">
+                                                            <div id="qudaoQSChart" class="contet">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 重点关注营销案 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav4Con">
+                                                <table id="tuchuCaseTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                                <!-- 重点关注营销案下钻 -->
+                                                <div class="table_to_info clear_float" id="caseChartWrap">
+                                                    <div class="col-xs-12 clear_float">
+                                                        <button class="btn back_btn fr" id="caseChartBackBtn">返回</button>
+                                                    </div>
+                                                    <!-- 养卡数量折线图 -->
+                                                    <div class="info_item col-xs-12" id="caseNumChartWrap">
+                                                        <div id="caseNumChart" class="contet" style="height:100%">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                    <!-- 养卡占比折线图 -->
+                                                    <div class="info_item col-xs-12" id="casePerChartWrap">
+                                                        <div id="casePerChart" class="contet" style="height:100%">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 养卡渠道类型 -->
+                                            <div class="col-xs-12 tab-pane zhanbi_show" id="fenxiFourNav1FiveNav5Con">
+                                                <div class="col-xs-6">
+                                                    <h5>
+                                                        <span id="pieAudTrm"></span>渠道养卡套利占比</h5>
+                                                    <div id="zhanbiBingtuChart">
+                                                        <!-- 后台调取数据 -->
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6" id="zhanbiQushiChartWrap">
+                                                    <h5 style="margin-bottom:10px;">渠道养卡套利占比趋势</h5>
+                                                    <div id="zhanbiQushiChart">
+                                                        <!-- 后台调取数据 -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 四级tab-审计整改问责内容展示 -->
+                                    <div class="col-xs-12 tab-pane" id="fenxiFourNav2Con">
+                                        <!-- 审计整改问责五级导航 -->
+                                        <div class="row five_nav">
+                                            <ul class="list-inline col-xs-12">
+                                                <!-- 权限动态控制 -->
+                                            </ul>
+                                        </div>
+                                        <!-- 五级tab-审计整改问责图表展示 -->
+                                        <div class="row tab-content">
+                                            <!-- 整改问责要求 -->
+                                            <div class="col-xs-12 tab-pane wenze_require_wrap" id="fenxiFourNav2FiveNav1Con">
+                                                <h5 class="clear_float">
+                                                    <span class="title" id="wenzeTableTitle">养卡套利整改问责表</span>
+                                                    <button class="btn" id="wenzeTipbtn">
+                                                        <span class="glyphicon glyphicon-list"></span>
+                                                    </button>
+                                                </h5>
+                                                <div class="wenze_table_wrap">
+                                                    <table id="wenzeTable">
+                                                        <!-- 后台调取数据 -->
+                                                    </table>
+                                                    <!-- 整改问责说明 -->
+                                                    <div class="wenze_tip" id="wenzeTip">
+                                                        <h5>审计整改选择省份标准：</h4>
+                                                            <p>
+                                                                1．通报当期自有渠道疑似养卡号码占比高于全国自有渠道疑似养卡号码占比2倍且超过2%；
+                                                                <br /> 2．通报当期社会渠道疑似养卡号码占比高于全国社会渠道疑似养卡号码占比2倍且超过2%；
+                                                                <br /> 3．通报当期存在单一自有渠道疑似养卡号码数量在10,000个以上；
+                                                                <br /> 4．通报当期存在单一社会渠道疑似养卡号码数量在5,000个以上。
+                                                            </p>
+                                                            <h5>审计问责选择省份标准：</h4>
+                                                                <p>自2017年2月起，对6个月中有3个月均存在上述四种整改情形中任意一种情形的公司予以审计问责。</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 整改问责统计 -->
+                                            <div class="col-xs-12 tab-pane wenze_show" id="fenxiFourNav2FiveNav2Con">
+                                                <div class="col-xs-6 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl" title="六个月内达到整改标准次数排名（单位：次）">六个月内达到整改标准次数排名（次）</p>
+                                                        <div class="btn-group fr">
+                                                            <button class="btn active_btn" id="zgbzcsBtn">
+                                                                <span class="glyphicon glyphicon-tasks"></span>
+                                                            </button>
+                                                            <button class="btn" id="wzbzcsPmBtn">
+                                                                <span class="iconfont icon-bar-chart"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="stageAccOrderWrap">
+                                                        <div class="content_show" id="stageAccOrder">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl">累次达到整改次数排名（次）</p>
+                                                        <div class="btn-group fr">
+                                                            <button class="btn active_btn" id="zgcsPmBtn">
+                                                                <span class="glyphicon glyphicon-tasks"></span>
+                                                            </button>
+                                                            <button class="btn" id="wzcsPmBtn">
+                                                                <span class="iconfont icon-bar-chart"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="addUpAccOrderWrap">
+                                                        <div class="content_show" id="addUpAccOrder">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl">达到整改标准省公司数量趋势（个）</p>
+                                                        <div class="btn-group fr">
+                                                            <button class="btn active_btn" id="zgbzBtn">
+                                                                <span class="glyphicon glyphicon-tasks"></span>
+                                                            </button>
+                                                            <button class="btn" id="wzbzBtn">
+                                                                <span class="iconfont icon-bar-chart"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="accTrendWrap">
+                                                        <div class="content_show" id="accTrend">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 四级tab-审计报告下载内容展示 -->
+                                    <div class="col-xs-12 tab-pane baogao_down_wrap" id="fenxiFourNav3Con">
+                                        <div class="audtrm_off hideUnit">
+                                            <h4>暂无当月审计报告查看权限</h4>
+                                        </div>
+                                        <div class="audtrm_on hideUnit">
+                                            <div class="down_btn_group clear_float">
+                                                <button class="btn fr" id="sjqdDownBtn">审计清单下载</button>
+                                                <button class="btn fr" style="margin-right: 10px" id="sjbgDownBtn">审计报告下载</button>
+                                            </div>
+                                            <div class="content_wrap" id="sjbgPrview">
+                                                <!-- <object type="text/html" id="sjbgPrview" class="sjbg-prview"></object> -->
+                                                <!-- <h5>“养卡套利”审计结果摘要</h5>
+                                                <ul>
+                                                    <li>
+                                                        <dl class="dl-horizontal">
+                                                            <dt>被审计单位</dt>
+                                                            <dd id="sjbgPrvdName">全公司</dd>
+                                                        </dl>
+                                                    </li>
+                                                    <li>
+                                                        <dl class="dl-horizontal">
+                                                            <dt>审计时间</dt>
+                                                            <dd id="sjbgAudTrm"></dd>
+                                                        </dl>
+                                                    </li>
+                                                    <li>
+                                                        <dl class="dl-horizontal">
+                                                            <dt>审计期间</dt>
+                                                            <dd id="sjbgPeriod"></dd>
+                                                        </dl>
+                                                    </li>
+                                                </ul>
+                                                <h5 style="text-align: left;">审计发现</h5>
+                                                <p style="font-size: 12px;" id="baogaoInfo">
+                                                    后台调取数据
+                                                </p>
+                                                <h5 id="baogaoTop5Title">疑似养卡数量排名前5的省/分公司</h5>
+                                                <table id="baogaoTop5">
+                                                    后台调取数据
+                                                </table> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/cmca-common.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/yktl/yktlData.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/yktl/yktl.js"></script>
+</body>
+
+</html>

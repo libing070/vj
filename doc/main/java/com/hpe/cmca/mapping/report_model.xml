@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="reportModel">
+<cache eviction="LRU"  flushInterval="1800000"  size="4096" readOnly="true" />
+	<select id="getModelContent" resultType="Map" parameterType="Map">
+	SELECT	id, version_id, version_name, subject_id, word_or_excel,
+		report_content, update_time,isDefault
+	FROM	hpmgr.busi_report_model where isDefault=1 and subject_id=#{subjectId} and word_or_excel = 0
+	</select>
+
+<!-- 客户欠费  整改参数（个人/集团）-->
+	<select id="selectAuditKhqfZGParams" resultType="java.util.Map" parameterType="java.util.Map">
+	   		select 
+	   		 aud_trm as audTrm,
+	   		 trim(amt_new/10000(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14)))  as custAmt,
+	   		 prvd_name as prvdName,
+	   		amt_new_rk as custamtRank, 
+	   		cast(amt_ratio*100 as decimal(18,2)) as custPer,
+	   		amt_ratio_rk as custperRank,
+	   		case when amt_all_recover  is null then '0.00' else trim(amt_all_recover/10000(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end as custRecoverAmt,
+	   		case when amt_rec_ratio is null  then 0.00 else cast(amt_rec_ratio*100 as decimal(18,2)) end as custlastPer,
+	   		focus_cd
+	   		from
+	   		hpbus.busi_khqf_zgwz_zg_new
+         <where>
+         	<if test="focus_cd != null and focus_cd != '' "> 
+		           and focus_cd=#{focus_cd}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id !='10000' ">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+	</select>
+	
+	<!-- 客户欠费  问责参数（个人/集团）-->
+	<select id="selectAuditKhqfWZParams" resultType="java.util.Map" parameterType="java.util.Map">
+	   		select 
+	   		aud_trm_wz , aud_trm ,focus_cd , focus_nm , prvd_id , prvd_name ,
+		        trim(amt_new/10000(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) as  amt_new, 
+		       amt_new_rk ,
+		       trim(amt_pre/10000(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) as amt_pre,
+		       cast(amt_ratio*100 as decimal(18,2)) as amt_ratio,
+		       amt_ratio_rk, 
+		       case when amt_all_recover  is null then '0.00' else  trim(amt_all_recover/10000(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end as  amt_all_recover,
+		       case when amt_rec_ratio is null then 0.00 else	cast(amt_rec_ratio*100 as decimal(18,2)) end as amt_rec_ratio
+	   		from
+	   		hpbus.busi_khqf_zgwz_wz_new
+         <where>
+         	<if test="focus_cd != null and focus_cd != '' ">  
+		           and focus_cd=#{focus_cd}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm_wz=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id !='10000' ">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+		order by aud_trm desc
+	</select>
+
+	
+	<!--养卡套利  终端套利 有价卡-->
+	<select id="selectAuditzgwz" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT id, version_id, version_name, subject_id, word_or_excel,
+		report_content, update_time
+		FROM HPMGR.busi_report_model 
+		<where>
+			word_or_excel = 1
+			 <if test="id != null and id != '' ">  
+		           and id=#{id}
+		     </if>
+		     <if test="subject_id != null and subject_id != '' ">  
+		           and subject_id=#{subject_id}
+		     </if>
+		</where>
+		order by id desc 
+	</select>
+	
+	<!-- 有价卡整改参数  1->infraction_typ=100000   整改2->infraction_typ=100301  整改3->infraction_typ=100502  -->
+	<select id="selectAuditYjkParams1" resultType="java.util.Map" parameterType="java.util.Map">
+			SELECT  '1' as ztwg_sn, aud_trm as ztwg_auditMonth, infraction_typ,prvd_name as province,
+			trim(amt(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) as ztwg_amount1,
+			cast(per_amt*100+0.000000001 as decimal(18,2)) as ztwg_percent1,
+			cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),1) as  date  format 'YYYY年MM月') as varchar(10)) as ztwg_zgsj
+			FROM hpbus.busi_yjk_zgwz_zg
+		<where>
+			infraction_typ ='100000'
+			 <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+	</select>
+	<!-- 有价卡整改参数  2-->
+	<select id="selectAuditYjkParams2" resultType="java.util.Map" parameterType="java.util.Map">
+			SELECT  '2' as wgzb_sn,aud_trm as wgzb_auditMonth,infraction_typ,prvd_name as province,
+			trim(amt(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) as wgzb_amount1,
+			cast(per_amt*100+0.000000001 as decimal(18,2)) as wgzb_percent1,
+			cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),1) as  date  format 'YYYY年MM月') as varchar(10)) as wgzb_zgsj
+			FROM hpbus.busi_yjk_zgwz_zg
+		<where>
+			infraction_typ ='100301'
+			 <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+	</select>
+	<!-- 有价卡整改参数  3-->
+	<select id="selectAuditYjkParams3" resultType="java.util.Map" parameterType="java.util.Map">
+			SELECT  '3' as czvc_sn,aud_trm as czvc_auditMonth,infraction_typ,prvd_name as province,
+			trim(cnt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as czvc_number1,
+			trim(amt(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) as czvc_amount1,
+			cast(per_amt*100+0.000000001 as decimal(18,2)) as czvc_percent1,
+			cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),3) as  date  format 'YYYY年MM月') as varchar(10)) as czvc_zgsj
+			FROM hpbus.busi_yjk_zgwz_zg
+		<where>
+			infraction_typ ='100502'
+			 <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+	</select>
+	
+	<!-- 有价卡问责 参数   [排序按照违规问题顺序]-->
+	<select id="selectAuditYjkParams4" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT	 '4' as wgyz_sn,aud_trm_wz as wgyz_auditMonth, prvd_id, prvd_name as province, infraction_typ,
+		infraction_typ_name, infraction_id, 
+		trim(amt(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14)))  as wgyz_amount1, 
+		cast(per_amt*100+0.000000001 as decimal(18,2)) as wgyz_percent1,
+		cast(cast(cast(Aud_trm as date  format 'YYYYMM') as  date  format 'YYYY年MM月') as varchar(10)) as wgyz_zgsj
+		FROM	hpbus.busi_yjk_zgwz_wz
+		<where>
+			 <if test="aud_trm != null and aud_trm != '' ">  
+			 		and aud_trm = #{aud_trm}
+		          <!--  and aud_trm_wz <![CDATA[ <=]]> #{aud_trm}
+		           and aud_trm_wz >= cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),-5)  as  date  format 'YYYYMM') as varchar(6)) -->
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+		order by aud_trm_wz desc,infraction_id
+	</select>
+	
+	<!-- 养卡套利 整改参数-->
+	<select id="selectAuditYktlParams1" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select '1' as zyqd_sn,prvd_name as province,prvd_id,aud_trm as zyqd_auditMonth,
+		trim(SUM_tol(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as zyqd_auditUser,
+		ZB as zyqd_auditPercent,
+		cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),3) as  date  format 'YYYY年MM月') as varchar(10)) as zyqd_zgsx
+		from hpbus.sum_qdyk_2002_ZYQD_ZG 
+		  <where>
+ 			<if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		 </where> 
+	</select>
+	
+	<!-- 养卡套利 整改参数2-->
+	<select id="selectAuditYktlParams2" resultType="java.util.Map" parameterType="java.util.Map">
+		select '2' as shqd_sn,prvd_name as province,prvd_id,aud_trm as shqd_auditMonth,
+		trim(SUM_tol(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as shqd_auditUser,
+		ZB as shqd_auditPercent,
+		cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),3) as  date  format 'YYYY年MM月') as varchar(10)) as shqd_zgsx
+		from hpbus.sum_qdyk_2002_SHQD_ZG 
+		  <where>
+ 			<if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		 </where> 
+	</select>
+	
+	<!-- 养卡套利 整改参数3-->
+	<select id="selectAuditYktlParams3" resultType="java.util.Map" parameterType="java.util.Map">
+		select '3' as yk1w_sn,prvd_name as province,prvd_id,aud_trm as yk1w_auditMonth,chnl_class_nm as yk1w_qudao,
+		trim(SUM_rase(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as yk1w_auditCardno,
+		cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),3) as  date  format 'YYYY年MM月') as varchar(10)) as yk1w_zgsx
+		from hpbus.sum_qdyk_2002_ZYQD_DY10000 
+		  <where>
+ 			<if test="prvd_id != null and prvd_id != '' and prvd_id != '10000'">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		 </where> 
+	</select>
+	
+	<!-- 养卡套利 整改参数4-->
+	<select id="selectAuditYktlParams4" resultType="java.util.Map" parameterType="java.util.Map">
+		select '4' as yk5k_sn,prvd_name as province,prvd_id,aud_trm as yk5k_auditMonth,
+		chnl_class_nm as yk5k_qudao,
+		trim(SUM_rase(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as yk5k_auditCardno,
+		cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),3) as  date  format 'YYYY年MM月') as varchar(10)) as yk5k_zgsx
+		from hpbus.sum_qdyk_2002_SHQD_DY5000 
+		  <where>
+ 			<if test="prvd_id != null and prvd_id != '' and prvd_id != '10000' ">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		 </where> 
+	</select>
+	
+	<!-- 养卡套利  问责参数5-->
+	<select id="selectAuditYktlParams5" resultType="java.util.Map" parameterType="java.util.Map">
+		select  '5' as ykzg_sn, aud_trm as ykzg_auditMonth1,  prvd_id,  prvd_name as province,
+              chnl_class,  chnl_class_nm as ykzg_qudao1,
+              trim(SUM_AllTol(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as SUM_AllTol,
+              trim(SUM_AllRase(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as SUM_AllRase,
+              QDZB,subject_ZG,
+              trim(SUM_rase(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as ykzg_auditCardno,  
+              trim(SUM_tol(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as SUM_tol,
+              ZB as ykzg_auditPercent1,
+              cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),6) as  date  format 'YYYY年MM月') as varchar(10)) as ykzg_zgsx
+			from hpbus.sum_qdyk_2002_SJWZ 
+		  <where>
+ 			<if test="prvd_id != null and prvd_id != '' and prvd_id != '10000' ">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           <!-- and aud_mon =#{aud_trm} -->
+		           and aud_mon =trim(cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),-3) as  date  format 'YYYYMM') as varchar(6)))
+		     </if>
+		 </where> 
+		 order by aud_trm desc,subject_ZG
+	</select>
+	
+	<!-- 终端套利  整改1参数-->
+	<select id="selectAuditZdtlParams1" resultType="java.util.Map" parameterType="java.util.Map">
+		select '1' as ycxs_sn,aud_trm as ycxs_auditMonth,prvd_id,CMCC_prov_prvd_nm as province,
+		weigui_num as ycxs_terminal1,
+		weigui_percent as ycxs_percent1,
+		cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),4) as  date  format 'YYYY年MM月') as varchar(10)) as ycxs_zgsx
+		 from hpbus.sum_zdtl_3000_sfwz_mid
+         <where>
+         	focus_cd='3000' and standard1='1'
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id !=10000 ">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+	</select>
+	<!-- 终端套利  整改2参数-->
+	<select id="selectAuditZdtlParams2" resultType="java.util.Map" parameterType="java.util.Map">
+	   		select '2' as dyqd_sn,
+	   		aud_trm as dyqd_auditMonth,
+	   		prvd_id,CMCC_prov_prvd_nm as province,
+	       chnl_name as dyqd_qudao1,
+	       infraction_num as dyqd_terminal1,
+	       weigui_percent as dyqd_percent1,
+	       cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),4) as  date  format 'YYYY年MM月') as varchar(10))  as dyqd_zgsx
+	       from hpbus.sum_zdtl_3000_sfwz_chnl 
+         <where>
+         	focus_cd in ('3001','3002','3004','3005')
+		     <if test="aud_trm != null and aud_trm != '' ">  
+		           and aud_trm=#{aud_trm}
+		     </if>
+		     <if test="prvd_id != null and prvd_id != '' and prvd_id !=10000">  
+		           and prvd_id=#{prvd_id}
+		     </if>
+		</where>
+	</select>
+	<!-- 终端套利  问责参数-->
+	<select id="selectAuditZdtlParams3" resultType="java.util.Map" parameterType="java.util.Map">
+	 select '3' as zdtl_sn,
+	 		xuhao,
+	 		aud_trm,
+	 		prvd_id,
+	 		CMCC_prov_prvd_nm as province,
+	 		chnl_name,
+	 		infraction_num,
+	 		 weigui_percent as weigui_percent
+                 from(
+	 		select 2 as xuhao,
+	 		aud_trm,
+	 		prvd_id,
+	 		CMCC_prov_prvd_nm,
+	 		chnl_name,
+	 		trim(cast(infraction_num as varchar(19)))as infraction_num,
+	 		weigui_percent 
+            from hpbus.sum_zdtl_3000_sfwz_chnl
+               where aud_trm >= cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),-5)  as  date  format 'YYYYMM') as varchar(6)) 
+               and aud_trm <![CDATA[ <=]]> #{aud_trm} and focus_cd in ('3001','3002','3004','3005')
+               and prvd_id in (select prvd_id from hpbus.sum_zdtl_3000_sfwz
+               where aud_trm=#{aud_trm} and focus_cd='3000' and standard2='1')     
+               union all
+                  select 1 as xuhao,
+                  aud_trm,
+                  prvd_id,
+                  CMCC_prov_prvd_nm,
+                  '' as chnl_name,
+                  trim(weigui_num)as weigui_num,
+                  weigui_percent 
+				from hpbus.sum_zdtl_3000_sfwz_mid 
+                 where aud_trm >= cast(cast(add_months(cast(#{aud_trm} as date  format 'YYYYMM'),-5)  as  date  format 'YYYYMM') as varchar(6)) 
+                 and aud_trm <![CDATA[ <=]]> #{aud_trm} and focus_cd='3000' and standard1='1' 
+                and prvd_id in (select prvd_id from hpbus.sum_zdtl_3000_sfwz
+                 where aud_trm=#{aud_trm} and focus_cd='3000' and standard1='1')          
+				) a
+	 		<where>
+			     <if test="prvd_id != null and prvd_id != '' and prvd_id !=10000 ">  
+			           and a.prvd_id=#{prvd_id}
+			     </if>
+		   </where>
+		     order by  a.aud_trm desc 
+	
+	</select>
+
+
+	<!-- Start 审计通报-终端套利-实际数据查询-by hufei -->
+    <!-- 整改公司情况1 -->
+    <select id="getZDTLZhenggaiComp1" resultType="Map" parameterType="Map">	
+    select CMCC_prov_prvd_nm,weigui_num,weigui_percent from hpbus.sum_zdtl_3000_sfwz_mid
+               where aud_trm=#{statCycle} and focus_cd='3000' and standard1='1';
+    </select>
+    <!-- 整改公司情况2 -->
+    <select id="getZDTLZhenggaiComp2" resultType="Map" parameterType="Map">	
+    select  CMCC_prov_prvd_nm ,chnl_name,infraction_num,weigui_percent from hpbus.sum_zdtl_3000_sfwz_chnl
+               where      aud_trm=#{statCycle} and focus_cd='3001,3002,3004,3005';
+    </select>
+    <!-- 问责省份情况 -->
+    <select id="getZDTLWenzePrvd" resultType="Map" parameterType="Map">	 
+		select CMCC_prov_prvd_nm from hpbus.sum_zdtl_3000_sfwz
+        	where aud_trm=#{statCycle} and focus_cd='3000' and standard='1';
+    </select>
+    <!-- 整改省名称1 -->
+    <select id="getZDTLZhenggaiPrvd1" resultType="Map" parameterType="Map">	 
+    select CMCC_prov_prvd_nm from hpbus.sum_zdtl_3000_sfwz_mid
+               where aud_trm=#{statCycle} and focus_cd='3000' and standard1='1';
+    </select>
+    <!-- 整改省名称2 -->
+    <select id="getZDTLZhenggaiPrvd2" resultType="Map" parameterType="Map">	 
+  	select CMCC_prov_prvd_nm from hpbus.sum_zdtl_3000_sfwz_mid
+               where aud_trm=#{statCycle} and focus_cd='3000' and standard2='1';
+    </select>
+    <!-- End 审计通报-终端套利-实际数据查询 -by hufei -->
+    <!-- Start 审计通报-客户欠费-实际数据查询 -by hufei -->
+    <!--rn,CMCC_prov_prvd_nm,amt_new,subs_new -->
+    <select id="getKHQFPrvd" resultType="Map"  parameterType="Map">
+    <![CDATA[
+	SELECT rn,CMCC_prov_prvd_nm,amt_new,subs_new FROM (
+		SELECT ROW_NUMBER() OVER (ORDER BY amt_new DESC ) AS RN ,
+			CMCC_prov_prvd_nm,
+			sum_dbt_amt,
+			sum_cust1,
+			amt_new,
+			subs_new
+		FROM	HPBUS.SUM_CUST_CHG_PRVD
+		WHERE  CMCC_prov_prvd_id <> 10000 AND flag = 10000
+	AND aud_trm = cast(cast(add_months(cast(#{statCycle}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) as t
+	WHERE rn <=5 ;
+	]]>
+    </select>
+    <!--CMCC_prov_prvd_nm,amt_new,subs_new -->
+    <select id="getKHQFOrgPrvd" resultType="Map"  parameterType="Map">
+    <![CDATA[
+	SELECT rn,CMCC_prov_prvd_nm,amt_new,subs_new FROM (
+		SELECT ROW_NUMBER() OVER (ORDER BY amt_new DESC ) AS RN ,
+			CMCC_prov_prvd_nm,
+			amt_new,
+			subs_new
+		FROM	HPBUS.SUM_ORG_CUST_CHG_PRVD
+		WHERE  prvd_id <> 10000 
+		AND aud_trm = cast(cast(add_months(cast(#{statCycle}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)) 
+	) as t WHERE rn <=5 order by rn;
+	]]>
+    </select>
+    
+    <!-- End 审计通报-客户欠费-实际数据查询-by hufei -->
+    
+    <!-- 有价卡审计通报整改和问责部分 -->
+	<select id="getParamyjkzg1" resultType="Map" parameterType="Map">	 
+	SELECT  infraction_typ,prvd_name,amt,trim(per_amt(FORMAT 'ZZ9.99%')(VARCHAR(7)))as per_amt FROM hpbus.busi_yjk_zgwz_zg
+	WHERE aud_trm = #{audTrm} AND infraction_typ = '100000';
+	</select>
+	
+	<select id="getParamyjkzg2" resultType="Map" parameterType="Map">	 
+	SELECT  infraction_typ,prvd_name,amt,trim(per_amt(FORMAT 'ZZ9.99%')(VARCHAR(7)))as per_amt FROM hpbus.busi_yjk_zgwz_zg
+	WHERE aud_trm = #{audTrm} AND infraction_typ = '100301';
+	</select>
+	
+	<select id="getParamyjkzg3" resultType="Map" parameterType="Map">	 
+	SELECT  infraction_typ,prvd_name,amt,trim(per_amt(FORMAT 'ZZ9.99%')(VARCHAR(7)))as per_amt FROM hpbus.busi_yjk_zgwz_zg
+	WHERE aud_trm = #{audTrm} AND infraction_typ = '100502';
+	</select>
+	
+	<select id="getParamyjkwz" resultType="Map" parameterType="Map">	 
+	SELECT distinct(prvd_name)as prvd_name FROM hpbus.busi_yjk_zgwz_wz
+	WHERE Aud_trm = #{audTrm} ;
+	</select>
+	
+	 <select id="getKhqfPaid" resultType="Map" parameterType="Map">
+    SELECT aud_trm,
+		CMCC_prov_prvd_nm,
+		trim((amt_all_recover*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amtAllRecover,
+		sum_subs_recover as sumSubsRecover,           
+		cast(amt_all_recover/((sum_dbt_amt -amt_num)*1.0000)*100 as decimal(18,2)) as amtRecoverPer    
+	FROM	hpbus.SUM_CUST_CHG_PRVD
+	WHERE  CMCC_prov_prvd_id=#{provinceCode}
+		AND flag = 10000
+		AND aud_trm = #{statCycle}
+	</select>
+		
+	 <select id="getKhqfPaidOrg" resultType="Map" parameterType="Map">
+    SELECT aud_trm, 
+		CMCC_prov_prvd_nm,
+		trim((amt_all_recover*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as  amtAllRecover,
+		sum_subs_recover as sumSubsRecover,            
+		cast(amt_all_recover/((infraction_amt -amt_dif)*1.0000)*100 as decimal(18,2)) as amtRecoverPer
+	FROM	hpbus.SUM_ORG_CUST_CHG_PRVD
+	WHERE prvd_id =#{provinceCode}
+	AND aud_trm =#{statCycle};
+    </select>
+    <select id="getKhqfZGPrvdName" resultType="Map" parameterType="Map">
+    sel distinct aud_trm,prvd_id, prvd_name
+	from hpbus.busi_khqf_zgwz_zg_new
+	where aud_trm=#{statCycle}
+    </select>
+    
+
+
+</mapper>

@@ -1,0 +1,911 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.QdykMapper">
+
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.QdykData"  id="qdykData">
+		<result property="genDate" column="Gen_date"/>
+		<result property="audTrm" column="Aud_trm"/>
+		<result property="prvdId" column="prvd_id"/>
+		<result property="prvdName" column="prvd_name"/>
+		<result property="ctyId" column="cty_id"/>
+		<result property="ctyName" column="cty_name_short"/>
+		<result property="errQty" column="errQty_tmp"/>
+		<result property="errQtyQdyk" column="errQty_qdyk"/>
+		<result property="rn" column="rn"/>
+		<result property="concern" column="concern"/>
+		<result property="qtyPercent" column="qtyPercent_tmp"/>
+		<result property="chnlQty" column="errChnlQty_tmp"/>
+		<result property="chnlPercent" column="qtyChnlPercent_tmp"/>
+		<result property="rnErrQty" column="RN_errQty_tmp"/>
+		<result property="rnQtyPercent" column="RN_qtyPercent_tmp"/>
+		<result property="rnChnlQty" column="RN_chnlQty"/>
+		<result property="rnChnlPercent" column="RN_chnlPercent"/>
+		<result property="fbQtyMonth" column="fbQtyPercent_tmp"/>
+		<result property="fbChnlMonth" column="fbChnlPercent_tmp"/>
+		<result property="fbQtyPerMonth" column="fbQtyPer_percent"/>
+		<result property="fbChnlPerMonth" column="fbChnlPer_percent"/>
+		<result property="chnlClassNm" column="chnl_class_nm"/>
+		<result property="chnlName" column="chnl_name"/>
+		<result property="chnlId" column="chnl_id"/>
+		<result property="cntArea" column="cnt_area"/>
+		<result property="increment" column="increment"/>
+		<result property="chnlClass" column="chnl_class"/>
+		<result property="chnlQtyQdyk" column="chnl_qtyqdyk"/>
+	</resultMap>
+	<!-- 养卡号码占比排名 （柱形图）-->
+	<select id="getCardPercentPm" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000">
+			 select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_cd as prvd_id,
+			 a.CMCC_prov_prvd_nm as prvd_name,
+			 b.qtyPercent_tmp		 
+			from  
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			 left join 
+			(
+			 select row_number() over (order by qtyPercent_tmp desc) as rn,Aud_trm,
+			 prvd_id,
+			 prvd_name,
+			 qtyPercent_tmp,
+			 errQty_tmp
+			 from HPBUS.Sum_qdyk_2002_prvdtl                 
+			 	where  chnl_class = #{concern}  and Aud_trm =#{audTrm}  and prvd_id <![CDATA[<>]]> 10000
+			 )  b on a.CMCC_prov_prvd_cd = b.prvd_id
+			 order by b.qtyPercent_tmp desc,b.errQty_tmp desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000">
+			select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_id as prvd_id,
+			 a.CMCC_prvd_cd as cty_id,
+			 a.CMCC_prvd_nm_short as prvd_name,
+			 b.qtyPercent_tmp
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId} ) a
+			left join (
+			select 
+			row_number() over (order by qtyPercent_tmp desc) as rn,
+			 Aud_trm,
+			 prvd_id,
+			 cty_id,
+			 cty_name_short,
+			 qtyPercent_tmp,
+			 errQty_tmp
+			from HPBUS.Sum_qdyk_2002_ctytl
+			where chnl_class = #{concern}  and  Aud_trm =#{audTrm} and prvd_id =#{prvdId}
+			) b on a.CMCC_prov_prvd_id =b.prvd_id  and a.CMCC_prvd_cd =b.cty_id
+			order by b.qtyPercent_tmp desc,b.errQty_tmp desc,a.CMCC_prov_prvd_id
+		</if>
+	</select>
+	<!-- 养卡号码个数排名 （柱形图）-->
+	<select id="getCardNumbersPm" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000">	
+			 select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_cd as prvd_id,
+			 a.CMCC_prov_prvd_nm as prvd_name,
+			 b.errQty_tmp/10000.00 as errQty_qdyk		 
+			from  
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			 left join 
+			(
+			 select row_number() over (order by errQty_tmp desc) as rn,Aud_trm,
+			 prvd_id,
+			 prvd_name,
+			 errQty_tmp,
+			 qtyPercent_tmp
+			 from HPBUS.Sum_qdyk_2002_prvdtl                 
+			 	where  chnl_class = #{concern}  and Aud_trm =#{audTrm}  and prvd_id <![CDATA[<>]]> 10000
+			 )  b on a.CMCC_prov_prvd_cd = b.prvd_id
+			 order by b.errQty_tmp desc,b.qtyPercent_tmp desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000">
+			select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_id as prvd_id,
+			 a.CMCC_prvd_cd as cty_id,
+			 a.CMCC_prvd_nm_short as prvd_name,
+			 b.errQty_tmp/10000.00 as errQty_qdyk
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId} ) a
+			left join (
+			select 
+			row_number() over (order by errQty_tmp desc) as rn,
+			 Aud_trm,prvd_id,cty_id,cty_name_short,errQty_tmp,qtyPercent_tmp
+			from HPBUS.Sum_qdyk_2002_ctytl
+			where chnl_class = #{concern}  and  Aud_trm =#{audTrm} and prvd_id =#{prvdId}
+			) b on a.CMCC_prov_prvd_id =b.prvd_id  and a.CMCC_prvd_cd =b.cty_id
+			order by b.errQty_tmp desc,b.qtyPercent_tmp desc,a.CMCC_prov_prvd_id
+		</if>
+	</select>
+	
+	<!-- 养卡渠道数量排名 （柱形图）-->
+	<select id="getChnlNumbersPm" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000">	
+			select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_cd as prvd_id,
+			 a.CMCC_prov_prvd_nm as prvd_name,
+			 b.errChnlQty_tmp		 
+			from  
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			 left join 
+			(
+			 select row_number() over (order by errChnlQty_tmp desc) as rn,Aud_trm,
+			 prvd_id,
+			 prvd_name,
+			 errChnlQty_tmp,
+			 qtyChnlPercent_tmp
+			 from HPBUS.Sum_qdyk_2002_prvdtl                 
+			 	where  chnl_class = #{concern}  and Aud_trm =#{audTrm}  and prvd_id <![CDATA[<>]]> 10000
+			 )  b on a.CMCC_prov_prvd_cd = b.prvd_id
+			 order by b.errChnlQty_tmp desc,qtyChnlPercent_tmp desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000">
+			select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_id as prvd_id,
+			 a.CMCC_prvd_cd as cty_id,
+			 a.CMCC_prvd_nm_short as prvd_name,
+			 b.errChnlQty_tmp
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId} ) a
+			left join (
+			select 
+			row_number() over (order by errChnlQty_tmp desc) as rn,
+			 Aud_trm,prvd_id,cty_id,cty_name_short,errChnlQty_tmp,qtyChnlPercent_tmp
+			from HPBUS.Sum_qdyk_2002_ctytl
+			where chnl_class = #{concern}  and  Aud_trm =#{audTrm} and prvd_id =#{prvdId}
+			) b on a.CMCC_prov_prvd_id =b.prvd_id  and a.CMCC_prvd_cd =b.cty_id
+			order by b.errChnlQty_tmp desc,b.qtyChnlPercent_tmp desc,a.CMCC_prov_prvd_id
+		</if>
+	</select>
+	
+	<!-- 养卡渠道占比排名 （柱形图）-->
+	<select id="getChnlPercentPm" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000">	
+			select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_cd as prvd_id,
+			 a.CMCC_prov_prvd_nm as prvd_name,
+			 b.qtyChnlPercent_tmp		 
+			from  
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			 left join 
+			(
+			 select row_number() over (order by qtyChnlPercent_tmp desc) as rn,Aud_trm,
+			 prvd_id,
+			 prvd_name,
+			 qtyChnlPercent_tmp,
+			 errChnlQty_tmp
+			 from HPBUS.Sum_qdyk_2002_prvdtl                 
+			 	where  chnl_class = #{concern}  and Aud_trm =#{audTrm}  and prvd_id <![CDATA[<>]]> 10000
+			 )  b on a.CMCC_prov_prvd_cd = b.prvd_id
+			 order by b.qtyChnlPercent_tmp desc,b.errChnlQty_tmp desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000">
+			select  b.rn,
+			 b.Aud_trm,
+			 a.CMCC_prov_prvd_id as prvd_id,
+			 a.CMCC_prvd_cd as cty_id,
+			 a.CMCC_prvd_nm_short as prvd_name,
+			 b.qtyChnlPercent_tmp
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId} ) a
+			left join (
+			select 
+			row_number() over (order by qtyChnlPercent_tmp desc) as rn,
+			 Aud_trm,prvd_id,cty_id,cty_name_short,qtyChnlPercent_tmp,errChnlQty_tmp
+			from HPBUS.Sum_qdyk_2002_ctytl
+			where chnl_class = #{concern}  and  Aud_trm =#{audTrm} and prvd_id =#{prvdId}
+			) b on a.CMCC_prov_prvd_id =b.prvd_id  and a.CMCC_prvd_cd =b.cty_id
+			order by b.qtyChnlPercent_tmp desc,b.errChnlQty_tmp desc,a.CMCC_prov_prvd_id
+		</if>
+	</select>
+
+	
+	<!-- 养卡号码占比趋势 （折线图）-->
+	<select id="getCardPercentPmLine" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select a.aud_trm,
+		b.prvd_id,b.prvd_name,
+		coalesce(b.qtyPercent_tmp,0) as qtyPercent_tmp  
+		from
+		(
+		SELECT aud_trm
+		FROM	hpmgr.busi_model_notify where aud_trm >= '201507'
+		and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+		group by aud_trm
+		)a
+		left join 
+		(select aud_trm,prvd_id,prvd_name,qtyPercent_tmp from HPBUS.Sum_qdyk_2002_prvdtl
+				where aud_trm >= '201507'
+				and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+				and prvd_id =#{prvdId} and chnl_class = #{concern}
+		and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+		)b
+		on a.aud_trm = b.aud_trm
+		order by a.aud_trm
+	</select>
+	
+	<!-- 养卡号码个数趋势 （折线图）-->
+	<select id="getCardNumPmLine" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select a.aud_trm,
+		b.prvd_id,b.prvd_name,
+		coalesce(b.errQty_qdyk,0) as errQty_qdyk  
+		from
+		(
+		SELECT aud_trm
+		FROM	hpmgr.busi_model_notify where aud_trm >= '201507'
+		and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+		group by aud_trm
+		)a
+		left join 
+		(select aud_trm,prvd_id,prvd_name,errQty_tmp/10000.00 as errQty_qdyk
+		from HPBUS.Sum_qdyk_2002_prvdtl
+				where aud_trm >= '201507'
+				and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+				and prvd_id =#{prvdId} and chnl_class = #{concern}
+		and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+		)b
+		on a.aud_trm = b.aud_trm
+		order by a.aud_trm
+	</select>
+	
+	<!-- 养卡渠道占比趋势 （折线图）-->
+	<select id="getChanlPercentPmLine" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select a.aud_trm,
+		b.prvd_id,b.prvd_name,
+		coalesce(b.qtyChnlPercent_tmp,0) as qtyChnlPercent_tmp  
+		from
+		(
+		SELECT aud_trm
+		FROM	hpmgr.busi_model_notify where aud_trm >= '201507'
+		and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+		group by aud_trm
+		)a
+		left join 
+		(select aud_trm,prvd_id,prvd_name,qtyChnlPercent_tmp from HPBUS.Sum_qdyk_2002_prvdtl
+				where aud_trm >= '201507'
+				and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+				and prvd_id =#{prvdId} and chnl_class = #{concern}
+		and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+		)b
+		on a.aud_trm = b.aud_trm
+		order by a.aud_trm
+		
+	</select>
+	
+	<!-- 养卡渠道数量趋势 （折线图）-->
+	<select id="getChnlNumsPmLine" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select a.aud_trm,
+		b.prvd_id,b.prvd_name,
+		coalesce(b.errChnlQty_tmp,0) as errChnlQty_tmp  
+		from
+		(
+		SELECT aud_trm
+		FROM	hpmgr.busi_model_notify where aud_trm >= '201507'
+		and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+		group by aud_trm
+		)a
+		left join 
+		(select aud_trm,prvd_id,prvd_name,errChnlQty_tmp from HPBUS.Sum_qdyk_2002_prvdtl
+				where aud_trm >= '201507'
+				and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+				and prvd_id =#{prvdId} and chnl_class = #{concern}
+		and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+		)b
+		on a.aud_trm = b.aud_trm
+		order by a.aud_trm
+		
+	</select>
+	
+	<!-- 养卡风险地图-->
+	<select id="getQdykMap" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000">
+			select  aud_trm,
+			prvd_id,
+			prvd_name,
+			qtyPercent_tmp,
+			errQty_tmp/10000.00 as errQty_qdyk,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			RN_errQty_tmp,
+			RN_qtyPercent_tmp,
+			row_number() over(order by errChnlQty_tmp desc) as RN_chnlQty,
+			row_number() over(order by qtyChnlPercent_tmp desc) as RN_chnlPercent
+			from HPBUS.Sum_qdyk_2002_prvdtl
+			where  prvd_id <![CDATA[<>]]>10000 and aud_trm =#{audTrm} and chnl_class = #{concern} 
+		</if>
+		<if test="prvdId !=10000">
+			select  aud_trm,
+			cty_id,
+			cty_name_short as prvd_name,
+			qtyPercent_tmp,
+			errQty_tmp,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			RN_errQty_tmp,
+			RN_qtyPercent_tmp,
+			row_number() over(order by errChnlQty_tmp desc) as RN_chnlQty,
+			row_number() over(order by qtyChnlPercent_tmp desc) as RN_chnlPercent
+			from HPBUS.Sum_qdyk_2002_ctytl
+			where aud_trm =#{audTrm} and chnl_class = #{concern} and prvd_id = #{prvdId}
+		</if>
+	</select>
+	
+	<!-- 养卡风险地图下方卡片-->
+	<select id="getQdykMapBottom" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+				select 
+			aud_trm,
+			prvd_id,
+			prvd_name,
+			errQty_tmp/10000.00 as errQty_qdyk,
+			errChnlQty_tmp,
+			qtyPercent_tmp,
+			qtyChnlPercent_tmp,
+			<!-- fbQtyPercent_tmp,
+			fbChnlPercent_tmp, -->
+			(errQty_tmp - m1_errQty_tmp)/10000.00 as fbQtyPercent_tmp,
+			errChnlQty_tmp - m1_errChnlQty_tmp as fbChnlPercent_tmp,
+			qtyChnlPercent_tmp - m1_qtyChnlPercent_tmp as fbChnlPer_percent,
+			qtyPercent_tmp - m1_qtyPercent_tmp as fbQtyPer_percent
+			from HPBUS.Sum_qdyk_2002_prvdtl  
+			where prvd_id =#{prvdId} and chnl_class =#{concern}
+			and aud_trm =cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6)) 
+		
+	</select>
+	<!-- 养卡地市渠道信息表格 -->
+	<select id="getQdykChnlTable" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+			row_number() over(order by rase_crd_qty desc) as rn,
+            Aud_trm,
+            prvd_id,
+            chnl_class_nm,
+            chnl_name,
+            trim(chnl_id) as chnl_id,
+            rase_crd_qty as errQty_tmp,
+           ( case when tol_usrs > 0 then rase_crd_qty * 100.00 /tol_usrs 
+            else 0
+            end) as qtyPercent_tmp
+			from hpbus.Sum_qdyk_2002_all
+			where prvd_id = #{prvdId}
+			and aud_trm = #{audTrm}
+			and cty_id = #{ctyId}
+			and  rase_crd_qty > 0
+			<if test="concern != null">
+			and chnl_class = #{concern}
+			</if>
+			<if test="chnlName != null">
+			and chnl_name like '%#{chnlName}%'
+			</if>
+			QUALIFY ROW_NUMBER() OVER (ORDER BY qtyPercent_tmp desc, rase_crd_qty DESC ) <![CDATA[<=]]>50
+			
+	</select>
+	
+	<!-- 养卡渠道基本信息 -->
+	<select id="getQdykChnlBaseInfo" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		select cor_chnl_id,chnl_nm,cor_chnl_typ,chnl_level,	chnl_addr, 
+			busn_bgn_tm, chnl_basic_typ,chnl_stat,chnl_basic_typ,rgn_form,
+			cnty_nm,b.CMCC_prvd_nm_short as CMCC_prvd_nm_short 
+		from (select 
+			cor_chnl_id,
+			chnl_nm, 
+			case 
+				when cor_chnl_typ =1 then '自营厅'
+				when cor_chnl_typ =2 then '委托经营厅'
+				when cor_chnl_typ =3 then '社会代理网点'
+				when cor_chnl_typ =4 then '24小时自助营业厅'
+				else '无'
+			end as cor_chnl_typ, 
+						case 
+				when chnl_level =1 then '一星级'
+				when chnl_level =2 then '二星级'
+				when chnl_level =3 then '三星级'
+				when chnl_level =4 then '四星级'
+				when chnl_level =5 then '五星级'
+				when chnl_level =6 then '六星级'
+				else '无'
+			end as chnl_level,
+						chnl_addr, 
+						busn_bgn_tm, 
+						case 
+				when chnl_stat =1 then '正常运营'
+				when chnl_stat =2 then '暂停营业/预注销'
+				when chnl_stat =3 then '已关店/注销'
+				else '无'
+			end as chnl_stat,
+						case 
+				when chnl_basic_typ=1 then '普通自营厅'
+				when chnl_basic_typ=2 then '品牌店'
+				when chnl_basic_typ=3 then '旗舰店'
+				when chnl_basic_typ=4 then '24小时自助营业厅'
+				when chnl_basic_typ=5 then '指定专营店'
+				when chnl_basic_typ=6 then '特约代理点'
+				else '无'
+			end as chnl_basic_typ,
+						case 
+				when rgn_form =1 then '商业区'
+				when rgn_form =2 then '交通枢纽'
+				when rgn_form =3 then '居民住宅区'
+				when rgn_form =4 then '商务办公区'
+				when rgn_form =5 then '学校区域'
+				when rgn_form =6 then '工矿厂区和工业园区'
+				when rgn_form =7 then '旅游景区'
+				else '无'
+			end as rgn_form,
+			cnty_nm,
+			CMCC_Prov_id,
+			CMCC_prov_prvd_id
+			from hpbus.TB_SVC_CORCHNL_BASIC     
+			where cor_chnl_id=#{chnlId})a 
+ 			join HPMGR.TB_SUM_PRVD_NAME b on
+ 			a.CMCC_prov_prvd_id=b.CMCC_prov_prvd_id and 
+ 			a.CMCC_Prov_id=b.CMCC_prvd_cd
+	</select>
+	
+	<!-- 渠道养卡趋势 -->
+	<select id="getQdykChnlTrend" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select a.aud_trm,
+			coalesce(b.errQty_tmp,0) as errQty_tmp ,
+			coalesce(b.qtyPercent_tmp,0) as qtyPercent_tmp   
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-5) as date format 'YYYYMMDD') as varchar(6)))
+			and aud_trm  <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			)a
+			left join 
+			(select  
+				Aud_trm,
+		   		rase_crd_qty as errQty_tmp,
+	           (case when tol_usrs > 0 then rase_crd_qty * 100.00 /tol_usrs 
+	            else 0
+	            end) as qtyPercent_tmp
+				from  hpbus.Sum_qdyk_2002_all
+				where Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-5) as date format 'YYYYMMDD') as varchar(6)))   
+				and Aud_trm <![CDATA[<=]]> #{audTrm}
+				and chnl_id = #{chnlId}
+			and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+	</select>
+	
+	<!-- 养卡排名汇总 -->
+	<select id="getQdykDataPm" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000">
+		select  case when prvd_id=10000 then 0 else 1 end as flag, 
+		ROW_NUMBER() OVER (ORDER BY flag,qtyPercent_tmp DESC,a.CMCC_prov_prvd_cd)-1  as rn,
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm as prvd_name,
+			a.CMCC_prov_prvd_cd as prvd_id,
+			b.cnt_area,
+			b.errQty_tmp,
+			b.qtyPercent_tmp,
+			b.fbQtyPer_percent,
+			b.errChnlQty_tmp,
+			b.qtyChnlPercent_tmp,
+			b.fbChnlPer_percent
+			from
+(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd  ) a
+left join (select RN_qtyPercent_tmp,
+			Aud_trm,
+			prvd_name,
+			prvd_id,
+			cnt_area,
+			errQty_tmp,
+			qtyPercent_tmp,
+			qtyPercent_tmp -m1_qtyPercent_tmp as fbQtyPer_percent,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			qtyChnlPercent_tmp -m1_qtyChnlPercent_tmp as fbChnlPer_percent
+			from HPBUS.Sum_qdyk_2002_prvdtl 
+			where chnl_class  =#{concern} and Aud_trm =#{audTrm}
+			) b on a.CMCC_prov_prvd_cd = b.prvd_id
+			
+			<!-- select case prvd_id when '10000' then 0 else RN_qtyPercent_tmp end as rn,
+			Aud_trm,
+			prvd_name,
+			cnt_area,
+			errQty_tmp,
+			qtyPercent_tmp,
+			qtyPercent_tmp -m1_qtyPercent_tmp as fbQtyPer_percent,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			qtyChnlPercent_tmp -m1_qtyChnlPercent_tmp as fbChnlPer_percent
+			from HPBUS.Sum_qdyk_2002_prvdtl 
+			where chnl_class  =#{concern} and Aud_trm =#{audTrm}
+			order by rn -->
+		</if>
+		<if test="prvdId !=10000">
+			select 0 as rn,
+			Aud_trm,
+			prvd_name,
+			cnt_area,
+			errQty_tmp,
+			qtyPercent_tmp,
+			qtyPercent_tmp -m1_qtyPercent_tmp as fbQtyPer_percent,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			qtyChnlPercent_tmp -m1_qtyChnlPercent_tmp as fbChnlPer_percent
+			from HPBUS.Sum_qdyk_2002_prvdtl 
+			where chnl_class  =#{concern} and Aud_trm =#{audTrm} and prvd_id =#{prvdId}
+			<if test="prvdId !=10100 and prvdId != 10200 and prvdId != 10300 and prvdId != 10400">
+			union all
+			select  row_number() over(order by RN_qtyPercent_tmp)  as rn,
+			Aud_trm,
+			cty_name_short as prvd_name,
+			0 as cnt_area,
+			errQty_tmp,
+			qtyPercent_tmp,
+			qtyPercent_tmp -m1_qtyPercent_tmp as fbQtyPer_percent,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			qtyChnlPercent_tmp -m1_qtyChnlPercent_tmp as fbChnlPer_percent
+			from HPBUS.Sum_qdyk_2002_ctytl 
+			where chnl_class  =#{concern} and Aud_trm =#{audTrm}  and prvd_id =#{prvdId}
+			</if>
+		<!-- select case prvd_id when #{prvdId} then 0 else RN_qtyPercent_tmp end as rn,
+			Aud_trm,
+			cty_name_short as prvd_name,
+			0 as cnt_area,
+			errQty_tmp,
+			qtyPercent_tmp,
+			qtyPercent_tmp -m1_qtyPercent_tmp as fbQtyPer_percent,
+			errChnlQty_tmp,
+			qtyChnlPercent_tmp,
+			qtyChnlPercent_tmp -m1_qtyChnlPercent_tmp as fbChnlPer_percent
+			from HPBUS.Sum_qdyk_2002_ctytl 
+			where chnl_class  =#{concern} and Aud_trm =#{audTrm}  and prvd_id =#{prvdId}
+			order by rn -->
+			</if>
+	</select>
+	<!-- 增量分析 -->
+	<select id="getIncrementalData" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select  row_number() over(order by  b.orderflag,b.increment desc )-1 as rn,
+		case when  a.CMCC_prov_prvd_cd =10000 then '全网环比增量' else a.CMCC_prov_prvd_nm end as prvd_name,
+		b.increment
+		from 
+		(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd  ) a
+		left join (
+		select  prvd_id,
+		prvd_name,
+		errQty_tmp  - m1_errQty_tmp  as increment,
+		case when prvd_id =10000 then 1 else 0 end as orderflag
+		from HPBUS.Sum_qdyk_2002_prvdtl
+		where aud_trm =#{audTrm}  and chnl_class = 0    
+		) b on a.CMCC_prov_prvd_cd = b.prvd_id
+	</select>
+	<!-- 养卡渠道类型 （饼图）-->
+	<select id="getQDYKqdlxData" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select   chnl_class,totalChnlQty_tmp/10000.00 as chnl_qtyqdyk
+		from HPBUS.Sum_qdyk_2002_prvdtl  
+		where chnl_class in ('1','2')  and aud_trm=#{audTrm}  and prvd_id =#{prvdId} 
+		order by chnl_class
+	</select>
+	<!-- 养卡渠道类型 （堆积图）-->
+	<select id="getQDYKqdlxDuiData" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select a.aud_trm,
+		b.chnl_class,
+		coalesce(b.errChnlQty_tmp,0) as chnl_qtyqdyk  
+		from
+		(
+		SELECT aud_trm
+		FROM	hpmgr.busi_model_notify where aud_trm >= '201510'
+		and aud_trm  <![CDATA[<=]]> cast(cast(cast(#{audTrm} as date format 'YYYYMM') as date format 'YYYYMM') as varchar(6)) 
+		group by aud_trm
+		)a
+		left join 
+		(select  aud_trm,chnl_class,totalChnlQty_tmp/10000.00 as errChnlQty_tmp
+		from HPBUS.Sum_qdyk_2002_prvdtl
+		where  prvd_id =#{prvdId}  and chnl_class in ('1','2')
+		and aud_trm  <![CDATA[<=]]> #{audTrm} and aud_trm >= '201510'
+		and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+		)b
+		on a.aud_trm = b.aud_trm
+		order by a.aud_trm
+	
+	</select>
+	
+	<!-- 养卡整改问责统计（六个月达到整改标准次数排名）-->
+	<select id="getQDYKZgwzTjSixMonth" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="focusCd == 'zgtimes' ">
+		select  row_number() over(order by increment desc,prvd_id) as rn,
+			prvd_id,
+			prvd_name,
+			count(distinct flag) as increment  
+			from(
+			select  aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,1 as xuhao from hpbus.sum_qdyk_2002_ZYQD_ZG 
+			union all
+			select aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,2 as xuhao from hpbus.sum_qdyk_2002_SHQD_ZG 
+			union all
+			select aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,3 as xuhao from hpbus.sum_qdyk_2002_ZYQD_DY10000 
+			union all
+			select aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,4 as xuhao from hpbus.sum_qdyk_2002_SHQD_DY5000 
+		) a   
+		where a.aud_trm <![CDATA[<=]]> #{audTrm}
+		and a.aud_trm  >= cast(cast(add_months(cast(#{audTrm} as date  format 'YYYYMM'),-5) as  date  format 'YYYYMM') as varchar(6))
+		group by a.prvd_id,a.prvd_name 
+		
+		</if>
+		<if test="focusCd == 'wztimes' ">
+			select  row_number() over(order by increment desc,prvd_id) as rn,
+			prvd_id,
+			prvd_name,
+			count(distinct aud_trm||prvd_id) as increment  
+			from hpbus.sum_qdyk_2002_SJWZ 
+		where aud_trm <![CDATA[<=]]> #{audTrm}
+		and aud_trm  >= cast(cast(add_months(cast(#{audTrm} as date  format 'YYYYMM'),-5) as  date  format 'YYYYMM') as varchar(6))
+		group by prvd_id,prvd_name 
+		</if>
+	</select>
+	
+	<!-- 养卡整改问责统计（累计达到整改次数排名，切换到问责）-->
+	<select id="getQDYKZgwzTj" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="focusCd == 'zgtimes' ">
+		select row_number() over(order by increment desc,prvd_id) as rn,
+			prvd_id,
+			prvd_name,
+			count(distinct flag) as increment  
+			from(
+			select  aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,1 as xuhao from hpbus.sum_qdyk_2002_ZYQD_ZG 
+			union all
+			select aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,2 as xuhao from hpbus.sum_qdyk_2002_SHQD_ZG 
+			union all
+			select aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,3 as xuhao from hpbus.sum_qdyk_2002_ZYQD_DY10000 
+			union all
+			select aud_trm,prvd_id,prvd_name,aud_trm||prvd_id as flag,4 as xuhao from hpbus.sum_qdyk_2002_SHQD_DY5000 
+		) a   
+		where aud_trm <![CDATA[<=]]> #{audTrm}  and aud_trm >='201405'
+		group by a.prvd_id,a.prvd_name 
+		
+		</if>
+		<if test="focusCd == 'wztimes' ">
+			select row_number() over(order by increment desc,prvd_id) as rn,
+				prvd_id,
+				prvd_name,
+				count(distinct aud_trm||prvd_id) as increment
+				from hpbus.sum_qdyk_2002_SJWZ 
+				where aud_trm <![CDATA[<=]]> #{audTrm}
+			group by prvd_id,prvd_name 
+		
+		</if>
+	</select>
+	<!-- 养卡整改问责统计（达到整改标准的省公司数量趋势==折线图）-->
+	<select id="getQDYKSjzgTjLine" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="focusCd == 'zgtimes' ">
+			select a.aud_trm,
+		coalesce(b.increment,0) as increment  
+		from
+		(
+		SELECT aud_trm
+		FROM	hpmgr.busi_model_notify where aud_trm >= '201405'
+		and aud_trm  <![CDATA[<=]]> #{audTrm}
+		group by aud_trm
+		)a
+		left join 
+		(select 
+			aud_trm,
+			count(distinct prvd_id) as increment  
+			from(
+			select  aud_trm,prvd_id,prvd_name,1 as xuhao from hpbus.sum_qdyk_2002_ZYQD_ZG 
+			union all
+			select aud_trm,prvd_id,prvd_name,2 as xuhao from hpbus.sum_qdyk_2002_SHQD_ZG 
+			union all
+			select aud_trm,prvd_id,prvd_name,3 as xuhao from hpbus.sum_qdyk_2002_ZYQD_DY10000 
+			union all
+			select aud_trm,prvd_id,prvd_name,4 as xuhao from hpbus.sum_qdyk_2002_SHQD_DY5000 
+		) a   
+		where aud_trm<![CDATA[<=]]> #{audTrm}  and aud_trm  >= '201405'		
+		and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+		group by a.aud_trm
+		)b
+		on a.aud_trm = b.aud_trm
+		order by a.aud_trm
+		</if>
+		<if test="focusCd == 'wztimes' ">
+			select a.aud_trm,
+			coalesce(b.increment,0) as increment  
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201510'
+			and aud_trm <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			)a
+			left join 
+			(select 
+				aud_mon,
+				count(distinct prvd_id) as increment
+				from hpbus.sum_qdyk_2002_SJWZ 
+				where aud_mon <![CDATA[<=]]> #{audTrm}
+			group by aud_mon
+			)b
+			on a.aud_trm = b.aud_mon
+			order by a.aud_trm
+		
+		</if>
+	</select>
+	
+	<!-- 养卡 审计报告 ==文本-->
+	<select id="getQDYKReportText" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+			select  a.aud_trm,a.prvd_id,a.prvd_name,
+			a.totalQty as totalQty0,a.errQty as errQty0,a.qtyPercent as qtyPercent0,a.errChnlQty as errChnlQty0,a.qtyChnlPercent as qtyChnlPercent0,
+			b.totalQty as totalQty1,b.errQty as errQty1,b.qtyPercent as qtyPercent1,b.errChnlQty as errChnlQty1,b.qtyChnlPercent as qtyChnlPercent1 ,
+			c.totalQty as totalQty2,c.errQty as errQty2,c.qtyPercent as qtyPercent2,c.errChnlQty as errChnlQty2,c.qtyChnlPercent as qtyChnlPercent2 
+			 from (
+			select aud_trm,prvd_id,prvd_name,totalQty,errQty,qtyPercent,errChnlQty,qtyChnlPercent  from HPBUS.Sum_qdyk_2002_prvdtl  where chnl_class='0'  and prvd_id =#{prvdId} and aud_trm =#{audTrm} ) a 
+			left join (
+			select aud_trm,prvd_id,prvd_name,totalQty,errQty,qtyPercent,errChnlQty,qtyChnlPercent  from HPBUS.Sum_qdyk_2002_prvdtl  where chnl_class='1'  and prvd_id =#{prvdId} and aud_trm =#{audTrm} 
+			) b on a.prvd_id = b.prvd_id and a.aud_trm =b.aud_trm
+			left join (
+			select aud_trm,prvd_id,prvd_name,totalQty,errQty,qtyPercent,errChnlQty,qtyChnlPercent  from HPBUS.Sum_qdyk_2002_prvdtl  where chnl_class='2'  and prvd_id =#{prvdId} and aud_trm =#{audTrm} 
+			) c  on a.prvd_id = c.prvd_id and a.aud_trm =c.aud_trm
+	</select>
+	<!-- 养卡审计报告 ==表格 -->
+	<select id="getQDYKReportTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+			select rn,
+			regionName,
+			errQty,
+			qtyPercent_tmp as 	qtyPercent
+			from HPBUS.Sum_qdyk_2002_top
+			where Aud_trm = #{audTrm}
+			and chnl_class='0' 
+			and flag='100001'
+			and prvd_id=#{prvdId}
+			order by RN asc		
+	</select>
+	
+	<!-- 养卡 重点关注渠道 -->
+	<select id="getQDYKConcernChnl" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+			select 
+			chnl_id,
+			chnl_no, 
+			top_no, 
+			chnl_name as chnlName,
+			 region_id as regionId, 
+			 prvd_name, 
+			 Aud_trm, tol,err, zb, 
+			 aud_trm1, tol1, err1, zb1, 
+			 aud_trm2, tol2, err2, zb2
+			from hpbus.sum_qdyk_chnl_top10
+			where  Aud_trm  <![CDATA[<=]]> #{audTrm}
+			and Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm} as date format 'YYYYMM'),-2) as date format 'YYYYMM') as varchar(6)))
+			order by chnl_no
+	</select>
+	
+	<!-- 养卡 重点关注营销案 -->
+	<select id="getQDYKConcernOffer" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.ParameterData">
+			select  offer_cd,
+			offer_no, 
+			top_no, 
+			offer_nm as offerName, 
+			region_id as regionId, 
+			region_name as prvd_name, 
+			Aud_trm, tol,err, zb, 
+			aud_trm1, tol1, err1, zb1, 
+			aud_trm2, tol2, err2, zb2
+			from hpbus.sum_qdyk_offer_top10
+			where  Aud_trm  <![CDATA[<=]]> #{audTrm}
+			and Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm} as date format 'YYYYMM'),-2) as date format 'YYYYMM') as varchar(6)))
+			order by offer_no
+	</select>
+	
+	<!-- 渠道养卡 重点关注渠道 （折线图） -->
+	<select id="getQdykFocusChnlTrend" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select a.aud_trm,
+			coalesce(b.errQty_tmp,0) as errQty_tmp ,
+			coalesce(b.qtyPercent_tmp,0) as qtyPercent_tmp   
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-11) as date format 'YYYYMMDD') as varchar(6)))
+			and aud_trm  <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			)a
+			left join 
+			(select  
+				Aud_trm,
+		   		rase_crd_qty as errQty_tmp,
+	           (case when tol_usrs > 0 then rase_crd_qty * 100.00 /tol_usrs 
+	            else 0
+	            end) as qtyPercent_tmp
+				from  hpbus.Sum_qdyk_2002_all
+				where Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-11) as date format 'YYYYMMDD') as varchar(6)))   
+				and Aud_trm <![CDATA[<=]]> #{audTrm}
+				and trim(chnl_id) = #{chnlId}
+				and prvd_id = #{prvdId}
+			and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+	</select>
+	
+	<!-- 渠道养卡 重点关注营销案 （折线图） -->
+	<select id="getQdykFocusOfferTrend" resultMap="qdykData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select a.aud_trm,
+			coalesce(b.errqty_tmp,0) as errQty_tmp ,
+			coalesce(b.qtypercent_tmp,0) as qtyPercent_tmp   
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-11) as date format 'YYYYMMDD') as varchar(6)))
+			and aud_trm  <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			)a
+			left join 
+			(	select 
+			aud_trm,
+			errqty_tmp,
+			qtypercent_tmp
+			from hpbus.sum_qdyk_offer_detail
+			where offer_cd =#{chnlId} and region_id =#{prvdId}
+			and aud_trm  <![CDATA[<=]]> #{audTrm}
+			and aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-11) as date format 'YYYYMMDD') as varchar(6)))   
+			and Aud_trm in(select distinct aud_trm
+			from hpmgr.busi_audit_switch_conf
+			<![CDATA[
+			where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code = 2
+			]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+	</select>
+	
+</mapper>
+

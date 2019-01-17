@@ -1,0 +1,925 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.BgxzMapper">
+<!--
+	<cache
+        eviction="LRU"
+        flushInterval="1800000"
+        size="4096"
+        readOnly="true" />
+  -->
+  <!-- 分专题下载次数排名 -->
+	<select id="downNumsBySubject" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.BgxzData">
+		<if test="prvdId != null and prvdId ==10000 ">
+		sel * from (
+		sel  cc.id,cc.name,sum(coalesce(dd.down_count,0)) as   nums
+		 from HPMGR.busi_stat_subject cc
+		left join(
+			sel  subject_id as audit_subject,sum(coalesce(down_count,0)) as down_count   from hpmgr.busi_report_log
+		where aud_trm =#{audTrm} and  prvd_id =#{prvdId} and subject_id in ('1','2','3','4','5','6','7','8')
+		<if test="fileType !=null and fileType !=''  and fileType != 'all'  ">
+			and file_type =#{fileType}
+		</if>
+			group by subject_id
+		) dd on TRIM(CAST(cc.id AS VARCHAR(2)))=dd.audit_subject
+		<![CDATA[where cc.id <=20 ]]>
+			group by cc.id,cc.name
+			) f
+		order by nums,id
+		</if>
+		<if test="prvdId != null and  prvdId !=10000 ">
+		sel * from (
+		sel  cc.id,cc.name,sum(coalesce(dd.nums,0)) as   nums
+		 from HPMGR.busi_stat_subject cc
+		left join(
+			sel subject_id as audit_subject,sum(coalesce(down_count,0)) as nums from hpmgr.busi_report_log
+		where aud_trm =#{audTrm} and  prvd_id =#{prvdId}
+		<if test="fileType !=null and fileType !=''  and fileType != 'all'  ">
+			and file_type =#{fileType}
+		</if>
+			group by subject_id
+		) dd on TRIM(CAST(cc.id AS VARCHAR(2)))=dd.audit_subject
+		<![CDATA[where cc.id <=20 ]]>
+			group by cc.id,cc.name
+			) f
+		order by nums,id
+		</if>
+	</select>
+	<!-- 分省下载次数排名 -->
+	<select id="downNumsByPrvd" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.BgxzData">
+		<![CDATA[
+		sel a.CMCC_prov_prvd_cd,a.CMCC_prov_prvd_nm, b.down_count
+		from (sel CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd	where CMCC_prov_prvd_cd <> 10000 ) a
+		left join (
+		sel prvd_id,sum(coalesce(down_count,0)) as down_count from	hpmgr.busi_report_log
+		]]>
+		where 1=1
+			<if test="fileType !=null and fileType !='' and fileType !='all' ">
+   		 	and file_type =#{fileType}
+   		 	</if>
+   		 	<if test="subjectId !=null and subjectId !='' ">
+   		 	and subject_id=#{subjectId}
+   		 	</if>
+   		 	<if test="audTrm !=null and audTrm !='' ">
+   		 	and aud_trm=#{audTrm}
+   		 	</if>
+		group by prvd_id
+		) b on a.CMCC_prov_prvd_cd =b.prvd_id
+  		order by down_count desc,CMCC_prov_prvd_cd
+
+	</select>
+
+	<!-- 各专题报告生成时间趋势 -->
+	<select id="createDayBySubjectMonth" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.BgxzData">
+	      sel trim(cast(cast(create_datetime as date format 'YYYYMM') as varchar(6)))  as create_date,
+	         file_type,
+			EXTRACT(DAY FROM max(create_datetime)) as someday
+		 from  hpmgr.busi_report_log
+		 where cast(cast(create_datetime as date format 'YYYYMM') as varchar(6)) >= trim(cast(cast(add_months(current_date,-5)  as date format 'YYYYMM') as varchar(6)))
+		<![CDATA[and cast(cast(create_datetime as date format 'YYYYMM') as varchar(6)) <= trim(cast(cast(current_date  as date format 'YYYYMM') as varchar(6) ))]]>
+		<if test="subjectId ==null or subjectId ==''">
+      	and subject_id ='2'
+      	</if>
+      	<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+			<!-- 	<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if> -->
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+	 	group by file_type,create_date
+
+	</select>
+	<!-- 专题报告下载清单 -->
+	<select id="downRecordsTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.BgxzData">
+		sel d.name,
+			c.subject_id as audit_subject,
+			case when c.file_type ='audReport' then '审计报告'
+			when c.file_type ='audDetail' then '审计清单'
+			when c.file_type ='auditPm' then '排名汇总'
+			when c.file_type ='auditTB' then '审计通报' else '' end as file_type,
+			c.aud_trm as audit_monthly,
+			<!-- c.oper_person as create_person, -->
+			<![CDATA[
+			case when dd.down_datetime  is null or c.down_datetime > dd.down_datetime or c.create_datetime>dd.down_datetime    then c.oper_person
+			when   (c.down_datetime is null or c.down_datetime < dd.down_datetime)  and c.create_datetime < dd.down_datetime   then  dd.oper_person  end as create_person,
+			]]>
+			c.create_datetime as create_time,
+			<!-- c.down_datetime as last_down_time, -->
+			<![CDATA[
+				case when dd.down_datetime is null or c.down_datetime > dd.down_datetime    then c.down_datetime
+			when  c.down_datetime is null or c.down_datetime <  dd.down_datetime  then  dd.down_datetime end as last_down_time,
+			]]>
+			case when audit_subject =1 and c.file_type='audDetail'  then b.down_count/2 else b.down_count end as down_count,
+-- 			b.down_count,
+			<!-- c.file_path as download_url, -->
+			case when bb.fileupload_date is null or c.create_datetime > bb.fileupload_date  then c.file_path
+			when  c.create_datetime is null or c.create_datetime <![CDATA[<]]> bb.fileupload_date  then bb.file_path end as download_url,
+ 			case when c.create_type='manual' then '手动生成'
+ 			when c.create_type='auto' then '自动生成' else '' end as create_type,
+ 			c.file_type as file_typeTMP
+		 from(
+			sel *
+			 from (
+			sel  a.*,row_number() over (partition by   aud_trm ,subject_id, prvd_id,file_type order by create_datetime desc) rn
+			from hpmgr.busi_report_log a
+			where  1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+		) b where b.rn=1
+		) c
+			left join (
+			 sel  sum(down_count) as down_count,subject_id,aud_trm,prvd_id,file_type
+			  from (select*from	hpmgr.busi_report_log
+		qualify	row_number() over (partition by prvd_id,aud_trm ,subject_id,file_type,create_type order by  create_datetime desc)=1)si
+			  group by subject_id,aud_trm,prvd_id,file_type
+			  ) b  on c.subject_id =b.subject_id and c.aud_trm=b.aud_trm and c.prvd_id=b.prvd_id
+			  and c.file_type=b.file_type
+			   left join ( SELECT	id, name FROM	hpmgr.busi_stat_subject  ) d on c.subject_id =d.id
+		left join
+		(sel aud_trm,prvd_id,subject_id,file_type,file_path,fileupload_date from hpmgr.busi_report_upload
+		where status='yes'
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+		) bb
+		on c.prvd_id=bb.prvd_id and  c.aud_trm=bb.aud_trm
+		and  c.subject_id=bb.subject_id and   c.file_type =bb.file_type
+	left join(
+		sel
+	b.subject_id,b.aud_trm,b.file_type,b.prvd_id,b.oper_person,b.down_datetime
+	from(
+		sel
+	b.subject_id,b.aud_trm,b.file_type,b.prvd_id,b.oper_person,b.down_datetime
+	from hpmgr.busi_report_log b
+		where  1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and b.file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  b.aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and b.subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and b.prvd_id=#{prvdId}
+				</if>
+				and b.create_type='down') b
+		 join (
+	sel
+	subject_id,aud_trm,file_type,prvd_id,max(down_datetime) as down_date
+	from hpmgr.busi_report_log a
+			where  1=1
+			<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				and create_type='down'
+				group by subject_id,aud_trm,file_type,prvd_id
+				)  a on a.aud_trm =b.aud_trm  and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+				and a.file_type =b.file_type  and a.down_date =b.down_datetime
+
+		) dd on dd.aud_trm =c.aud_trm  and dd.subject_id=c.subject_id and dd.prvd_id=c.prvd_id
+				and dd.file_type =c.file_type
+		qualify	row_number() over (partition by audit_monthly ,audit_subject,c.file_type order by  create_datetime desc)=1
+		order by c.file_type,c.create_datetime desc
+	</select>
+<!-- 	<select id="downRecordsTable" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.BgxzData">
+	<if test='subjectId !=null and subjectId !="5" '>
+			sel d.name,
+			c.subject_id as audit_subject,
+			case when c.file_type ='audReport' then '审计报告'
+			when c.file_type ='audDetail' then '审计清单'
+			when c.file_type ='auditPm' then '排名汇总'
+			when c.file_type ='auditTB' then '审计通报' else '' end as file_type,
+			c.aud_trm as audit_monthly,
+			c.oper_person as create_person,
+			<![CDATA[
+			case when dd.down_datetime  is null or c.down_datetime > dd.down_datetime or c.create_datetime>dd.down_datetime    then c.oper_person
+			when   (c.down_datetime is null or c.down_datetime < dd.down_datetime)  and c.create_datetime < dd.down_datetime   then  dd.oper_person  end as create_person,
+			]]>
+			c.create_datetime as create_time,
+			c.down_datetime as last_down_time,
+			<![CDATA[
+				case when dd.down_datetime is null or c.down_datetime > dd.down_datetime    then c.down_datetime
+			when  c.down_datetime is null or c.down_datetime <  dd.down_datetime  then  dd.down_datetime end as last_down_time,
+			]]>
+			b.down_count,
+			c.file_path as download_url,
+			case when bb.fileupload_date is null or c.create_datetime > bb.fileupload_date  then c.file_path
+			when  c.create_datetime is null or c.create_datetime <![CDATA[<]]> bb.fileupload_date  then bb.file_path end as download_url,
+ 			case when c.create_type='manual' then '手动生成'
+ 			when c.create_type='auto' then '自动生成' else '' end as create_type,
+ 			c.file_type as file_typeTMP
+		 from(
+			sel *
+			 from (
+			sel  a.*,row_number() over (partition by   aud_trm ,subject_id, prvd_id,file_type order by create_datetime desc) rn
+			from hpmgr.busi_report_log a
+			where  1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+		) b where b.rn=1
+		) c
+			left join (
+			 sel  sum(down_count) as down_count,subject_id,aud_trm,prvd_id,file_type
+			  from hpmgr.busi_report_log
+			  group by subject_id,aud_trm,prvd_id,file_type
+			  ) b  on c.subject_id =b.subject_id and c.aud_trm=b.aud_trm and c.prvd_id=b.prvd_id
+			  and c.file_type=b.file_type
+			   left join ( SELECT	id, name FROM	hpmgr.busi_stat_subject  ) d on c.subject_id =d.id
+		left join
+		(sel aud_trm,prvd_id,subject_id,file_type,file_path,fileupload_date from hpmgr.busi_report_upload
+		where status='yes'
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+		) bb
+		on c.prvd_id=bb.prvd_id and  c.aud_trm=bb.aud_trm
+		and  c.subject_id=bb.subject_id and   c.file_type =bb.file_type
+	left join(
+		sel
+	b.subject_id,b.aud_trm,b.file_type,b.prvd_id,b.oper_person,b.down_datetime
+	from(
+		sel
+	b.subject_id,b.aud_trm,b.file_type,b.prvd_id,b.oper_person,b.down_datetime
+	from hpmgr.busi_report_log b
+		where  1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and b.file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  b.aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and b.subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and b.prvd_id=#{prvdId}
+				</if>
+				and b.create_type='down') b
+		 join (
+	sel
+	subject_id,aud_trm,file_type,prvd_id,max(down_datetime) as down_date
+	from hpmgr.busi_report_log a
+			where  1=1
+			<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				and create_type='down'
+				group by subject_id,aud_trm,file_type,prvd_id
+				)  a on a.aud_trm =b.aud_trm  and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+				and a.file_type =b.file_type  and a.down_date =b.down_datetime
+
+		) dd on dd.aud_trm =c.aud_trm  and dd.subject_id=c.subject_id and dd.prvd_id=c.prvd_id
+				and dd.file_type =c.file_type
+		order by c.file_type,c.create_datetime desc
+		</if>
+		<if test='subjectId !=null and subjectId =="5" '>
+			sel
+			case when c.file_type ='audReport' or c.file_type ='audDetail' or c.file_type ='auditTB' then '员工异常操作'  else d.name end as name,
+			c.subject_id as audit_subject,
+			case when c.file_type ='audReport' then '审计报告'
+			when c.file_type ='audDetail' then '审计清单'
+			when c.file_type ='auditPm' then '排名汇总'
+			when c.file_type ='auditTB' then '审计通报' else '' end as file_type,
+			c.aud_trm as audit_monthly,
+			c.oper_person as create_person,
+			<![CDATA[
+			case when dd.down_datetime  is null or c.down_datetime > dd.down_datetime or c.create_datetime>dd.down_datetime    then c.oper_person
+			when   (c.down_datetime is null or c.down_datetime < dd.down_datetime) and c.create_datetime < dd.down_datetime   then  dd.oper_person  end as create_person,
+			]]>
+			c.create_datetime as create_time,
+			c.down_datetime as last_down_time,
+			<![CDATA[
+				case when dd.down_datetime is null or c.down_datetime > dd.down_datetime    then c.down_datetime
+			when  c.down_datetime is null or c.down_datetime <  dd.down_datetime  then  dd.down_datetime end as last_down_time,
+			]]>
+			b.down_count,
+			c.file_path as download_url,
+			case when bb.fileupload_date is null or c.create_datetime > bb.fileupload_date  then c.file_path
+			when  c.create_datetime is null or c.create_datetime <![CDATA[<]]> bb.fileupload_date  then bb.file_path end as download_url,
+ 			case when c.create_type='manual' then '手动生成'
+ 			when c.create_type='auto' then '自动生成' else '' end as create_type,
+ 			c.file_type as file_typeTMP
+		 from(
+			sel *
+			 from (
+			sel  a.*,row_number() over (partition by   aud_trm ,subject_id, prvd_id,file_type,focus_cd order by create_datetime desc) rn
+			from hpmgr.busi_report_log a
+			where  1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+		) b where b.rn=1
+		) c
+			left join (
+			 sel  sum(down_count) as down_count,subject_id,aud_trm,prvd_id,file_type
+			  from hpmgr.busi_report_log
+			  group by subject_id,aud_trm,prvd_id,file_type
+			  ) b  on c.subject_id =b.subject_id and c.aud_trm=b.aud_trm and c.prvd_id=b.prvd_id
+			  and c.file_type=b.file_type
+			   left join ( SELECT	id, name FROM	hpmgr.busi_stat_subject  ) d on c.focus_cd =d.id
+		left join
+		(sel aud_trm,prvd_id,subject_id,file_type,file_path,fileupload_date from hpmgr.busi_report_upload
+		where status='yes'
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+		) bb
+		on c.prvd_id=bb.prvd_id and  c.aud_trm=bb.aud_trm
+		and  c.subject_id=bb.subject_id and   c.file_type =bb.file_type
+		left join(
+		sel
+	b.subject_id,b.aud_trm,b.file_type,b.prvd_id,b.oper_person,b.down_datetime
+	from(
+		sel
+	b.subject_id,b.aud_trm,b.file_type,b.prvd_id,b.oper_person,b.down_datetime
+	from hpmgr.busi_report_log b
+		where  1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and b.file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  b.aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and b.subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and b.prvd_id=#{prvdId}
+				</if>
+				and b.create_type='down') b
+		 join (
+			sel
+			subject_id,aud_trm,file_type,prvd_id,max(down_datetime) as down_date
+			from hpmgr.busi_report_log a
+			where  1=1
+			<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				and create_type='down'
+				group by subject_id,aud_trm,file_type,prvd_id
+				)  a on a.aud_trm =b.aud_trm  and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+				and a.file_type =b.file_type  and a.down_date =b.down_datetime
+
+		) dd on dd.aud_trm =c.aud_trm  and dd.subject_id=c.subject_id and dd.prvd_id=c.prvd_id
+				and dd.file_type =c.file_type
+		order by c.file_type,c.create_datetime desc
+		</if>
+	</select> -->
+
+	<select id="selSubjectName" resultType="java.util.HashMap" parameterType="java.util.Map">
+	 SELECT	name FROM	hpmgr.busi_stat_subject  where id=#{subjectId}
+	</select>
+
+	<!--
+	sel
+	id,subject_id,aud_trm,csv_file_gen_time,doc_file_gen_time
+	 from hpmgr.busi_model_notify
+	 where subject_id =1  and aud_trm =201701
+	 -->
+
+	<!-- 添加日志 -->
+	<select id="addReportLog" parameterType="java.util.Map">
+	INSERT	INTO hpmgr.busi_report_log
+	(subject_id, focus_cd, aud_trm, prvd_id, oper_type, down_datetime,
+			oper_person, down_count,file_type,login_account,file_path,
+			create_datetime,file_name,create_type)
+	VALUES(#{subjectId},#{focusCd},#{audTrm},#{prvdId},#{operType},#{downDatetime},#{operPerson},#{downCount},
+			#{fileType},#{loginAccount},#{filePath},#{createDatetime},#{fileName},#{createType})
+	</select>
+	<!-- 更新下载次数 -->
+	<update id="updateReportLog" parameterType="java.util.Map">
+	update hpmgr.busi_report_log
+	 <trim prefix="set" suffixOverrides=",">
+	  <if test="operType != null">oper_type=#{operType},</if>
+	  <if test="fileName != null">file_name=#{fileName},</if>
+	  <if test="filePath != null">file_path=#{filePath},</if>
+	  <if test="downDatetime != null">down_count =down_count+1,down_datetime=#{downDatetime},</if>
+	  <if test="createDatetime != null">create_datetime=#{createDatetime},</if>
+	 </trim>
+	where 1=1
+	<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				<if test="loginAccount !=null and loginAccount !='' ">
+				and login_account=#{loginAccount}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and focus_cd=#{focusCd}
+				</if>
+				<!-- <if test="createType !=null and createType !='' ">
+				and create_type=#{createType}
+				</if> -->
+	</update>
+	<!-- 更新下载次数 针对电子券专题 -->
+	<update id="updateReportLog6" parameterType="java.util.Map">
+		update hpmgr.busi_report_log
+		<trim prefix="set" suffixOverrides=",">
+			<if test="operType != null">oper_type=#{operType},</if>
+			<if test="fileName != null">file_name=#{fileName},</if>
+			<if test="filePath != null">file_path=#{filePath},</if>
+			<if test="downDatetime != null">down_count =down_count+1,down_datetime=#{downDatetime},</if>
+			<if test="createDatetime != null">create_datetime=#{createDatetime},</if>
+		</trim>
+		where 1=1
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+			and file_type=#{fileType}
+		</if>
+		<if test="audTrm !=null and audTrm !='' ">
+			and  aud_trm =#{audTrm}
+		</if>
+		<if test="subjectId !=null and subjectId !='' ">
+			and subject_id =#{subjectId}
+		</if>
+		<if test="prvdId !=null and prvdId !='' ">
+			and prvd_id=#{prvdId}
+		</if>
+		<if test="loginAccount !=null and loginAccount !='' ">
+			and login_account=#{loginAccount}
+		</if>
+		<if test="focusCd !=null and focusCd !='' ">
+			and focus_cd=#{focusCd}
+		</if>
+		<if test="fileName !=null and fileName !='' ">
+			and file_name=#{fileName}
+		</if>
+		<!-- <if test="createType !=null and createType !='' ">
+        and create_type=#{createType}
+        </if> -->
+	</update>
+
+	<update id="updateReportLog2" parameterType="java.util.Map">
+			update hpmgr.busi_report_log
+		 <trim prefix="set" suffixOverrides=",">
+		 <if test="focusCd != null">focus_cd=#{focusCd},</if>
+		 <if test="fileName != null">file_name=#{fileName},</if>
+		  <if test="loginAccount != null">login_account=#{loginAccount},</if>
+		  <if test="createType != null">create_type=#{createType},</if>
+		  <if test="operType != null">oper_type=#{operType},</if>
+		  <if test="operPerson != null">oper_person=#{operPerson},</if>
+		  <if test="filePath != null">file_path=#{filePath},</if>
+		  <if test="downDatetime != null">down_count =down_count+1,down_datetime=#{downDatetime},</if>
+		  <if test="createDatetime != null">create_datetime=#{createDatetime},</if>
+		 </trim>
+		<where>
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				</where>
+
+	</update>
+
+	<update id="updateReportLog7" parameterType="java.util.Map">
+			update hpmgr.busi_report_log
+		 <trim prefix="set" suffixOverrides=",">
+		 <if test="fileName != null">file_name=#{fileName},</if>
+		  <if test="loginAccount != null">login_account=#{loginAccount},</if>
+		  <if test="createType != null">create_type=#{createType},</if>
+		  <if test="operType != null">oper_type=#{operType},</if>
+		  <if test="operPerson != null">oper_person=#{operPerson},</if>
+		  <if test="filePath != null">file_path=#{filePath},</if>
+		  <if test="downDatetime != null">down_count =down_count+1,down_datetime=#{downDatetime},</if>
+		  <if test="createDatetime != null">create_datetime=#{createDatetime},</if>
+		 </trim>
+		<where>
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and focus_cd=#{focusCd}
+				</if>
+				</where>
+
+	</update>
+
+	<delete id="deleteReportLog" parameterType="java.util.Map">
+	delete from hpmgr.busi_report_log
+	<where>
+	<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and focus_cd=#{focusCd}
+				</if>
+				</where>
+	</delete>
+
+	<select id="selReportLog"  resultType="java.util.HashMap" parameterType="java.util.Map">
+	sel * from hpmgr.busi_report_log
+	<where>
+	<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				<if test="loginAccount !=null and loginAccount !='' ">
+				and login_account=#{loginAccount}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and focus_cd=#{focusCd}
+				</if>
+				</where>
+				order by create_datetime  desc
+	</select>
+	<select id="selReportLog_new"  resultType="java.util.HashMap" parameterType="java.util.Map">
+		sel * from hpmgr.busi_report_log
+		<where>
+			<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+			</if>
+			<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+			</if>
+			<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+			</if>
+			<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+			</if>
+			<if test="loginAccount !=null and loginAccount !='' ">
+				and login_account=#{loginAccount}
+			</if>
+			<if test="focusCd !=null and focusCd !='' ">
+				and focus_cd=#{focusCd}
+			</if>
+			<if test="fileName !=null and fileName !='' ">
+				and file_name=#{fileName}
+			</if>
+		</where>
+		order by create_datetime  desc
+	</select>
+
+
+	<select id="selReportLogCsv"  resultType="java.util.HashMap" parameterType="java.util.Map">
+	sel distinct file_name,file_path from hpmgr.busi_report_log
+	<where>
+	<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<!--<if test='subjectId !=null and subjectId =="7" '>-->
+				<!--and focus_cd <![CDATA[<>]]> '7000'-->
+				<!--</if>-->
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				<if test="loginAccount !=null and loginAccount !='' ">
+				and login_account=#{loginAccount}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and focus_cd=#{focusCd}
+				</if>
+				and create_type <![CDATA[<>]]> 'down'
+				</where>
+				order by create_datetime  desc
+	</select>
+
+	<delete id="delUploadFile" parameterType="java.util.Map">
+	delete from hpmgr.busi_report_upload
+	where 1=1
+	<if test="ids!= null and ids.size > 0">
+	and id in
+	<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+				</if>
+	</delete>
+
+	<select id="downUploadFile" resultType="java.util.Map" parameterType="java.util.Map">
+	sel file_path,file_name,status from hpmgr.busi_report_upload
+	where 1=1
+	<if test="ids!= null and ids.size > 0">
+		      and id in
+		      		<foreach item="item"  collection="ids" open="(" separator="," close=")">
+					#{item}
+					</foreach>
+		     </if>
+	</select>
+
+	<insert id="addReportUpload" parameterType="com.hpe.cmca.pojo.BgxzData">
+	INSERT	INTO hpmgr.busi_report_upload
+	(
+	subject_id,
+	focus_cd,
+	aud_trm,
+	prvd_id,
+	oper_person,
+	file_type,
+	login_account,
+	file_path,
+	fileupload_date,
+	file_comment,
+	review_opinion,
+	status,file_name
+	)
+	VALUES(#{subjectId},#{focusCd},#{audTrm},#{prvdId},#{operPerson},
+			#{fileType},#{loginAccount},#{filePath},#{fileUploadDate},
+			#{fileComment},#{reviewOpinion},#{status},#{fileName})
+	</insert>
+
+	<select id="countReportUpload"  resultType="java.lang.Integer" parameterType="com.hpe.cmca.pojo.BgxzData">
+		sel count(*) as totalCount  from hpmgr.busi_report_upload
+		<where>
+		<if test="status =='dsh' ">
+				and status='wait'
+				</if>
+				<if test="status =='ysh' ">
+				and status in ('yes','no')
+				</if>
+				<if test="status =='ysc' ">
+				and status in ('wait','yes','no')
+		</if>
+		</where>
+	</select>
+
+	<select id="selReportUpload"  resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.BgxzData">
+	sel
+		a.id,
+		subject_id,
+		focus_cd,
+		aud_trm,
+		prvd_id,
+		oper_person,
+		login_account,
+		file_type,
+		cast(fileupload_date as varchar(10)) as fileupload_date,
+		file_comment,
+		review_opinion,
+		file_path,
+		file_name,
+		status,
+		b.CMCC_prov_prvd_nm
+		from hpmgr.busi_report_upload a
+		left join (
+		sel CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd
+		where  CMCC_prov_prvd_cd <![CDATA[<>]]> 10000
+		) b on b.CMCC_prov_prvd_cd =a.prvd_id
+	<where>
+	<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and  focus_cd =#{focusCd}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+			<!-- 	<if test="loginAccount !=null and loginAccount !='' ">
+				and login_account=#{loginAccount}
+				</if> -->
+				<if test='status =="dsh" '>
+				and status='wait'
+				</if>
+				<if test='status =="ysh" '>
+				and status in ('yes','no')
+				</if>
+				<if test='status =="ysc" '>
+				and status in ('wait','yes','no')
+				</if>
+					<if test='status =="yes" or status =="no" '>
+				and status=#{status}
+				</if>
+				<if test="id !=null and id !=''">
+				and id=#{id}
+				</if>
+				<if test="ids!= null and ids.size > 0">
+				and id in
+				<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+				</if>
+		</where>
+		order by fileupload_date desc
+	</select>
+
+	<!-- 审批文件 -->
+	<update id ="reviewReportUpload" parameterType="java.util.Map">
+	update hpmgr.busi_report_upload
+	set status=#{status},review_opinion=#{reviewOpinion}
+	<where>
+		<if test="ids!= null and ids.size > 0">
+		and id in
+		<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		</if>
+		</where>
+	</update>
+
+	<update id ="updateReportUpload" parameterType="com.hpe.cmca.pojo.BgxzData">
+		update hpmgr.busi_report_upload
+	<!-- 	set fileupload_date=current_timestamp,
+		file_comment=#{fileComment},
+		file_path=#{filePath},
+		file_name=#{fileName} -->
+		<trim prefix="set" suffixOverrides=",">
+		  <if test="fileComment != null">file_comment=#{fileComment},</if>
+		  <if test="filePath != null">file_path=#{filePath},</if>
+		  <if test="fileName != null">file_name=#{fileName},</if>
+		  <if test="status != null">status=#{status},</if>
+		   <if test="fileUploadDate != null">fileupload_date=#{fileUploadDate},</if>
+		 </trim>
+		<where>
+		<if test="fileType !=null and fileType !='' and fileType !='all' ">
+				and file_type=#{fileType}
+				</if>
+				<if test="audTrm !=null and audTrm !='' ">
+				and  aud_trm =#{audTrm}
+				</if>
+				<if test="focusCd !=null and focusCd !='' ">
+				and  focus_cd =#{focusCd}
+				</if>
+				<if test="subjectId !=null and subjectId !='' ">
+				and subject_id =#{subjectId}
+				</if>
+				<if test="prvdId !=null and prvdId !='' ">
+				and prvd_id=#{prvdId}
+				</if>
+				<if test="loginAccount !=null and loginAccount !='' ">
+				and login_account=#{loginAccount}
+				</if>
+				</where>
+	</update>
+
+
+	<select id="getAudTrmDataTrmConf3" resultType="java.util.Map" parameterType="java.util.Map">
+			SELECT	distinct Aud_trm as audTrm,switch_state as switchStatus
+			FROM	hpmgr.busi_audit_switch_conf
+			where switch_type =2 and subject_code = #{subjectId}
+			and switch_state in (2)
+			order by Aud_trm desc
+	</select>
+
+	<select id="getAudTrmDataTrmConf2" resultType="java.util.Map" parameterType="java.util.Map">
+			SELECT	distinct Aud_trm as audTrm,switch_state as switchStatus
+			FROM	hpmgr.busi_audit_switch_conf
+			where switch_type =2 and subject_code = #{subjectId}
+			and switch_state in (1,2)
+			order by Aud_trm desc
+	</select>
+
+	<select id="getAudTrmDataTrmConf1" resultType="java.util.Map" parameterType="java.util.Map">
+			SELECT	distinct Aud_trm as audTrm,switch_state as switchStatus
+			FROM	hpmgr.busi_audit_switch_conf
+			where switch_type =2 and subject_code = #{subjectId}
+			order by Aud_trm desc
+	</select>
+
+	<!-- 获取报告下载相关人员信息 -->
+	<select id="selReportPerson"  resultType="java.util.HashMap" parameterType="java.util.Map">
+	sel user_id,user_name,flag,phone  from hpmgr.busi_report_person
+	<where>
+		<if test="flag !=null and flag !=''">
+				and flag=#{flag}
+				</if>
+		</where>
+	</select>
+
+</mapper>
+

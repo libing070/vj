@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.ZhsjMapper">
+	<!-- 查询审计月的审计报告是否打开 -->
+	<select id="getZhsjUserList" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	user_id, user_name
+	FROM	hpmgr.busi_zhsj_user_list where user_id=#{userId}
+	</select>
+
+
+</mapper>
+

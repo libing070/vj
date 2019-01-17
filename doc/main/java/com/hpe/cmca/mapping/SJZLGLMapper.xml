@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.SJZLGLMapper">
+    <!--顶部list-审计月-区域-涉及专题-涉及接口-涉及稽核点-->
+    <!-- 审计月list-->
+    <select id="getAudTrm" resultType="java.util.HashMap">
+		SELECT	DISTINCT aud_trm as id,SUBSTR(aud_trm,1,4)||'年'||SUBSTR(aud_trm,5,2)||'月' as name
+		FROM HPBUS.sjzl_home_show
+		WHERE <![CDATA[aud_trm IS NOT NULL AND aud_trm <> '' ]]>
+		and show_flag = '1'
+		order by aud_trm desc
+	</select>
+    <!-- 专题list-->
+    <select id="getSubject" resultType="java.util.HashMap">
+		SELECT	DISTINCT subject_id as id,subject_nm as name
+		FROM HPMGR.busi_sjzl_audit_info
+		WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+		<![CDATA[and status <> '0' ]]>
+		and show_flag = '1'
+		order by subject_id
+	</select>
+    <!-- 接口list-->
+    <select id="getPortList" resultType="java.util.HashMap">
+        SELECT DISTINCT inter_num as id,inter_num||'接口' as name
+        FROM HPMGR.busi_sjzl_audit_info
+        WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+        <![CDATA[and inter_num IS NOT NULL AND inter_num <> '' ]]>
+        <![CDATA[and status <> '0' ]]>
+        <if test="subjectId !=null">
+            and subject_id = #{subjectId}
+        </if>
+        and show_flag = '1'
+        order by inter_num
+    </select>
+    <!-- 稽核点list-->
+    <select id="getDetjihePoint" resultType="java.util.HashMap">
+        SELECT DISTINCT audit_sheet_code as jihePointId ,audit_sheet_nm as jihePointName ,
+        subject_id as subjectId ,subject_nm as subjectName
+        FROM HPMGR.busi_sjzl_audit_info
+        WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+        <![CDATA[and status <> '0' ]]>
+        <if test="subjectId !=null">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            and inter_num = #{port}
+        </if>
+        and show_flag = '1'
+        order by audit_code
+    </select>
+    <!-- 稽核点 稽核事项list-->
+    <select id="getDetjihePointNew" resultType="java.util.HashMap">
+        SELECT DISTINCT audit_sheet_code as jihePointId,audit_sheet_nm as jihePointName,
+        subject_id as subjectId ,subject_nm as subjectName
+        FROM HPMGR.busi_sjzl_audit_info
+        WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+        <![CDATA[and status <> '0' ]]>
+        <if test="subjectId !=null">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            and inter_num = #{port}
+        </if>
+        and show_flag = '1'
+        and audit_sheet_code not like 'sheet000_%'
+        order by audit_code
+    </select>
+    <!-- 通过 稽核事项获取稽核点list-->
+    <select id="getAuditCodeOfSheetCode" resultType="java.util.HashMap">
+        SELECT DISTINCT audit_sheet_code as audSheetId,audit_sheet_nm as audSheetNm
+        FROM HPMGR.busi_sjzl_audit_info
+        WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+        <![CDATA[and status <> '0' ]]>
+        <if test="subjectId !=null">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            and inter_num = #{port}
+        </if>
+        <if test="jihePointId !=null">
+            AND audit_sheet_code = #{jihePointId}
+        </if>
+        <![CDATA[and status <> '0' ]]>
+        and show_flag = '1'
+        order by audit_sheet_code
+    </select>
+    <!-- 通过 稽核点获取稽核事项list-->
+    <select id="getSheetCodeOfAuditCode" resultType="java.util.HashMap">
+        SELECT DISTINCT audit_sheet_code as audSheetId,audit_sheet_nm as audSheetNm,
+        audit_code as jihePointId ,audit_nm as jihePointName ,
+        subject_id as subjectId ,subject_nm as subjectName
+        FROM HPMGR.busi_sjzl_audit_info
+        WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+        <![CDATA[and status <> '0' ]]>
+        <if test="subjectId !=null">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            and inter_num = #{port}
+        </if>
+        <if test="sheetCodes !=null">
+            AND audit_sheet_code in
+            <foreach item="item" index="index" collection="sheetCodes" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <![CDATA[and status <> '0' ]]>
+        and show_flag = '1'
+        order by audit_code
+    </select>
+    <!-- 区域list-->
+    <select id="getDetPrvd" resultType="java.util.HashMap">
+    select prvdId,prvdName from (
+		SELECT	DISTINCT CMCC_prov_prvd_id as prvdId,CMCC_prov_prvd_nm  as prvdName
+		FROM hpmgr.ref_dm_cmcc_prov_prvd_cd
+		WHERE <![CDATA[CMCC_prov_prvd_id IS NOT NULL AND CMCC_prov_prvd_id <> '' ]]>
+		union
+		SELECT	DISTINCT  CAST(firm_prvd_id AS SMALLINT) as prvdId,firm_prvd_nm  as prvdName
+		FROM hpmgr.bass_std1_0001
+		WHERE <![CDATA[firm_prvd_id IS NOT NULL AND firm_prvd_id <> '' ]]> ) t
+		order by prvdId
+	</select>
+
+    <!-- 首页概览表list-->
+    <select id="getOverviewList" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT subject_id as ID,subject_id as subjectId ,subject_nm as subject,
+        TRIM(CAST(COALESCE(inter_cu,0) AS FORMAT '--ZZZ,ZZZ,ZZ9'))||'#'||
+        TRIM(CAST(COALESCE(audit_unusual_cu,0) AS FORMAT '--ZZZ,ZZZ,ZZ9'))||'#'||
+        TRIM(CAST(COALESCE(inter_prvd,0) AS FORMAT '--ZZZ,ZZZ,ZZ9')) ||'#'||
+        TRIM(CAST(COALESCE(ef_model_cu,0) AS FORMAT '--ZZZ,ZZZ,ZZ9')) AS subjectList,
+        b.iconClass
+        FROM HPBUS.sjzl_home_show a
+        left join hpmgr.busi_sjzl_iconClass  b
+        on a.subject_id=b.id
+        WHERE show_flag = '1'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        AND subject_id IS NOT NULL
+        <![CDATA[AND subject_id <> '']]>
+        ORDER BY b.rn
+    </select>
+    <!--<select id="getOverviewList" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT subject_id as ID,subject_id as subjectId ,subject_nm as subject,
+        '涉及'||TRIM(CAST(COALESCE(inter_cu,0) AS FORMAT 'ZZZ,ZZZ,ZZ9'))||'个接口' ||'#'||
+        TRIM(CAST(COALESCE(audit_unusual_cu,0) AS FORMAT 'ZZZ,ZZZ,ZZ9'))||'个稽核事项异常' ||'#'||
+        '涉及'||TRIM(CAST(COALESCE(inter_prvd,0) AS FORMAT 'ZZZ,ZZZ,ZZ9'))||'个省公司' ||'#'||
+        TRIM(CAST(COALESCE(ef_model_cu,0) AS FORMAT 'ZZZ,ZZZ,ZZ9'))||'个影响模型结果' AS subjectList
+        FROM HPBUS.sjzl_home_show
+        WHERE show_flag = '1'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        AND subject_id IS NOT NULL
+        <![CDATA[AND subject_id <> '']]>
+        ORDER BY 1
+    </select>
+    -->
+    <!-- 数据质量详情汇总-->
+    <select id="getSummarizedList" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT ROW_NUMBER() OVER(order BY audTrm,subjectId,jihePointId,jihePoint ) as num ,t.*
+        from ( SELECT distinct
+        aud_trm AS audTrm,aud_trm as audTrmNm ,
+        subject_id as subjectId,subject_nm as subjectName,
+        auditing as jiheshixiang,
+        audit_code as jihePointId,
+        audit_nm as jihePoint,
+        audit_sheet_code as jiheSheetId,
+        audit_sheet_nm as jiheSheetNm,
+        inter_num as port
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE <![CDATA[subject_id IS NOT NULL AND subject_id <> '' ]]>
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            AND inter_num = #{port}
+        </if>
+        and show_flag = '1') t
+        --order by aud_trm,subject_id,audit_code,inter_num
+    </select>
+    <!-- 稽核点异常情况统计-->
+    <select id="getSummarizedDetail" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct ROW_NUMBER() OVER(order by prvdId,subjectId,jihePointId )as num,t.*
+        from ( select distinct
+        aud_trm AS audTrm,
+        aud_trm as audTrmNm ,
+        audit_sheet_code as jiheSheetId ,
+        audit_sheet_nm as jiheSheetNm ,
+        audit_code as jihePointId ,
+        coalesce(audit_nm ,'') as jihePoint ,
+        prvd_id as prvdId ,
+        coalesce(prvd_nm ,'') as prvd ,
+        coalesce(auditing ,'')as jiheshixiang,
+        coalesce(audit_discover ,'') as resultFind ,
+        coalesce(prvd_answer  ,'') as prvdFeedback,
+        coalesce(subject_id ,'') as subjectId,
+        coalesce(subject_nm ,'') as subjectName,
+        inter_num as port
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE <![CDATA[audit_code IS NOT NULL AND audit_code <> '' ]]>
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="port !=null">
+            AND inter_num = #{port}
+        </if>
+        <if test="jihePointId !=null">
+            AND audit_code = #{jihePointId}
+        </if>
+        <if test="prvdId !=null and prvdId !=10000 ">
+            AND prvd_id = #{prvdId}
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        ) t
+        where <![CDATA[subjectId IS NOT NULL AND subjectId <> '' ]]>
+        --order by prvd_id,subjectId,jihePointId
+    </select>
+    <!-- 稽核点异常情况统计-编辑备份-->
+    <insert id="getSummarizedSaveBakDet" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        insert into HPBUS.sjzl_audit_bakdet
+        select cast ( CURRENT_TIMESTAMP(0) as timestamp(0) format 'YYYYMMDDbHHMISS') as update_bk_time,
+        t.* from HPBUS.sjzl_audit_det t
+        where 1=1
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null">
+            AND prvd_id = #{prvdId}
+        </if>
+        <if test="jihePointId !=null">
+            AND audit_code = #{jihePointId}
+        </if>
+    </insert>
+    <!-- 稽核点异常情况统计-编辑-->
+    <update id="getSummarizedSaveState" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        update HPBUS.sjzl_audit_det
+        set prvd_answer = #{prvdFeedback}
+        where 1=1
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null">
+            AND prvd_id = #{prvdId}
+        </if>
+        <if test="jihePointId !=null">
+            AND audit_code = #{jihePointId}
+        </if>
+    </update>
+    <!--数据质量稽核点详情-获取表格Title-->
+    <select id="getJihePointAutoFileTab" resultType="java.util.HashMap"
+            parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct
+        query_sql as querySql ,
+        complex_title as complexTitle,
+        col_type as colType
+        from hpmgr.busi_auto_file_config
+        where 1=1
+        <if test="jihePointId !=null">
+            AND sheet_code = #{jihePointId}
+        </if>
+        and show_flag = 1
+    </select>
+    <!--获取对应接口的Excel名称-->
+    <select id="getExcName" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct excel_name
+        from hpmgr.busi_auto_file_config
+        where 1 = 1
+        <if test="port !=null">
+            and focus_cd = #{port}
+        </if>
+        and show_flag = 1
+    </select>
+    <!--获取数据高亮展示所需数据-->
+    <select id="getFalgGlInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct highlight_rules as falgGl
+        from HPMGR.busi_sjzl_audit_info
+        where <![CDATA[status <> '0' ]]>
+
+        <if test="jihePointId !=null">
+            and audit_sheet_code = #{jihePointId}
+        </if>
+    </select>
+    <!-- test executeSql-->
+    <select id="executeSql" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+	${dataSql}
+	</select>
+
+    <!-- 数据质量报告下载-表格数据初始化-->
+    <insert id="setDownloadInfo" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        insert into hpmgr.busi_sjzl_report_config(subject_id,subject_nm,aud_trm,aud_trm_str,aud_trm_end,inter_num,stats)
+        select distinct
+        t1.subject_id,t1.subject_nm,coalesce(#{audTrm},''),coalesce(#{audTrmStr},''),coalesce(#{audTrmEnd},''),
+        t1.inter_num,'0'
+        from HPMGR.busi_sjzl_audit_info t1
+        left join (select distinct subject_id,aud_trm,inter_num
+        from hpmgr.busi_sjzl_report_config where stats = '0'
+        <if test="audTrm !=null">AND aud_trm = #{audTrm}</if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        )t2
+        on t1.subject_id = t2.subject_id and t1.inter_num =t2.inter_num
+        where t2.subject_id is null
+        and t2.inter_num is null
+    </insert>
+
+    <!-- 数据质量报告下载-表格数据-->
+    <select id="getDownloadInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct ROW_NUMBER() OVER(order by aud_trm,subjectId,port )as num,
+        subject_id as subjectId,subject_nm as subjectName,aud_trm as audTrm ,
+        SUBSTR(aud_trm,1,4)||'年'||SUBSTR(aud_trm,5,2)||'月' as audTrmName,
+        user_name as operator,aud_trm_str||'-'||aud_trm_end as period,
+        file_type as fileType,file_create_date as createTime,file_report_date as lastTime ,
+        report_num as times,inter_num as port,inter_num as ID
+        from hpmgr.busi_sjzl_report_config
+        where stats = '0'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+    </select>
+
+    <insert id="insertDownloadHist" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        insert into
+        hpmgr.busi_sjzl_report_config(subject_id,subject_nm,aud_trm,user_id,user_name,aud_trm_str,aud_trm_end,file_type,
+        file_create_date,file_report_date,file_web_url,file_ftp_url,report_num,inter_num,do_type,do_date,stats)
+        select distinct
+        subject_id,subject_nm,aud_trm,user_id,user_name,aud_trm_str,aud_trm_end,file_type,file_create_date,
+        file_report_date,file_web_url,file_ftp_url,report_num,inter_num,do_type,
+        cast ( CURRENT_TIMESTAMP(0) as timestamp(0) format 'YYYYMMDDbHHMISS') as do_date,'1'
+        from hpmgr.busi_sjzl_report_config
+        where stats = '0'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            AND 'sjzl_'||inter_num = #{port}
+        </if>
+    </insert>
+
+    <update id="updateDownloadInfo"  parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        update hpmgr.busi_sjzl_report_config
+        set user_id=#{userId},user_name=#{userNm},
+        file_type=#{fileType},
+        file_report_date=#{fileReportDate},
+        report_num=#{downNum},
+        do_type=#{doType},
+        do_date=#{doDate}
+        where stats = '0'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            AND 'sjzl_'||inter_num = #{port}
+        </if>
+    </update>
+    <update id="updateDownloadInfo1" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        update hpmgr.busi_sjzl_report_config
+        set user_id=#{userId},user_name=#{userNm},
+        file_type=#{fileType},
+        file_create_date=#{fileCreateDate},
+        file_web_url=#{fileWebUrl},
+        file_ftp_url=#{fileFtpUrl},
+        do_type=#{doType},
+        do_date=#{doDate}
+        where stats = '0'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            AND 'sjzl_'||inter_num = #{port}
+        </if>
+    </update>
+    <update id="updateDownloadInfo2"  parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        update hpmgr.busi_sjzl_report_config
+        set user_id=#{userId},user_name=#{userNm},
+        file_type=#{fileType},
+        file_report_date=#{fileReportDate},
+        report_num=#{downNum},
+        do_type=#{doType},
+        do_date=#{doDate}
+        where stats = '0'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        <if test="port !=null">
+            AND 'sjzl_'||inter_num = #{port}
+        </if>
+    </update>
+    <!-- 数据质量报告下载-下载次数-->
+    <select id="queryDownNum" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select coalesce (report_num,0) as times
+        from hpmgr.busi_sjzl_report_config
+        where stats = '0'
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="port !=null">
+            AND 'sjzl_'||inter_num = #{port}
+        </if>
+    </select>
+    <!-- 数据质量报告下载-手动生成弹窗信息数据-->
+    <select id="getManualInfoSub" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct subject_id as subjectId,subject_nm as subjectName,inter_num as portData
+        from HPMGR.busi_sjzl_audit_info
+        where 1=1
+        <if test="port !=null">
+            AND inter_num = #{port}
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        and <![CDATA[status <> '0' ]]>
+        order by subject_id,inter_num
+    </select>
+
+    <!-- 数据质量报告下载-手动生成弹窗信息数据-->
+    <select id="getManualInfoDel" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct audit_sheet_code as id,audit_sheet_nm as name
+        from HPMGR.busi_sjzl_audit_info
+        where 1=1
+        <if test="port !=null">
+            AND inter_num = #{port}
+        </if>
+        <if test="subjectId !=null">
+            AND subject_id = #{subjectId}
+        </if>
+        order by audit_sheet_code
+    </select>
+
+
+    <!-- 更新专题下所有数据块的状态 -->
+    <update id="updateStatusByFocusCd" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        update hpmgr.busi_auto_file_config
+        set status = #{status}
+        where
+        <if test="port !=null">
+            focus_cd = #{port}
+        </if>
+        <if test="dataSql !=null">
+            #{dataSql}
+        </if>
+        and show_flag = 1
+        and <![CDATA[status <> 2	]]>
+    </update>
+
+    <!-- 数据质量影响评估-表格数据-->
+    <select id="getAssessment" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        select distinct ROW_NUMBER() OVER(order by audTrm,prvdId,port )as num,t.* from (
+        select distinct aud_trm as audTrm,prvd_id as prvdId,prvd_nm as prvd ,audit_unusual_cu ,
+        ef_model_cu ,audit_unusual_des as errorAuditOld ,ef_model_des as influenceAuditOld,coalesce (special_flag,'') as
+        handleState ,
+        coalesce (special_reason,'') as handleCause,coalesce (repe_flag ,'') as retransmissionState ,repe_cu as
+        retransmissionTimes,
+        coalesce (repe_reason ,'')as retransmissionCause ,
+        coalesce (model_after_repe_flag,'') as modalRetransmission ,coalesce (inters,'') as port
+        from HPBUS.sjzl_effect_evaluate
+        where 1=1
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null and prvdId != 10000">
+            AND prvd_id = #{prvdId}
+        </if>) t
+    </select>
+    <!-- 数据质量影响评估-编辑-保存  -->
+    <update id="getSaveState" parameterType="java.util.Map">
+        update HPBUS.sjzl_effect_evaluate
+        set special_flag=#{handleState},special_reason=#{handleCause} , repe_reason = #{retransmissionCause}
+        where 1=1
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null and prvdId !=10000">
+            AND prvd_id = #{prvdId}
+        </if>
+        <if test="port !=null">
+            AND inters = #{port}
+        </if>
+    </update>
+    <!-- 数据质量影响评估-编辑-保存  日志-->
+    <insert id="getInsertState" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        insert into HPBUS.sjzl_effect_evaluate_log(update_bk_time,aud_trm,prvd_id,prvd_nm,audit_unusual_cu,
+        ef_model_cu,audit_unusual_des,ef_model_des,
+        special_flag,special_reason,repe_flag,repe_cu,repe_reason,model_after_repe_flag,inters)
+        select cast ( CURRENT_TIMESTAMP(0) as timestamp(0) format 'YYYYMMDDbHHMISS') as update_bk_time,
+        aud_trm,prvd_id,prvd_nm,audit_unusual_cu,ef_model_cu,audit_unusual_des,ef_model_des,special_flag,
+        special_reason,repe_flag,repe_cu,repe_reason,model_after_repe_flag,inters
+        from HPBUS.sjzl_effect_evaluate
+        where 1=1
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null">
+            AND prvd_id = #{prvdId}
+        </if>
+        <if test="port !=null">
+            AND inters = #{port}
+        </if>
+    </insert>
+
+    <select id="getAssessment2" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct aud_trm as audTrm ,prvd_id as prvdId,audit_code as id ,audit_nm as name
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE 1=1
+        <if test="audTrm !=null">
+            and aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null and prvdId != 10000">
+            and prvd_id = #{prvdId}
+        </if>
+        and show_flag = '1'
+        order by aud_trm,prvd_id,audit_code
+    </select>
+
+    <select id="getAssessment3" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct aud_trm as audTrm ,prvd_id as prvdId,audit_code as id ,audit_nm as name
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE 1=1
+        <if test="audTrm !=null">
+            and aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null and prvdId != 10000">
+            and prvd_id = #{prvdId}
+        </if>
+        and effect_flag = '是'
+        and show_flag = '1'
+        order by aud_trm,prvd_id,audit_code
+    </select>
+    <!-- 数据质量影响评估-导出文件中的稽核点异常数据-->
+    <select id="getAsExcelData1" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct aud_trm as audTrm ,prvd_id as prvdId,audit_code as id ,audit_nm as name
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE 1=1
+        <if test="audTrm !=null">
+            and aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null">
+            and prvd_id = #{prvdId}
+        </if>
+        and effect_flag = '是'
+        and show_flag = '1'
+        order by aud_trm,prvd_id,audit_code
+    </select>
+    <!-- 数据质量影响评估-导出文件中的影响模型异常稽核点数据-->
+    <select id="getAsExcelData2" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct aud_trm as audTrm ,prvd_id as prvdId,audit_code as id ,audit_nm as name
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE 1=1
+        <if test="audTrm !=null">
+            and aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null">
+            and prvd_id = #{prvdId}
+        </if>
+        and effect_flag = '是'
+        and show_flag = '1'
+        order by aud_trm,prvd_id,audit_code
+    </select>
+    <!-- 1 数据质量影响评估-异常稽核点弹窗表格数据-->
+    <!-- 2 数据质量影响评估-影响模型异常稽核点弹窗表格数据-->
+    <select id="getErrorAuditData" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct ROW_NUMBER() OVER(order by prvdId,subjectId,jihePointId )as num,t.*
+        from ( select distinct
+        aud_trm AS audTrm,
+        aud_trm as audTrmNm ,
+        audit_code as jihePointId ,
+        coalesce(audit_nm ,'') as jihePoint ,
+        prvd_id as prvdId ,
+        coalesce(prvd_nm ,'') as prvd ,
+        coalesce(auditing ,'')as jiheshixiang,
+        audit_discover as resultFind ,
+        prvd_answer as prvdFeedback,
+        coalesce(subject_id ,'') as subjectId,
+        coalesce(subject_nm ,'') as subjectName,
+        inter_num as port
+        FROM HPBUS.sjzl_audit_det_info_view
+        WHERE <![CDATA[audit_code IS NOT NULL AND audit_code <> '' ]]>
+        <if test="audTrm !=null">
+            AND aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="jihePointIds !=null">
+            AND audit_code in
+            <foreach item="item" index="index" collection="jihePointIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="prvdId !=null">
+            AND prvd_id = #{prvdId}
+        </if>
+        ) t
+        where <![CDATA[subjectId IS NOT NULL AND subjectId <> '' ]]>
+    </select>
+
+    <!-- 数据质量影响评估-影响模型异常稽核点弹窗表格数据-->
+    <select id="getInfluenceAuditData" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+
+    </select>
+
+    <!-- 数据质量影响评估-重传次数弹窗表格数据-->
+    <select id="getRetransmissionInfo" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SJZLGLParamData">
+        SELECT distinct ROW_NUMBER() OVER(order by prvdId,subjectId )as num,t.*
+        from ( select distinct
+        t1.aud_trm AS audTrm,
+        t1.aud_trm as audTrmNm ,
+        t1.prvd_id as prvdId ,
+        coalesce(t1.prvd_nm ,'') as prvd ,
+        coalesce(t2.subject_id ,'') as subjectId,
+        coalesce(t2.subject_nm ,'') as subjectName,
+        t1.cc_flag as retransmissionState,
+        t1.jk_nm as port,
+        t1.last_rk_time as retransmissionTimes
+        FROM HPBUS.sjzl_inter_repe_daynum_det t1
+        left join HPMGR.busi_sjzl_audit_info t2
+        on t1.jk_nm = t2.inter_num
+        WHERE t1.cc_flag = '重传'
+        <if test="audTrm !=null">
+            AND t1.aud_trm = #{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="prvdId !=null">
+            AND t1.prvd_id = #{prvdId}
+        </if>
+        ) t
+    </select>
+
+    <!-- 验证有无配置信息-->
+    <select id="getFileGenList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<![CDATA[
+		SELECT	id, block_code,focus_cd, excel_code, excel_name, sheet_code, sheet_name,
+		v_h, direction,block_title,is_widthtb,aud_trm_start,has_audtrm,col_location,col_type,cell_content, query_sql,
+		is_null_set,default_val,spe_null_col,spe_default_val,
+		word_font, word_size,
+		word_color, v_point_relate, h_point_relate, v_point_l_d, h_point_l_d,
+		v_point_r_u, h_point_r_u, v_point_real, h_point_real, status,aud_trm_op, complex_pattern, complex_title,text_type,col_width,merge_cell
+		FROM	hpmgr.busi_auto_file_config where status <> 1 and focus_cd = #{focusCd} and show_flag = 1 order by block_code;
+		]]>
+	</select>
+
+    <!-- 获取下载信息-->
+    <select id="getDownLoadUrl" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select file_ftp_url
+	from  hpmgr.busi_sjzl_report_config
+	where 1=1
+    <if test="audTrm !=null">
+        AND aud_trm=#{audTrm}
+    </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+    <if test="subjectId !=null">
+        AND  subject_id=#{subjectId}
+    </if>
+    <if test="port !=null">
+        AND 'sjzl_'||inter_num = #{port}
+    </if>
+    and stats = '0'
+	qualify row_number()over(order by file_create_date desc,file_report_date desc)  =1
+	</select>
+    <!-- 获取web下载信息-->
+    <select id="getDownLoadUrlWeb" resultType="java.util.HashMap" parameterType="java.util.Map">
+        select file_web_url
+        from  hpmgr.busi_sjzl_report_config
+        where 1=1
+        <if test="audTrm !=null">
+            AND aud_trm=#{audTrm}
+        </if>
+        <if test="audTrm ==null">
+            AND aud_trm = ''
+        </if>
+        <if test="subjectId !=null">
+            AND  subject_id=#{subjectId}
+        </if>
+        <if test="port !=null">
+            AND 'sjzl_'||inter_num = #{port}
+        </if>
+        and stats = '0'
+        qualify row_number()over(order by file_create_date desc,file_report_date desc)  =1
+    </select>
+</mapper>

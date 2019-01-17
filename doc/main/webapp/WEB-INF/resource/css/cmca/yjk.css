@@ -1,0 +1,500 @@
+/*有价卡*/
+
+.GMnone {
+    display: none;
+}
+
+.fs10 {
+    font-size: 10px;
+}
+
+
+/* 颜色 #f8a900 */
+
+.cf8a900 {
+    color: #f8a900;
+}
+
+
+/* 背景颜色 #f8a900 */
+
+.bgf8a900 {
+    background: #f8a900;
+}
+
+.cbd4343 {
+    color: #bd4343;
+}
+
+.c00c58e {
+    color: #00c58e;
+}
+
+
+/* 右边table页联动字体大小*/
+
+.fs12 {
+    font-size: 12px;
+}
+
+.p0 {
+    padding: 0 !important;
+}
+
+
+/* 左侧生命周期下钻-地图层 */
+
+.qudao_area {
+    position: relative;
+    height: 100%;
+    padding-top: 45px;
+    width: 100%;
+    background: #282a37;
+}
+
+
+/* 左侧生命周期层 */
+
+.yjk_area {
+    height: 100%;
+    background-color: #282a37;
+}
+
+.yjk_top {
+    height: 360px;
+    overflow: hidden;
+}
+
+.yjk_top .graph {
+    position: relative;
+    width: 323px;
+    height: 280px;
+    margin: 50px auto 0;
+}
+
+.yjk_top .map_xs {
+    position: absolute;
+    top: 90px;
+    left: 117px;
+    width: 95px;
+    height: 95px;
+    cursor: pointer;
+}
+
+.yjk_top .map_xs:hover {
+    transform: scale(1.2);
+    -ms-transform: scale(1.2);
+}
+
+.yjk_top .zhika {
+    position: absolute;
+    top: 26px;
+    left: -6px;
+    width: 129px;
+    height: 230px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.yjk_top .xiaoshou {
+    position: absolute;
+    top: -29px;
+    left: 49px;
+    width: 230px;
+    height: 129px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.yjk_top .chongzhi {
+    position: absolute;
+    top: 26px;
+    left: 205px;
+    width: 129px;
+    height: 230px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.yjk_top .huaika {
+    position: absolute;
+    top: 183px;
+    left: 49px;
+    width: 230px;
+    height: 129px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+
+/* 有价卡 - 左上圆图响应式，288 162 */
+
+.yjk_top_response {
+    height: 100%;
+    overflow: hidden;
+}
+
+.yjk_top_response .graph {
+    position: relative;
+    width: 450px;
+    height: 550px;
+    margin: 0 auto;
+}
+
+.main_l .cycle_wrap .cycle_item {
+    z-index: 100;
+}
+
+.main_l .cycle_wrap .cycle_item img:last-of-type {
+    display: none;
+}
+
+.main_l .cycle_wrap div.active {
+    z-index: 99;
+}
+
+.main_l .cycle_wrap div.active img:first-of-type {
+    display: none;
+}
+
+.main_l .cycle_wrap div.active img:last-of-type {
+    display: block;
+}
+
+.yjk_top_response .map_xs {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    top: 188px;
+    left: 153px;
+    cursor: pointer;
+}
+
+.yjk_top_response .map_xs:hover {
+    transform: scale(1.2);
+    -ms-transform: scale(1.2);
+}
+
+.yjk_top_response .zhika {
+    position: absolute;
+    top: 113px;
+    left: 4px;
+    width: 162px;
+    height: 288px;
+    cursor: pointer;
+}
+
+.yjk_top_response .xiaoshou {
+    position: absolute;
+    top: 45px;
+    left: 74px;
+    width: 288px;
+    height: 162px;
+    cursor: pointer;
+}
+
+.yjk_top_response .chongzhi {
+    position: absolute;
+    top: 113px;
+    left: 268px;
+    width: 162px;
+    height: 288px;
+    cursor: pointer;
+}
+
+.yjk_top_response .huaika {
+    position: absolute;
+    top: 310px;
+    left: 74px;
+    width: 288px;
+    height: 162px;
+    cursor: pointer;
+}
+
+
+/* 有价卡 - 左下 */
+
+.yjk_btm {
+    margin: 20px 0 0 0;
+    height: 170px;
+    color: #ccc;
+    font-size: 12px;
+}
+
+
+/* 有价卡 - 左下盒子容器 */
+
+.yjk_btm .sum_box {
+    height: 100%;
+    padding: 0 5px 0 0;
+}
+
+.yjk_btm .sum_box ul {
+    height: 100%;
+}
+
+.yjk_btm .sum_box li {
+    height: 25%;
+}
+
+
+/* 有价卡 - 左下生命容器 */
+
+.yjk_btm .life_box {
+    padding: 0 0 0 5px;
+}
+
+.life_hed {
+    height: 20px;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+.life_hed ul {
+    cursor: pointer;
+}
+
+.life_hed ul li {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #f8a900;
+}
+
+
+/* 有价卡 - 生命周期容器 */
+
+.life_graph_ctn {
+    width: 100%;
+    height: 150px;
+}
+
+.life_graph {
+    height: 100%;
+}
+
+
+/* 有价卡 - 左边100%时给dl添加.response */
+
+.yjk_btm_response {
+    height: 100%!important;
+}
+
+.yjk_btm_response .sum_box {
+    height: 50%;
+}
+
+.yjk_btm_response .life_box {
+    margin-top: 20px;
+}
+
+.qudao_back {
+    position: absolute;
+    top: -28px;
+    right: 20px;
+    cursor: pointer;
+    color: #f8a900;
+    z-index: 999;
+}
+
+.qudao_back .qudao_back_btn {
+    border: none;
+    color: #f8a900;
+    background-color: rgba(0, 0, 0, .2);
+}
+
+
+/* 新增加按钮，只是做一个标识，不占位，没有任何功能，将来可能修改或剔除，因为目前样式并未同统一，暂时单独分类 */
+
+.qudao_area .map_top_icon {
+    z-index: 1;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    height: 60px;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.qudao_area .map_top_icon img {
+    height: 100%;
+}
+
+.yjk_drill_back_btn {
+    top: -15px !important;
+    right: 15px !important;
+}
+
+
+/* 生命周期弹出表格样式 */
+
+.life_pop {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    height: 100%;
+    width: 100%;
+    background-color: #000;
+}
+
+.life_pop .btn {
+    padding: 0;
+    border: none;
+    color: #fff;
+}
+
+.life_pop .btn:hover,
+.life_pop .btn:focus {
+    border: none;
+    background-color: transparent;
+}
+
+.life_pop table tr th,
+.life_pop table tr td {
+    border: 1px solid #ccc!important;
+    font-weight: normal!important;
+    color: #fff!important;
+    text-align: center;
+}
+
+.life_pop table tr th:first-of-type {
+    position: relative;
+    font-size: 12px;
+    background-image: url(/cmca/resource/images/youjiaka/line.png);
+    background-size: 100% 100%;
+}
+
+.life_pop table tr th .vc {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.life_pop table tr th .crm {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.life_pop table tr td {
+    font-size: 12px;
+    -moz-box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7) inset;
+    -webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7) inset;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7) inset;
+}
+
+.life_pop table tr td.green {
+    background-color: #2b9a77;
+}
+
+.life_pop table tr td.yellow {
+    background-color: #dfaa50;
+}
+
+.life_pop table tr td.red {
+    background-color: #a23737;
+}
+
+
+/* 表格hover颜色 */
+
+.main_l .table-hover>tbody>tr:hover {
+    background-color: #1f2026;
+}
+
+.main_r .table-hover>tbody>tr:hover {
+    background-color: #1f2026;
+}
+
+
+/* 统计报表五级菜单 */
+
+
+/* 统计报表导航 */
+
+
+/* 审计整改问责导航 */
+
+
+/* 整改问责要求 */
+
+
+/* 整改问责要求弹出层 */
+
+
+/* 响应式 */
+
+
+/* 1024*768分辨率下，窗口高度为640px，上方的即为1024分辨率下，部分页面可能需要修改 */
+
+@media screen and (max-width: 1024px) {
+    .wrapper {
+        height: 640px;
+        overflow: hidden;
+    }
+}
+
+
+/* 1366*768分辨率，窗口高度为640px */
+
+@media screen and (max-width: 1366px) and (min-width: 1025px) {
+    .wrapper {
+        height: 640px;
+        overflow: hidden;
+    }
+}
+
+
+/* 1600*900分辨率下，窗口高度为770px */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .wrapper {
+        height: 770px;
+        overflow: hidden;
+    }
+    .yjk_top {
+        height: 460px;
+    }
+    .yjk_top .graph {
+        margin: 100px auto 0;
+    }
+    .yjk_btm {
+        height: 190px;
+    }
+    .yjk_btm .life_graph_ctn {
+        height: 170px;
+    }
+    .life_pop {
+        height: 100%;
+    }
+}
+
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .wrapper {
+        height: 900px;
+        overflow: hidden;
+    }
+    .yjk_top {
+        height: 560px;
+    }
+    .yjk_top .graph {
+        margin: 120px auto 0;
+        transform: scale(1.4);
+        -ms-transform: scale(1.4);
+    }
+    .yjk_btm {
+        height: 240px;
+    }
+    .yjk_btm .life_graph_ctn {
+        height: 200px;
+    }
+    .life_pop {
+        height: 100%;
+    }
+}

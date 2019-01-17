@@ -1,0 +1,1465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.KhqfMapper">
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.KhqfData" id="khqfData">
+		<result property="genDate" column="Gen_date" />
+		<result property="audTrm" column="Aud_trm" />
+		<result property="prvdId" column="prvd_id" />
+		<result property="prvdName" column="CMCC_prov_prvd_nm" />
+		<result property="ctyId" column="cty_id" />
+		<result property="ctyName" column="CMCC_prvd_nm_short" />
+		<result property="infractionAmt" column="infraction_amt" />
+		<result property="infractionNum" column="infraction_num" />
+		<result property="newAmt" column="amt_new" />
+		<result property="newNum" column="subs_new" />
+		<result property="oriAmt" column="ori_amt" />
+		<result property="oriNum" column="ori_num" />
+		<result property="rn" column="rn" />
+		<result property="numOrder" column="num_order" />
+		<result property="amtOrder" column="amt_order" />
+		<result property="infractionAmtMom" column="infraction_amt_mom" />
+		<result property="infractionNumMom" column="infraction_num_mom" />
+		<result property="oriAmtMom" column="ori_amt_mom" />
+		<result property="oriNumMom" column="ori_num_mom" />
+		<result property="vipNum" column="vip_num" />
+		<result property="vipAmt" column="vip_amt" />
+		<result property="custNm" column="cust_nm" />
+		<result property="custTyp" column="cust_typ" />
+		<result property="acctAge" column="acct_age" />
+		<result property="concern" column="concern" />
+	</resultMap>
+
+	<!-- 获取客户欠费金额排名柱状图数据 add by hufei 2017.07.03 -->
+	<select id="getAmountColumnData" resultMap="khqfData"
+		parameterType="Map">
+		<if test="prvdId == 10000 and concern == '4001'">
+			<if test="audTrm==''">
+			<![CDATA[	sel CMCC_prov_prvd_nm as
+				prvdName
+				from hpmgr.ref_dm_cmcc_prov_prvd_cd
+
+				where CMCC_prov_prvd_id <> 10000
+				order by CMCC_prov_prvd_id;]]>
+			</if>
+			<if test="audTrm!=''">
+			
+	<![CDATA[
+	sel t1.CMCC_prov_prvd_nm,t2.infraction_amt
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd as  t1
+	left join 	(SELECT 
+		prvd_id,
+		infraction_amt/1000000.00 as infraction_amt,
+		aud_trm from hpbus.sum_org_cust_chg_prvd
+		WHERE  prvd_id <> 10000 AND aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+	) as t2
+	on t1.CMCC_prov_prvd_id=t2.prvd_id
+	where t1.CMCC_prov_prvd_id <> 10000
+	order by t2.infraction_amt desc, t1.CMCC_prov_prvd_id;
+	]]>
+			</if>
+		</if>
+
+		<if test="prvdId != 10000 and concern == '4001'">
+			<if test="audTrm==''">
+				select
+				CMCC_prvd_nm_short as
+				prvdName
+				from
+				HPMGR.TB_SUM_PRVD_NAME
+				where
+				CMCC_prov_prvd_id=#{prvdId} order by
+				CMCC_prvd_cd;
+			</if>
+			<if test="audTrm !=''">
+				select t1.CMCC_prvd_nm_short as
+				prvdName,t2.infraction_amt/1000000.00
+				as
+				infraction_amt
+				from (select
+				CMCC_prvd_cd,CMCC_prvd_nm_short
+				from
+				HPMGR.TB_SUM_PRVD_NAME
+				where
+				CMCC_prov_prvd_id=#{prvdId} ) as t1
+				left
+				join(
+				select
+				Aud_trm,cty_id,infraction_amt
+				from
+				hpbus.sum_org_cust_chg_cty
+				where
+				prvd_id=#{prvdId} and aud_trm =
+				trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+				'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))) as t2
+				on
+				t1.CMCC_prvd_cd=t2.cty_id
+				order by t2.infraction_amt
+				desc,t1.CMCC_prvd_cd;
+			</if>
+		</if>
+		<if test="prvdId == 10000 and concern == '4003'">
+			<if test="audTrm==''">
+
+				sel CMCC_prov_prvd_nm as
+				prvdName
+				from hpmgr.ref_dm_cmcc_prov_prvd_cd
+
+				<![CDATA[where CMCC_prov_prvd_id <> 10000
+				order by CMCC_prov_prvd_id;]]>
+			</if>
+			<if test="audTrm !=''">
+
+				SELECT t1.CMCC_prov_prvd_nm,t2.infraction_amt
+				FROM
+				hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+				LEFT JOIN (
+				select
+				CMCC_prov_prvd_id,
+				sum_dbt_amt/1000000.00 as infraction_amt,
+				aud_trm
+				FROM hpbus.sum_cust_chg_prvd
+	<![CDATA[
+	WHERE  CMCC_prov_prvd_id <> 10000 AND flag = '10000'
+		AND aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))) AS t2
+	ON t1.CMCC_prov_prvd_id=t2.CMCC_prov_prvd_id
+	WHERE t1.CMCC_prov_prvd_id <> 10000
+	ORDER BY t2.infraction_amt desc, t1.CMCC_prov_prvd_id;
+	]]>
+			</if>
+		</if>
+		<if test="prvdId != 10000 and concern == '4003'">
+			<if test="audTrm==''">
+				select
+				CMCC_prvd_nm_short as
+				prvdName
+				from
+				HPMGR.TB_SUM_PRVD_NAME
+				where
+				CMCC_prov_prvd_id=#{prvdId} order by
+				CMCC_prvd_cd;
+			</if>
+			<if test="audTrm!=''">
+				select t1.CMCC_prvd_nm_short as prvdName,t2.infraction_amt
+				from
+				(select CMCC_prvd_cd,
+				CMCC_prvd_nm_short
+				from HPMGR.TB_SUM_PRVD_NAME
+				where CMCC_prov_prvd_id=#{prvdId} ) as t1
+				LEFT JOIN (
+				select
+				CMCC_prov_prvd_id,
+				sum_dbt_amt/1000000.00 as infraction_amt,
+				aud_trm
+				FROM hpbus.sum_cust_chg_prvd
+	<![CDATA[
+	WHERE  CMCC_prov_prvd_id <> 10000 AND flag = #{prvdId}
+		AND aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))) AS t2
+	ON t1.CMCC_prvd_cd=t2.CMCC_prov_prvd_id
+	ORDER BY t2.infraction_amt desc, t1.CMCC_prvd_cd;
+	]]>
+			</if>
+		</if>
+	</select>
+
+	<!-- 获取客户欠费金额排名折线图数据-全国/省份 add by hufei 2017.07.04 -->
+	<select id="getAmountLineData" resultMap="khqfData"
+		parameterType="Map">
+		<if test="concern == '4001'">
+	<![CDATA[ 
+	select	t1.aud_trm,coalesce(t2.infraction_amt,0)  as infraction_amt
+	from
+		(SELECT	aud_trm 
+		FROM	hpmgr.busi_model_notify 
+		where	aud_trm>='201610' 
+				and	Aud_trm<=#{audTrm} 
+		group	by aud_trm) as t1 
+	left join 
+		(SELECT	trim(cast(cast(add_months(cast(Aud_trm as date format 'YYYYMM'),19)  as  date format 'YYYYMM') as  varchar(6))) as Aud_trm,
+			infraction_amt/1000000.00 as infraction_amt
+		FROM	hpbus.sum_org_cust_chg_prvd
+		WHERE  prvd_id = #{prvdId} 
+			AND Aud_trm >= trim(cast(cast(add_months(cast('201610'||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			AND Aud_trm <= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			and Aud_trm in(select distinct trim(cast(cast(add_months(cast(Aud_trm||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+				from hpmgr.busi_audit_switch_conf
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 4
+			 		and aud_trm<=#{audTrm}
+					and aud_trm>='201610')
+	)as t2
+	on t1.Aud_trm = t2.Aud_trm
+	order by t1.Aud_trm;
+	]]>
+		</if>
+		<if test="concern == '4003'">
+	<![CDATA[
+	select	t1.aud_trm,coalesce(t2.infraction_amt,0)  as infraction_amt
+	from
+		(SELECT	aud_trm 
+		FROM	hpmgr.busi_model_notify 
+		where	aud_trm>='201610' 
+		and	Aud_trm<=#{audTrm} 
+		group	by aud_trm) as t1 
+	left join 
+		(SELECT trim(cast(cast(add_months(cast(aud_trm as date format 'YYYYMM'),7)  as  date format 'YYYYMM') as  varchar(6))) as Aud_trm,
+				sum_dbt_amt/1000000.00 as infraction_amt
+		FROM	hpbus.sum_cust_chg_prvd
+		WHERE  CMCC_prov_prvd_id=#{prvdId}  AND flag = 10000
+				AND aud_trm >= trim(cast(cast(add_months(cast('201610'||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+				AND aud_trm <= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+		and Aud_trm in
+			(select distinct trim(cast(cast(add_months(cast(Aud_trm||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+				from hpmgr.busi_audit_switch_conf
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 4
+			 		and aud_trm<=#{audTrm}
+					and aud_trm>='201610')
+	)as t2
+	on t1.Aud_trm = t2.Aud_trm
+	order by t1.Aud_trm;
+	]]>
+		</if>
+
+	</select>
+	<!-- 获取集团增量分析数据-全国 add by hufei 2017.07.05 -->
+	<select id="getIncrementalData" resultMap="khqfData"
+		parameterType="Map">
+		<if test="concern == '4001'">
+			sel
+			t1.CMCC_prov_prvd_nm,t2.incremental,t1.CMCC_prov_prvd_id as prvd_id
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join (
+			sel
+			CMCC_prov_prvd_nm,amt_dif as incremental,prvd_id
+			from
+			hpbus.sum_org_cust_chg_prvd
+			where aud_trm=
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))))as
+			t2
+			on
+			t1.CMCC_prov_prvd_id=t2.prvd_id
+			order by t2.incremental desc,
+			t1.CMCC_prov_prvd_id;
+		</if>
+		<if test="concern == '4003'">
+			sel
+			t1.CMCC_prov_prvd_nm,t2.incremental,t1.CMCC_prov_prvd_id as prvd_id
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as t1
+			left join (sel amt_num as
+			incremental,CMCC_prov_prvd_id as prvd_id
+			from hpbus.sum_cust_chg_prvd
+			where aud_trm= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and
+			flag=10000) as t2
+			on t1.CMCC_prov_prvd_id=t2.prvd_id
+			order by
+			t2.incremental desc, t1.CMCC_prov_prvd_id;
+		</if>
+
+	</select>
+
+	<!-- 获取集团/个人客户欠费数量排名柱状图数据 -->
+	<select id="getJTNumberPm" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern == '4001' and prvdId ==10000">
+			<if test="audTrm==''">
+			<![CDATA[	sel CMCC_prov_prvd_nm as
+				prvdName
+				from hpmgr.ref_dm_cmcc_prov_prvd_cd
+
+				where CMCC_prov_prvd_id <> 10000
+				order by CMCC_prov_prvd_id;]]>
+			</if>
+			<if test="audTrm !=''">
+				SELECT b.rn ,
+				a.CMCC_prov_prvd_nm,
+				b.infraction_num
+				FROM
+				(select
+				CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from
+				hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[ <>]]>
+				10000 ) a
+				left join (
+				select
+				ROW_NUMBER() OVER (ORDER BY infraction_num
+				DESC ) AS rn ,
+				prvd_id,
+				CMCC_prov_prvd_nm,
+				infraction_num
+				from
+				hpbus.sum_org_cust_chg_prvd
+				WHERE prvd_id <![CDATA[ <>]]>
+				10000 AND
+				aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+				date format
+				'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+				varchar(6)))
+				) b on a.CMCC_prov_prvd_cd = b.prvd_id
+				order by
+				b.rn,a.CMCC_prov_prvd_cd
+			</if>
+		</if>
+		<if test="concern == '4001' and prvdId !=10000">
+			<if test="audTrm==''">
+				select
+				CMCC_prvd_nm_short as prvdName
+				from HPMGR.TB_SUM_PRVD_NAME
+				where
+				CMCC_prov_prvd_id=#{prvdId} order by CMCC_prvd_cd
+			</if>
+			<if test="audTrm !=''">
+				SELECT b.rn,
+				a.CMCC_prvd_nm_short as CMCC_prov_prvd_nm,
+				b.infraction_num
+				FROM
+				(select
+				CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from
+				HPMGR.TB_SUM_PRVD_NAME
+				WHERE CMCC_prov_prvd_id = #{prvdId}
+				) a
+				left join
+				(
+				select
+				ROW_NUMBER() OVER (ORDER BY infraction_num DESC ) AS rn ,
+				prvd_id,cty_id,
+				CMCC_prvd_nm_short as CMCC_prov_prvd_nm,
+				infraction_num
+				from hpbus.sum_org_cust_chg_cty
+				WHERE prvd_id =
+				#{prvdId} AND
+				aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01'
+				as date format
+				'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+				varchar(6)))
+				) b on a.CMCC_prov_prvd_id = b.prvd_id and
+				a.CMCC_prvd_cd=b.cty_id
+				order by b.rn,a.CMCC_prvd_cd
+			</if>
+		</if>
+		<if test="concern == '4003' and prvdId ==10000">
+			<if test="audTrm==''">
+
+				sel CMCC_prov_prvd_nm as prvdName
+				from hpmgr.ref_dm_cmcc_prov_prvd_cd
+
+				<![CDATA[where CMCC_prov_prvd_id <> 10000
+				order by CMCC_prov_prvd_id;]]>
+			</if>
+			<if test="audTrm !=''">
+				SELECT b.rn ,
+				a.CMCC_prov_prvd_nm,
+				b.infraction_num,
+				b.aud_trm
+				FROM
+				(select CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from
+				hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[ <>]]>
+				10000) a
+				left join (
+				select ROW_NUMBER() OVER (ORDER BY sum_cust1 DESC
+				) AS rn ,
+				CMCC_prov_prvd_nm,CMCC_prov_prvd_id,
+				sum_cust1 as
+				infraction_num,
+				aud_trm
+				from hpbus.sum_cust_chg_prvd
+				WHERE
+				CMCC_prov_prvd_id<![CDATA[ <>]]>
+				10000 AND flag = 10000
+				AND aud_trm =
+				trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+				format
+				'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+				) b on
+				a.CMCC_prov_prvd_cd = b.CMCC_prov_prvd_id
+				order by
+				b.rn,a.CMCC_prov_prvd_cd
+			</if>
+		</if>
+		<if test="concern == '4003' and prvdId !=10000">
+			<if test="audTrm==''">
+				select
+				CMCC_prvd_nm_short as prvdName
+				from HPMGR.TB_SUM_PRVD_NAME
+				where
+				CMCC_prov_prvd_id=#{prvdId} order by CMCC_prvd_cd
+			</if> 
+			<if test="audTrm !=''">
+				SELECT b.rn ,
+				a.CMCC_prvd_nm_short as CMCC_prov_prvd_nm,
+				b.infraction_num,
+				b.aud_trm
+				FROM
+				(select
+				CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from
+				HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id = #{prvdId} ) a
+				left
+				join (
+				select ROW_NUMBER() OVER (ORDER BY sum_cust1 DESC ) AS rn ,
+				CMCC_prov_prvd_nm,CMCC_prov_prvd_id,flag,
+				sum_cust1 as infraction_num,
+				aud_trm
+				from hpbus.sum_cust_chg_prvd
+				WHERE CMCC_prov_prvd_id <![CDATA[ <>]]>
+				10000 AND flag = #{prvdId}
+				AND aud_trm =
+				trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+				format
+				'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+				) b on
+				a.CMCC_prov_prvd_id = b.flag and a.CMCC_prvd_cd
+				=b.CMCC_prov_prvd_id
+				order by b.rn,a.CMCC_prvd_cd
+			</if>
+		</if>
+	</select>
+
+
+	<!--统计分析 ->统计报表-> 欠费账龄分布(集团) -->
+	<select id="getOrgOweAging" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		SELECT '全公司' AS CMCC_prov_prvd_nm,
+		SUM(CASE age_level WHEN '2' THEN
+		cust_num ELSE 0 END) AS num1,
+		SUM(CASE age_level WHEN '2' THEN debt_amt
+		ELSE 0 END)/1000000.00 AS amt1,
+		SUM(CASE age_level WHEN '3' THEN
+		cust_num ELSE 0 END) AS num2,
+		SUM(CASE age_level WHEN '3' THEN debt_amt
+		ELSE 0 END)/1000000.00 AS amt2,
+		SUM(CASE age_level WHEN '4' THEN
+		cust_num ELSE 0 END) AS num3,
+		SUM(CASE age_level WHEN '4' THEN debt_amt
+		ELSE 0 END)/1000000.00 AS amt3
+		FROM hpbus.SUM_ORG_CUST_CHG_CTY_AGING
+		WHERE Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+		format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) AND
+		cty_id = 10000
+		<if test="prvdId !=10000">
+			and prvd_id=#{prvdId}
+		</if>
+		GROUP BY 1
+	</select>
+	<!--统计分析 ->统计报表-> 欠费金额分布(集团) -->
+	<select id="getOrgAmount" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		SELECT '全公司' AS CMCC_prov_prvd_nm,
+		SUM(CASE amt_level WHEN '1' THEN num
+		ELSE 0 END) AS num1,
+		SUM(CASE amt_level WHEN '1' THEN debt_amt ELSE 0
+		END)/1000000.00 AS amt1,
+		SUM(CASE amt_level WHEN '2' THEN num ELSE 0
+		END) AS num2,
+		SUM(CASE amt_level WHEN '2' THEN debt_amt ELSE 0
+		END)/1000000.00 AS amt2,
+		SUM(CASE amt_level WHEN '3' THEN num ELSE 0
+		END) AS num3,
+		SUM(CASE amt_level WHEN '3' THEN debt_amt ELSE 0
+		END)/1000000.00 AS amt3
+		FROM hpbus.SUM_ORG_CUST_CHG_CTY_AMT
+		WHERE
+		Aud_trm = trim(cast(cast(add_months(cast(${audTrm}||'01' as date
+		format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) AND
+		cty_id = 10000
+		<if test="prvdId !=10000">
+			and prvd_id=#{prvdId}
+		</if>
+		GROUP BY 1
+	</select>
+
+
+	<!-- 获取集团客户欠费数量排名折线图‘全国/省份’数据 -->
+	<select id="getJTNumberPmZheXian" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern =='4001' ">
+			select b.rn,a.aud_trm,
+			b.prvd_id,b.Cmcc_prov_prvd_nm as prvd_name,
+			coalesce(b.infraction_num,0) as infraction_num
+			from
+			(
+			SELECT aud_trm
+			FROM hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm  <![CDATA[<= ]]>
+			#{audTrm}
+			group by aud_trm
+			)a
+			left join
+			(SELECT ROW_NUMBER() OVER (ORDER
+			BY aud_trm) AS rn ,
+			trim(cast(cast(add_months(cast(aud_trm as date
+			format 'YYYYMM'),19)
+			as date format 'YYYYMM') as varchar(6))) as
+			aud_trm,
+			Cmcc_prov_prvd_nm,
+			prvd_id,
+			infraction_num
+			FROM
+			hpbus.sum_org_cust_chg_prvd
+			where prvd_id =#{prvdId}
+			and aud_trm >=
+			trim(cast(cast(add_months(cast('201610'||'01' as date
+			format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			AND
+			aud_trm <![CDATA[<= ]]>
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			and
+			Aud_trm in(select distinct
+			trim(cast(cast(add_months(cast(Aud_trm||'01' as date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			from
+			hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+			and
+			switch_type=1
+			and subject_code = 4)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by
+			a.aud_trm
+		</if>
+		<if test="concern =='4003'">
+			select a.aud_trm,
+			b.CMCC_prov_prvd_id as prvd_id,b.Cmcc_prov_prvd_nm
+			as prvd_name,
+			coalesce(b.infraction_num,0) as infraction_num
+			from
+			(
+			SELECT aud_trm
+			FROM hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm  <![CDATA[<= ]]>
+			#{audTrm}
+			group by aud_trm
+			)a
+			left join
+			(SELECT ROW_NUMBER() OVER (ORDER
+			BY aud_trm) AS rn ,
+			trim(cast(cast(add_months(cast(aud_trm as date
+			format 'YYYYMM'),7) as
+			date format 'YYYYMM') as varchar(6))) as
+			aud_trm,
+			Cmcc_prov_prvd_nm,
+			CMCC_prov_prvd_id,
+			sum_cust1 as
+			infraction_num
+			FROM hpbus.sum_cust_chg_prvd
+			where CMCC_prov_prvd_id
+			=#{prvdId}
+			and aud_trm >=
+			trim(cast(cast(add_months(cast('201610'||'01' as date
+			format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			AND aud_trm <![CDATA[<= ]]>
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and Aud_trm
+			in(select distinct
+			trim(cast(cast(add_months(cast(Aud_trm||'01' as
+			date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+			varchar(6)))
+			from hpmgr.busi_audit_switch_conf
+			where
+			switch_state>=#{switchState}
+			and switch_type=1
+			and subject_code = 4)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+	</select>
+	<!--统计分析 ->统计报表-> 排名汇总 -->
+	<select id="getJTNumberDataPaiming" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern == '4001' and prvdId ==10000 ">
+			SELECT ROW_NUMBER() OVER (ORDER BY infraction_amt DESC )-1
+			AS rn ,
+			CMCC_prov_prvd_nm,
+			infraction_amt,
+			infraction_num,
+			amt_new,
+			subs_new
+			FROM hpbus.SUM_ORG_CUST_CHG_PRVD
+			WHERE aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)));
+		</if>
+		<if test="concern == '4001' and prvdId !=10000 ">
+			SELECT 0 AS rn ,CMCC_prov_prvd_nm,
+			infraction_amt,
+			infraction_num,
+			amt_new,
+			subs_new
+			FROM hpbus.SUM_ORG_CUST_CHG_PRVD
+			where
+			prvd_id =${prvdId}
+			and aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			union all
+			select ROW_NUMBER() OVER (ORDER BY infraction_amt DESC ) as rn ,
+			CMCC_prvd_nm_short as CMCC_prov_prvd_nm,
+			infraction_amt,
+			infraction_num,
+			amt_new,
+			subs_new
+			from hpbus.sum_org_cust_chg_cty
+			where
+			prvd_id =#{prvdId}
+			and aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+		</if>
+		<if test="concern == '4003' and prvdId ==10000 ">
+			select ROW_NUMBER() OVER (ORDER BY infraction_amt DESC )-1
+			AS rn ,
+			CMCC_prov_prvd_nm,
+			sum_dbt_amt as infraction_amt,
+			sum_cust1 as
+			infraction_num,
+			amt_new,
+			subs_new
+			from hpbus.sum_cust_chg_prvd
+			where
+			aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and
+			flag =10000
+		</if>
+		<if test="concern == '4003' and prvdId !=10000 ">
+			select 0 AS rn,
+			CMCC_prov_prvd_nm,
+			sum_dbt_amt as
+			infraction_amt,
+			sum_cust1 as infraction_num,
+			amt_new,
+			subs_new
+			from
+			hpbus.sum_cust_chg_prvd
+			where aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and flag
+			=10000 and CMCC_prov_prvd_id =${prvdId}
+			union all
+			select ROW_NUMBER()
+			OVER (ORDER BY sum_dbt_amt DESC ) AS rn,
+			CMCC_prov_prvd_nm,
+			sum_dbt_amt,
+			sum_cust1,
+			amt_new,
+			subs_new
+			from hpbus.sum_cust_chg_prvd
+			where aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date
+			format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and flag =${prvdId}
+		</if>
+	</select>
+
+	<!--统计分析 ->统计报表-> 个人客户欠费账龄 -->
+	<select id="getGRNumberDataQfAge" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		SELECT CMCC_prov_prvd_nm,
+		SUM(CASE cengci WHEN '01' THEN
+		sum_cust ELSE 0 END)/10000.0000 AS num1,
+		SUM(CASE cengci WHEN '01' THEN
+		sum_dbt_amt ELSE 0 END)/1000000.0000 AS amt1,
+		SUM(CASE cengci WHEN '02'
+		THEN sum_cust ELSE 0 END)/10000.0000 AS num2,
+		SUM(CASE cengci WHEN '02'
+		THEN sum_dbt_amt ELSE 0 END)/1000000.0000 AS amt2,
+		SUM(CASE cengci WHEN
+		'03' THEN sum_cust ELSE 0 END)/10000.0000 AS num3,
+		SUM(CASE cengci WHEN
+		'03' THEN sum_dbt_amt ELSE 0 END)/1000000.0000 AS amt3
+		FROM
+		hpbus.SUM_CUST_CHG_AGE
+		WHERE aud_trm =
+		trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) AND flag =
+		10000
+		and CMCC_prov_prvd_id = #{prvdId}
+		GROUP BY CMCC_prov_prvd_nm ;
+
+	</select>
+
+	<!--统计分析 ->统计报表-> 个人客户欠费金额 -->
+	<select id="getGRNumberDataQfAmt" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		SELECT CMCC_prov_prvd_nm,
+		SUM(CASE WHEN debt_grade = '01'
+		or debt_grade = '02' THEN sum_cust ELSE 0 END)/10000.0000 AS num1,
+		SUM(CASE WHEN debt_grade = '01' or debt_grade = '02' THEN sum_dbt_amt
+		ELSE 0 END)/1000000.0000 AS amt1,
+		SUM(CASE WHEN debt_grade = '03' THEN
+		sum_cust ELSE 0 END)/10000.0000 AS num2,
+		SUM(CASE WHEN debt_grade =
+		'03' THEN sum_dbt_amt ELSE 0 END)/1000000.0000 AS amt2,
+		SUM(CASE WHEN
+		debt_grade = '04' OR debt_grade = '05' THEN sum_cust ELSE 0
+		END)/10000.0000 AS num3,
+		SUM(CASE WHEN debt_grade = '04' OR debt_grade
+		= '05' THEN sum_dbt_amt ELSE 0 END)/1000000.0000 AS amt3
+		FROM
+		hpbus.SUM_CUST_CHG_DBT_AMT
+		WHERE aud_trm =
+		trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) AND flag =
+		10000
+		and CMCC_prov_prvd_id = #{prvdId}
+		GROUP BY CMCC_prov_prvd_nm ;
+
+	</select>
+	<!-- 统计分析->统计报表->新增原有分析->欠费金额分布(饼图) -->
+	<select id="getAmountPie" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern =='4001'">
+			SELECT prvd_id,
+			aud_trm,
+			CMCC_prov_prvd_nm,
+			amt_new/1000000.00 as amt_new,
+			(infraction_amt- amt_new)/1000000.00 AS
+			oriAmt
+			FROM hpbus.sum_org_cust_chg_prvd
+			WHERE prvd_id=#{prvdId}
+			AND
+			aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)));
+		</if>
+		<if test="concern =='4003'">
+			SELECT aud_trm,
+			CMCC_prov_prvd_nm,
+			amt_new/1000000.00 as
+			amt_new,
+			(sum_dbt_amt- amt_new)/1000000.00 AS oriAmt
+			FROM
+			hpbus.sum_cust_chg_prvd
+			WHERE flag=10000 and
+			CMCC_prov_prvd_id=#{prvdId}
+			AND aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+			format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)));
+		</if>
+	</select>
+
+
+	<!--统计分析 ->统计报表-> 新增原有欠费分布 -->
+	<select id="getJTNumberDataQffenbu" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern == '4001' ">
+			select a.aud_trm,
+			coalesce(b.amt_new,0)as amt_new,
+			coalesce(b.oriAmt,0)as oriAmt
+			from(SELECT aud_trm
+			FROM
+			hpmgr.busi_model_notify where Aud_trm <![CDATA[ <=]]>
+			#{audTrm} and aud_trm>='201611'
+			group by aud_trm)a
+			left join
+			(SELECT
+			trim(cast(cast(add_months(cast(aud_trm as date format 'YYYYMM'),19)
+			as date format 'YYYYMM') as varchar(6))) as aud_trm,
+			amt_new/1000000
+			as amt_new,
+			(infraction_amt- amt_new)/1000000 AS oriAmt
+			FROM
+			hpbus.sum_org_cust_chg_prvd
+			WHERE prvd_id=#{prvdId}
+			AND aud_trm >=
+			trim(cast(cast(add_months(cast('201611'||'01' as date
+			format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			AND
+			aud_trm <![CDATA[ <=]]>
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			And
+			Aud_trm in(select distinct
+			trim(cast(cast(add_months(cast(Aud_trm||'01' as date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+			from
+			hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+			and
+			switch_type=1
+			and subject_code = 4)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by
+			a.aud_trm
+
+			<!-- SELECT prvd_id, trim(cast(cast(add_months(cast(aud_trm as date format 
+				'YYYYMM'),19) as date format 'YYYYMM') as varchar(6))) as aud_trm, CMCC_prov_prvd_nm, 
+				amt_new/1000000 as amt_new, (infraction_amt- amt_new)/1000000 AS oriAmt FROM 
+				hpbus.sum_org_cust_chg_prvd WHERE prvd_id=#{prvdId} AND aud_trm >= trim(cast(cast(add_months(cast('201611'||'01' 
+				as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) 
+				AND aud_trm <![CDATA[ <=]]> trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+				as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) 
+				order by aud_trm -->
+		</if>
+		<if test="concern == '4003'">
+			select a.aud_trm,
+			coalesce(b.amt_new,0)as amt_new,
+			coalesce(b.oriAmt,0)as oriAmt
+			from
+			(SELECT aud_trm
+			FROM
+			hpmgr.busi_model_notify where Aud_trm <![CDATA[ <=]]>
+			#{audTrm} and aud_trm >= '201611'
+			group by aud_trm)a
+			left join
+			(
+			select
+			trim(cast(cast(add_months(cast(aud_trm as date format 'YYYYMM'),7) as
+			date format 'YYYYMM') as varchar(6)))
+			as aud_trm,
+			amt_new/1000000 as
+			amt_new,
+			(sum_dbt_amt-amt_new)/1000000 as oriAmt
+			from
+			hpbus.sum_cust_chg_prvd where flag =10000 and
+			CMCC_prov_prvd_id =
+			#{prvdId} AND
+			aud_trm >= trim(cast(cast(add_months(cast('201611'||'01'
+			as date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as
+			varchar(6)))
+			AND aud_trm <![CDATA[ <=]]>
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and Aud_trm
+			in(select distinct
+			trim(cast(cast(add_months(cast(Aud_trm||'01' as
+			date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			from hpmgr.busi_audit_switch_conf
+			where switch_state>=#{switchState}
+			and switch_type=1
+			and subject_code = 4)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+
+			<!-- select CMCC_prov_prvd_id, trim(cast(cast(add_months(cast(aud_trm 
+				as date format 'YYYYMM'),7) as date format 'YYYYMM') as varchar(6))) as aud_trm, 
+				CMCC_prov_prvd_nm, amt_new/1000000 as amt_new, (sum_dbt_amt-amt_new)/1000000 
+				as oriAmt from hpbus.sum_cust_chg_prvd where flag =10000 and CMCC_prov_prvd_id=#{prvdId} 
+				AND aud_trm >= trim(cast(cast(add_months(cast('201611'||'01' as date format 
+				'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) AND aud_trm <![CDATA[ 
+				<=]]> trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) 
+				as date format 'YYYYMMDD') as varchar(6))) order by aud_trm -->
+		</if>
+	</select>
+
+	<!--获取欠费风险地图的数据old <select id="getMapData" resultMap="khqfData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+		<if test="prvdId == 10000 and concern == '4001'" > select #{audTrm} as Aud_trm,prvd_id, 
+		infraction_num, cast((infraction_amt/1000000) as decimal(18,2)) as infraction_amt, 
+		num_order,amt_order, CMCC_prov_prvd_nm from hpbus.sum_org_cust_chg_prvd where 
+		Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) 
+		as date format 'YYYYMMDD') as varchar(6))); </if> <if test="prvdId == 10000 
+		and concern == '4003'" > select #{audTrm} as Aud_trm,CMCC_prov_prvd_id as 
+		prvd_id, sum_cust1 as infraction_num, cast((sum_dbt_amt/1000000) as decimal(18,2)) 
+		as infraction_amt, num_order,amt_order, CMCC_prov_prvd_nm from hpbus.sum_cust_chg_prvd 
+		where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) and flag = 10000; 
+		</if> <if test="prvdId != 10000 and concern == '4001'"> select #{audTrm} 
+		as Aud_trm,cty_id, infraction_num, cast((infraction_amt/1000000) as decimal(18,2)) 
+		as infraction_amt, num_order,amt_order, CMCC_prvd_nm_short from hpbus.sum_org_cust_chg_cty 
+		where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 
+		'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) and prvd_id = 
+		#{prvdId}; </if> <if test="prvdId != 10000 and concern == '4003'"> select 
+		#{audTrm} as Aud_trm,CMCC_prov_prvd_id as cty_id, sum_cust1 as infraction_num, 
+		cast((sum_dbt_amt/1000000) as decimal(18,2)) as infraction_amt, num_order,amt_order, 
+		CMCC_prov_prvd_nm as CMCC_prvd_nm_short from hpbus.sum_cust_chg_prvd where 
+		Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) 
+		as date format 'YYYYMMDD') as varchar(6))) and flag = #{prvdId}; </if> </select> -->
+
+	<!--获取欠费风险地图的数据 -->
+	<select id="getMapData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000 and concern == '4001'">
+			select
+			#{audTrm} as Aud_trm,a.CMCC_prov_prvd_id as prvd_id,
+			b.infraction_num,
+			b.infraction_amt,
+			b.num_order,b.amt_order,
+			a.CMCC_prov_prvd_nm
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd a
+			left join
+			(select
+			#{audTrm} as Aud_trm,prvd_id,
+			infraction_num,
+			cast((infraction_amt/1000000) as
+			decimal(18,2)) as infraction_amt,
+			num_order,amt_order,
+			CMCC_prov_prvd_nm
+			from
+			hpbus.sum_org_cust_chg_prvd
+			where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+			varchar(6)))
+			)b
+			on a.CMCC_prov_prvd_id = b.prvd_id;
+		</if>
+		<if test="prvdId == 10000 and concern == '4003'">
+			select
+			#{audTrm} as Aud_trm,a.CMCC_prov_prvd_id as prvd_id,
+			b.infraction_num,
+			b.infraction_amt,
+			b.num_order,b.amt_order,
+			a.CMCC_prov_prvd_nm
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd a
+			left join
+			(select
+			#{audTrm} as Aud_trm,CMCC_prov_prvd_id as prvd_id,
+			sum_cust1 as
+			infraction_num,
+			cast((sum_dbt_amt/1000000) as decimal(18,2)) as
+			infraction_amt,
+			num_order,amt_order,
+			CMCC_prov_prvd_nm
+			from
+			hpbus.sum_cust_chg_prvd
+			where Aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as
+			varchar(6)))
+			and flag =
+			10000
+			)b
+			on a.CMCC_prov_prvd_id = b.prvd_id ;
+		</if>
+		<if test="prvdId != 10000 and concern == '4001'">
+			select
+			#{audTrm} as Aud_trm,a.CMCC_prvd_cd as cty_id,
+			b.infraction_num,
+			b.infraction_amt,
+			b.num_order,b.amt_order,
+			a.CMCC_prvd_nm_short
+			from
+			(select * from hpmgr.TB_SUM_PRVD_NAME where
+			CMCC_prov_prvd_id =#{prvdId})a
+			left join
+			(select
+			#{audTrm} as
+			Aud_trm,cty_id,
+			infraction_num,
+			cast((infraction_amt/1000000) as
+			decimal(18,2)) as infraction_amt,
+			num_order,amt_order,
+			CMCC_prvd_nm_short
+			from
+			hpbus.sum_org_cust_chg_cty
+			where Aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+			varchar(6)))
+			and prvd_id
+			= #{prvdId}
+			)b
+			on a.CMCC_prvd_cd=b.cty_id;
+		</if>
+		<if test="prvdId != 10000 and concern == '4003'">
+			select
+			#{audTrm} as Aud_trm,a.CMCC_prvd_cd as cty_id,
+			b.infraction_num,
+			b.infraction_amt,
+			b.num_order,b.amt_order,
+			a.CMCC_prvd_nm_short
+			from
+			(select * from hpmgr.TB_SUM_PRVD_NAME where
+			CMCC_prov_prvd_id =#{prvdId})a
+			left join
+			(select
+			#{audTrm} as
+			Aud_trm,CMCC_prov_prvd_id as cty_id,
+			sum_cust1 as infraction_num,
+			cast((sum_dbt_amt/1000000) as decimal(18,2)) as infraction_amt,
+			num_order,amt_order,
+			CMCC_prov_prvd_nm as CMCC_prvd_nm_short
+			from
+			hpbus.sum_cust_chg_prvd
+			where Aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and flag =
+			#{prvdId}
+			)b
+			on a.CMCC_prvd_cd=b.cty_id;
+		</if>
+	</select>
+
+	<!--获取欠费风险地图下方的数据old <select id="getMapBottomData" resultMap="khqfData" 
+		parameterType="com.hpe.cmca.pojo.ParameterData"> <if test="prvdId == 10000 
+		and concern == '4001'" > select #{audTrm} as Aud_trm, a.prvd_id,a.CMCC_prov_prvd_nm, 
+		a.infraction_num as infraction_num, cast((a.infraction_amt/1000000) as decimal(18,2)) 
+		as infraction_amt, a.infraction_num - b.infraction_num as infraction_num_mom, 
+		cast((a.infraction_amt - b.infraction_amt)/1000000 as decimal(18,2))as infraction_amt_mom, 
+		a.ori_num as ori_num, cast((a.ori_amt/1000000)as decimal(18,2)) as ori_amt, 
+		a.ori_num - b.ori_num as ori_num_mom, cast ((a.ori_amt - b.ori_amt)/1000000 
+		as decimal(18,2)) as ori_amt_mom from (select prvd_id,CMCC_prov_prvd_nm, 
+		infraction_num,infraction_amt, subs_new, amt_new, infraction_num - subs_new 
+		as ori_num, infraction_amt - amt_new as ori_amt from hpbus.sum_org_cust_chg_prvd 
+		where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 
+		'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) and prvd_id = 
+		10000)a left join (select prvd_id,CMCC_prov_prvd_nm, infraction_num,infraction_amt, 
+		subs_new, amt_new, infraction_num - subs_new as ori_num, infraction_amt - 
+		amt_new as ori_amt from hpbus.sum_org_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-20) as date format 'YYYYMMDD') as varchar(6))) 
+		and prvd_id = 10000)b on a.prvd_id = b.prvd_id; </if> <if test="prvdId == 
+		10000 and concern == '4003'" > select #{audTrm} as Aud_trm, a.prvd_id,a.CMCC_prov_prvd_nm, 
+		a.infraction_num as infraction_num, cast((a.infraction_amt/1000000) as decimal(18,2)) 
+		as infraction_amt, a.infraction_num - b.infraction_num as infraction_num_mom, 
+		cast((a.infraction_amt - b.infraction_amt)/1000000 as decimal(18,2))as infraction_amt_mom, 
+		a.ori_num as ori_num, cast((a.ori_amt/1000000)as decimal(18,2)) as ori_amt, 
+		a.ori_num - b.ori_num as ori_num_mom, cast ((a.ori_amt - b.ori_amt)/1000000 
+		as decimal(18,2)) as ori_amt_mom from (select CMCC_prov_prvd_id as prvd_id,CMCC_prov_prvd_nm, 
+		sum_cust1 as infraction_num,sum_dbt_amt as infraction_amt, subs_new, amt_new, 
+		infraction_num - subs_new as ori_num, infraction_amt - amt_new as ori_amt 
+		from hpbus.sum_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) 
+		and flag=10000 and CMCC_prov_prvd_id=10000)a left join (select CMCC_prov_prvd_id 
+		as prvd_id,CMCC_prov_prvd_nm, sum_cust1 as infraction_num,sum_dbt_amt as 
+		infraction_amt, subs_new, amt_new, infraction_num - subs_new as ori_num, 
+		infraction_amt - amt_new as ori_amt from hpbus.sum_cust_chg_prvd where Aud_trm 
+		= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-8) 
+		as date format 'YYYYMMDD') as varchar(6))) and flag=10000 and CMCC_prov_prvd_id=10000)b 
+		on a.prvd_id = b.prvd_id; </if> <if test="prvdId != 10000 and concern == 
+		'4001'"> select #{audTrm} as Aud_trm, a.prvd_id,a.CMCC_prov_prvd_nm, a.infraction_num 
+		as infraction_num, cast((a.infraction_amt/1000000) as decimal(18,2)) as infraction_amt, 
+		a.infraction_num - b.infraction_num as infraction_num_mom, cast((a.infraction_amt 
+		- b.infraction_amt)/1000000 as decimal(18,2))as infraction_amt_mom, a.ori_num 
+		as ori_num, cast((a.ori_amt/1000000)as decimal(18,2)) as ori_amt, a.ori_num 
+		- b.ori_num as ori_num_mom, cast ((a.ori_amt - b.ori_amt)/1000000 as decimal(18,2)) 
+		as ori_amt_mom from (select prvd_id,CMCC_prov_prvd_nm, infraction_num,infraction_amt, 
+		subs_new, amt_new, infraction_num - subs_new as ori_num, infraction_amt - 
+		amt_new as ori_amt from hpbus.sum_org_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) 
+		and prvd_id = #{prvdId})a left join (select prvd_id,CMCC_prov_prvd_nm, infraction_num,infraction_amt, 
+		subs_new, amt_new, infraction_num - subs_new as ori_num, infraction_amt - 
+		amt_new as ori_amt from hpbus.sum_org_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-20) as date format 'YYYYMMDD') as varchar(6))) 
+		and prvd_id = #{prvdId})b on a.prvd_id = b.prvd_id; </if> <if test="prvdId 
+		!= 10000 and concern == '4003'"> select #{audTrm} as Aud_trm, a.prvd_id,a.CMCC_prov_prvd_nm, 
+		a.infraction_num as infraction_num, cast((a.infraction_amt/1000000) as decimal(18,2)) 
+		as infraction_amt, a.infraction_num - b.infraction_num as infraction_num_mom, 
+		cast((a.infraction_amt - b.infraction_amt)/1000000 as decimal(18,2))as infraction_amt_mom, 
+		a.ori_num as ori_num, cast((a.ori_amt/1000000)as decimal(18,2)) as ori_amt, 
+		a.ori_num - b.ori_num as ori_num_mom, cast ((a.ori_amt - b.ori_amt)/1000000 
+		as decimal(18,2)) as ori_amt_mom from (select CMCC_prov_prvd_id as prvd_id,CMCC_prov_prvd_nm, 
+		sum_cust1 as infraction_num,sum_dbt_amt as infraction_amt, subs_new, amt_new, 
+		infraction_num - subs_new as ori_num, infraction_amt - amt_new as ori_amt 
+		from hpbus.sum_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) 
+		and flag=10000 and CMCC_prov_prvd_id=#{prvdId})a left join (select CMCC_prov_prvd_id 
+		as prvd_id,CMCC_prov_prvd_nm, sum_cust1 as infraction_num,sum_dbt_amt as 
+		infraction_amt, subs_new, amt_new, infraction_num - subs_new as ori_num, 
+		infraction_amt - amt_new as ori_amt from hpbus.sum_cust_chg_prvd where Aud_trm 
+		= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-8) 
+		as date format 'YYYYMMDD') as varchar(6))) and flag=10000 and CMCC_prov_prvd_id=#{prvdId})b 
+		on a.prvd_id = b.prvd_id; </if> </select> -->
+
+	<!--获取欠费风险地图下方的数据 -->
+	<select id="getMapBottomData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern == '4001'">
+			select #{audTrm} as Aud_trm,
+			prvd_id,CMCC_prov_prvd_nm,
+			infraction_num,
+			cast((infraction_amt/1000000) as decimal(18,2)) as
+			infraction_amt,
+			num_dif as infraction_num_mom,
+			cast((amt_dif/1000000)
+			as
+			decimal(18,2)) as infraction_amt_mom,
+			subs_old as ori_num,
+			cast((amt_old/1000000)as decimal(18,2)) as ori_amt,
+			subs_old_dif as
+			ori_num_mom,
+			cast((amt_old_dif/1000000)as decimal(18,2)) as
+			ori_amt_mom
+			from
+			hpbus.sum_org_cust_chg_prvd
+			where Aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+			varchar(6)))
+			and prvd_id
+			= #{prvdId}
+		</if>
+		<if test="concern == '4003'">
+			select #{audTrm} as Aud_trm,
+			CMCC_prov_prvd_id as
+			prvd_id,CMCC_prov_prvd_nm,
+			sum_cust1 as infraction_num,
+			cast((sum_dbt_amt/1000000) as
+			decimal(18,2)) as infraction_amt,
+			subs_num as infraction_num_mom,
+			cast(amt_num/1000000 as
+			decimal(18,2))as infraction_amt_mom,
+			subs_old
+			as ori_num,
+			cast((amt_old/1000000)as decimal(18,2)) as ori_amt,
+			subs_old_dif as
+			ori_num_mom,
+			cast (amt_old_dif/1000000 as
+			decimal(18,2)) as ori_amt_mom
+			from
+			hpbus.sum_cust_chg_prvd
+			where Aud_trm
+			=
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+			and
+			flag=10000 and CMCC_prov_prvd_id=#{prvdId}
+		</if>
+	</select>
+
+	<!--获取审计报告个人欠费的数据 old <select id="getSjbgGrData" resultMap="khqfData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+		<if test="prvdId == 10000"> select a.prvd_id,a.CMCC_prov_prvd_nm, '个人欠费' 
+		as concern, a.infraction_num, cast(a.infraction_amt/10000 as decimal(18,2))as 
+		infraction_amt, a.infraction_num_mom, cast(a.infraction_amt_mom/10000 as 
+		decimal(18,2))as infraction_amt_mom, a.subs_new, cast(a.amt_new/10000 as 
+		decimal(18,2))as amt_new, a.ori_num, cast(a.ori_amt/10000 as decimal(18,2))as 
+		ori_amt, b.vip_num, cast(b.vip_amt/10000 as decimal(18,2))as vip_amt from 
+		(select CMCC_prov_prvd_id as prvd_id,CMCC_prov_prvd_nm, sum_cust1 as infraction_num,sum_dbt_amt 
+		as infraction_amt, subs_num as infraction_num_mom,amt_num as infraction_amt_mom, 
+		subs_new,amt_new, infraction_num - subs_new as ori_num, infraction_amt - 
+		amt_new as ori_amt from hpbus.sum_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) 
+		and flag=10000 and CMCC_prov_prvd_id=10000)a join (select CMCC_prov_prvd_id 
+		as prvd_id, sum_003 as vip_num, sum_dbt_amt1 as vip_amt from hpbus.sum_cust_typ 
+		where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) and flag=10000 
+		and CMCC_prov_prvd_id=10000)b on a.prvd_id = b.prvd_id </if> <if test="prvdId 
+		!= 10000"> select a.prvd_id,a.CMCC_prov_prvd_nm, '个人欠费' as concern, a.infraction_num, 
+		cast(a.infraction_amt/10000 as decimal(18,2))as infraction_amt, a.infraction_num_mom, 
+		cast(a.infraction_amt_mom/10000 as decimal(18,2))as infraction_amt_mom, a.subs_new, 
+		cast(a.amt_new/10000 as decimal(18,2))as amt_new, a.ori_num, cast(a.ori_amt/10000 
+		as decimal(18,2))as ori_amt, b.vip_num, cast(b.vip_amt/10000 as decimal(18,2))as 
+		vip_amt from (select CMCC_prov_prvd_id as prvd_id,CMCC_prov_prvd_nm, sum_cust1 
+		as infraction_num,sum_dbt_amt as infraction_amt, subs_num as infraction_num_mom,amt_num 
+		as infraction_amt_mom, subs_new,amt_new, infraction_num - subs_new as ori_num, 
+		infraction_amt - amt_new as ori_amt from hpbus.sum_cust_chg_prvd where Aud_trm 
+		= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) 
+		as date format 'YYYYMMDD') as varchar(6))) and flag=10000 and CMCC_prov_prvd_id=#{prvdId})a 
+		join (select CMCC_prov_prvd_id as prvd_id, sum_003 as vip_num, sum_dbt_amt1 
+		as vip_amt from hpbus.sum_cust_typ where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) 
+		and flag=10000 and CMCC_prov_prvd_id=#{prvdId})b on a.prvd_id = b.prvd_id 
+		</if> </select> -->
+
+
+	<!--获取审计报告个人欠费的数据 -->
+	<select id="getSjbgGrData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select
+		CMCC_prov_prvd_id as prvd_id,CMCC_prov_prvd_nm,
+		'个人欠费' as concern,
+		sum_cust1 as infraction_num,
+		cast(sum_dbt_amt/10000
+		as decimal(18,2))as infraction_amt,
+		subs_num as infraction_num_mom,
+		cast(amt_num/10000 as decimal(18,2))as infraction_amt_mom,
+		subs_new,
+		cast(amt_new/10000 as decimal(18,2))as amt_new,
+		subs_old as ori_num,
+		cast(amt_old/10000 as decimal(18,2))as ori_amt,
+		subs_red as vip_num,
+		cast(amt_red/10000 as decimal(18,2))as vip_amt
+		from
+		hpbus.sum_cust_chg_prvd
+		where Aud_trm =
+		trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+		format
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)))
+		and
+		flag=10000 and CMCC_prov_prvd_id=#{prvdId}
+	</select>
+
+	<!--获取审计报告集团欠费的数据old <select id="getSjbgJtData" resultMap="khqfData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+		<if test="prvdId == 10000"> select prvd_id,CMCC_prov_prvd_nm, '集团欠费' as concern, 
+		infraction_num, cast(infraction_amt/10000 as decimal(18,2))as infraction_amt, 
+		num_dif as infraction_num_mom, cast(amt_dif/10000 as decimal(18,2))as infraction_amt_mom, 
+		subs_new, cast(amt_new/10000 as decimal(18,2))as amt_new, infraction_num 
+		- subs_new as ori_num, cast((infraction_amt - amt_new)/10000 as decimal(18,2)) 
+		as ori_amt from hpbus.sum_org_cust_chg_prvd where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' 
+		as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) 
+		and prvd_id = 10000 </if> <if test="prvdId != 10000"> select prvd_id,CMCC_prov_prvd_nm, 
+		'集团欠费' as concern, infraction_num, cast(infraction_amt/10000 as decimal(18,2))as 
+		infraction_amt, num_dif as infraction_num_mom, cast(amt_dif/10000 as decimal(18,2))as 
+		infraction_amt_mom, subs_new, cast(amt_new/10000 as decimal(18,2))as amt_new, 
+		infraction_num - subs_new as ori_num, cast((infraction_amt - amt_new)/10000 
+		as decimal(18,2)) as ori_amt from hpbus.sum_org_cust_chg_prvd where Aud_trm 
+		= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) 
+		as date format 'YYYYMMDD') as varchar(6))) and prvd_id = #{prvdId} </if> 
+		</select> -->
+
+	<!--获取审计报告集团欠费的数据 -->
+	<select id="getSjbgJtData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,CMCC_prov_prvd_nm,
+		'集团欠费' as concern,
+		infraction_num,
+		cast(infraction_amt/10000 as decimal(18,2))as
+		infraction_amt,
+		num_dif as infraction_num_mom,
+		cast(amt_dif/10000 as
+		decimal(18,2))as infraction_amt_mom,
+		subs_new,
+		cast(amt_new/10000 as
+		decimal(18,2))as amt_new,
+		subs_old as ori_num,
+		cast(amt_old/10000 as
+		decimal(18,2)) as ori_amt
+		from
+		hpbus.sum_org_cust_chg_prvd
+		where Aud_trm
+		= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+		format
+		'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)))
+		and prvd_id
+		= #{prvdId}
+	</select>
+
+
+	<!--获取地图下钻地市清单old <select id="getSjbgCtyDetData" resultMap="khqfData" parameterType="com.hpe.cmca.pojo.ParameterData"> 
+		<if test="concern == '4001'"> select b.CMCC_prov_prvd_nm,b.CMCC_prvd_nm_short, 
+		a.cust_nm,a.cust_typ,a.acct_age,a.infraction_amt,a.rn from (select prvd_id, 
+		cty_id, cust_nm , '集团客户'as cust_typ, acct_age , dbt_amt as infraction_amt, 
+		row_number()over(order by infraction_amt desc) as rn from hpbus.det_org_cust_chg 
+		where Aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 
+		'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) and prvd_id = 
+		#{prvdId} and cty_id = #{ctyId})a left join( select t1.CMCC_prov_prvd_cd 
+		as prvd_id , t1.CMCC_prov_prvd_nm, t2.CMCC_prvd_cd as cty_id, t2.CMCC_prvd_nm_short 
+		from (select CMCC_prov_prvd_cd, CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd 
+		where CMCC_prov_prvd_cd = #{prvdId})t1 join (SELECT CMCC_prvd_cd, CMCC_prvd_nm_short, 
+		CMCC_prov_prvd_id FROM hpmgr.V_EAP_SUM_PRVD_NAME where CMCC_prvd_cd = #{ctyId})t2 
+		on t1.CMCC_prov_prvd_cd =t2.CMCC_prov_prvd_id )b on a.prvd_id = b.prvd_id 
+		<![CDATA[where a.rn<=50]]> order by rn </if> <if test="concern == '4003'"> 
+		select b.CMCC_prov_prvd_nm,b.CMCC_prvd_nm_short, a.cust_nm,a.cust_typ,a.acct_age,a.infraction_amt,a.rn 
+		from (select CMCC_prov_prvd_id as prvd_id, CMCC_prvd_id as cty_id, blto_cust_id 
+		as cust_nm , '个人客户'as cust_typ, aging as acct_age , dbt_amt as infraction_amt, 
+		row_number()over(order by infraction_amt desc) as rn from hpbus.det_debt_4003 
+		where aud_trm = trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) and CMCC_prov_prvd_id 
+		= #{prvdId} and CMCC_prvd_id = #{ctyId})a left join( select t1.CMCC_prov_prvd_cd 
+		as prvd_id , t1.CMCC_prov_prvd_nm, t2.CMCC_prvd_cd as cty_id, t2.CMCC_prvd_nm_short 
+		from (select CMCC_prov_prvd_cd, CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd 
+		where CMCC_prov_prvd_cd = #{prvdId})t1 join (SELECT CMCC_prvd_cd, CMCC_prvd_nm_short, 
+		CMCC_prov_prvd_id FROM hpmgr.V_EAP_SUM_PRVD_NAME where CMCC_prvd_cd = #{ctyId})t2 
+		on t1.CMCC_prov_prvd_cd =t2.CMCC_prov_prvd_id )b on a.prvd_id = b.prvd_id 
+		<![CDATA[where a.rn<=50]]> order by rn </if> </select> -->
+
+	<!--获取地图下钻地市清单 -->
+	<select id="getSjbgCtyDetData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern == '4001'">
+			select
+			prvd_id,
+			prvd_nm as CMCC_prov_prvd_nm,
+			cty_id,
+			cty_nm as
+			CMCC_prvd_nm_short,
+			cust_nm ,
+			'集团客户'as cust_typ,
+			acct_age ,
+			dbt_amt as
+			infraction_amt,
+			row_number()over(order by infraction_amt desc) as rn
+			from
+			hpbus.det_org_cust_chg
+			where Aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date format
+			'YYYYMMDD'),-19) as date format 'YYYYMMDD') as
+			varchar(6)))
+			and prvd_id
+			= #{prvdId} and cty_id = #{ctyId}
+			<![CDATA[qualify rn<=50]]>
+			order by rn
+		</if>
+		<if test="concern == '4003'">
+			select
+			CMCC_prov_prvd_id as prvd_id,
+			CMCC_prov_prvd_nm,
+			CMCC_prvd_id as
+			cty_id,
+			CMCC_prvd_nm as
+			CMCC_prvd_nm_short,
+			blto_cust_id as cust_nm ,
+			'个人客户'as cust_typ,
+			aging
+			as acct_age ,
+			dbt_amt as infraction_amt,
+			row_number()over(order by
+			infraction_amt desc) as rn
+			from
+			hpbus.det_debt_4003
+			where aud_trm =
+			trim(cast(cast(add_months(cast(#{audTrm}||'01' as
+			date format
+			'YYYYMMDD'),-7) as date format 'YYYYMMDD') as
+			varchar(6)))
+			and
+			CMCC_prov_prvd_id = #{prvdId} and CMCC_prvd_id =
+			#{ctyId}
+			<![CDATA[qualify rn<=50]]>
+			order by rn
+		</if>
+	</select>
+
+
+	<!--统计分析 ->统计报表-> 欠费回收(集团) -->
+	<select id="getJTQFHSData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+
+		SELECT CMCC_prov_prvd_nm,
+		SUM(CASE age_level WHEN '2' THEN
+		sum_subs_recover ELSE 0 END) AS num1,
+		SUM(CASE age_level WHEN '2' THEN
+		amt_all_recover ELSE 0
+		END)/1000000.00 AS amt1,
+		SUM(CASE age_level WHEN
+		'3' THEN sum_subs_recover ELSE 0 END) AS num2,
+		SUM(CASE age_level WHEN
+		'3' THEN amt_all_recover ELSE 0
+		END)/1000000.00 AS amt2,
+		SUM(CASE
+		age_level WHEN '4' THEN sum_subs_recover ELSE 0 END) AS num3,
+		SUM(CASE
+		age_level WHEN '4' THEN amt_all_recover ELSE 0
+		END)/1000000.00 AS amt3
+		FROM hpbus.SUM_ORG_CUST_CHG_CTY_AGING_REC
+		WHERE Aud_trm =
+		trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format
+		'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))) AND cty_id
+		= 10000
+		<if test="prvdId !=10000">
+			and prvd_id=#{prvdId}
+		</if>
+		GROUP BY 1
+
+	</select>
+
+	<!--统计分析 ->统计报表-> 欠费回收(个人) -->
+	<select id="getGRQFHSData" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+
+		SELECT CMCC_prov_prvd_nm,
+		SUM(CASE cengci WHEN '01' THEN
+		sum_subs_recover ELSE 0 END)/10000.0000 AS
+		num1,
+		SUM(CASE cengci WHEN
+		'01' THEN amt_all_recover ELSE 0 END)/1000000.0000 AS
+		amt1,
+		SUM(CASE
+		cengci WHEN '02' THEN sum_subs_recover ELSE 0 END)/10000.0000 AS
+		num2,
+		SUM(CASE cengci WHEN '02' THEN amt_all_recover ELSE 0
+		END)/1000000.0000 AS
+		amt2,
+		SUM(CASE cengci WHEN '03' THEN
+		sum_subs_recover ELSE 0 END)/10000.0000 AS
+		num3,
+		SUM(CASE cengci WHEN
+		'03' THEN amt_all_recover ELSE 0 END)/1000000.0000 AS
+		amt3
+		FROM
+		hpbus.SUM_CUST_CHG_AGE
+		WHERE aud_trm =
+		trim(cast(cast(add_months(cast(#{audTrm}||'01' as date
+		format
+		'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))) AND
+		flag =
+		10000
+		and CMCC_prov_prvd_id = #{prvdId}
+		GROUP BY CMCC_prov_prvd_nm ;
+
+	</select>
+
+	<!--获取统计分析-整改问责-整改问责统计-六个月内达到的次数-柱状图 -->
+	<select id="getRectifyForSixColumn" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,prvd_name as prvdName,count(*) as rectifyNum
+		from(
+		sel
+		distinct aud_trm,prvd_id, prvd_name
+		from
+		hpbus.busi_khqf_zgwz_zg_new
+		where <![CDATA[aud_trm<=#{audTrm}
+		and aud_trm>'201708'
+		and aud_trm>cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))
+ 	]]>)
+		as t1
+		group by t1.prvd_id,t1.prvd_name
+		order by rectifyNum
+		desc,t1.prvd_id
+	</select>
+	<!--获取统计分析-整改问责-整改问责统计-累计达到的次数-柱状图 -->
+	<select id="getRectifyColumn" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select prvd_id,prvd_name as prvdName,count(*) as rectifyNum
+		from(
+		sel
+		distinct aud_trm,prvd_id, prvd_name
+		from
+		hpbus.busi_khqf_zgwz_zg_new
+		where <![CDATA[aud_trm<=#{audTrm}
+		and aud_trm>'201708'
+ 	]]>)
+		as t1
+		group by t1.prvd_id,t1.prvd_name
+		order by rectifyNum
+		desc,t1.prvd_id
+	</select>
+
+	<!--获取统计分析-整改问责-整改问责统计-累计达到的次数 -折线图 -->
+	<select id="getRectifyLine" resultMap="khqfData"
+		parameterType="com.hpe.cmca.pojo.ParameterData">
+		select t1.aud_trm,coalesce(t2.rectifyNum,0) as rectifyNum
+		from
+		(SELECT
+		aud_trm
+		FROM hpmgr.busi_model_notify 
+		<![CDATA[
+		where aud_trm>='201708' and Aud_trm<=#{audTrm}
+		
+		group by aud_trm) as t1
+	left join(	
+		select aud_trm,count(*) as rectifyNum 
+ 		from (sel distinct aud_trm,prvd_id
+			from hpbus.busi_khqf_zgwz_zg_new
+			where  aud_trm in (
+				select aud_trm
+				from hpmgr.busi_audit_switch_conf
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 4)
+			) as a 
+		 group by a.aud_trm
+		) as t2
+	on t1.aud_trm=t2.aud_trm
+  	order by t1.aud_trm
+	]]>
+	</select>
+</mapper>
+

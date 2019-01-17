@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="noticeMapper">
+
+
+	<!-- 获取有效的公告进行展示 -->
+	<select id="selectValidNotices" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT
+		id,
+		titl,
+		msg,
+		order_no,
+		is_valid,
+		creater,
+		created_date,
+		last_updater,
+		last_updated_date
+		FROM
+		hpmgr.sys_notice
+		where is_valid=1
+		ORDER BY order_no,last_updated_date desc
+	</select>
+
+	<insert id="addNoticeLog" parameterType="java.util.Map">
+		INSERT INTO
+			hpmgr.sys_notice_readlog (  
+			notice_id,
+			reader,
+			read_date,
+			nomoretoday
+		)
+		VALUES
+		( 
+			${notice_id},
+			'${reader}',
+			now(),
+			${nomoretoday}
+		)
+	</insert>
+	<select id="selectUserRole" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+			SELECT u.code as U,ur.R FROM HPMGR.T_SYS_USER_ROLE ur,HPMGR.T_SYS_USER u where ur.u=u.id 
+	</select>
+
+</mapper>
+

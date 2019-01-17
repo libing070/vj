@@ -1,0 +1,1817 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="zdtl">
+<cache eviction="LRU"  flushInterval="1800000"  size="4096" readOnly="true" />
+	<select id="getYCXSSLList" resultType="Map" parameterType="Map">
+		select  Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.errQty desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_new t where t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000 and t.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+			and t.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="conCount!=null and conCount==1">
+		and focus_cd  ='${concernId}'
+		</if>
+		<if test="conCount==null">
+		and focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+		</foreach>
+		</if>
+		group by 1,2,3,4,5,6,7,8,9,10,11,12
+		order by valRank
+	</select>
+	<select id="getSumYCXSZBList" resultType="Map" parameterType="Map">
+		select tb1.*,row_number()over(order by tb1.qtyPercent desc) as valRank from (select  tb.regionId,tb.regionName,sum( tb.qtyPercent ) as qtyPercent  from 	(select   Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt
+		from hppdata.Sum_zdtl_3000_prvdcty_new t where t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000  and t.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+			and t.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="conCount==null">
+		and focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+		</foreach>
+		</if>
+		<![CDATA[and t.focus_cd  <> '3001,3002,3004,3005']]>
+		group by 1,2,3,4,5,6,7,8,9,10,11,12 )tb
+		group by  tb.regionId,tb.regionName)tb1
+		order by valRank asc
+	</select>
+	<select id="getYCXSZBList" resultType="Map" parameterType="Map">
+		select   Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.qtyPercent desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_new t where t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000  and t.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+			and t.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="conCount==null">
+		and focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+		</foreach>
+		</if>
+		group by 1,2,3,4,5,6,7,8,9,10,11,12
+		order by valRank asc
+	</select>
+
+	<select id="getTLZDSLList" resultType="Map" parameterType="Map">
+		select  Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.errQty desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t where
+		t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000  and t.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+			and t.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="conCount!=null and conCount==1">
+		and focus_cd  ='${concernId}'
+		</if>
+		<if test="conCount==null">
+		and focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+		</foreach>
+		</if>
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+		order by valRank
+	</select>
+
+	<select id="getManyRegionYCXSSLList" resultType="Map" parameterType="Map">
+		 select * from (select  Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.errQty desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_new t where t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000 
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		and t.focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+			) temp where temp.regionId in
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr== '' ">
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+			<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+	</select>
+	<select id="getManyRegionYCXSZBList" resultType="Map" parameterType="Map">
+		 select * from (select   Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.qtyPercent desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_new t where t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000 
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		and t.focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+			)
+		 temp where temp.regionId in
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr== '' ">
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+			<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+	</select>
+	<select id="getManyRegionTLZDSLList" resultType="Map" parameterType="Map">
+		 select * from (select  Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.errQty desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t where
+		t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		and t.focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+			)  temp where temp.regionId in
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr== '' ">
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+			<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+	</select>
+	
+	<select id="getManyRegionTLZDZBList" resultType="Map" parameterType="Map">
+	     select * from (select  Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt
+		row_number()over(order by t.qtyPercent desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t where
+		t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			 and t.prvd_id =10000  
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		and t.focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			group by 1,2,3,4,5,6,7,8,9,10,11,12
+		) temp where temp.regionId in
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr== '' ">
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+			<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+	</select>
+
+		<select id="getSumTLZDZBList" resultType="Map" parameterType="Map">
+		select tb1.*,row_number()over(order by tb1.qtyPercent desc) as valRank from (select  tb.regionId,tb.regionName,sum( tb.qtyPercent ) as qtyPercent  from 	(select  Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t where
+		t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			 and t.prvd_id =10000  and t.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+			and t.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="conCount==null">
+		and t.focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+		</foreach>
+		</if>
+		<![CDATA[and t.focus_cd  <> '3001,3002,3004,3005']]>
+		group by 1,2,3,4,5,6,7,8,9,10,11,12)tb
+		group by  tb.regionId,tb.regionName)tb1
+		order by valRank 
+	</select>
+	<select id="getTLZDZBList" resultType="Map" parameterType="Map">
+		select Aud_trm ,
+		focus_cd,
+		prvd_id ,
+		regionName,
+		regionId ,
+		errQty,
+		qtyPercent,
+		errAmt ,
+		errPercent ,
+		totalNum ,
+		cnt_area,
+		totalAmt,
+		row_number()over(order by t.qtyPercent desc) as valRank
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t where
+		t.aud_trm=#{audTrm}
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and t.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			 and t.prvd_id =10000  and t.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+			and t.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+		and t.prvd_id =#{prvdIdStr}
+		</if>
+		<if test="conCount==null">
+		and focus_cd in
+		<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+				#{item}
+		</foreach>
+		</if>
+		group by 1,2,3,4,5,6,7,8,9,10,11,12
+		order by valRank asc
+	</select>
+	<!-- 点“去重”按钮时显示的堆叠柱状图 -->
+	<select id="getYCXSSLStackedList" resultType="Map" parameterType="Map">
+		<if test="ctyIdStr ==''">
+			select 
+					prvCon.prvd_id as regionId, 
+					prvCon.short_name as regionName,
+					
+					row_number()over(order	by tb.errQty desc)as valRank,
+					coalesce(tb.aboveValue,0) as aboveValue, 
+					coalesce(tb.bottomValue,0) as bottomValue 
+				from HPMGR.busi_workspace_org  prvCon left join
+				(
+				select t.regionId,t.regionName,
+				r.errQty,
+				r.errQty-t.errQty as aboveValue,
+				t.errQty as bottomValue
+				FROM 
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_re
+				where aud_trm=#{audTrm}  
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+				<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+					and prvd_id =10000
+				</if>
+				<!-- 多个省 -->
+				<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+					and prvd_id =10000 and regionId in
+					<foreach item="item" index="index" collection="prvdIds" open="("
+						separator="," close=")">
+						#{item}
+					</foreach>
+				</if>
+				) r
+				join 
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_new
+				where aud_trm=#{audTrm}  
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+				<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+					and prvd_id =10000
+				</if>
+				<!-- 多个省 -->
+				<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+					and prvd_id =10000 and regionId in
+					<foreach item="item" index="index" collection="prvdIds" open="("
+						separator="," close=")">
+						#{item}
+					</foreach>
+				</if>
+				) t
+				on r.Aud_trm=t.Aud_trm
+				and r.prvd_id=t.prvd_id
+				and r.regionId=t.regionId
+				and r.focus_cd=t.focus_cd
+				<!-- order by r.errQty desc -->
+				)tb 
+				on tb.regionId = prvCon.prvd_id
+				<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+						where prvCon.prvd_id not IN (${prvdIdStr})
+				</if>
+				<!-- 多个省 -->
+				<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+					where prvCon.prvd_id IN
+					<foreach item="item" index="index" collection="prvdIds" open="("
+						separator="," close=")">
+						#{item}
+					</foreach>
+				</if>
+				order by valRank asc 
+		</if>
+		<if test="ctyIdStr !=''">
+			select 
+				ctyCon.cmcc_prvd_nm_short as regionName, 
+				ctyCon.cmcc_prvd_cd as regionId, 
+				
+				row_number()over(order	by tb.errQty desc)as valRank,
+				coalesce(tb.aboveValue,0) as aboveValue, 
+				coalesce(tb.bottomValue,0) as bottomValue 
+			from hpmgr.TB_SUM_PRVD_NAME ctyCon left join
+			(
+			select t.regionId,t.regionName,
+				r.errQty,
+				r.errQty-t.errQty as aboveValue,
+				t.errQty as bottomValue
+				FROM
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_re
+				where  aud_trm=#{audTrm}  
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+			<!-- 一个省多个地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+				and prvd_id =#{prvdIdStr}
+				and regionId in
+				<foreach item="item" index="index" collection="ctyIds" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 一个省所有地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+				and prvd_id =#{prvdIdStr}
+			</if>
+				) r
+				join 				
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_new
+				where aud_trm=#{audTrm}  
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+			<!-- 一个省多个地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+				and prvd_id =#{prvdIdStr}
+				and regionId in
+				<foreach item="item" index="index" collection="ctyIds" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 一个省所有地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+				and prvd_id =#{prvdIdStr}
+			</if>
+				) t
+				on r.Aud_trm=t.Aud_trm
+				and r.prvd_id=t.prvd_id
+				and r.regionId=t.regionId
+				and r.focus_cd=t.focus_cd
+			)tb 
+			on ctyCon.cmcc_prvd_cd=tb.regionId
+			<!-- 一个省多个地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+				where ctyCon.cmcc_prvd_cd in
+				<foreach item="item" index="index" collection="ctyIds" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 一个省所有地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+				where ctyCon.cmcc_prov_prvd_id=${prvdIdStr} AND ctyCon.cmcc_prvd_cd not in (0)
+			</if>
+			order by valRank asc 
+		</if>
+	</select>
+	<select id="getYCXSZBStackedList" resultType="Map"
+	parameterType="Map">
+	<if test="ctyIdStr ==''">
+			select 
+					prvCon.prvd_id as regionId, 
+					prvCon.short_name as regionName,
+					
+					row_number()over(order by tb.qtyPercent desc)as valRank,
+					coalesce(tb.aboveValue,0) as aboveValue, 
+					coalesce(tb.bottomValue,0) as bottomValue 
+				from HPMGR.busi_workspace_org  prvCon left join
+				(
+				select t.regionId,t.regionName, 
+				case when <![CDATA[r.qtyPercent-t.qtyPercent<0 ]]> then t.qtyPercent else r.qtyPercent end as qtyPercent,
+				case when <![CDATA[r.qtyPercent-t.qtyPercent<0 ]]> then 0 else r.qtyPercent-t.qtyPercent end as aboveValue,
+				t.qtyPercent as bottomValue
+				FROM 
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_re
+				where aud_trm=#{audTrm}  
+				 <if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+				<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+					and prvd_id =10000
+				</if>
+				<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+					and prvd_id =10000 and regionId in
+					<foreach item="item" index="index" collection="prvdIds" open="("
+						separator="," close=")">
+						#{item}
+					</foreach>
+				</if>
+				) r
+				join 
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_new
+				where aud_trm=#{audTrm}  
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+				<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+					and prvd_id =10000
+				</if>
+				<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+					and prvd_id =10000 and regionId in
+					<foreach item="item" index="index" collection="prvdIds" open="("
+						separator="," close=")">
+						#{item}
+					</foreach>
+				</if>
+				) t
+				on r.Aud_trm=t.Aud_trm
+				and r.prvd_id=t.prvd_id
+				and r.regionId=t.regionId
+				and r.focus_cd=t.focus_cd
+				<!-- order by r.qtyPercent desc-->
+				)tb 
+				on tb.regionId = prvCon.prvd_id
+				<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+						where prvCon.prvd_id not IN (${prvdIdStr})
+				</if>
+				<!-- 多个省 -->
+				<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+					where prvCon.prvd_id IN
+					<foreach item="item" index="index" collection="prvdIds" open="("
+						separator="," close=")">
+						#{item}
+					</foreach>
+				</if>
+				order by valRank asc 
+		</if>	
+		<if test="ctyIdStr !=''">
+			select 
+				ctyCon.cmcc_prvd_nm_short as regionName, 
+				ctyCon.cmcc_prvd_cd as regionId, 
+				
+				row_number()over(order by tb.qtyPercent desc)as valRank,
+				coalesce(tb.aboveValue,0) as aboveValue, 
+				coalesce(tb.bottomValue,0) as bottomValue
+			from hpmgr.TB_SUM_PRVD_NAME ctyCon left join
+			(	select t.regionId,t.regionName, 
+				case when <![CDATA[r.qtyPercent-t.qtyPercent<0 ]]> then t.qtyPercent else r.qtyPercent end as qtyPercent,
+				case when <![CDATA[r.qtyPercent-t.qtyPercent<0 ]]> then 0 else r.qtyPercent-t.qtyPercent end  as aboveValue,
+				t.qtyPercent as bottomValue
+				FROM 
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_re
+				where aud_trm=#{audTrm}  
+				 <if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+			<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			and prvd_id =#{prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+			<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+			and prvd_id =#{prvdIdStr}
+			</if>
+				) r
+				join 
+				(select * from hppdata.Sum_zdtl_3000_prvdcty_new
+				where aud_trm=#{audTrm} 
+				 <if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+			<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			and prvd_id =#{prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+			</if>
+			<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+			and prvd_id =#{prvdIdStr}
+			</if>
+				) t
+				on r.Aud_trm=t.Aud_trm
+				and r.prvd_id=t.prvd_id
+				and r.regionId=t.regionId
+				and r.focus_cd=t.focus_cd
+			<!--  order by r.qtyPercent desc-->
+			)tb 
+			on ctyCon.cmcc_prvd_cd=tb.regionId
+			<!-- 一个省多个地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+				where ctyCon.cmcc_prvd_cd in
+				<foreach item="item" index="index" collection="ctyIds" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 一个省所有地市 -->
+			<if
+				test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+				where ctyCon.cmcc_prov_prvd_id=${prvdIdStr} AND ctyCon.cmcc_prvd_cd not in (0)
+			</if>
+			order by valRank asc
+		</if>
+	</select>
+
+	<select id="getTLZDSLStackedList" resultType="Map" parameterType="Map">
+		select t.regionId,t.regionName, rank(r.errQty) as valRank,
+		r.errQty-t.errQty as aboveValue,
+		t.errQty as bottomValue
+		FROM 
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_re
+		where aud_trm=#{audTrm}  
+		<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and prvd_id =10000 and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			and prvd_id =#{prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+			and prvd_id =#{prvdIdStr}
+		</if>
+		) r
+		join		
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		where aud_trm=#{audTrm}  
+		<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and prvd_id =10000 and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			and prvd_id =#{prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+			and prvd_id =#{prvdIdStr}
+		</if>
+		) t
+		on r.Aud_trm=t.Aud_trm
+		and r.prvd_id=t.prvd_id
+		and r.regionId=t.regionId
+		and r.focus_cd=t.focus_cd
+		order by r.errQty desc
+	</select>
+	<select id="getTLZDZBStackedList" resultType="Map" parameterType="Map">
+		select t.regionId,t.regionName, case when <![CDATA[r.qtyPercent-t.qtyPercent<0 ]]> then t.qtyPercent else r.qtyPercent end as qtyPercent1 ,
+		row_number()over(order by qtyPercent1 desc) as valRank,
+		case when <![CDATA[r.qtyPercent-t.qtyPercent<0 ]]> then 0 else r.qtyPercent-t.qtyPercent end  as aboveValue,
+		t.qtyPercent as bottomValue
+		FROM 
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_re
+		where aud_trm=#{audTrm} 
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and prvd_id =10000 and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			and prvd_id =#{prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+			and prvd_id =#{prvdIdStr}
+		</if>
+		) r
+		join
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		where aud_trm=#{audTrm}  
+				<if test="conCount!=null and conCount==1">
+				and focus_cd = '${concernId}'
+				</if>
+				<if test="conCount==null" >
+				and focus_cd in
+				<foreach item="item" index="index" collection="concernId" open="(" separator="," close=")">
+						#{item}
+				</foreach>
+				</if>
+		<if test="prvdIdStr != '' and prvdIdStr =='10000'  ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr !='10000' ">
+			and prvd_id =10000 and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr !='10000' ">
+			and prvd_id =#{prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if
+			test="prvdIdStr != '' and prvdIdStr !='10000'  and ctyIdStr != '' and ctyIdStr =='10000' ">
+			and prvd_id =#{prvdIdStr}
+		</if>
+		) t
+		on r.Aud_trm=t.Aud_trm
+		and r.prvd_id=t.prvd_id
+		and r.regionId=t.regionId
+		and r.focus_cd=t.focus_cd
+		order by valRank asc
+	</select>
+	<!-- 异常占比排名增幅前三名 -->
+	<select id="getTop3YCXSRateList" resultType="Map" parameterType="Map">
+	select distinct *  from (select top 3
+		t2.regionName as name,t2.qtyPercent-t1.qtyPercent as data
+		from 
+		
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_new 
+		where aud_trm=#{lastAudTrm} and focus_cd=#{concernId}
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' and (ctyIdStr =='' or ctyIdStr == '10000') ">
+			and prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr != null and ctyIdStr != '' and ctyIdStr != '10000'">
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		)t1
+		join
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_new 
+		where aud_trm=#{audTrm} and focus_cd=#{concernId}
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' and (ctyIdStr =='' or ctyIdStr == '10000') ">
+			and prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr != null and ctyIdStr != '' and ctyIdStr != '10000'">
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		) t2
+		on t1.focus_cd =t2.focus_cd
+		and t1.prvd_id = t2.prvd_id and
+		t1.regionId=t2.regionId
+		order by data desc) t order	by data desc
+	
+	<!--  
+		select distinct *  from (select top 3
+		t2.regionName as name,t2.qtyPercent-t1.qtyPercent as data
+		from hppdata.Sum_zdtl_3000_prvdcty_new t1,hppdata.Sum_zdtl_3000_prvdcty_new t2
+		where t1.focus_cd =t2.focus_cd
+		and t1.prvd_id = t2.prvd_id and
+		t1.regionId=t2.regionId
+		and t2.aud_trm=#{audTrm} and
+		t1.aud_trm=#{lastAudTrm}
+		and t2.focus_cd=#{concernId}
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr =='10000' ">
+			and t2.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' and (ctyIdStr =='' or ctyIdStr == '10000') ">
+			and t2.prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr != null and ctyIdStr != '' and ctyIdStr != '10000'">
+			and t2.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		order by data desc) t order	by data desc
+		
+		-->
+	</select>
+	<!-- 套利占比排名增幅前三名 -->
+	<select id="getTop3TLZDRateList" resultType="Map" parameterType="Map">
+		select distinct *  from (select top 3
+		t2.regionName as name,t2.qtyPercent-t1.qtyPercent as data
+		from 
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		where aud_trm=#{lastAudTrm} and focus_cd=#{concernId}
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' and (ctyIdStr =='' or ctyIdStr == '10000') ">
+			and prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr != null and ctyIdStr != '' and ctyIdStr != '10000'">
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		) t1
+		join
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		where aud_trm=#{audTrm} and focus_cd=#{concernId}
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' and (ctyIdStr =='' or ctyIdStr == '10000') ">
+			and prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr != null and ctyIdStr != '' and ctyIdStr != '10000'">
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		) t2
+		on  t1.focus_cd =t2.focus_cd
+		and t1.prvd_id = t2.prvd_id and
+		t1.regionId=t2.regionId
+		order by data desc) t order	by data desc
+	<!-- 
+	select distinct *  from (select top 3
+		t2.regionName as name,t2.qtyPercent-t1.qtyPercent as data
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t1,hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		t2
+		where t1.focus_cd =t2.focus_cd
+		and t1.prvd_id = t2.prvd_id and
+		t1.regionId=t2.regionId
+		and t2.aud_trm=#{audTrm} and
+		t1.aud_trm=#{lastAudTrm} and
+		t2.focus_cd=#{concernId}
+		<if test="prvdIdStr != ''and ctyIdStr =='' and prvdIdStr =='10000' ">
+			and t2.prvd_id =10000
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' and (ctyIdStr =='' or ctyIdStr == '10000') ">
+			and t2.prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr != null and ctyIdStr != '' and ctyIdStr != '10000'">
+			and t2.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		order by data desc) t order	by data desc
+	-->
+	</select>
+	<!--销售终端数量-->
+	<select id="getYcxsSumValues" resultType="Map" parameterType="Map">
+		select sum(t1.totalNum) as totalNum1 
+		from hppdata.Sum_zdtl_3000_prvdcty_new t1
+		where t1.Aud_trm=#{audTrm}  and
+		t1.focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and t1.prvd_id =${prvdIdStr}
+			and t1.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and t1.prvd_id =10000
+			and t1.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and t1.prvd_id =10000
+		</if>
+		group by t1.focus_cd
+	</select>
+	<!-- 获取异常销售的数据 -->
+	<select id="getThisYcxsValues" resultType="Map" parameterType="Map">
+	select	 sum(t1.errQty) as errQty1,sum(t1.totalNum) as totalNum1,
+	case	when totalNum1=0 then 0.00 
+	else	cast(errQty1*1.0000/totalNum1*100.00 as decimal(16,2)) 
+	end	as qtyPercent1
+	from hppdata.Sum_zdtl_3000_prvdcty_new t1 where t1.Aud_trm=#{audTrm}
+	and t1.focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and t1.prvd_id =${prvdIdStr}
+			and t1.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and t1.prvd_id =10000
+			and t1.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and t1.prvd_id =10000
+		</if>
+		group by t1.focus_cd
+	</select>
+<select id="getYcxsValues" resultType="Map" parameterType="Map">
+		select sum(t1.errQty) as errQty1,sum(t1.totalNum) as totalNum1, sum(t2.errQty) as lastErrQty,sum(t2.totalNum) as lastTotalNum, 
+		case when lastErrQty=0 then 0.00 else cast((errQty1*1.0000-lastErrQty*1.0000)/lastErrQty*100.00 as decimal(16,2)) end as fbQtyPercent, 
+		case when totalNum1=0 then 0.00 else cast(errQty1*1.0000/totalNum1*100.00 as decimal(16,2)) end as qtyPercent1, 
+		case when totalNum1=0 or lastTotalNum=0 then 0.00 else cast(qtyPercent1-lastErrQty*1.0000/lastTotalNum*100.00 as decimal(16,2)) end as qtyFbPercent 
+		from 		
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_new
+		where Aud_trm=#{audTrm} and focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and prvd_id =${prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and prvd_id =10000
+			and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		) t1
+		join
+		
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_new
+		where Aud_trm=#{lastMoth} and focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and prvd_id =${prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and prvd_id =10000
+			and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		) t2
+		on  t1.prvd_id=t2.prvd_id and t1.regionId=t2.regionId and t1.focus_cd=t2.focus_cd
+		group by t1.focus_cd
+		
+	<!-- 
+	select sum(t1.errQty) as errQty1,sum(t1.totalNum) as totalNum1, sum(t2.errQty) as lastErrQty,sum(t2.totalNum) as lastTotalNum, 
+		case when lastErrQty=0 then 0.00 else cast((errQty1*1.0000-lastErrQty*1.0000)/lastErrQty*100.00 as decimal(16,2)) end as fbQtyPercent, 
+		case when totalNum1=0 then 0.00 else cast(errQty1*1.0000/totalNum1*100.00 as decimal(16,2)) end as qtyPercent1, 
+		case when totalNum1=0 or lastTotalNum=0 then 0.00 else cast(qtyPercent1-lastErrQty*1.0000/lastTotalNum*100.00 as decimal(16,2)) end as qtyFbPercent 
+		from hppdata.Sum_zdtl_3000_prvdcty_new t1,hppdata.Sum_zdtl_3000_prvdcty_new t2
+		where t1.prvd_id=t2.prvd_id and t1.regionId=t2.regionId and t1.focus_cd=t2.focus_cd
+		and t1.Aud_trm=#{audTrm} and t2.Aud_trm=#{lastMoth} and
+		t1.focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and t1.prvd_id =${prvdIdStr}
+			and t1.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and t1.prvd_id =10000
+			and t1.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and t1.prvd_id =10000
+		</if>
+		group by t1.focus_cd
+	-->
+	</select>
+	<!-- 获取终端套利的数据 -->
+	<select id="getZdtlValues" resultType="Map" parameterType="Map">
+		select sum(t1.errQty) as errQty1,sum(t1.totalNum) as totalNum1, sum(t2.errQty) as lastErrQty,sum(t2.totalNum) as lastTotalNum, 
+case when lastErrQty=0 then 0.00 else cast((errQty1*1.0000-lastErrQty*1.0000)/lastErrQty*100.00 as decimal(16,2)) end as fbQtyPercent, 
+case when totalNum1=0 then 0.00 else cast(errQty1*1.0000/totalNum1*100.00 as decimal(16,2)) end as qtyPercent1, 
+case when totalNum1=0 or lastTotalNum=0 then 0.00 else cast(qtyPercent1-lastErrQty*1.0000/lastTotalNum*100.00 as decimal(16,2)) end as qtyFbPercent 
+		from 
+		
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		where Aud_trm=#{audTrm} and focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and prvd_id =${prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and prvd_id =10000
+			and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		) t1
+		join
+		(select * from hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		where Aud_trm=#{lastMoth} and focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and prvd_id =${prvdIdStr}
+			and regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and prvd_id =10000
+			and regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and prvd_id =10000
+		</if>
+		) t2
+		on t1.prvd_id=t2.prvd_id and t1.regionId=t2.regionId and t1.focus_cd=t2.focus_cd
+		group by t1.focus_cd
+		
+	<!-- 
+	select sum(t1.errQty) as errQty1,sum(t1.totalNum) as totalNum1, sum(t2.errQty) as lastErrQty,sum(t2.totalNum) as lastTotalNum, 
+case when lastErrQty=0 then 0.00 else cast((errQty1*1.0000-lastErrQty*1.0000)/lastErrQty*100.00 as decimal(16,2)) end as fbQtyPercent, 
+case when totalNum1=0 then 0.00 else cast(errQty1*1.0000/totalNum1*100.00 as decimal(16,2)) end as qtyPercent1, 
+case when totalNum1=0 or lastTotalNum=0 then 0.00 else cast(qtyPercent1-lastErrQty*1.0000/lastTotalNum*100.00 as decimal(16,2)) end as qtyFbPercent 
+		from hppdata.Sum_zdtl_3000_prvdcty_cj_new t1,hppdata.Sum_zdtl_3000_prvdcty_cj_new t2
+		where t1.prvd_id=t2.prvd_id and t1.regionId=t2.regionId and t1.focus_cd=t2.focus_cd
+		and t1.Aud_trm=#{audTrm} and t2.Aud_trm=#{lastMoth} and
+		t1.focus_cd='${focusCd}'
+		<if test="prvdIdStr != '' and ctyIdStr !='' and ctyIdStr !='10000'">
+			and t1.prvd_id =${prvdIdStr}
+			and t1.regionId in
+			<foreach item="item" index="index" collection="ctyIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="prvdIdStr != '' and prvdIdStr !='10000' ">
+			and t1.prvd_id =10000
+			and t1.regionId in
+			<foreach item="item" index="index" collection="prvdIds" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ctyIdStr =='' and prvdIdStr =='10000' ">
+			and t1.prvd_id =10000
+		</if>
+		group by t1.focus_cd
+	-->
+	</select>
+ 	<!-- 这个是查询省的 -->
+ 	<select id="getPrvdTableInfo" resultType="Map" parameterType="Map">
+	 	select distinct a.regionName as prvdName,a.totalNum as totalTerCount,a.cnt_area as cityCount,
+		coalesce( a.errQty,0) as errorCount ,
+		coalesce( a.qtyPercent,0) as errorPercent ,
+		coalesce( a.errChnlQty,0) as erroChnlcount,
+		coalesce( b.errQty,0) as arbCount ,
+		coalesce( b.qtyPercent,0) as arbPercent ,
+		coalesce( b.errChnlQty,0) as arbChnlcount,
+		a.regionId as prvdId , a.focus_cd as focusCd
+		from 
+				(select *
+				 from 
+				 hppdata.Sum_zdtl_3000_prvdcty_new  t
+				 where  t.prvd_id=10000 and t.Aud_trm =#{audTrm}
+				 and  t. focus_cd=#{focusCd}
+				 <if test="prvdIdStr != null and prvdIdStr != '' ">
+					 and t.regionId in(${prvdIdStr})
+				  </if>
+				)a
+ 		left join 
+				 (select *
+				 from 
+				 hppdata.Sum_zdtl_3000_prvdcty_cj_new  t
+				 where  t.prvd_id=10000 and t.Aud_trm =#{audTrm}
+				 and  t. focus_cd=#{focusCd}
+				 <if test="prvdIdStr != null and prvdIdStr != '' ">
+				 	and t.regionId in(${prvdIdStr})
+				 </if>
+				  )b
+	     on  a.regionId=b.regionId
+			 	<if test="orderField != null and orderField =='ycxssl'">
+			    	order by a.errQty  DESC 
+			        </if>
+			 	<if test="orderField != null and orderField =='ycxszb'">
+			     	order by a.qtyPercent  DESC 
+			        </if>
+			 	<if test="orderField != null and orderField =='tlzdsl'">
+			        order by b.errQty  DESC 
+			    </if>
+			    <if test="orderField != null and orderField =='tlzdzb'">
+			   		order by b.qtyPercent  DESC 
+			    </if>
+ 	</select>
+ 	<!-- 这个是查询省的  3001 沉默串码特殊处理   3002养机  只查询套利终端-->
+ 	<select id="getPrvdTableInfo_tlzd" resultType="Map" parameterType="Map">
+	 	select distinct a.regionName as prvdName,a.totalNum as totalTerCount,a.cnt_area as cityCount,
+	 	coalesce( a.errQty,0) as errorCount ,
+		coalesce( a.qtyPercent,0) as errorPercent ,
+		coalesce( a.errChnlQty,0) as erroChnlcount,
+		a.regionId as prvdId , a.focus_cd as focusCd
+		from 
+				(select *
+				 from 
+				 hppdata.Sum_zdtl_3000_prvdcty_cj_new  t
+				 where  t.prvd_id=10000 and t.Aud_trm =#{audTrm}
+				 and  t. focus_cd=#{focusCd}
+				 <if test="prvdIdStr != null and prvdIdStr != '' ">
+					 and t.regionId in(${prvdIdStr})
+				  </if>
+				)a
+			 	<if test="orderField != null and orderField =='tlzdsl'">
+			    	order by a.errQty  DESC 
+			        </if>
+			 	<if test="orderField != null and orderField =='tlzdzb'">
+			     	order by a.qtyPercent  DESC 
+			        </if>
+ 	</select>
+ 	<!-- 这个是查询市的 -->
+ 	<select id="getCtyTableInfo" resultType="Map" parameterType="Map">
+			 select  
+			 distinct a.regionName as ctyName,
+			(select  CMCC_prov_prvd_nm   from HPMGR.ref_dm_cmcc_prov_prvd_cd p  where  p.CMCC_prov_prvd_cd=#{prvdId}) 
+			as prvdName,
+			coalesce( a.errQty,0) as errorCount ,
+			coalesce( a.qtyPercent,0) as errorPercent ,
+			coalesce( a.errChnlQty,0) as erroChnlcount,
+			coalesce( b.errQty,0) as arbCount ,
+			coalesce( b.qtyPercent,0) as arbPercent ,
+			coalesce( b.errChnlQty,0) as arbChnlcount,
+			a.regionId as ctyId ,
+			a.prvd_id as prvdId,
+			a.focus_cd as focusCd
+			from 
+						(select *
+						 from 
+						 hppdata.Sum_zdtl_3000_prvdcty_new  t
+						 where  t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+						 and  t. focus_cd=#{focusCd}
+						 <if test="ctyIdStr != null and ctyIdStr != '' ">
+							 and t.regionId in(${ctyIdStr})
+						  </if>
+						)a
+		 		left join 
+						 (select *
+						 from 
+						 hppdata.Sum_zdtl_3000_prvdcty_cj_new  t
+						 where  t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+						 and  t. focus_cd=#{focusCd}
+						 <if test="ctyIdStr != null and ctyIdStr != '' ">
+						 	and t.regionId in(${ctyIdStr})
+						 </if>
+						  )b
+			     on  a.regionId=b.regionId
+					 	<if test="orderField != null and orderField =='ycxssl'">
+					    	order by a.errQty  DESC 
+					        </if>
+					 	<if test="orderField != null and orderField =='ycxszb'">
+					     	order by a.qtyPercent  DESC 
+					        </if>
+					 	<if test="orderField != null and orderField =='tlzdsl'">
+					        order by b.errQty  DESC 
+					    </if>
+					    <if test="orderField != null and orderField =='tlzdzb'">
+					   		order by b.qtyPercent  DESC 
+					    </if>
+ 	</select>
+	
+		<!-- 这个是查询市的 3001 沉默串码 ，  3002养机  只查询套利终端-->
+ 	<select id="getCtyTableInfo_tlzd" resultType="Map" parameterType="Map">
+			 select  
+			 	distinct a.regionName as ctyName,
+			(select  CMCC_prov_prvd_nm   from HPMGR.ref_dm_cmcc_prov_prvd_cd p  where  p.CMCC_prov_prvd_cd=#{prvdId}) 
+			as prvdName,
+			coalesce( a.errQty,0) as errorCount ,
+			coalesce( a.qtyPercent,0) as errorPercent ,
+			coalesce( a.errChnlQty,0) as erroChnlcount,
+			a.regionId as ctyId ,
+			a.prvd_id as prvdId,
+			a.focus_cd as focusCd
+			from 
+						(select *
+						 from 
+						 hppdata.Sum_zdtl_3000_prvdcty_cj_new  t
+						 where  t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+						 and  t. focus_cd=#{focusCd}
+						 <if test="ctyIdStr != null and ctyIdStr != '' ">
+							 and t.regionId in(${ctyIdStr})
+						  </if>
+						)a
+		 		
+					 <if test="orderField != null and orderField =='tlzdsl'">
+			    	order by a.errQty  DESC 
+			        </if>
+			 	<if test="orderField != null and orderField =='tlzdzb'">
+			     	order by a.qtyPercent  DESC 
+			        </if>
+ 	</select>
+	
+	
+	
+	<select id="getChnlTop5" resultType="Map" parameterType="Map">
+		<!-- 按销售量排序时查询销售了top表 关联套利的基础数据表 b.infraction_num as arbCount 现在没有 -->
+		<if test="orderField != null and orderField =='ycxssl'">
+			select top 5
+			a.chnl_name as chnlName,
+			( select CMCC_prov_prvd_nm from HPMGR.ref_dm_cmcc_prov_prvd_cd p where p.CMCC_prov_prvd_cd=a.prvd_id ) as prvdName ,
+			( select CMCC_prvd_nm_short from HPMGR.TB_SUM_PRVD_NAME p where p.CMCC_prvd_cd=a.regionId ) as ctyName,
+		 	coalesce(a.errQty_tmp ,0) as errorCount,coalesce( a.qtyPercent ,0) as errorPercent, coalesce(b.infraction_num ,0)  as arbCount,
+			(case when b.tol_num=0 or b.tol_num is null then 0 else b. infraction_num*1.00/b.tol_num end) as arbPercent,
+			a.prvd_id as prvdId ,a.regionId as ctyId ,a.chnl_id as chnlId,a.focus_cd as focusCd
+
+			from
+			( select * from hppdata.Sum_zdtl_3000_top5res_chnl t
+			where t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+			and t. focus_cd=#{focusCd}
+			and t. flag=#{flag}
+			<if test="ctyIdStr != null and ctyIdStr !='' ">
+			and	t.regionId =#{ctyIdStr}
+			</if>
+			)a
+			left join
+			( select * from hppdata.Sum_zdtl_3000_new_choujin t
+			where t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+			and t. focus_cd=#{focusCd}
+
+			)b
+			on a.chnl_id=b.chnl_id
+			order by a.rn asc
+		</if>
+		<!-- 按套利排序时查询套利top表 关联销售的基础数据表 -->
+		<if test="orderField != null and orderField =='tlzdsl'">
+			select
+			a.chnl_name as chnlName,
+			( select CMCC_prov_prvd_nm from HPMGR.ref_dm_cmcc_prov_prvd_cd p where p.CMCC_prov_prvd_cd=a.prvd_id ) as prvdName ,
+			( select CMCC_prvd_nm_short from HPMGR.TB_SUM_PRVD_NAME p where p.CMCC_prvd_cd=a.regionId ) as ctyName,
+			coalesce(a.errQty_tmp ,0) as arbCount ,coalesce(a.qtyPercent ,0) as arbPercent,
+			coalesce(b.infraction_num ,0) as errorCount,
+			(case when b.tol_num=0 or b.tol_num is null then 0 else b. infraction_num*1.00/b.tol_num end) as errorPercent,
+			a.prvd_id as prvdId ,a.regionId as ctyId ,a.chnl_id as chnlId,a.focus_cd as focusCd
+
+			from
+			( select * from hppdata.Sum_zdtl_3000_top5res_cj_chnl t
+			where t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+			and t. focus_cd=#{focusCd}
+			and t. flag=#{flag}
+			<if test="ctyIdStr != null and ctyIdStr !='' ">
+			and	t.regionId =#{ctyIdStr}
+			</if>
+			)a
+			left join
+			( select * from hppdata.Sum_zdtl_3000_new t
+			where t.prvd_id=#{prvdId} and t.Aud_trm =#{audTrm}
+			and t. focus_cd=#{focusCd}
+			)b
+			on a.chnl_id=b.chnl_id
+			order by a.rn asc
+		</if>
+	</select>
+
+
+
+	<select id="getBall" resultType="Map" parameterType="Map">
+		select 
+		sum(case when a.focus_cd='3001,3002,3004,3005' then a.tmp_re end)  as hz,
+		sum(case when a.focus_cd='3001' then a.tmp_re end)  as cmo,
+		sum(case when a.focus_cd='3002' then a.tmp_re end)  as yj,
+		sum(case when a.focus_cd='3004' then a.tmp_re end)  as cb,
+		sum(case when a.focus_cd='3005' then a.tmp_re end ) as ks from 
+		(select focus_cd, cast( ( sum(errQty) *1.0000/sum(totalNum)*100.00) as decimal(16,2)) as tmp_re
+		from hppdata.${tableStr} t
+		where 1=1
+		<if test="prvdIdStr == '' ">
+			and t.prvd_id = 10000
+		</if>
+		<if test="prvdIdStr != '' and ctyIdStr=='' ">
+			and t.prvd_id = 10000
+			and t.regionId in (${prvdIdStr})
+
+		</if>
+		<if test="ctyIdStr != '' and prvdIdStr != '' ">
+			and t.prvd_id in(${prvdIdStr})
+			and t.regionId in(${ctyIdStr})
+		</if>
+		and t.Aud_trm =#{audTrm}
+		and t. focus_cd in ('3001,3002,3004,3005','3001','3002','3004','3005')
+		group by focus_cd)a;
+		
+	<!--  	
+		select
+		(
+		select cast( ( sum(errQty) *1.0000/sum(totalNum)*100.00) as decimal(16,2)) as hz
+		
+		from hppdata.${tableStr} t
+		
+		where 1=1
+		<if test="prvdIdStr == '' ">
+			and t.prvd_id = 10000
+		</if>
+		<if test="prvdIdStr != '' and ctyIdStr=='' ">
+			and t.prvd_id = 10000
+			and t.regionId in (${prvdIdStr})
+		</if>
+		<if test="ctyIdStr != '' and prvdIdStr != '' ">
+			and t.prvd_id in(${prvdIdStr})
+			and t.regionId in(${ctyIdStr})
+		</if>
+		and t.Aud_trm =#{audTrm}
+		and t. focus_cd='3001,3002,3004,3005')
+		as hz,
+		(select cast( ( sum(errQty) *1.0000/sum(totalNum)*100.00) as decimal(16,2)) as cmo
+		from hppdata.${tableStr} t
+		where 1=1
+		<if test="prvdIdStr == '' ">
+			and t.prvd_id = 10000
+		</if>
+		<if test="prvdIdStr != '' and ctyIdStr=='' ">
+			and t.prvd_id = 10000
+			and t.regionId in (${prvdIdStr})
+
+		</if>
+		<if test="ctyIdStr != '' and prvdIdStr != '' ">
+			and t.prvd_id in(${prvdIdStr})
+			and t.regionId in(${ctyIdStr})
+		</if>
+		and t.Aud_trm =#{audTrm}
+		and t. focus_cd='3001')
+		as cmo,
+		(select cast( ( sum(errQty) *1.0000/sum(totalNum)*100.00) as decimal(16,2)) as yj
+		from hppdata.${tableStr} t
+		where 1=1
+		<if test="prvdIdStr == '' ">
+			and t.prvd_id = 10000
+		</if>
+		<if test="prvdIdStr != '' and ctyIdStr=='' ">
+			and t.prvd_id = 10000
+			and t.regionId in (${prvdIdStr})
+		</if>
+		<if test="ctyIdStr != '' and prvdIdStr != '' ">
+			and t.prvd_id in(${prvdIdStr})
+			and t.regionId in(${ctyIdStr})
+		</if>
+		and t.Aud_trm =#{audTrm}
+		and t. focus_cd='3002')
+		as yj,
+		( select cast( ( sum(errQty) *1.0000/sum(totalNum)*100.00) as decimal(16,2)) as cb
+		from hppdata.${tableStr} t
+		where 1=1
+		<if test="prvdIdStr == '' ">
+			and t.prvd_id = 10000
+		</if>
+		<if test="prvdIdStr != '' and ctyIdStr=='' ">
+			and t.prvd_id = 10000
+			and t.regionId in (${prvdIdStr})
+		</if>
+		<if test="ctyIdStr != '' and prvdIdStr != '' ">
+			and t.prvd_id in(${prvdIdStr})
+			and t.regionId in(${ctyIdStr})
+		</if>
+		and t.Aud_trm =#{audTrm}
+		and t. focus_cd='3004')
+		as cb ,
+		(select cast( ( sum(errQty) *1.0000/sum(totalNum)*100.00) as decimal(16,2)) as ks
+		from hppdata.${tableStr} t
+		where 1=1
+		<if test="prvdIdStr == '' ">
+			and t.prvd_id = 10000
+		</if>
+		<if test="prvdIdStr != '' and ctyIdStr=='' ">
+			and t.prvd_id = 10000
+			and t.regionId in (${prvdIdStr})
+		</if>
+		<if test="ctyIdStr != '' and prvdIdStr != '' ">
+			and t.prvd_id in(${prvdIdStr})
+			and t.regionId in(${ctyIdStr})
+		</if>
+		and t.Aud_trm =#{audTrm}
+		and t. focus_cd='3005')
+		as ks
+-->
+	</select>
+
+	<select id="getChnlTrendInfo" resultType="Map" parameterType="Map">
+	SELECT Aud_trm,infraction_num as errQty,
+	cast((case when tol_num=0 or tol_num is null then 0 else errQty*1.0000/tol_num end)*100 as decimal(16,2)) as qtyPercen
+	<if test="orderField != '' and orderField=='ycxssl' ">
+		FROM hppdata.Sum_zdtl_3000_new t
+	</if>
+	<if test="orderField != '' and orderField=='tlzdsl' ">
+		FROM hppdata.Sum_zdtl_3000_new_choujin t
+	</if>
+	where t. focus_cd=#{focusCd}
+	and t.prvd_id=#{prvdId}
+	and t.cty_id=#{ctyId}
+	and t.chnl_id=#{chnlID}
+	and t.Aud_trm in (${audTrm})
+	order by t.Aud_trm ASC
+</select>
+ 	
+ 	
+
+	
+	
+	<!-- 按审计月份进行折线图展示_异常销售，定义errQty2的原因是errQty会报错 20160912 add by GuoXY -->
+	<select id="getLineChartData_ycxs" resultType="java.util.HashMap"  parameterType="java.util.Map">
+		SELECT
+			Aud_trm as audTrm,
+			SUM(totalNum) AS totalQty,
+			SUM(errQty) AS errQty,
+			SUM(errQty) AS errQty2,
+			case when totalQty=0 then 0 else CAST(errQty2 as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(totalAmt) AS totalAmount,
+			SUM(errAmt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent
+		FROM  hppdata.Sum_zdtl_3000_prvdcty_new
+		WHERE totalNum > 0
+		<if test="audTrmStart!=null">
+			<![CDATA[and Aud_trm >= #{audTrmStart}]]>
+		</if>
+		<if test="audTrmEnd!=null">
+			<![CDATA[and Aud_trm <= #{audTrmEnd}]]>
+		</if> 
+		<if test="prvdIdsStr!=null">
+			and prvd_id in ( ${prvdIdsStr} )
+		</if>
+		<if test="ctyIdsStr!=null and ctyIdsStr!='10000'">
+			and regionId in ( ${ctyIdsStr} )
+		</if>
+		<if test="focusCd!=null">
+			and focus_cd='${focusCd}'
+		</if>
+		GROUP BY audTrm
+	</select>
+ 	
+ 	
+	<!--按审计月份进行折线图展示_套利，定义errQty2的原因是errQty会报错  20160912 add by GuoXY -->
+	<select id="getLineChartData_tl" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			Aud_trm as audTrm,
+			SUM(totalNum) AS totalQty,
+			SUM(errQty) AS errQty,
+			SUM(errQty) AS errQty2,
+			case when totalQty=0 then 0 else CAST(errQty2 as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(totalAmt) AS totalAmount,
+			SUM(errAmt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent
+		FROM  hppdata.Sum_zdtl_3000_prvdcty_cj_new
+		WHERE totalNum > 0
+		<if test="audTrmStart!=null">
+			<![CDATA[and Aud_trm >= #{audTrmStart}]]>
+		</if>
+		<if test="audTrmEnd!=null">
+			<![CDATA[and Aud_trm <= #{audTrmEnd}]]>
+		</if> 
+		<if test="prvdIdsStr!=null">
+			and prvd_id in ( ${prvdIdsStr} ) 
+		</if>
+		<if test="ctyIdsStr!=null and ctyIdsStr!='10000'">
+			and regionId in ( ${ctyIdsStr} )
+		</if>
+		<if test="focusCd!=null">
+			and focus_cd='${focusCd}'
+		</if>
+		GROUP BY audTrm
+	</select>
+	
+	
+	<!-- 审计报告之总体数据  1:全公司报告, 2:省公司报告  20160922 add by GuoXY -->
+ 	<select id="getAuditReportData_totalInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select  Aud_trm, 
+				errQty,         
+				totalQty,             
+				qtyPercent,      
+				abs_fbQtyPercent,    
+				( 
+				  select errQty from	hppdata.Sum_zdtl_3000_report_cj
+				  where focus_cd = '3000' 
+					  and Aud_trm = ${audTrm} 
+					  and prvd_id = ${prvdId}
+				) as tlErrQty,
+				errChnlQty,
+				qtyChnlPercent,
+				abs_fbChnlPercent
+		from hppdata.Sum_zdtl_3000_report 
+		where focus_cd = '3000'
+			  and Aud_trm = ${audTrm} 
+			  and prvd_id = ${prvdId}
+	</select>
+	
+	<!-- 审计报告之表格数据，合计行在js中计算，含有_tmp字段用于前端计算（占比）合计，其他字段（已千分位/百分号格式化）直接用于前端显示  1:全公司报告, 2:省公司报告  20160922 add by GuoXY -->
+ 	<select id="getAuditReportData_tableInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select 
+			(CASE 			
+			when rep.focus_cd = 3001 	then '沉默串码' 
+			when rep.focus_cd = 3002 	then '养机' 
+			when rep.focus_cd = 3004 	then '拆包' 
+			when rep.focus_cd = 3005 	then '跨省窜货' 
+			end) as focusName,
+			rep.errQty_tmp, 
+			rep.totalQty_tmp,
+			case when rep.totalQty_tmp=0 then 0 else cast(rep.errQty_tmp as decimal(16,2))*100/rep.totalQty_tmp end qtyPercent, 
+			rep.errChnlQty_tmp, 
+			rep.totalChnlQty_tmp,
+			case when rep.totalChnlQty_tmp=0 then 0 else cast(rep.errChnlQty_tmp as decimal(16,2))*100/rep.totalChnlQty_tmp end qtyChnlPercent
+		from hppdata.Sum_zdtl_3000_report rep, hppdata.Sum_zdtl_3000_report_cj rep_cj
+		where 1=1
+		and rep.focus_cd = rep_cj.focus_cd
+		and rep.Aud_trm = rep_cj.Aud_trm
+		and rep.prvd_id =  rep_cj.prvd_id
+		and rep.focus_cd = ${concernId}
+		and rep.Aud_trm = ${audTrm}
+		and rep.prvd_id = ${prvdId}
+	</select>
+
+</mapper>

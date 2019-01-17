@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.SSOMapper">
+<!--
+	<cache
+        eviction="LRU"
+        flushInterval="1800000"
+        size="4096"
+        readOnly="true" />
+  -->   
+  <resultMap type="com.hpe.cmca.pojo.SSOData"  id="SSOData">		
+		<result property="value" column="biz_Value"/>
+		<result property="text" column="biz_Text"/>
+	</resultMap> 	
+	
+	<resultMap type="com.hpe.cmca.pojo.LoginData"  id="loginData">		
+		<result property="userId" column="user_id"/>
+		<result property="prvdId" column="prvd_id"/>
+		<result property="loginTimes" column="login_times"/>
+		<result property="userNm" column="user_nm"/>
+		<result property="prvdNm" column="prvd_nm"/>
+		<result property="depId" column="dep_id"/>
+		<result property="depNm" column="dep_nm"/>
+		<result property="phoneNum" column="phone_num"/>
+		<result property="email" column="email"/>
+		<result property="lastLoginTime" column="last_login_time"/>
+		<result property="rightList" column="right_list"/>
+		
+	</resultMap> 
+  <select id="getDictCommon" resultMap="SSOData" parameterType="java.lang.String">
+		SELECT 
+			biz_Value, 
+			biz_Text 
+		FROM HPMGR.dict_common 
+		<where>
+		     <if test="_parameter!=null">
+		 		 biz_Type=#{_parameter}
+		 	 </if>
+		</where>
+		ORDER BY biz_Type, order_Index
+	</select>  
+	
+	  <select id="getDictCommonByValue" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT 
+			biz_Value, 
+			biz_Text,
+			remark 
+		FROM HPMGR.dict_common 
+		where  biz_Type='RESOURCE_ID_3'
+		
+		and biz_Value in
+		<foreach item="item" index="index" collection="sValue"
+					open="(" separator="," close=")">
+					#{item}
+		</foreach>
+	
+		ORDER BY biz_Type, order_Index
+	</select>  
+
+	<select id="getLoginInfo" parameterType="com.hpe.cmca.pojo.LoginData" resultMap="loginData">  
+		SELECT	 user_id, user_nm, prvd_id, prvd_nm, dep_id, dep_nm,
+		phone_num, email, last_login_time, login_times,right_list
+		FROM	hpmgr.busi_login_info
+		where 1=1
+		<if test="userIds!=null">
+		and user_id in
+		<foreach item="item" index="index" collection="userIds"
+					open="(" separator="," close=")">
+					#{item}
+		</foreach> 
+		</if>
+		<if test="userIds==null and userId!=null">
+		and user_id =#{userId}
+		</if>
+		<if test="prvdIds!=null">
+		and prvd_id in
+		<foreach item="item" index="index" collection="prvdIds"
+					open="(" separator="," close=")">
+					#{item}
+		</foreach>  
+		</if>
+		<if test="prvdIds==null and prvdId!=null">
+		and prvd_id=#{prvdId}
+		</if>
+		<if test="depIds!=null">
+		and dep_nm in
+		<foreach item="item" index="index" collection="depIds"
+					open="(" separator="," close=")">
+					#{item}
+		</foreach>   
+		</if>
+		<if test="depIds==null and depId!=null">
+		and dep_id=#{depId}
+		</if>
+	</select> 
+	
+	<update id="updateLoginInfo" parameterType="com.hpe.cmca.pojo.LoginData">  
+		update  hpmgr.busi_login_info a
+		set 
+		user_nm=#{userNm},
+		prvd_id=#{prvdId},
+		prvd_nm=(select distinct CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd b where b.CMCC_prov_prvd_id = #{prvdId}),
+		dep_id=#{depId},
+		dep_nm=#{depNm},
+		phone_num=#{phoneNum},
+		email=#{email},
+		last_login_time=current_timestamp,
+		login_times = login_times+1,
+		right_list = #{rightList}
+		where user_id =#{userId}
+	</update> 
+	
+	<insert id="insertLoginInfo" parameterType="com.hpe.cmca.pojo.LoginData">  
+		INSERT	INTO hpmgr.busi_login_info(user_id, user_nm, prvd_id, prvd_nm, dep_id, dep_nm, phone_num,
+		email, last_login_time, login_times,right_list)
+		select #{userId},#{userNm},#{prvdId},
+		CMCC_prov_prvd_nm,
+		#{depId}, #{depNm},#{phoneNum},#{email},current_timestamp,1,#{rightList}
+		from hpmgr.ref_dm_cmcc_prov_prvd_cd  where CMCC_prov_prvd_id=#{prvdId}       
+	</insert> 
+	
+	<select id="getAnnouncement" resultType="java.util.HashMap">  
+		select announcement from  hpmgr.busi_announcement 
+	</select> 
+	
+	<select id="getPrvd" resultType="java.util.HashMap" parameterType="java.util.HashMap">  
+		select  distinct prvd_id as id, prvd_nm as name from  hpmgr.busi_login_info 
+		where 1=1
+		<if test="userId!=null">
+		and user_id =#{userId}  
+		</if>
+	</select> 
+	<select id="getDep" resultType="java.util.HashMap" parameterType="java.util.HashMap">  
+		select  distinct dep_nm as id, dep_nm as name from  hpmgr.busi_login_info
+		where 1=1
+		<if test="userId!=null">
+		and user_id =#{userId}  
+		</if>
+	</select>
+	<select id="getUser" resultType="java.util.HashMap" parameterType="java.util.HashMap">  
+		select distinct user_id as id, user_nm as name from  hpmgr.busi_login_info
+		where 1=1
+		<if test="userId!=null">
+		and user_id =#{userId}  
+		</if>
+	</select>
+</mapper>
+

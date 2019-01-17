@@ -1,0 +1,92 @@
+.btn-group>.btn {
+    line-height: 1.24
+}
+
+.main_content .main_show_wrap .panel-title {
+    display: inline-block;
+}
+
+.main_content .main_show_wrap {
+    width: 100%;
+    margin: 12px auto 0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.main_content .main_show_wrap a.glyphicon {
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.modal-title {
+    color: #d9534f;
+}
+
+textarea.form-control {
+    resize: none;
+}
+
+div.dropdown-menu {
+    min-width: 250px;
+}
+
+.dropdown-menu table {
+    width: 100%;
+}
+
+/* 表格 */
+
+.light_style .main_content .search_result {
+    height: 440px;
+    background-color: #fefefe;
+}
+
+.light_style .table,
+.form-group,
+.filter-option,
+.dropdown-menu a {
+    font-size: 12px;
+}
+
+.table>tbody>tr>td {
+    vertical-align: middle !important;
+}
+
+.table th td:nth-child(6) {
+    text-align: left
+}
+
+.table>thead th:nth-child(6) {
+    text-align: center
+}
+
+/* 模态框 */
+
+.modal .btn {
+    border: 1px solid #ccc
+}
+
+.modal .btn:hover {
+    background-color: #ccc;
+    border: 1px solid #ccc
+}
+
+@media screen and (max-width: 1366px) {
+    .main_content .main_show_wrap {
+        height: 410px;
+    }
+}
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .light_style .main_content .search_result {
+        height: 570px;
+    }
+}
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .light_style .main_content .search_result {
+        height: 750px;
+    }
+}

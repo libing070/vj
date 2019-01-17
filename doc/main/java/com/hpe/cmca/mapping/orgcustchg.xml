@@ -1,0 +1,1325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 集团客户-->
+<mapper namespace="OrgCustCHG">
+ 	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="totalReport">
+		<result property="statCycle" column="statCycle"/>
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="count" column="errQty"/>
+		<result property="percent" column="qtyPercent"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map"  id="mapReport">
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="numberSum" column="errQty"/>
+		<result property="numberPrecent" column="qtyPrecent"/>
+		<result property="amountSum" column="errAmt"/>
+		<result property="amountPercent" column="amtPercent"/>
+		<result property="totalNum" column="totalNum"/>
+	</resultMap>
+	
+
+	
+	<!-- 总体情况之全国地图 -->
+	<select id="totalReport_selectChinaMap" resultMap="mapReport" parameterType="java.util.Map">
+	   
+	   <if test="provinceCode==10000">
+	   		
+	   		select t1.CMCC_prov_prvd_nm as regionName,t1.CMCC_prov_prvd_id as regionId,t2.errQty,t2.qtyPercent,t2.errAmt,t2.errPercent,t2.totalNum
+	   		from HPMGR.ref_dm_cmcc_prov_prvd_cd as t1
+	   		left join 
+	   		(
+   		
+				select prvd_id as regionId,
+				infraction_num as errQty, 
+				tol_num as totalNum,
+				cast(num_per as decimal(16,2))*100 qtyPercent,
+				
+				infraction_amt as errAmt, 
+				tol_amt as totalAmt,
+				cast(amt_per as decimal(16,2))*100 errPercent
+				
+				from HPBUS.SUM_ORG_CUST_CHG_PRVD
+				<where> 1=1
+				
+				and tol_num>0 <![CDATA[and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+	
+		
+				</where>
+				
+			) t2
+			on t1.CMCC_prov_prvd_id=t2.regionId
+			order by t2.qtyPercent desc
+		</if>
+		
+		<if test="provinceCode!=10000">
+			select t1.CMCC_prvd_nm_short regionName,t1.CMCC_prvd_cd as regionId,t2.errQty,t2.qtyPercent,t2.errAmt,t2.errPercent,t2.totalNum
+			from HPMGR.TB_SUM_PRVD_NAME	as t1
+			left join
+			(					
+				select cty_id as regionId,
+				infraction_num as errQty,				
+				tol_num as totalNum, 
+				cast(num_per as decimal(16,2))*100 qtyPercent,
+				
+				infraction_amt as errAmt, 
+				tol_amt as totalAmt,
+				cast(amt_per as decimal(16,2))*100 errPercent
+				
+				
+				from HPBUS.SUM_ORG_CUST_CHG_CTY
+				<where> 1=1
+				
+				and tol_num>0
+				and	prvd_id=#{provinceCode}
+					<if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+		
+		
+				</where>
+				
+			) t2
+			on t1.CMCC_prvd_cd=t2.regionId
+			where t1.CMCC_prov_prvd_id=#{provinceCode}
+			order by t2.qtyPercent desc
+		</if>
+	</select>
+	
+	<!-- 总体情况之数量前五名 -->
+	<select id="totalReport_selectNumberTop5" resultMap="totalReport" parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			select t.*, row_number() OVER(ORDER BY errQty desc,qtyPercent desc) RN 
+			from (
+				select  prvd_id as regionId,
+				infraction_num (format 'ZZZ,ZZZ,ZZZ,ZZ9')  as errQty, 
+				tol_num as tolQty,
+				cast(num_per as decimal(16,2))*100 qtyPercent,
+				CMCC_prov_prvd_nm as regionName
+				from HPBUS.SUM_ORG_CUST_CHG_PRVD
+				where 1=1
+				and tol_num>0  <![CDATA[and prvd_id<>10000]]>
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>
+	
+		
+				) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by errQty desc, RN asc
+		</if>
+		<if test="provinceCode!=10000">
+			select t.*, row_number() OVER(ORDER BY errQty desc,qtyPercent desc) RN 
+			from (
+				select cty_id as regionId,
+				infraction_num (format 'ZZZ,ZZZ,ZZZ,ZZ9')  as errQty,				
+				tol_num as tolQty,
+				cast(num_per as decimal(16,2))*100 qtyPercent,
+				CMCC_prvd_nm_short as regionName
+				from HPBUS.SUM_ORG_CUST_CHG_CTY
+				where 
+				 prvd_id=#{provinceCode}
+
+				and tol_num>0 and cty_id >10000
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>
+		
+		
+				) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by errQty desc, RN asc			
+		</if>
+	</select>
+
+	<!-- 总体情况之占比前五名 -->
+	<select id="totalReport_selectPercentTop5" resultMap="totalReport" parameterType="java.util.Map">
+	<if test="provinceCode==10000">
+			select t.*, row_number() OVER(ORDER BY qtyPercent desc,errQty desc) RN 
+			from (
+				select  prvd_id as regionId,
+				infraction_num (format 'ZZZ,ZZZ,ZZZ,ZZ9')  as errQty, 
+				tol_num as tolQty,
+				cast(num_per as decimal(16,2))*100 qtyPercent,
+				CMCC_prov_prvd_nm as regionName
+				from HPBUS.SUM_ORG_CUST_CHG_PRVD
+				where 1=1
+				and tol_num>0  <![CDATA[and prvd_id<>10000]]>
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>
+
+		
+				) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by qtyPercent desc, RN asc
+		</if>
+		<if test="provinceCode!=10000">
+			select t.*, row_number() OVER(ORDER BY qtyPercent desc,errQty desc) RN  
+			from (
+				select cty_id as regionId,
+				infraction_num (format 'ZZZ,ZZZ,ZZZ,ZZ9')  as errQty,				
+				tol_num as tolQty,
+				cast(num_per as decimal(16,2))*100 qtyPercent,
+				CMCC_prvd_nm_short as regionName
+				from HPBUS.SUM_ORG_CUST_CHG_CTY
+				where 
+				 prvd_id=#{provinceCode}
+
+				and tol_num>0 and  cty_id >10000
+				<if test="statCycle!=null">
+					and Aud_trm=#{statCycle}
+				</if>
+	
+		
+				) as t <![CDATA[ QUALIFY  RN<=5]]>
+			order by qtyPercent desc, RN asc			
+		</if>
+	</select>
+	
+
+	<!-- 统计分析之按地时间趋势"-->
+	<select id="statReport_timeTrend" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+	<if test="params.selCityCodeSTR!=null">
+		SELECT
+			Aud_trm AS statisticalObj,
+			sum(infraction_num) as errQty,				
+			sum(tol_num) as totalQty, 
+			case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+			
+			sum(infraction_amt) as errAmount, 
+			sum( tol_amt) as totalAmount,
+			case when totalAmount=0 then 0 else cast(errAmount as decimal(16,2))*100/totalAmount end amountPercent
+			from HPBUS.SUM_ORG_CUST_CHG_CTY t
+			
+		WHERE 1=1
+		
+		 <if test="params.dateF!=null">
+			<![CDATA[and statisticalObj >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and statisticalObj <= #{params.dateT}]]>
+		</if>
+		
+
+		
+		<if test="params.selCityCodeSTR!=null">
+			and t.cty_id in 
+        		${params.selCityCodeSTR}
+		</if>
+		
+		GROUP BY statisticalObj
+	</if>
+	
+	<if test="params.selProvCodeSTR!=null">
+		SELECT
+			Aud_trm AS statisticalObj,
+			sum(infraction_num) as errQty,				
+			sum(tol_num) as totalQty, 
+			case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+			
+			sum(infraction_amt) as errAmount, 
+			sum( tol_amt) as totalAmount,
+			case when totalAmount=0 then 0 else cast(errAmount as decimal(16,2))*100/totalAmount end amountPercent
+			from HPBUS.SUM_ORG_CUST_CHG_PRVD t
+			
+		WHERE 1=1
+		
+		 <if test="params.dateF!=null">
+			<![CDATA[and statisticalObj >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and statisticalObj <= #{params.dateT}]]>
+		</if>
+		
+
+			and t.prvd_id in 
+        		${params.selProvCodeSTR}
+
+	
+		
+		GROUP BY statisticalObj
+	</if>
+	
+	
+	</select><!-- 		ORDER BY statisticalObj DESC -->
+
+
+	<!-- 统计分析之地区横向对比"-->
+	<select id="statReport_areaTrend" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+
+	
+				 select dataReport.*,provReport.* from 
+			(SELECT
+				t.prvd_id AS prvd_id,t.aud_trm as audTrm,
+
+				cty_num as cityCount,
+				
+				sum(infraction_num) as errQty,				
+				sum(tol_num) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				sum(infraction_amt) as errAmount,
+				sum(tol_amt) as totalAmount,
+				case when totalAmount=0 then 0 else cast(errAmount as decimal(16,2))*100/totalAmount end amountPercent
+
+				from HPBUS.SUM_ORG_CUST_CHG_PRVD t
+				
+			WHERE 1=1
+
+			 <if test="params.dateT!=null">
+				<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			</if>
+			
+
+			
+			<if test="params.userCityId!=10000">
+				and t.prvd_id = #{params.userCityId}
+			</if>
+			<if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in 
+	        		${params.selProvCodeSTR}
+			</if>
+			<if test="params.selCityCodeSTR!=null">
+				and t.cty_id in 
+	        		${params.selCityCodeSTR}
+			</if>
+			<if test="params.category=='tableReport_area'">
+				and t.infraction_num >0
+	        		
+			</if>	
+			GROUP BY t.prvd_id,t.Aud_trm ,t.cty_num ) as dataReport
+					left join (
+					select CMCC_prov_prvd_nm as statisticalObj ,CMCC_prov_prvd_id as regionId  
+					from   HPMGR.ref_dm_cmcc_prov_prvd_cd ) as provReport
+					on dataReport.prvd_id = provReport.regionId
+		</if>
+		
+		
+		<if test="params.groupByField=='cty_id'">
+			 select dataReport.*,provReport.* from 
+			(SELECT
+			    CMCC_prvd_nm_short  as regionName,
+				t.cty_id AS prvd_id,t.aud_trm as audTrm,
+				sum(infraction_num) as errQty,				
+				sum(tol_num) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				sum(infraction_amt) as errAmount,
+				sum(tol_amt) as totalAmount,
+				case when totalAmount=0 then 0 else cast(errAmount as decimal(16,2))*100/totalAmount end amountPercent
+
+			
+				from HPBUS.SUM_ORG_CUST_CHG_CTY t
+				
+			WHERE 1=1
+			 <if test="params.dateT!=null">
+				<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			</if>
+			
+
+			
+			<if test="params.userCityId!=10000">
+				and t.prvd_id = #{params.userCityId}
+			</if>
+			<if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in 
+	        		${params.selProvCodeSTR}
+			</if>
+			<if test="params.selCityCodeSTR!=null">
+				and t.cty_id in 
+	        		${params.selCityCodeSTR}
+			</if>
+			<if test="params.category=='provinceCount'">
+				and t.infraction_num >0
+	        		
+			</if>
+			GROUP BY t.cty_id,t.Aud_trm,CMCC_prvd_nm_short) as dataReport
+					left join (
+					SELECT CMCC_prvd_nm_short as statisticalObj , CMCC_prvd_cd as regionId  
+					FROM HPMGR.TB_SUM_PRVD_NAME
+					
+					) as provReport
+					on dataReport.prvd_id = provReport.regionId
+		</if>
+	</select><!-- ORDER BY t.prvd_id  DESC -->
+	
+	
+	<!-- 省份欠费明细 -->
+		<select id="prvd_detail" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+			 select dataReport.*,provReport.* from 
+			(
+			SELECT	Aud_trm, prvd_id, cty_id, cust_id,
+		            acct_age, ear_trm, mer_amt, dbt_amt
+            FROM	HPBUS.DET_ORG_CUST_CHG t
+				
+			WHERE 1=1
+			 <if test="params.dateT!=null">
+				<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			</if>
+			
+	
+			
+			<if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in 
+	        		${params.selProvCodeSTR}
+			</if>
+
+			
+			group by 1,2,3,4,5,6,7,8) as dataReport
+					left join (
+					SELECT CMCC_prvd_nm_short as cty_name , CMCC_prvd_cd as regionId  
+					FROM HPMGR.TB_SUM_PRVD_NAME
+					
+					) as provReport
+					on dataReport.cty_id = provReport.regionId
+		</if>
+		<if test="params.groupByField=='cty_id'">
+			 select dataReport.*,provReport.* from 
+			(
+			SELECT	Aud_trm, prvd_id, cty_id, cust_id,
+		            acct_age, ear_trm, mer_amt, dbt_amt
+            FROM	HPBUS.DET_ORG_CUST_CHG t
+				
+			WHERE 1=1
+			 <if test="params.dateT!=null">
+				<![CDATA[and t.Aud_trm = #{params.dateT}]]>
+			</if>
+			
+	
+			
+			<if test="params.selProvCodeSTR!=null">
+				and t.prvd_id in 
+	        		${params.selProvCodeSTR}
+			</if>
+			<if test="params.selCityCodeSTR!=null">
+				and t.cty_id in 
+	        		${params.selCityCodeSTR}
+			</if>			
+			group by 1,2,3,4,5,6,7,8) as dataReport
+					left join (
+					SELECT CMCC_prvd_nm_short as cty_name , CMCC_prvd_cd as regionId  
+					FROM HPMGR.TB_SUM_PRVD_NAME
+					
+					) as provReport
+					on dataReport.cty_id = provReport.regionId
+		</if>
+	</select><!-- ORDER BY t.prvd_id  DESC -->
+	
+		
+	
+	
+			
+<select id="auditReport_all" resultType="java.util.HashMap"  parameterType="java.util.Map">
+			select t11.*,
+			case when t1.errPer_tmp-t11.errPer_tmpJT >0 then '低于' 
+			when t1.errPer_tmp-t11.errPer_tmpJT <![CDATA[<]]>0 then '高于' else '同' end as perflagJT 
+			from (select aud_trm,
+			tol_num ,
+			infraction_num ,
+			cast(num_per*100 as decimal(18,2)) as num_per,
+			cast(num_mom*100 as decimal(18,2)) as num_mom, 
+			<![CDATA[case when num_mom<0 then '下降' else '上升' end as num_mom_flag]]>,
+			trim (num_dif (FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15)))as num_dif,
+			<![CDATA[case when num_dif<0 then '减少' else '增加' end as num_dif_flag]]>,
+			trim(tol_amt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as tol_amt,
+			trim((tol_amt*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as tol_amtW,
+			trim(infraction_amt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as infraction_amt,	
+			trim((infraction_amt*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as infraction_amtW,		
+			cast(amt_per*100 as decimal(18,2))	as  amt_per,	 
+		    cast(amt_mom*100 as decimal(18,2))  as  amt_mom,
+		    <![CDATA[case when amt_mom<0 then '下降' else '上升' end as amt_mom_flag]]>,
+		    trim(amt_dif(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as amt_dif,
+		    trim((amt_dif*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as amt_difW,
+		    
+		    <![CDATA[case when amt_dif<0 then '减少' else '增加' end as amt_dif_flag]]>,
+		    trim(amt_avg(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_avg,
+		    
+		    trim (subs_new(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as subs_new,	
+			trim (amt_new(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_new,
+			trim ((amt_new*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_newW,
+		    
+		    substr( (add_months(cast(Aud_trm||'01' as date format 'yyyyMMdd'),1)-1)(format 'yyyyMMdd')(char(8)),1,4) as cycle_year,
+	        substr( (add_months(cast(Aud_trm||'01' as date format 'yyyyMMdd'),1)-1)(format 'yyyyMMdd')(char(8)),5,1) as cycle_mon1,
+	        substr( (add_months(cast(Aud_trm||'01' as date format 'yyyyMMdd'),1)-1)(format 'yyyyMMdd')(char(8)),6,1) as cycle_mon2,
+	        substr( (add_months(cast(Aud_trm||'01' as date format 'yyyyMMdd'),1)-1)(format 'yyyyMMdd')(char(8)),7,1) as cycle_day1,
+	        substr( (add_months(cast(Aud_trm||'01' as date format 'yyyyMMdd'),1)-1)(format 'yyyyMMdd')(char(8)),8,1) as cycle_day2
+		    ,trim (amt_all_recover/10000(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_all_recoverJT
+			,sum_subs_recover as sum_subs_recoverJT
+			,case when coalesce(infraction_amt,0.00)-coalesce(amt_dif,0.00)=0.00 then 0 else cast(coalesce(amt_all_recover,0)/((coalesce(infraction_amt,0)-coalesce(amt_dif,0))*1.0000)*100 as decimal(18,2)) end as errPer_tmpJT
+		    ,trim(errPer_tmpJT(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99'))  as errPer_tmpJTStr
+		    ,amt_new_order as amt_new_orderJT,
+		    amt_new_per_order as amt_new_per_orderJT,
+		    amt_new_per*100 as amt_new_perJT, 
+		    cast(infraction_amt_pre as varchar(18)) as infraction_amt_pre
+		    from 
+			hpbus.SUM_ORG_CUST_CHG_PRVD
+			where 1=1
+				    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+					<if test="provinceCode!=null">	
+						and prvd_id=#{provinceCode}
+					</if>
+				) t11
+				left join (
+				select Aud_trm,
+			case when coalesce(infraction_amt_pre,0.00)=0.00 then 0 else cast(coalesce(amt_all_recover,0)/(coalesce(infraction_amt_pre,0.00)*1.0000)*100 as decimal(18,2)) end as errPer_tmp
+		    from 
+			hpbus.SUM_ORG_CUST_CHG_PRVD
+			where 1=1
+				    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+					and prvd_id =10000
+				) t1 on t1.Aud_trm =t11.Aud_trm
+	</select>
+	
+	<!--查询词关注点完成的省份数量-->
+	<select id="auditReport_selectFinishedProvinceCount" resultType="int" parameterType="java.util.Map">
+		SELECT count(distinct prvd_id) totalCount
+		FROM hpbus.SUM_ORG_CUST_CHG_PRVD
+		<where>
+			Aud_trm=#{statCycle}
+	
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">	
+				and prvd_id=#{provinceCode}
+			</if>
+		</where>
+	</select>
+
+	
+	<!-- 数量top5 -->
+	<select id="auditReport_num_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+	
+		<if test="provinceCode==10000">
+			select 
+			num_order     as seq, CMCC_prov_prvd_nm as regionName,infraction_num as errQty,
+			trim( infraction_amt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[num_order>=1 and num_order<=5 and prvd_id<>10000]]>
+					and infraction_num >0
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>
+			order by  num_order asc		
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			num_order     as seq, CMCC_prvd_nm_short as regionName,infraction_num as errQty,
+			trim( infraction_amt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 
+					<![CDATA[ num_order>=1 and num_order<=5 and prvd_id<>10000]]>
+					and infraction_num >0
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+			
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>
+					order by  num_order asc							
+		</if>	
+	</select>
+	
+	
+		<!-- 金额top5 -->
+	<select id="auditReport_amt_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+	
+		<if test="provinceCode==10000">
+			select 
+			amt_order     as seq, CMCC_prov_prvd_nm as regionName,infraction_num as errQty,
+			 trim(infraction_amt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt			
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					and infraction_amt >0
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>
+			order by  amt_order asc		
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName,infraction_num as errQty,
+			 trim(infraction_amt(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt
+					
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 
+					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+				 and infraction_amt >0
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>
+					order by  amt_order asc							
+		</if>	
+	</select>
+	
+	
+		<!-- 订购业务top5 -->
+	<select id="auditReport_busi_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+	
+		<if test="provinceCode==10000">
+		select t.*
+		
+		from 
+			(select row_number()over(order by errAmt desc) as seq ,
+			CMCC_prov_prvd_nm as regionName,order_num as errAmt,
+			bass_name
+		    from HPBUS.SUM_ORG_CUST_CHG_BUSI_TYP 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			<![CDATA[and cty_id = 10000]]>
+		      </where>)t
+		      where <![CDATA[seq<=5 and seq>=1]]>
+		order by seq asc		
+		</if>
+		<if test="provinceCode!=10000">
+		select t.*
+		 
+		from 
+			(select row_number()over(order by errAmt desc) as seq,
+			cty_nm as regionName,order_num as errAmt,
+			bass_name
+		    from HPBUS.SUM_ORG_CUST_CHG_BUSI_TYP 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			<![CDATA[and cty_id <> 10000 ]]>
+				<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+		      </where>)t
+		      where <![CDATA[seq<=5 and seq>=1]]>		
+		      order by seq asc			
+		</if>	
+	</select>
+	
+	
+		<!-- 客户等级top5 -->
+	<select id="auditReport_lvl_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+
+		<if test="provinceCode==10000">
+		select t1.seq, t1.regionName,coalesce(t2.errQty,0)as errQty, trim(coalesce(t2.errAmt,0.00)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as errAmt, t1.cust_level , coalesce(t2.cust_level_nm,'')as cust_level_nm from 
+		( select distinct cust_level,seq,regionName from 
+		(select  distinct '4' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct  '5' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '6' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '7' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL)c ,
+		     ( select 
+			   amt_order as seq, CMCC_prov_prvd_nm as regionName		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>)d
+				
+		)t1 left join 
+		(select b.seq,a.* from 
+		(select 
+			CMCC_prov_prvd_nm as regionName,num as errQty,debt_amt as errAmt,cust_level,cust_level_nm
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY_LVL 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			and cty_id = 10000 and cust_level in (4,5,6,7)
+		      </where>)a
+		      join 
+		     ( select 
+			   amt_order as seq, CMCC_prov_prvd_nm as regionName		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>)b on a.regionName=b.regionName)t2
+		      on t1.cust_level=t2.cust_level and t1.seq=t2.seq and t1.regionName=t2.regionName
+		      
+		order by  t1.seq  asc ,t1.cust_level asc		
+		</if>
+		<if test="provinceCode!=10000">
+		select t1.seq, t1.regionName,coalesce(t2.errQty,0)as errQty, trim(coalesce(t2.errAmt,0.00)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as errAmt, t1.cust_level , coalesce(t2.cust_level_nm,'')as cust_level_nm from
+			( select distinct cust_level,seq,regionName from 
+		(select  distinct '4' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct  '5' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '6' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '7' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL)c ,
+		     (select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>)d
+				
+		)t1 left join 
+		(select  b.seq,a.* from 
+		(select 
+			CMCC_prvd_nm_short as regionName,num as errQty,debt_amt as errAmt,cust_level,cust_level_nm
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY_LVL 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+		<![CDATA[and cty_id <> 10000 ]]> and cust_level in (4,5,6,7)
+				<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+		      </where>)a
+		      join 
+		      (select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>)b on a.regionName=b.regionName)t2
+		      on t1.cust_level=t2.cust_level and t1.seq=t2.seq and t1.regionName=t2.regionName
+		      order by  t1.seq  asc ,t1.cust_level asc				
+		</if>	
+		
+	</select>
+	
+	
+	
+		<!-- 账龄top5 -->
+	<select id="auditReport_aging_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+
+		<if test="provinceCode==10000">
+		select t1.seq, t1.regionName,coalesce(t2.errQty,0)as errQty, trim(coalesce(t2.errAmt,0.00)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as errAmt, t1.age_level , coalesce(t2.age_level_nm,'')as age_level_nm from
+		(select distinct age_level,seq,regionName from 
+		(select distinct '1' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+         union all
+		select distinct '2' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+		union all
+		select distinct '3' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  )c,
+		( select 
+			   amt_order as seq, CMCC_prov_prvd_nm as regionName		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle} 
+					</if>
+			
+		      </where>)d		
+		
+		)t1 left join 
+		(
+		select b.seq,a.* from 
+          (select 
+			CMCC_prov_prvd_nm as regionName,cust_num as errQty,debt_amt as errAmt,age_level,age_level_nm
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			and cty_id = 10000 and age_level in(1,2,3)
+		      </where>)a 		  
+		          join 
+		     ( select 
+			   amt_order as seq, CMCC_prov_prvd_nm as regionName		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>)b on a.regionName=b.regionName
+		      )t2
+		      on t1.age_level=t2.age_level and t1.seq=t2.seq and t1.regionName=t2.regionName
+			order by  t1.seq  asc ,t1.age_level asc		
+		</if>
+		<if test="provinceCode!=10000">
+		select t1.seq, t1.regionName,coalesce(t2.errQty,0)as errQty, trim(coalesce(t2.errAmt,0.00)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as errAmt, t1.age_level , coalesce(t2.age_level_nm,'')as age_level_nm from
+		(select distinct age_level,seq,regionName from 
+		(select distinct '1' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+         union all
+		select distinct '2' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+		union all
+		select distinct '3' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  )c,
+		     (select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>)d	
+		
+		)t1 left join 
+		(		
+		select b.seq,a.* from 
+		(select 
+			CMCC_prvd_nm_short as regionName,cust_num as errQty,debt_amt as errAmt,age_level,age_level_nm
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+		<![CDATA[and cty_id <> 10000 ]]> and age_level in(1,2,3)
+				<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+		      </where>)a
+		       join 
+		      (select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>)b on a.regionName=b.regionName	)t2
+		      on t1.age_level=t2.age_level and t1.seq=t2.seq and t1.regionName=t2.regionName
+		      order by  t1.seq  asc ,t1.age_level asc			
+		</if>	
+		
+	</select>
+	
+		<!-- 金额分层统计top5 -->
+	<select id="auditReport_amt_par_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+
+		<if test="provinceCode==10000">
+		select t1.seq, t1.regionName,coalesce(t2.errQty,0)as errQty, trim(coalesce(t2.errAmt,0.00)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as errAmt, t1.amt_level , coalesce(t2.amt_level_nm,'')as amt_level_nm from
+		(
+		select distinct amt_level,seq,regionName from  
+		(select distinct '1'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '2'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '3'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT )c,
+				( select 
+			   amt_order as seq, CMCC_prov_prvd_nm as regionName		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>)d
+		
+		
+		
+		)t1 left join 
+		(		
+		select b.seq,a.* from 
+		(select 
+			CMCC_prov_prvd_nm as regionName,num as errQty,debt_amt as errAmt,amt_level,amt_level_nm
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			and cty_id = 10000 and amt_level in (1,2,3)
+		      </where>)a
+		       join 
+		     ( select 
+			   amt_order as seq, CMCC_prov_prvd_nm as regionName		    
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+			
+		      </where>)b on a.regionName=b.regionName
+		      )t2
+		      on t1.amt_level=t2.amt_level  and t1.seq=t2.seq and t1.regionName=t2.regionName
+			order by  t1.seq  asc ,t1.amt_level asc	
+		</if>
+		<if test="provinceCode!=10000">
+		select t1.seq, t1.regionName,coalesce(t2.errQty,0)as errQty, trim(coalesce(t2.errAmt,0.00)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as errAmt, t1.amt_level , coalesce(t2.amt_level_nm,'')as amt_level_nm from
+		(
+		select distinct amt_level,seq,regionName from  
+		(select distinct '1'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '2'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '3'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT )c,
+		     (select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>)d
+				
+				)t1 left join 
+		(	
+		select b.seq,a.* from 
+		(select
+			CMCC_prvd_nm_short as regionName,num as errQty,debt_amt as errAmt,amt_level,amt_level_nm
+		    
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		    <where> 
+					1=1
+		    <if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+		<![CDATA[and cty_id <> 10000 ]]> and amt_level in (1,2,3)
+				<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+		      </where>)a	
+		       join 
+		      (select 
+			amt_order     as seq, CMCC_prvd_nm_short as regionName
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 					
+				 <![CDATA[ amt_order>=1 and amt_order<=5 and prvd_id<>10000]]>
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+				
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>)b on a.regionName=b.regionName	
+		       )t2
+		      on t1.amt_level=t2.amt_level and t1.seq=t2.seq and t1.regionName=t2.regionName
+		      	order by  t1.seq  asc ,t1.amt_level asc				
+		</if>			
+	</select>
+	
+		<!-- 按照客户等级汇总 -->
+	<select id="auditReport_lvl_total" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+
+	</select>
+	
+	
+	
+		<!-- 客户等级信息 -->
+	<select id="auditReport_lvl_info" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+
+		<if test="provinceCode==10000">
+		select c.cust_level,
+		coalesce(d.Aud_trm,'')as Aud_trm,
+		coalesce(d.prvd_id,'')as prvd_id, 
+		coalesce(d.cust_level_nm,'')as cust_level_nm,
+		coalesce(d.d_num,0)as d_num,
+		trim(coalesce(d.d_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as d_amt,
+		coalesce(d.t_num,0)as t_num,
+		trim(coalesce(d.t_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as t_amt,
+		coalesce(d.per_num*100,0)as per_num,
+		coalesce(d.per_amt*100,0)(FORMAT 'ZZ9.99')(VARCHAR(6))as per_amt
+		from 
+		(select  distinct '4' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct  '5' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '6' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '7' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL)c
+         left join 
+		(select a.* ,b.t_num,b.t_amt,
+		case when t_num =0 or t_num is null then 0 else d_num*1.00/t_num*1.00  end as per_num,
+		case when t_amt =0 or t_amt is null then 0 else d_amt*1.00/t_amt  end as per_amt
+ 		from 
+		(SELECT	Aud_trm,10000 as prvd_id,cust_level, cust_level_nm,sum(num)as d_num,sum(debt_amt)as d_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_LVL  
+		<where> num>0 
+		<if test="statCycle!=null">
+		and Aud_trm=#{statCycle}
+		</if>
+		and cty_id =10000 </where>
+		group by Aud_trm,cust_level, cust_level_nm)a
+		join
+		(SELECT	Aud_trm,10000 as prvd_id,sum(num)as t_num,sum(debt_amt)as t_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_LVL  
+		<where> num>0 
+		<if test="statCycle!=null">
+		and Aud_trm=#{statCycle}
+		</if>
+		and cty_id=10000 </where>
+		group by Aud_trm)b on a.Aud_trm=b.Aud_trm )d on c.cust_level=d.cust_level
+		order by c.cust_level 
+		</if>
+		<if test="provinceCode!=10000">
+		select c.cust_level,
+		coalesce(d.Aud_trm,'')as Aud_trm,
+		coalesce(d.prvd_id,'')as prvd_id, 
+		coalesce(d.cust_level_nm,'')as cust_level_nm,
+		coalesce(d.d_num,0)as d_num,
+		trim(coalesce(d.d_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as d_amt,
+		coalesce(d.t_num,0)as t_num,
+		trim(coalesce(d.t_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as t_amt,
+		coalesce(d.per_num*100,0)as per_num,
+		coalesce(d.per_amt*100,0)(FORMAT 'ZZ9.99')(VARCHAR(6))as per_amt
+		from 
+		(select  distinct '4' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct  '5' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '6' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL
+         union all
+         select  distinct '7' as 	cust_level	from  HPBUS.SUM_ORG_CUST_CHG_CTY_LVL)c
+         left join 
+		(select a.* ,b.t_num,b.t_amt,
+		case when t_num =0 or t_num is null then 0 else d_num*1.00/t_num*1.00  end as per_num,
+		case when t_amt =0 or t_amt is null then 0 else d_amt*1.00/t_amt  end as per_amt
+		 from 
+		(SELECT	Aud_trm,prvd_id,cust_level, cust_level_nm,sum(num)as d_num,sum(debt_amt)as d_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_LVL  <where> num>0 
+		<if test="statCycle!=null">
+		 and Aud_trm=#{statCycle}
+		</if>				
+		<if test="provinceCode!=null">
+		 and prvd_id=#{provinceCode}
+		</if>
+		<![CDATA[and cty_id<>10000]]>
+		</where>
+		group by Aud_trm,prvd_id,cust_level, cust_level_nm)a
+		join
+		(SELECT	Aud_trm,prvd_id,sum(num)as t_num,sum(debt_amt)as t_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_LVL  <where> num>0 
+		<if test="statCycle!=null">
+		 and Aud_trm=#{statCycle}
+		</if>				
+		<if test="provinceCode!=null">
+		 and prvd_id=#{provinceCode}
+		</if> 
+		<![CDATA[and cty_id<>10000]]>
+		</where>
+		group by Aud_trm,prvd_id)b on a.Aud_trm=b.Aud_trm and a.prvd_id=b.prvd_id)d on c.cust_level=d.cust_level
+		order by c.cust_level 
+	</if>			
+	</select>
+	
+	
+	
+		<!-- 账龄信息 -->
+	<select id="auditReport_aging_info" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+
+		<if test="provinceCode==10000">
+		select c.age_level,
+		coalesce(d.Aud_trm,'')as Aud_trm,
+		coalesce(d.prvd_id,'')as prvd_id, 
+		coalesce(d.age_level_nm,'')as age_level_nm,
+		coalesce(d.d_num,0)as d_num,
+		trim(coalesce(d.d_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as d_amt
+		from 		
+		(select distinct '1' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+         union all
+		select distinct '2' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+		union all
+		select distinct '3' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  )c
+		left join
+		(SELECT	Aud_trm,10000 as prvd_id,age_level, age_level_nm,sum(cust_num)as d_num,sum(debt_amt)as d_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_AGING  
+		<where> cust_num>0 
+		<if test="statCycle!=null">
+		and Aud_trm=#{statCycle}
+		</if>
+		and cty_id =10000 
+		</where>
+		group by Aud_trm,age_level, age_level_nm)d on c.age_level=d.age_level
+		order by c.age_level 
+		</if>
+		
+		<if test="provinceCode!=10000">
+		select c.age_level,
+		coalesce(d.Aud_trm,'')as Aud_trm,
+		coalesce(d.prvd_id,'')as prvd_id, 
+		coalesce(d.age_level_nm,'')as age_level_nm,
+		coalesce(d.d_num,0)as d_num,
+		trim(coalesce(d.d_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as d_amt
+		from 		
+		(select distinct '1' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+         union all
+		select distinct '2' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  
+		union all
+		select distinct '3' as	age_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AGING  )c
+		left join
+		(SELECT	Aud_trm,prvd_id,age_level, age_level_nm,sum(cust_num)as d_num,sum(debt_amt)as d_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_AGING  
+		<where> cust_num>0 
+		<if test="statCycle!=null">
+		 and Aud_trm=#{statCycle}
+		</if>
+		<if test="provinceCode!=null">
+		 and prvd_id=#{provinceCode}
+		</if>
+		<![CDATA[and cty_id<>10000]]>
+		</where>
+		group by Aud_trm,prvd_id,age_level, age_level_nm	)d	on c.age_level=d.age_level
+		order by c.age_level 
+	</if>			
+	</select>
+	
+	
+		
+		<!-- 金额统计信息 -->
+	<select id="auditReport_amt_info" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+
+		<if test="provinceCode==10000">
+		select c.amt_level,
+		coalesce(d.Aud_trm,'')as Aud_trm,
+		coalesce(d.prvd_id,'')as prvd_id, 
+		coalesce(d.amt_level_nm,'')as amt_level_nm,
+		coalesce(d.d_num,0)as d_num,
+		trim(coalesce(d.d_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as d_amt
+		from 
+		(select distinct '1'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '2'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '3'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT )c
+		left join 
+		(SELECT	Aud_trm,10000 as prvd_id,amt_level, amt_level_nm,sum(num)as d_num,sum(debt_amt)as d_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_AMT  
+		<where> num>0 
+		<if test="statCycle!=null">
+		and Aud_trm=#{statCycle}
+		</if>
+		and cty_id =10000 </where>
+		group by Aud_trm,amt_level, amt_level_nm)d on c.amt_level=d.amt_level
+		order by c.amt_level 
+
+		</if>
+		
+		<if test="provinceCode!=10000">
+		select c.amt_level,
+		coalesce(d.Aud_trm,'')as Aud_trm,
+		coalesce(d.prvd_id,'')as prvd_id, 
+		coalesce(d.amt_level_nm,'')as amt_level_nm,
+		coalesce(d.d_num,0)as d_num,
+		trim(coalesce(d.d_amt,0)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18)))as d_amt
+		from 
+		(select distinct '1'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '2'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT 
+		union all 
+		select distinct '3'as 	amt_level	from HPBUS.SUM_ORG_CUST_CHG_CTY_AMT )c
+		left join 		
+		(SELECT	Aud_trm,prvd_id,amt_level, amt_level_nm,sum(num)as d_num,sum(debt_amt)as d_amt
+		FROM	hpbus.SUM_ORG_CUST_CHG_CTY_AMT  
+		<where> num>0 
+		<if test="statCycle!=null">
+		 and Aud_trm=#{statCycle}
+		</if>
+		<if test="provinceCode!=null">
+		 and prvd_id=#{provinceCode}
+		</if>
+		<![CDATA[and cty_id<>10000]]>
+		</where>
+		group by Aud_trm,prvd_id,amt_level, amt_level_nm)d on c.amt_level=d.amt_level
+		order by c.amt_level 
+	</if>			
+	</select>
+	
+		<!-- 审计报告_按欠费金额top10 PXL -->
+	<select id="auditReport_org_top10" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		sel amt_order , 
+			<if test="provinceCode==10000">				
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">					
+				CMCC_prvd_nm_short as regionName, 
+			</if>	
+		 acct_id ,cust_nm ,sum_dbt_amt ,max_age , new_acct_id
+ 		from hpbus.SUM_ORG_CUST_CHG_amt_order  
+ 		where aud_trm =#{statCycle}
+ 		and sum_dbt_amt >0 
+ 		<![CDATA[and amt_order<11]]>
+ 	<if test="provinceCode==10000">
+ 		and flag=10000  
+	</if>
+	<if test="provinceCode!=10000">	
+ 		and flag=#{provinceCode}
+ 	</if>
+ 	order by amt_order
+ 	</select>
+ 	
+ 	
+ 		<!-- 当期新增用户长期高额欠费金额排名前5的省公司top5 -->
+	<select id="auditReport_newamt_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+		<if test="provinceCode==10000">
+			select 
+			row_number() over(order by amt_new desc) as rn,
+			CMCC_prov_prvd_nm as regionName,
+			subs_new as errQty,
+			trim(amt_new/10000.00(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt10000,
+			 trim(amt_new(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt			
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[  prvd_id<>10000]]>
+					 and amt_new >0
+			    <if test="statCycle!=null">
+							and Aud_trm=#{statCycle}
+				</if>
+		      </where>
+		      QUALIFY rn <![CDATA[<=]]>5
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			row_number() over(order by amt_new desc) as rn,
+			CMCC_prvd_nm_short as regionName,
+			subs_new as errQty,
+			 trim(amt_new(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 
+				 <![CDATA[ prvd_id<>10000]]>
+				  and amt_new >0
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>
+				QUALIFY rn <![CDATA[<=]]>5
+		</if>	
+	</select>
+	
+	<!-- 当期新增用户长期高额欠费金额占上期长期高额欠费金额的比例名前5的省公司top5 -->
+	<select id="auditReport_newamtPer_top5" resultType="java.util.HashMap"  parameterType="java.util.Map">	
+		<if test="provinceCode==10000">
+			select 
+			row_number() over(order by errPer_tmp desc) as rn,
+			CMCC_prov_prvd_nm as regionName,
+			subs_new as errQty,
+			case when coalesce(infraction_amt,0.00)-coalesce(amt_dif,0.00)=0.00 then 0 else cast(coalesce(amt_new,0)/((coalesce(infraction_amt,0)-coalesce(amt_dif,0))*1.0000) as decimal(18,4)) end as errPer_tmp,
+		    trim((errPer_tmp*100)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99'))||'%' as errPer
+		    from HPBUS.SUM_ORG_CUST_CHG_PRVD 
+		    <where> 
+					<![CDATA[  prvd_id<>10000]]>
+					<!--  and amt_new >0 -->
+					and errPer_tmp >0
+			    <if test="statCycle!=null">
+					 and Aud_trm=#{statCycle}
+				</if>
+		      </where>
+		      QUALIFY rn <![CDATA[<=]]>5
+		</if>
+		<if test="provinceCode!=10000">
+			select 
+			row_number() over(order by errPer_tmp desc) as rn,
+			CMCC_prvd_nm_short as regionName,
+			subs_new as errQty,
+			case when coalesce(infraction_amt_pre,0.00)=0.00 then 0 else cast(coalesce(amt_new,0)/(coalesce(infraction_amt_pre,0)*1.0000) as decimal(18,4)) end as errPer_tmp,
+			 trim((errPer_tmp*100)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99'))||'%' as errPer
+		    from HPBUS.SUM_ORG_CUST_CHG_CTY	
+				<where> 
+				 <![CDATA[ prvd_id<>10000]]>
+				<!--  and amt_new >0 -->
+					and errPer_tmp >0
+					<if test="statCycle!=null">
+					  and Aud_trm=#{statCycle}
+					</if>
+					<if test="provinceCode!=null">
+					  and prvd_id=#{provinceCode}
+					</if>
+				</where>
+				QUALIFY rn <![CDATA[<=]]>5
+		</if>	
+	</select>
+	
+	<!-- 审计报告__集团欠费新增用户信息和欠费回收信息 部分-->
+	<select id="auditReport_jtqf_xinzeng" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			
+			coalesce(sum_subs_recover,0) as recoverQty_tmp,
+			trim (recoverQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as recoverQty,
+			
+			coalesce(amt_all_recover,0.00)/10000 as recoverAmt_tmp,
+			trim (recoverAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as recoverAmt,
+			
+			trim(case when infraction_amt_pre=0   then 0 else cast(coalesce(amt_all_recover*100/(infraction_amt_pre*1.0000),0) as decimal(18,4)) end (FORMAT 'ZZ9.99%')(VARCHAR(7)))  as recoverAmtPer
+		from  hpbus.sum_org_cust_chg_prvd 
+		where 
+			 prvd_id=10000
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+	</select>
+</mapper>
+

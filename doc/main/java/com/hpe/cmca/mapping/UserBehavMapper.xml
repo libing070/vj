@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.UserBehavMapper">
+
+	<resultMap type="com.hpe.cmca.pojo.BehaveData" id="behavData">
+
+		<result property="operationId" column="id" />
+		<result property="operator" column="user_nm" />
+		<result property="msg" column="behav_lv" />
+		<result property="operationType" column="behav_typ" />
+		<result property="operateDate" column="save_time" />
+		<result property="operationName" column="behav_id" />
+		<result property="plat" column="behav_hp" />
+		<result property="other" column="other" />
+		<result property="resourceUrl" column="resource_url" />
+		<result property="clientAddress" column="client_address" />
+		<result property="serverAddress" column="server_address" />
+	</resultMap>
+
+	<!-- 新增用户操作 -->
+	<insert id="addUserBehav" parameterType="java.util.Map">
+		INSERT INTO
+		hpmgr.busi_user_behavior (user_id, user_nm,user_prvd_id,
+		dep_nm,behav_typ,behav_lv1,behav_lv2,behav_lv3,behav_time)
+		VALUES
+		(#{user_id},#{user_nm},#{user_prvd_id},#{dep_nm},
+		#{behav_typ},#{behav_lv1},#{behav_lv2},#{behav_lv3}, #{behav_time})
+	</insert>
+
+	<insert id="addUserBehavNew" parameterType="java.util.Map">
+		INSERT INTO
+		hpmgr.LOG_system_use_behavior
+		(user_id,
+		user_nm,
+		user_prvd_id,
+		user_prvd_nm,
+		dep_id,
+		dep_nm,
+		behav_lv1,
+		behav_lv2,
+		behav_lv3,
+		behav_typ,
+		response_time,
+		release_note,
+		save_time,
+		behav_id,
+		behav_hp,
+		other,
+		resource_url,
+		client_address,
+		server_address)
+		select trim(#{user_id}) as
+		user_id,
+		trim(#{user_nm}) as user_nm,
+		trim(#{user_prvd_id}) as
+		user_prvd_id,
+		t2.cmcc_prov_prvd_nm as user_prvd_nm ,
+		trim(#{dep_id}) as
+		dep_id,
+		trim(#{dep_nm}) as dep_nm,
+		trim(#{behav_lv1}) as behav_lv1,
+		trim(#{behav_lv2}) as behav_lv2,
+		trim(#{behav_lv3}) as behav_lv3,
+		trim(#{behav_typ}) as behav_typ,
+		0.11 AS response_time ,
+		'成功' as
+		release_note ,
+		#{save_time} as save_time,
+		#{behav_id} as behav_id,
+		'HP'
+		as behav_hp,
+		#{other} as other,
+		#{resource_url} as resource_url,
+		#{client_address} as client_address,
+		#{server_address} as
+		server_address
+		from (SELECT 1 as id) t1
+		LEFT JOIN
+		hpmgr.ref_dm_cmcc_prov_prvd_cd t2
+		ON t2.cmcc_prov_prvd_id
+		=cast(trim(#{user_prvd_id}) as varchar(5));
+	</insert>
+
+
+	<select id="getUserBehav" resultType="java.util.HashMap">
+		SELECT id, user_id,
+		user_nm,user_prvd_id,behav_time, behav_typ,behav_cont
+		FROM
+		hpmgr.busi_user_behavior order by behav_time desc
+	</select>
+
+	<select id="selectUserBehav" resultMap="behavData"
+		parameterType="java.util.HashMap">
+		SELECT id,user_nm, behav_lv1|| behav_lv2||(case when behav_lv3 is null
+		then '' else behav_lv3  end)
+		as
+		msg, behav_typ,
+		save_time,
+		behav_id, behav_hp, other,
+		resource_url,
+		client_address,
+		server_address
+		FROM
+		hpmgr.LOG_system_use_behavior order
+		by save_time desc
+		where 1=1
+		<if test="save_time!=null and save_time!=''">
+			and substr(save_time,1,8) =#{save_time}
+		</if>
+	</select>
+
+</mapper>
+

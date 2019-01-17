@@ -1,0 +1,1098 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.SystemLogMgMapper">
+<!-- 持续审计系统用户，日志信息： 插入start -->
+<!-- 持续审计系统用户，日志信息：插入持续审计系统用户，操作审计报告、审计清单、排名汇总的日志 -->
+	<insert id="addModelLogData" parameterType="com.hpe.cmca.pojo.SystemLogModelData">
+		insert into hpmgr.LOG_system_model_behavior
+		  (user_id, user_nm, user_prvd_id, user_prvd_nm, 
+		  dep_id, dep_nm, subject_id, subject_nm, focus_id, 
+		  focus_nm, aud_trm, save_time, behav_typ, file_typ, 
+		  file_nm, file_url, file_prvd_id, file_prvd_nm, 
+		  load_cnt, release_note)
+		values
+		  (#{userId}, #{userNm}, #{userPrvdId}, #{userPrvdNm}, 
+		  #{depId}, #{depNm}, #{subjectId}, #{subjectNm}, #{focusId}, 
+		  #{focusNm}, #{audTrm}, #{saveTime}, #{behavTyp}, #{fileTyp}, 
+		  #{fileNm}, #{fileUrl}, #{filePrvdId}, #{filePrvdNm}, 
+		  #{loadCnt}, #{releaseNote});
+	</insert>
+
+<!-- 持续审计系统用户，日志信息：插入持续审计系统用户，对审计开关功能模块进行的操作的日志信息 -->
+	<insert id="addControlLogData" parameterType="com.hpe.cmca.pojo.SystemLogControlData">
+		insert into hpmgr.LOG_system_control_behavior
+			(user_id, user_nm, user_prvd_id, user_prvd_nm, dep_id, dep_nm, 
+			subject_id, subject_nm, aud_trm, control_typ, behav_typ, 
+			operate_before_status, operate_after_status, save_time)
+		SELECT	t1.user_id, t1.user_nm, t1.user_prvd_id, t1.user_prvd_nm,
+				t1.dep_id, t1.dep_nm, t1.subject_id, t3.subject_nm, t1.aud_trm,
+		case when t2.switch_type_name is null and t1.control_typ = 1 then '系统页面' 
+			 when t2.switch_type_name is null and t1.control_typ = 2 then '报告及清单下载' 
+			 when t2.switch_type_name is null  then '未知类型' 
+		else  t2.switch_type_name end switch_type_names, 
+		CASE WHEN t2.switch_state is null THEN '新增'
+			<![CDATA[WHEN t2.switch_state < t1.operate_after_status THEN '打开' ]]> 
+			<![CDATA[WHEN t2.switch_state > t1.operate_after_status THEN '关闭' ]]> 
+			ELSE '未知操作' 
+		end	AS behav_typ,t2.switch_state AS operate_before_status,
+				t1.operate_after_status, t1.save_time 
+		from (select #{userId}             as user_id,
+					#{userNm}              as user_nm,
+					#{userPrvdId}          as user_prvd_id,
+					#{userPrvdNm}          as user_prvd_nm,
+					#{depId}               as dep_id,
+					#{depNm}               as dep_nm,
+					#{subjectId}           as subject_id,
+					#{subjectNm}           as subject_nm,
+					#{audTrm}              as aud_trm,
+					cast(#{controlTyp} as integer) as control_typ,
+					#{operateAfterStatus}  as operate_after_status,
+					#{saveTime}            as save_time) t1
+		left join (select distinct aud_trm,subject_code,switch_state ,
+					switch_type_name from hpmgr.busi_audit_switch_conf
+					where aud_trm =#{audTrm} and subject_code =#{subjectId} and switch_type =#{controlTyp} ) t2
+			on t1.aud_trm = t2.aud_trm
+			and t1.subject_id = t2.subject_code
+		left join (SELECT DISTINCT subject_id AS sid, 
+						subject_nm AS subject_nm,
+						' ' AS focus_nm,
+						' ' AS fid 
+						FROM hpmgr.LOG_system_config) t3
+			on t1.subject_id = t3.sid  ;
+				
+	</insert>
+<!-- 持续审计系统用户，日志信息：插入持续审计系统用户，对参数管理功能模块进行的操作的日志信息 -->
+	<insert id="addOtapaLogData" parameterType="com.hpe.cmca.pojo.SystemLogOtapaData">
+		insert into hpmgr.LOG_system_otapa_behavior
+			(user_id ,user_nm ,user_prvd_id ,user_prvd_nm ,
+			dep_id ,dep_nm ,subject_id ,subject_nm ,
+			focus_id ,focus_nm ,otapa_cd ,operate_fields ,
+			behav_typ ,behav_eff_ot ,behav_end_ot ,
+			save_time ,operate_doc )
+		select distinct  user_id ,user_nm ,user_prvd_id ,user_prvd_nm ,
+			dep_id ,dep_nm ,subject_id ,t2.subject_nm ,
+			focus_id ,t2.focus_nm ,otapa_cd ,operate_fields ,
+			behav_typ ,behav_eff_ot ,behav_end_ot ,
+			save_time ,operate_doc 
+			from 	(
+			select 
+			#{userId} as user_id,
+			#{userNm} as user_nm,
+			#{userPrvdId} as user_prvd_id,
+			#{userPrvdNm} as user_prvd_nm,
+			#{depId} as dep_id,
+			#{depNm} as dep_nm,
+			#{subjectId} as subject_id,
+			#{subjectNm} as subject_nm,
+			#{focusId} as focus_id,
+			#{focusNm} as focus_nm,
+			#{otapaCd} as otapa_cd,
+			#{operateFields} as operate_fields,
+			#{behavTyp} as behav_typ,
+			#{behavEffOt} as behav_eff_ot,
+			#{behavEndOt} as behav_end_ot,
+			#{saveTime} as save_time,
+			#{operateDoc} as operate_doc ) t1
+		<if test="focusId !=null ">
+		left join (SELECT DISTINCT subject_id AS sid, 
+					subject_nm AS subject_nm,
+					focus_nm AS focus_nm,
+					focus_id AS fid 
+					FROM hpmgr.LOG_system_config) t2
+			on t1.subject_id = t2.sid
+				AND t1.focus_id = t2.fid
+		</if>
+		<if test="focusId ==null ">
+		left join (SELECT DISTINCT subject_id AS sid, 
+					subject_nm AS subject_nm,
+					' ' AS focus_nm,
+					' ' AS fid 
+					FROM hpmgr.LOG_system_config) t2
+			on t1.subject_id = t2.sid
+		</if>
+	</insert>
+<!-- 持续审计系统用户，日志信息：插入持续审计系统用户，对参数管理功能模块进行的操作的日志信息 -->
+	<insert id="addNewOtapaLogData" parameterType="com.hpe.cmca.pojo.SystemLogOtapaData">
+	INSERT INTO hpmgr.LOG_system_otapa_behavior
+  (user_id,   user_nm,   user_prvd_id,   user_prvd_nm,   dep_id,   dep_nm,
+   subject_id,   subject_nm,   focus_id,   focus_nm,   otapa_cd,   operate_fields,
+   behav_typ,   behav_eff_ot,   behav_end_ot,   save_time,   operate_doc)
+  SELECT DISTINCT t3.user_id,
+                  t3.user_nm,
+                  t3.user_prvd_id,
+                  t3.user_prvd_nm,
+                  t3.dep_id,
+                  t3.dep_nm,
+                  t1.subject_id,
+                  t2.subject_nm,
+                  t1.focus_id,
+                  t2.focus_nm,
+                  t1.threshold_code AS otapa_cd,
+                  t3.operate_fields,
+                  t3.behav_typ,
+                  t3.behav_eff_ot,
+                  t1.threshold_value AS behav_end_ot,
+                  t3.save_time,
+                  t3.operate_doc
+    FROM (SELECT DISTINCT a.threshold_code, a.subject_id, a.focus_id,a.threshold_value
+            FROM hpmgr.busi_ca_config a
+            LEFT JOIN hpmgr.LOG_system_otapa_behavior b
+              ON a.threshold_code = b.otapa_cd
+             AND a.subject_id = b.subject_id
+             AND a.focus_id = b.focus_id
+           WHERE CAST(SUBSTR(#{saveTime}, 1, 8) AS DATE) BETWEEN a.eff_dt AND
+                 a.end_dt
+             AND b.otapa_cd IS NULL) t1
+    LEFT JOIN (SELECT #{userId} as user_id,
+						#{userNm} as user_nm,
+						#{userPrvdId} as user_prvd_id,
+						#{userPrvdNm} as user_prvd_nm,
+						#{depId} as dep_id,
+						#{depNm} as dep_nm,
+						#{subjectId} as subject_id,
+						#{subjectNm} as subject_nm,
+						#{focusId} as focus_id,
+						#{focusNm} as focus_nm,
+						#{otapaCd} as otapa_cd,
+						#{operateFields} as operate_fields,
+						#{behavTyp} as behav_typ,
+						#{behavEffOt} as behav_eff_ot,
+						#{behavEndOt} as behav_end_ot,
+						#{saveTime} as save_time,
+                      '新增阈值逻辑' AS operate_doc) t3
+      ON 1 = 1
+    LEFT JOIN (SELECT DISTINCT subject_id AS sid, 
+				subject_nm AS subject_nm,
+				focus_nm AS focus_nm,
+				focus_id AS fid 
+				FROM hpmgr.LOG_system_config) t2 
+      ON t1.subject_id = t2.sid
+     AND t1.focus_id = t2.fid
+		
+	</insert>
+		
+<!-- 持续审计系统用户，日志信息：插入持续审计系统用户，对需求管理功能模块进行的操作的日志信息 -->
+	<insert id="addReqmLogData" parameterType="com.hpe.cmca.pojo.SystemLogReqmData">
+		insert into hpmgr.LOG_system_reqm_behavior
+		  (user_id,   user_nm,   user_prvd_id,   user_prvd_nm,
+		   dep_id,   dep_nm,   reqm_cd,   reqm_nm,   file_nm,
+		   behav_typ,   save_time)
+		  select distinct t1.user_id,
+		                  t1.user_nm,
+		                  t1.user_prvd_id,
+		                  t1.user_prvd_nm,
+		                  t1.dep_id,
+		                  t1.dep_nm,
+		                  t1.reqm_cd,
+		                  coalesce(t1.reqm_nm,t2.req_nm) reqm_nm,
+		                  coalesce(t1.file_nm,t2.req_result_addr,t2.req_attach_addr) file_nm,
+		                  t1.behav_typ,
+		                  t1.save_time
+		    from (select #{userId}     as user_id,
+		                 #{userNm}     as user_nm,
+		                 #{userPrvdId} as user_prvd_id,
+		                 #{userPrvdNm} as user_prvd_nm,
+		                 #{depId}      as dep_id,
+		                 #{depNm}      as dep_nm,
+		                 #{reqmCd}     as reqm_cd,
+		                 #{reqmNm}     as reqm_nm,
+		                 #{fileNm}     as file_nm,
+		                 #{behavTyp}   as behav_typ,
+		                 #{saveTime}   as save_time) t1
+		    left join hpmgr.busi_req_manage_config t2
+		      on t1.reqm_cd = t2.req_id;
+	</insert>
+	<insert id="addReqmLogOfIdData" parameterType="com.hpe.cmca.pojo.SystemLogReqmData">
+		insert into hpmgr.LOG_system_reqm_behavior
+		  (user_id,   user_nm,   user_prvd_id,   user_prvd_nm,
+		   dep_id,   dep_nm,   reqm_cd,   reqm_nm,   file_nm,
+		   behav_typ,   save_time)
+		  select distinct t1.user_id,
+		                  t1.user_nm,
+		                  t1.user_prvd_id,
+		                  t1.user_prvd_nm,
+		                  t1.dep_id,
+		                  t1.dep_nm,
+		                  t1.reqm_cd,
+		                  t2.req_nm,
+		                  coalesce(t2.req_result_addr,t2.req_attach_addr) file_nm,
+		                  t1.behav_typ,
+		                  t1.save_time
+		    from (select #{userId}     as user_id,
+		                 #{userNm}     as user_nm,
+		                 #{userPrvdId} as user_prvd_id,
+		                 #{userPrvdNm} as user_prvd_nm,
+		                 #{depId}      as dep_id,
+		                 #{depNm}      as dep_nm,
+		                 #{reqmCd}     as reqm_cd,
+		                 #{reqmNm}     as reqm_nm,
+		                 #{fileNm}     as file_nm,
+		                 #{behavTyp}   as behav_typ,
+		                 #{saveTime}   as save_time) t1
+		    left join hpmgr.busi_req_manage_config t2
+		      on t1.reqm_cd = t2.req_id;
+	</insert>
+
+<!-- 持续审计系统用户，日志信息： 插入end -->
+
+<!-- 持续审计系统用户，日志信息： 查询start -->
+<!-- 持续审计系统用户，对需求管理功能模块进行的操作的日志信息： 查询界面默认的筛选条件list -->
+<!-- 需求名称list-->
+<select id="queryReqmTermData" resultType="java.util.HashMap">
+	SEL	DISTINCT reqm_cd,reqm_nm
+	FROM  hpmgr.LOG_system_reqm_behavior
+	WHERE <![CDATA[reqm_cd IS NOT NULL AND reqm_cd <> '' and reqm_nm IS NOT NULL AND reqm_nm <> '']]>
+	order by reqm_cd
+</select>
+
+<!--持续审计系统用户，对需求管理功能模块进行的操作的日志信息： 查询界面操作日志表格内容resultMap-->
+<resultMap type="com.hpe.cmca.pojo.SystemLogReqmData"  id="systemLogReqmData">
+	<result property="rn" column="rn"/>
+	<result property= "userId" column= "user_id" />
+	<result property= "userNm" column= "user_nm" />
+	<result property= "userPrvdId" column= "user_prvd_id" />
+	<result property= "userPrvdNm" column= "user_prvd_nm" />
+	<result property= "depId" column= "dep_id" />
+	<result property= "depNm" column= "dep_nm" />
+	<result property= "reqmCd" column= "reqm_cd" />
+	<result property= "reqmNm" column= "reqm_nm" />
+	<result property= "fileNm" column= "file_nm" />
+	<result property= "behavTyp" column= "behav_typ" />
+	<result property= "saveTime" column= "save_time" />
+</resultMap>
+
+<!-- 持续审计系统用户，对需求管理功能模块进行的操作的日志信息： 查询界面操作日志表格内容-->
+<select id="queryReqmTableData"  resultMap="systemLogReqmData" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT 0 as rn,
+		user_id,
+		user_nm,
+		user_prvd_id,
+		user_prvd_nm,
+		dep_id,
+		dep_nm,
+		reqm_cd,
+		reqm_nm,
+		file_nm,
+		behav_typ,
+		save_time
+  FROM hpmgr.LOG_system_reqm_behavior t1
+ WHERE 1 = 1
+	<if test="behavTimeSd !=null and behavTimeEd!=null">
+	<![CDATA[AND  substr(t1.save_time,1,8) between #{behavTimeSd} and #{behavTimeEd}]]>
+	</if>
+	<if test="reqmIds !=null">
+	AND  t1.reqm_cd in
+	<foreach item="item" index="index" collection="reqmIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	order by save_time desc
+</select>
+
+
+<!-- 持续审计系统用户，对参数管理功能模块进行的操作的日志信息： 查询界面默认的筛选条件list -->
+<!-- 审计专题关注点list-->
+<select id="queryOtapaTermFocData" resultType="java.util.HashMap">
+	SEL	DISTINCT focus_id,focus_nm
+	FROM  hpmgr.LOG_system_config 
+	ORDER BY focus_id ;
+</select>
+<!-- 审计月list-->
+<!-- 审计专题list-->
+<select id="queryOtapaTermSubData" resultType="java.util.HashMap">
+	SEL	DISTINCT subject_id,subject_nm
+	FROM  hpmgr.LOG_system_config 
+	ORDER BY subject_id ;
+</select>
+<!-- 通过审计专题list得到对应关注点list-->
+<select id="getFocusBySubId" resultType="java.util.HashMap">
+	select DISTINCT case when focus_id = '2000' then '2002' else focus_id end as focus_id,
+			focus_nm 
+	FROM hpmgr.LOG_system_config 
+	WHERE 1=1 
+	<if test="subjectIds != null">
+	AND  subject_id in  
+	<foreach item="item" index="index" collection="subjectIds"
+		open="(" separator="," close=")">
+		#{item}
+    </foreach>
+	</if>
+	order by focus_id 
+</select>
+
+
+<!--持续审计系统用户，对参数管理功能模块进行的操作的日志信息： 查询界面操作日志表格内容resultMap-->
+<resultMap type="com.hpe.cmca.pojo.SystemLogOtapaData"  id="systemLogOtapaData">
+	<result property="rn" column="rn"/>
+	<result property= "userId" column= "user_id" />
+	<result property= "userNm" column= "user_nm" />
+	<result property= "userPrvdId" column= "user_prvd_id" />
+	<result property= "userPrvdNm" column= "user_prvd_nm" />
+	<result property= "depId" column= "dep_id" />
+	<result property= "depNm" column= "dep_nm" />
+	<result property= "subjectId" column= "subject_id" />
+	<result property= "subjectNm" column= "subject_nm" />
+	<result property= "focusId" column= "focus_id" />
+	<result property= "focusNm" column= "focus_nm" />
+	<result property= "otapaCd" column= "otapa_cd" />
+	<result property= "operateFields" column= "operate_fields" />
+	<result property= "behavTyp" column= "behav_typ" />
+	<result property= "behavEffOt" column= "behav_eff_ot" />
+	<result property= "behavEndOt" column= "behav_end_ot" />
+	<result property= "saveTime" column= "save_time" />
+	<result property= "operateDoc" column= "operate_doc" />
+</resultMap>
+
+<!-- 持续审计系统用户，对参数管理功能模块进行的操作的日志信息： 查询界面操作日志表格内容-->
+<select id="queryOtapaTableData"  resultMap="systemLogOtapaData" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT 0 as rn
+		,user_id
+		,user_nm
+		,user_prvd_id
+		,user_prvd_nm
+		,dep_id
+		,dep_nm
+		,subject_id
+		,case when  subject_id='fxjk' then '风险监控' else subject_nm end as subject_nm
+		,case when  subject_id='fxjk' then 'fxjk' else focus_id end as focus_id
+		,case when  subject_id='fxjk' then '风险监控' else focus_nm end as focus_nm
+		,otapa_cd
+		,operate_fields
+		,behav_typ
+		,behav_eff_ot
+		,behav_end_ot
+		,case when behav_typ = '新增' then '' else  save_time end as save_time
+		,operate_doc
+  FROM hpmgr.LOG_system_otapa_behavior t1
+ WHERE 1 = 1
+	<if test="behavTimeSd !=null and behavTimeEd!=null">
+	<![CDATA[AND  substr(t1.save_time,1,8) between #{behavTimeSd} and #{behavTimeEd}]]>
+	</if>
+	<if test="focusIds !=null">
+	AND  t1.focus_id in
+	<foreach item="item" index="index" collection="focusIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="subjectIds != null">
+	AND  t1.subject_id in  
+	<foreach item="item" index="index" collection="subjectIds"
+		open="(" separator="," close=")">
+		#{item}
+    </foreach>
+	</if>
+	order by t1.save_time desc
+</select>
+
+
+<!-- 持续审计系统用户，对审计开关功能模块进行的操作的日志信息： 查询界面默认的筛选条件list -->
+<!-- 审计专题list-->
+<select id="queryControlTermSubData" resultType="java.util.HashMap">
+	SEL	DISTINCT subject_id,subject_nm
+	FROM  hpmgr.LOG_system_config 
+	where subject_id in ('1','2','3','4','5','6','7','8','9','11')
+	ORDER BY subject_id ;
+</select>
+<!-- 审计月list-->
+<select id="queryControlTermTmData" resultType="java.util.HashMap">
+	SEL	DISTINCT aud_trm,SUBSTR(aud_trm,1,4)||'年'||SUBSTR(aud_trm,5,2)||'月' as aud_trm_nm 
+	FROM  hpmgr.LOG_system_control_behavior
+	WHERE <![CDATA[aud_trm IS NOT NULL AND aud_trm <> '' ]]>
+	order by aud_trm desc
+</select>
+
+<!--持续审计系统用户，对审计开关功能模块进行的操作的日志信息： 查询界面操作日志表格内容resultMap-->
+<resultMap type="com.hpe.cmca.pojo.SystemLogControlData"  id="systemLogControlData">
+	<result property="rn" column="rn"/>
+	<result property="userId" column="user_id"/>
+	<result property="userNm" column="user_nm"/>
+	<result property="userPrvdId" column="user_prvd_id"/>
+	<result property="userPrvdNm" column="user_prvd_nm"/>
+	<result property="depId" column="dep_id"/>
+	<result property="depNm" column="dep_nm"/>
+	<result property="subjectId" column="subject_id"/>
+	<result property="subjectNm" column="subject_nm"/>
+	<result property="audTrmNm" column="aud_trm_nm"/>
+	<result property="audTrm" column="aud_trm"/>
+	<result property="controlTyp" column="control_typ"/>
+	<result property="behavTyp" column="behav_typ"/>
+	<result property="operateBeforeStatus" column="operate_before_status"/>
+	<result property="operateAfterStatus" column="operate_after_status"/>
+	<result property="saveTime" column="save_time"/>
+</resultMap>
+
+<!-- 持续审计系统用户，对审计开关功能模块进行的操作的日志信息： 查询界面操作日志表格内容-->
+<select id="queryControlTableData"  resultMap="systemLogControlData" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT 0 as rn
+		,user_id
+		,user_nm
+		,user_prvd_id
+		,user_prvd_nm
+		,dep_id
+		,dep_nm
+		,subject_id
+		,subject_nm
+		,SUBSTR(aud_trm,1,4)||'年'||SUBSTR(aud_trm,5,2)||'月'  as aud_trm_nm
+		,aud_trm
+		,control_typ
+		,behav_typ
+		,operate_before_status
+		,operate_after_status
+		,save_time
+  FROM hpmgr.LOG_system_control_behavior t1
+ WHERE 1 = 1
+	<if test="behavTimeSd !=null and behavTimeEd!=null">
+	<![CDATA[AND  substr(t1.save_time,1,8) between #{behavTimeSd} and #{behavTimeEd}]]>
+	</if>
+	<if test="subjectIds !=null">
+	AND  t1.subject_id in
+	<foreach item="item" index="index" collection="subjectIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="audTrms != null">
+	AND  t1.aud_trm in  
+	<foreach item="item" index="index" collection="audTrms"
+		open="(" separator="," close=")">
+		#{item}
+    </foreach>
+	</if>
+	order by save_time desc
+</select>
+
+
+<!-- 操作审计报告、审计清单、排名汇总的日志： 查询界面默认的筛选条件list -->
+<!-- 审计专题list-->
+<select id="queryModelTermSubData" resultType="java.util.HashMap">
+	SEL	DISTINCT subject_id,subject_nm
+	FROM  hpmgr.LOG_system_config 
+	ORDER BY subject_id ;
+</select>
+<!-- 审计月list-->
+<select id="queryModelTermTmData" resultType="java.util.HashMap">
+	SEL	DISTINCT aud_trm,SUBSTR(aud_trm,1,4)||'年'||SUBSTR(aud_trm,5,2)||'月' as aud_trm_nm 
+	FROM  hpmgr.LOG_system_model_behavior
+	WHERE <![CDATA[aud_trm IS NOT NULL AND aud_trm <> '' ]]>
+	order by aud_trm   desc
+</select>
+<!-- 文件类型list-->
+<select id="queryModelTermTypeData" resultType="java.util.HashMap">
+	SEL	'audDetail' AS file_typ,'审计清单' AS file_typ_nm 	
+	FROM  hpmgr.LOG_system_model_behavior UNION 
+	SEL	'auditPm' AS file_typ,'排名汇总' AS file_typ_nm 	
+	FROM  hpmgr.LOG_system_model_behavior UNION
+	SEL	'audReport' AS file_typ,'审计报告' AS file_typ_nm 	
+	FROM  hpmgr.LOG_system_model_behavior UNION
+	SEL	'auditTB' AS file_typ,'审计通报' AS file_typ_nm 	
+	FROM  hpmgr.LOG_system_model_behavior UNION
+	SEL	DISTINCT file_typ,file_typ_nm 	
+	FROM  hpmgr.LOG_system_model_behavior
+	WHERE <![CDATA[file_typ IS NOT NULL AND file_typ <> '']]>
+</select>
+<!-- 文件所属省list-->
+<select id="queryModelTermPrvdData" resultType="java.util.HashMap">
+	select cast(CMCC_prov_prvd_id as varchar(5))as file_prvd_id, 
+	CMCC_prov_prvd_nm as file_prvd_nm
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd 
+	where CMCC_prov_prvd_cd is not null
+	order by file_prvd_id 
+</select>
+
+<!-- 操作审计报告、审计清单、排名汇总的日志： 查询界面操作日志表格内容resultMap-->
+<resultMap type="com.hpe.cmca.pojo.SystemLogModelData"  id="systemLogModelData">
+	<result property="rn" column="rn"/>
+	<result property="userId" column="user_id"/>
+	<result property="userNm" column="user_nm"/>
+	<result property="userPrvdId" column="user_prvd_id"/>
+	<result property="userPrvdNm" column="user_prvd_nm"/>
+	<result property="depId" column="dep_id"/>
+	<result property="depNm" column="dep_nm"/>
+	<result property="subjectId" column="subject_id"/>
+	<result property="subjectNm" column="subject_nm"/>
+	<result property="focusId" column="focus_id"/>
+	<result property="focusNm" column="focus_nm"/>
+	<result property="audTrm" column="aud_trm"/>
+	<result property="audTrmNm" column="aud_trm_nm"/>
+	<result property="saveTime" column="save_time"/>
+	<result property="behavTyp" column="behav_typ"/>
+	<result property="fileTyp" column="file_typ"/>
+	<result property="fileTypNm" column="file_typ_nm"/>
+	<result property="fileNm" column="file_nm"/>
+	<result property="fileUrl" column="file_url"/>
+	<result property="filePrvdId" column="file_prvd_id"/>
+	<result property="filePrvdNm" column="file_prvd_nm"/>
+	<result property="loadCnt" column="load_cnt"/>
+	<result property="releaseNote" column="release_note"/>
+</resultMap>
+
+<!-- 操作审计报告、审计清单、排名汇总的日志： 查询界面操作日志表格内容-->
+<select id="queryLogModelTbData"  resultMap="systemLogModelData" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT 0 AS rn
+       ,COALESCE(t1.user_id,'admin') as user_id
+		,COALESCE(t1.user_nm,t2.user_nm) AS user_nm
+		,CASE WHEN t1.user_id = 'admin' THEN t1.user_prvd_id ELSE t2.user_prvd_id end AS user_prvd_id
+		,CASE WHEN t1.user_id = 'admin' THEN t1.user_prvd_nm ELSE t2.user_prvd_nm end AS user_prvd_nm
+		,CASE WHEN t1.user_id = 'admin' THEN t1.dep_id ELSE t2.dep_id end AS dep_id
+		,CASE WHEN t1.user_id = 'admin' THEN t1.dep_nm ELSE t2.dep_nm end AS dep_nm
+		,t1.subject_id
+		,t1.subject_nm
+		,t1.focus_id
+		,t1.focus_nm
+		,SUBSTR(t1.aud_trm,1,4)||'年'||SUBSTR(t1.aud_trm,5,2)||'月' AS aud_trm_nm
+		,t1.aud_trm
+		,t1.save_time
+		,t1.behav_typ
+		,t1.file_typ
+		,t1.file_typ_nm
+		,t1.file_nm
+		,t1.file_url
+		,t1.file_prvd_id
+		,t1.file_prvd_nm
+		,t1.load_cnt
+		,t1.release_note
+  FROM hpmgr.LOG_system_model_behavior t1
+  LEFT JOIN (SELECT DISTINCT user_id,user_nm,user_prvd_id,user_prvd_nm,dep_id,dep_nm 
+			FROM hpmgr.LOG_system_login_behavior
+			WHERE user_id IS NOT NULL ) t2
+  ON t1.user_id = t2.user_id
+ WHERE 1 = 1
+	<if test="behavTimeSd !=null and behavTimeEd!=null">
+	<!-- SEL CAST (cast( '20180811' as date )AS TIMESTAMP(6) ) -->
+	<![CDATA[AND  substr(t1.save_time,1,8) between #{behavTimeSd} and #{behavTimeEd}]]>
+	<!-- <![CDATA[ AND  t1.save_time BETWEEN  CAST ( #{behavTimeSd}||' 000000' AS TIMESTAMP(0)  FORMAT 'YYYYMMDDbHHMISS') AND  CAST ( #{behavTimeEd} ||' 235959' AS TIMESTAMP(0)  FORMAT 'YYYYMMDDbHHMISS') ]]>-->
+	</if>
+	<if test="subjectIds !=null">
+	AND  t1.subject_id in
+	<foreach item="item" index="index" collection="subjectIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="audTrms != null">
+	AND  t1.aud_trm in  
+	<foreach item="item" index="index" collection="audTrms"
+		open="(" separator="," close=")">
+		#{item}
+    </foreach>
+	</if>
+	<if test="fileTyps != null">
+	AND  t1.file_typ in  
+	<foreach item="item" index="index" collection="fileTyps"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="filePrvdIds != null">
+	AND  t1.file_prvd_id in  
+	<foreach item="item" index="index" collection="filePrvdIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	order by save_time desc ,aud_trm desc ,subject_id ,focus_id
+</select>
+
+
+<!-- 系统操作日志： 查询界面默认的筛选条件list (1用户/2公司/3部门)-->
+<select id="queryUseTermData" resultType="java.util.HashMap">
+	SEL	DISTINCT '1' AS typeId,cast(user_id as varchar(100)) as user_id,cast(user_nm as varchar(100)) as user_nm
+	FROM  hpmgr.LOG_system_use_behavior
+	WHERE <![CDATA[user_nm IS NOT NULL AND user_nm <> '' and user_id IS NOT NULL AND user_id <> '']]>
+	UNION 
+	select DISTINCT '2' AS typeId,cast(CMCC_prov_prvd_id as varchar(5))as prvd_id, 
+	CMCC_prov_prvd_nm as prvd_nm
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd 
+	where CMCC_prov_prvd_cd is not null
+	UNION 
+	SEL DISTINCT '3' AS typeId,cast(dep_id as varchar(100)) as dep_id ,
+	case when user_prvd_id = '10000' then dep_nm||'(集团)' else dep_nm end as dep_nm 
+	FROM	 hpmgr.LOG_system_use_behavior
+	WHERE <![CDATA[dep_nm IS NOT NULL AND dep_nm <> '' and dep_id IS NOT NULL AND dep_id <> '']]>
+</select>
+
+<!-- 系统操作日志： 查询界面默认的筛选条件的菜单选择内容list (一级、二级、三级菜单)-->
+<select id="queryUseToolData" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT behav_lvlist
+  FROM (SELECT DISTINCT CAST(behav_lv1 AS VARCHAR(200)) AS behav_lvlist
+          FROM hpmgr.LOG_system_use_behavior
+         WHERE 
+         behav_lv1 IS NOT NULL 
+         <![CDATA[ and behav_lv1 <> '']]> 
+        UNION
+        SELECT DISTINCT behav_lv1 || '/' || behav_lv2 AS behav_lv2
+          FROM hpmgr.LOG_system_use_behavior
+         WHERE behav_lv2 IS NOT NULL 
+         <![CDATA[ and behav_lv2 <> '']]> 
+         AND behav_lv1 IS NOT NULL  
+         <![CDATA[ and behav_lv1 <> '']]> 
+        UNION
+        SELECT DISTINCT behav_lv1 || '/' || behav_lv2 || '/' || behav_lv3 AS behav_lv3
+          FROM hpmgr.LOG_system_use_behavior
+         WHERE behav_lv3 IS NOT NULL 
+         <![CDATA[ and behav_lv3 <> '' ]]> 
+         AND behav_lv1 IS NOT NULL  <![CDATA[ and behav_lv1 <> '' ]]> 
+         AND behav_lv2 IS NOT NULL  <![CDATA[ and behav_lv2 <> '' ]]> ) t
+ ORDER BY behav_lvlist
+</select>
+
+<resultMap type="com.hpe.cmca.pojo.SystemLogUseData"  id="systemLogUseData">
+	<result property="rn" column="rn"/>
+	<result property="userId" column="user_id"/>
+	<result property="userNm" column="user_nm"/>
+	<result property="userPrvdId" column="user_prvd_id"/>
+	<result property="userPrvdNm" column="user_prvd_nm"/>
+	<result property="depId" column="dep_id"/>
+	<result property="depNm" column="dep_nm"/>
+	<result property="behavLv1" column="behav_lv1" />
+	<result property="behavLv2" column="behav_lv2" />
+	<result property="behavLv3" column="behav_lv3" />
+	<result property="behavTyp" column="behav_typ" />
+	<result property="responseTime" column="response_time" />
+	<result property="releaseNote" column="release_note" />
+	<result property="saveTime" column="save_time" />
+</resultMap>
+
+<!-- 系统操作日志： 查询界面操作日志表格内容-->
+<select id="queryUseTableData"  resultMap="systemLogUseData" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT 0 as rn,
+       user_id,
+       user_nm,
+       user_prvd_id,
+       user_prvd_nm,
+       dep_id,
+       dep_nm,
+       behav_lv1,
+       behav_lv2,
+       behav_lv3,
+       behav_typ,
+       response_time,
+       release_note,
+       save_time
+  FROM hpmgr.LOG_system_use_behavior t1
+ WHERE 1 = 1
+	<if test="behavTimeSd !=null and behavTimeEd!=null">
+	<![CDATA[AND  substr(t1.save_time,1,8) between #{behavTimeSd} and #{behavTimeEd}]]>
+	</if>
+	<if test="userIds !=null">
+	AND  t1.user_id in
+	<foreach item="item" index="index" collection="userIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="userPrvdIds != null">
+	AND  t1.user_prvd_id in  
+	<foreach item="item" index="index" collection="userPrvdIds"
+		open="(" separator="," close=")">
+		#{item}
+    </foreach>
+	</if>
+	<if test="depIds != null">
+	AND  t1.dep_id in  
+	<foreach item="item" index="index" collection="depIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="behavLv1 != null">
+	and  behav_lv1 = #{behavLv1}
+	</if>
+	<if test="behavLv2 != null">
+	and  behav_lv2 = #{behavLv2}
+	</if>
+	<if test="behavLv3 != null">
+	and  behav_lv3 = #{behavLv3}
+	</if>
+	order by save_time desc
+</select>
+
+<!-- 系统登陆日志： 查询界面默认的筛选条件list (1用户/2公司/3部门)-->
+<select id="queryTermData" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+	SEL	DISTINCT '1' AS typeId,cast(user_id as varchar(100)) as user_id,cast(user_nm as varchar(100)) as user_nm
+	FROM  hpmgr.LOG_system_login_behavior
+	WHERE <![CDATA[user_nm IS NOT NULL AND user_nm <> '' and user_id IS NOT NULL AND user_id <> '']]>
+	UNION 
+	select DISTINCT '2' AS typeId,cast(CMCC_prov_prvd_id as varchar(5))as prvd_id, 
+	CMCC_prov_prvd_nm as prvd_nm
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd 
+	where CMCC_prov_prvd_cd is not null
+	UNION 
+	SEL DISTINCT '3' AS typeId, dep_id ,
+	case when user_prvd_id = '10000' then dep_nm||'(集团)' else dep_nm end as dep_nm 
+	FROM	 hpmgr.LOG_system_login_behavior
+	WHERE <![CDATA[dep_nm IS NOT NULL AND dep_nm <> '' and dep_id IS NOT NULL AND dep_id <> '']]>
+</select>
+
+<resultMap type="com.hpe.cmca.pojo.SystemLogLoginData"  id="systemLogLoginData">
+		<result property="rn" column="rn"/>
+		<result property="userId" column="user_id"/>
+		<result property="userNm" column="user_nm"/>
+		<result property="userPrvdId" column="user_prvd_id"/>
+		<result property="userPrvdNm" column="user_prvd_nm"/>
+		<result property="depId" column="dep_id"/>
+		<result property="depNm" column="dep_nm"/>
+		<result property="pcId" column="pc_id" />
+		<result property="behavTime" column="behav_time" />
+		<result property="responseTime" column="response_time" />
+		<result property="loginCnt" column="login_cnt" />
+</resultMap>
+
+<!-- 系统登陆日志： 查询界面默认的日志记录list 总次数字段来源待定-->
+<select id="queryDefLogData" resultMap="systemLogLoginData" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+SELECT 0 as rn,
+       user_id,
+       user_nm,
+       user_prvd_id,
+       user_prvd_nm,
+       dep_id,
+       dep_nm,
+       pc_id,
+       behav_time,
+       cast(0 as DECIMAL(10, 2)) as response_time,
+       login_cnt
+  FROM hpmgr.LOG_system_login_behavior t1
+ WHERE 1 = 1
+	<if test="behavTimeSd !=null and behavTimeEd!=null">
+	<![CDATA[AND  substr(t1.behav_time,1,8) between #{behavTimeSd} and #{behavTimeEd}]]>
+	</if>
+	<if test="userIds !=null">
+	AND  t1.user_id in
+	<foreach item="item" index="index" collection="userIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+	<if test="userPrvdIds != null">
+	AND  t1.user_prvd_id in  
+	<foreach item="item" index="index" collection="userPrvdIds"
+		open="(" separator="," close=")">
+		#{item}
+    </foreach>
+	</if>
+	<if test="depIds != null">
+	AND  t1.dep_id in  
+	<foreach item="item" index="index" collection="depIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>
+    order by behav_time desc
+</select>
+
+<!-- 新增用户操作 -->
+<insert id="addLoginInfoData" parameterType="com.hpe.cmca.pojo.SystemLogLoginData">
+INSERT INTO hpmgr.LOG_system_login_behavior
+  (user_id,
+   user_nm,
+   user_prvd_id,
+   user_prvd_nm,
+   dep_id,
+   dep_nm,
+   pc_id,
+   behav_time,
+   response_time,
+   login_cnt)
+  SELECT #{userId} AS user_id,
+         #{userNm} AS user_nm,
+         #{userPrvdId} AS user_prvd_id,
+         t3.cmcc_prov_prvd_nm AS user_prvd_nm,
+         #{depId} AS dep_id,
+         #{depNm} AS dep_nm,
+         #{pcId} AS pc_id,
+         #{behavTime} AS behav_time,
+         0 AS response_time,
+         #{loginCnt} + coalesce(login_cnt,0)
+    FROM (SELECT 1 as id) t1
+    LEFT JOIN (SELECT user_id, coalesce(login_cnt,0) as login_cnt
+                 FROM hpmgr.LOG_system_login_behavior QUALIFY ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY behav_time DESC) = 1) t2
+      ON t2.user_id = #{userId}
+    LEFT JOIN hpmgr.ref_dm_cmcc_prov_prvd_cd t3
+      ON t3.cmcc_prov_prvd_id = #{userPrvdId};
+</insert>
+<!-- 持续审计系统用户，日志信息： 查询end -->
+
+<!-- 日志： 根据专题获取审计月-->
+<select id="getAudtrmOfId" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.SystemLogHtmlData">
+	select min(aud_trm_min) as aud_trm_min,min(aud_trm_us) as aud_trm_us
+	from (SEL DISTINCT subject_id,subject_nm,aud_trm_min,aud_trm_us 
+	FROM hpmgr.LOG_system_config WHERE 1=1 
+	<if test="subjectIds !=null">
+	AND  subject_id in
+	<foreach item="item" index="index" collection="subjectIds"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+	</if>	
+	) t
+</select>
+
+<!-- 记录所有hpmgr.busi_report_log的相关操作记录 来源  bgxzMapper.xml SynchronizeTwoSysMapper.xml-->
+
+<insert id="addReportAndCsvPathToNew" parameterType="java.util.Map">
+	insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+	SELECT	
+	id, 
+	audit_subject as subject_id,
+	audit_concern as focus_cd,
+	audit_monthly as aud_trm,
+	null as oper_type,
+	'sys' as oper_person,
+	0 as down_count,
+	case 
+		when file_type ='audDetail' then 'audDetail'
+		when file_type ='audReport' then 'audReport' 
+	end as file_type,
+	'manual' as create_type,
+	aduitor as prvd_id,
+	null as login_account,
+	null as down_datetime,
+	current_timestamp as create_datetime,
+	download_url as file_path,
+	file_name as file_name,
+	'insert' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date
+	FROM	hpmgr.busi_report_file
+	where create_time <![CDATA[>]]> cast(#{genDate} as date) 
+	<if test="subjectIds!=null">
+	and audit_subject in  
+	<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+				#{item}
+	</foreach>
+	
+	</if>
+	<if test="prvdIds!=null">
+	and aduitor in 
+	<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+	</foreach>
+	</if>
+</insert>
+
+
+<insert id="delReportAndCsvPathFromNew"  parameterType="java.util.Map">
+	insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+	select  id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,
+	'delete' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date
+	from hpmgr.busi_report_log
+	where create_datetime<![CDATA[ > ]]>cast(#{genDate} as date) 
+	<if test="subjectIds!=null">
+	and subject_id in  
+	<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+				#{item}
+	</foreach>
+	</if>
+	<if test="prvdIds!=null">
+	and prvd_id in
+	<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+	</foreach>
+	</if>
+	and file_type in ('audDetail','audReport')
+</insert>
+
+<insert id="delPmhzAndSjtbPathFromNew"  parameterType="java.util.Map">
+	insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+	select  id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,
+	'delete' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date	
+	from hpmgr.busi_report_log
+	where create_datetime<![CDATA[ > ]]>cast(#{genDate} as date) 
+	<if test="subjectIds!=null">
+	and subject_id in 
+	<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+				#{item}
+	</foreach>
+	</if>
+	and file_type in ('auditPm','auditTB')
+</insert>
+
+<insert id="addPmhzAndSjtbPathToNew" parameterType="java.util.Map">
+insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+	SELECT	
+	id, 
+	audit_subject as subject_id,
+	focus_cd as focus_cd,
+	audit_monthly as aud_trm,
+	null as oper_type,
+	'sys' as oper_person,
+	0 as down_count,
+	case 
+		when download_url like '%排名汇总%' then 'auditPm'
+		when download_url like '%审计通报%' then 'auditTB' 
+	end as file_type,
+	'manual' as create_type,
+	10000 as prvd_id,
+	null as login_account,
+	null as down_datetime,
+	current_timestamp as create_datetime,
+	download_url as file_path,
+	download_url as file_name,
+	'insert' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date	
+	FROM	hpmgr.busi_notification_file
+	where create_time <![CDATA[>]]> cast(#{genDate} as date) 
+	<if test="subjectIds!=null">
+	and audit_subject in 
+	<foreach item="item" index="index" collection="subjectIds" open="(" separator="," close=")">
+					#{item}
+	</foreach>
+	</if>
+</insert>
+
+<insert id="addReportLog" parameterType="java.util.Map">
+INSERT	INTO hpmgr.LOG_system_report_log
+	(subject_id, focus_cd, aud_trm, prvd_id, oper_type, down_datetime,
+		oper_person, down_count,file_type,login_account,file_path,
+		create_datetime,file_name,create_type,insert_type,insert_date)
+VALUES(#{subjectId},#{focusCd},#{audTrm},#{prvdId},#{operType},#{downDatetime},#{operPerson},#{downCount},
+		#{fileType},#{loginAccount},#{filePath},#{createDatetime},#{fileName},#{createType},
+		'insert' ,
+		cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)))
+</insert>
+
+<insert id="updateReportLog" parameterType="java.util.Map">
+	insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+	select  id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,
+	'update' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date	
+	from hpmgr.busi_report_log
+where 1=1
+<if test="fileType !=null and fileType !='' and fileType !='all' ">
+			and file_type=#{fileType}
+			</if>
+			<if test="audTrm !=null and audTrm !='' ">
+			and  aud_trm =#{audTrm}
+			</if>
+			<if test="subjectId !=null and subjectId !='' ">
+			and subject_id =#{subjectId}
+			</if>
+			<if test="prvdId !=null and prvdId !='' ">
+			and prvd_id=#{prvdId}
+			</if>
+			<if test="loginAccount !=null and loginAccount !='' ">
+			and login_account=#{loginAccount}
+			</if>
+			<if test="focusCd !=null and focusCd !='' ">
+			and focus_cd=#{focusCd}
+			</if>
+			<!-- <if test="createType !=null and createType !='' ">
+			and create_type=#{createType}
+			</if> -->
+</insert>
+
+<insert id="updateReportLog2" parameterType="java.util.Map">
+insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+select  id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,
+	'update' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date		
+from hpmgr.busi_report_log
+<where>
+<if test="fileType !=null and fileType !='' and fileType !='all' ">
+		and file_type=#{fileType}
+		</if>
+		<if test="audTrm !=null and audTrm !='' ">
+		and  aud_trm =#{audTrm}
+		</if>
+		<if test="subjectId !=null and subjectId !='' ">
+		and subject_id =#{subjectId}
+		</if>
+		<if test="prvdId !=null and prvdId !='' ">
+		and prvd_id=#{prvdId}
+		</if>
+		</where>
+
+</insert>
+
+<insert id="updateReportLog7" parameterType="java.util.Map">
+insert into  hpmgr.LOG_system_report_log
+		(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+		file_type, create_type, prvd_id, login_account, down_datetime,
+		create_datetime, file_path, file_name,insert_type,insert_date)
+		select  id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+		file_type, create_type, prvd_id, login_account, down_datetime,
+		create_datetime, file_path, file_name		,
+		'update' as insert_type,
+		cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date
+		from hpmgr.busi_report_log
+<where>
+<if test="fileType !=null and fileType !='' and fileType !='all' ">
+		and file_type=#{fileType}
+		</if>
+		<if test="audTrm !=null and audTrm !='' ">
+		and  aud_trm =#{audTrm}
+		</if>
+		<if test="subjectId !=null and subjectId !='' ">
+		and subject_id =#{subjectId}
+		</if>
+		<if test="prvdId !=null and prvdId !='' ">
+		and prvd_id=#{prvdId}
+		</if>
+		<if test="focusCd !=null and focusCd !='' ">
+		and focus_cd=#{focusCd}
+		</if>
+		</where>
+
+</insert>
+
+<insert id="deleteReportLog" parameterType="java.util.Map">
+insert into  hpmgr.LOG_system_report_log
+	(id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,insert_type,insert_date)
+	select  id, subject_id, focus_cd, aud_trm, oper_type, oper_person, down_count,
+	file_type, create_type, prvd_id, login_account, down_datetime,
+	create_datetime, file_path, file_name,
+	'delete' as insert_type,
+	cast(cast(CURRENT_TIMESTAMP as format 'YYYYMMDDbHH:MI:SS') as char(19)) as insert_date	
+	from hpmgr.busi_report_log
+<where>
+<if test="fileType !=null and fileType !='' and fileType !='all' ">
+			and file_type=#{fileType}
+			</if>
+			<if test="audTrm !=null and audTrm !='' ">
+			and  aud_trm =#{audTrm}
+			</if>
+			<if test="subjectId !=null and subjectId !='' ">
+			and subject_id =#{subjectId}
+			</if>
+			<if test="prvdId !=null and prvdId !='' ">
+			and prvd_id=#{prvdId}
+			</if>
+			<if test="focusCd !=null and focusCd !='' ">
+			and focus_cd=#{focusCd}
+			</if>
+			</where>
+</insert>
+</mapper>

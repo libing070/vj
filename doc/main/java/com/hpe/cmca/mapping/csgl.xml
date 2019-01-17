@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- create by GuoXY 20161202 for 参数管理 copy from cmccca-->
+<!-- 命名空间 -->
+<mapper namespace="ModelParamMapper">
+	<!-- 按要求(查询数据库中配置的专题-关注点)查询参数列表
+	<select id="selectModelParam" resultType="java.util.HashMap" parameterType="java.util.Map" useCache="false">
+		SELECT a.threshold_id, a.threshold_code, a.threshold_name, 
+				a.operators, a.threshold_value, a.subject_id,
+				a.focus_id, b.sname, b.fname,
+				cast(cast(a.eff_dt as TIMESTAMP format 'YYYY-MM-DDBHH:MI:SS')as char(19)) as eff_dt,
+				cast(cast(a.end_dt as TIMESTAMP format 'YYYY-MM-DDBHH:MI:SS')as char(19)) as end_dt	
+		FROM hpmgr.busi_ca_config a inner join (
+				select s.id as sid, s.name as sname,f.name as fname,
+					   f.biz_code as fid from HPMGR.busi_stat_subject s,
+				HPMGR.busi_stat_concern f where s.id=f.subject_id
+			) b on a.focus_id=b.fid
+		<where>
+			<if test="subjectId !=null ">
+				a.subject_id =#{subjectId}
+			</if>
+			<if test="concernId !=null and  concernId!='1000' and concernId!='2000' and concernId!='3000'">
+				and a.focus_id =#{concernId}
+			</if>
+		</where>	
+	</select>
+	 -->
+	<!-- 根据阈值ID获取参数记录 add by GuoXY 20161202 主要用于对比update时更改了哪些参数
+	<select id="getOneModParById" resultType="java.util.HashMap" parameterType="java.lang.String">
+		select * from hpmgr.busi_ca_config where threshold_id=#{threshold_id}
+	</select>
+ 	-->
+	<!-- 修改参数
+	<update id="updateModelParam" parameterType="java.util.Map">
+		update hpmgr.busi_ca_config
+		<set>
+			threshold_code=#{threshold_code},
+			threshold_name=#{threshold_name},
+			operators=#{operators},
+			threshold_value=#{threshold_value},
+			end_dt=#{end_dt}
+		</set>
+		where threshold_id =#{threshold_id}
+	</update>
+	-->
+	<!-- 插入参数变更日志
+	<insert id="insertLog" parameterType="com.hpe.cmca.model.ParamEditLog">
+		insert into hpmgr.busi_ca_config_log(
+					edit_person, edit_time, edit_code,
+					edit_col, old_id, old_value, 
+					new_id, new_value, edit_reason
+				)
+		values( #{edit_person}, #{edit_time}, #{edit_code}, 
+				#{edit_col}, #{old_id}, #{old_value},
+				#{new_id}, #{new_value}, #{edit_reason})
+	</insert>
+	-->
+	
+	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="modelParamMap">
+		<result property="rowId" column="row_id" />
+		<result property="thresholdId" column="threshold_id" />
+		<result property="thresholdCode" column="threshold_code" />
+		<result property="thresholdName" column="threshold_name" />
+		<result property="thresholdOperators" column="operators" />
+		<result property="thresholdValue" column="threshold_value" />
+		<result property="thresholdSubjectid" column="subject_id" />
+		<result property="thresholdFocusid" column="focus_id" />
+		<result property="thresholdSid" column="sid" />
+		<result property="thresholdFid" column="fid" />
+		<result property="thresholdEffdate" column="eff_dt" />
+		<result property="thresholdEnddate" column="end_dt" />
+	</resultMap>
+	<!-- 按要求查询参数列表 -->
+	<select id="selectModelParam" resultMap="modelParamMap"
+		parameterType="java.util.Map" useCache="false">
+		SELECT 	row_number()over(order by threshold_id)as row_id,
+				a.threshold_id as threshold_id,
+				a.threshold_code as	threshold_code,
+				a.threshold_name as threshold_name,
+				a.operators as operators,
+				a.threshold_value as threshold_value,
+				a.subject_id as	sid,
+				a.focus_id as fid,
+				b.sname as subject_id,
+				b.fname as focus_id,
+				cast(cast(a.eff_dt as TIMESTAMP format 'YYYY-MM-DDBHH:MI:SS')as char(19)) as eff_dt,
+				cast(cast(a.end_dt as TIMESTAMP format 'YYYY-MM-DDBHH:MI:SS')as char(19)) as end_dt
+		FROM hpmgr.busi_ca_config a inner join (
+			select s.id as sid, s.name as sname,f.name as fname,f.biz_code as fid 
+			from HPMGR.busi_stat_subject s, HPMGR.busi_stat_concern f 
+			where s.id=f.subject_id
+		) b on a.focus_id=b.fid
+		<where>
+			<if test="params.subjectId !=null ">
+				a.subject_id =#{params.subjectId}
+			</if>
+			<if test="params.concernId=='1000'">
+			    and a.subject_id='1'
+		    </if>
+		    <if test="params.concernId=='2000'">
+			    and a.subject_id='2'
+			</if>
+		    <if test="params.concernId=='3000'">
+			    and a.subject_id='3'
+			</if>
+			<if test="params.concernId !=null and  params.concernId!='1000' and  params.concernId!='2000' and params.concernId!='3000'">
+				and a.focus_id =#{params.concernId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectModelSubject" resultType="java.util.Map"
+		parameterType="java.util.Map" useCache="false">
+		<![CDATA[
+		sel id,name  from hpmgr.busi_stat_subject 
+		where id <=20
+		 ]]>
+		  <if test="id != null ">
+			    and id=#{id}
+			</if>
+		 order by id
+		
+	</select>
+
+	<!-- 修改参数 -->
+	<update id="updateModelParam" parameterType="com.hpe.cmca.model.ModelParam">
+		update hpmgr.busi_ca_config
+		<set>
+			<if test="isCodeChanged ==true">
+				threshold_code =#{thresholdCode},
+			</if>
+			<if test="isNameChanged ==true">
+				threshold_name =#{thresholdName},
+			</if>
+			<if test="isOperatorsChanged ==true">
+				operators =#{thresholdOperators},
+			</if>
+		</set>
+		where threshold_id =#{thresholdId}
+	</update>
+
+	<!-- 修改失效时间参数 -->
+	<update id="updateModelParamEndDate" parameterType="com.hpe.cmca.model.ModelParam">
+		update hpmgr.busi_ca_config
+		set end_dt='${thresholdEnddate}' (decimal(16,2),format '9(14)v99')(format '9(14).99')(char(17)) (timestamp(2),format 'yyyymmddhhmiss.s(2)') 
+		where threshold_code = #{thresholdCode} and threshold_id not in(#{thresholdId})
+	</update>
+	
+	<insert id="insertModelParam" parameterType="com.hpe.cmca.model.ModelParam"
+		useGeneratedKeys="true" keyProperty="thresholdId">
+		insert into
+		hpmgr.busi_ca_config(threshold_code,threshold_name,operators,threshold_value,subject_id,focus_id,eff_dt,end_dt)
+		values(#{thresholdCode},#{thresholdName},#{thresholdOperators},#{thresholdValue},#{thresholdSubjectid},#{thresholdFocusid},
+				'${thresholdEffdate}'  (decimal(16,2),format '9(14)v99')(format '9(14).99')(char(17)) (timestamp(2),format 'yyyymmddhhmiss.s(2)'),
+				'${thresholdEnddate}'  (decimal(16,2),format '9(14)v99')(format '9(14).99')(char(17)) (timestamp(2),format 'yyyymmddhhmiss.s(2)')
+				)
+	</insert>
+	
+	<select id="selectMaxId" resultType="java.lang.Integer">
+		select Max(threshold_id)
+		from hpmgr.busi_ca_config
+	</select>
+
+	<insert id="insertLog" parameterType="com.hpe.cmca.model.ParamEditLog">
+		insert into
+		hpmgr.busi_ca_config_log(edit_person,edit_time,edit_code,edit_col,old_id,old_value,new_id,new_value,edit_reason)
+		values(#{edit_person},
+				'${edit_time}' (decimal(16,2),format '9(14)v99')(format '9(14).99')(char(17)) (timestamp(2),format 'yyyymmddhhmiss.s(2)'),
+				#{edit_code},#{edit_col},#{old_id},#{old_value},#{new_id},#{new_value},#{edit_reason})
+	</insert>
+	
+	<select id="selectSubject" resultType="java.util.Map"
+		parameterType="java.util.Map" >
+		select  id,name  from hpmgr.busi_stat_subject  where id in(2,3) 
+		 order by id
+		
+	</select>
+	
+</mapper>
+

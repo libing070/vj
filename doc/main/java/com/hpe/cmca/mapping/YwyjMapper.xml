@@ -1,0 +1,1047 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.YwyjMapper">
+	<!-- 获取组件信息数据转换 -->
+	<resultMap type="com.hpe.cmca.pojo.AssemblyInfoData"  id="assemblyInfo">
+		<result property="assemblyId" column="assembly_id"/>
+		<result property="assemblyName" column="assembly_name"/>
+		<result property="assemblyLayout" column="assembly_layout"/>
+		<result property="controlIdArrays" column="control_id_arrays"/>
+		<result property="pointVersionId" column="point_version_id"/>
+		<result property="assemblyType" column="assembly_type"/>
+	</resultMap>
+	<resultMap type="com.hpe.cmca.pojo.MonitorPointsConfigData"  id="monitorPointsConfigData">
+		<result property="pointVersionId" column="point_version_id"/>
+		<result property="pointCode" column="point_code"/>
+		<result property="versionCode" column="version_code"/>
+		<result property="assemblyId" column="assembly_id"/>
+		<result property="assemblyType" column="assembly_type"/>
+		<result property="assemblyOrder" column="assembly_order"/>
+		<result property="createPerson" column="create_person"/>
+		<result property="createTime" column="create_time"/>
+		<result property="isOpen" column="is_open"/>
+	</resultMap>
+
+	<!-- 控件条件 -->
+	<sql id="whereControlId">
+		<where>
+			<if test="controlId!=null">
+				control_id=#{controlId}
+			</if>
+		</where>
+	</sql>
+
+	<!-- 组件条件 -->
+	<sql id="whereAssemblyId">
+		<where>
+			<if test="assemblyId!=null">
+				assembly_id=#{assemblyId}
+			</if>
+			<if test="pointVersionId!=null">
+				point_version_id=#{pointVersionId}
+			</if>
+		</where>
+	</sql>
+	<!-- 业务预警-控件-获取控件结果表 -->
+	<select id="getTableInfo" resultType="Map" parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+	select point_code,point_name,result_tname,result_businame
+	from hpmgr.monitor_points_overview
+	where point_code=#{pointCode}
+</select>
+	<!-- 业务预警 -控件-获取控件的表详情 -->
+	<select id="getTableDetails" resultType="Map" parameterType="Map">
+		<!-- 	show table ${tableName}; -->
+		select trim(ColumnName) as columnName,trim(ColumnTitle) as columnTitle,trim(ColumnType) as columnType
+		from dbc.columns
+		where databasename=#{dataBaseName}
+		and tablename=#{tableName};
+
+	</select>
+	<!-- 业务预警-控件-是否存在 -->
+	<select id="getControlInfo" resultType="Map" parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+		select *
+		from hpmgr.control_info
+		<include refid="whereControlId"/>
+	</select>
+	<!--业务预警-控件-插入控件信息  -->
+	<insert id="insertControlDataInfo"  parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+    insert into hpmgr.control_info
+    (control_id, control_typ, control_name, ori_tname, show_field,
+		show_name, screen_field, query_sql, show_title, show_tooltip)
+	 values(
+	 #{controlId},#{controlType},#{controlName},#{tableName},#{showField}
+	 ,#{showName},#{screenField},#{querySql},#{showTitle},#{showTooltip}
+	 )
+</insert>
+	<!-- 业务预警-控件-更新控件信息表数据 -->
+	<update id="updateControlDataInfo"  parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+		update  hpmgr.control_info
+		<set>
+			<if test="controlType != null">control_typ=#{controlType},</if>
+			<if test="controlName != null">control_name=#{controlName},</if>
+			<if test="tableName != null">ori_tname=#{tableName},</if>
+			<if test="showField != null">show_field=#{showField},</if>
+			<if test="showName != null">show_name=#{showName},</if>
+			<if test="screenField != null">screen_field=#{screenField},</if>
+			<if test="querySql != null">query_sql=#{querySql},</if>
+			<if test="showTitle != null">show_title=#{showTitle},</if>
+			<if test="showTooltip != null">show_tooltip=#{showTooltip}</if>
+		</set>
+		<include refid="whereControlId"/>
+	</update>
+	<!-- 业务预警-控件-删除控件 -->
+	<delete id="deleteControlInfo" parameterType="String">
+	delete from hpmgr.control_info where control_id=#{controlId}
+</delete>
+
+	<!--业务预警-新增版本-控件-复制 -->
+	<insert id="copyOfControl"  parameterType="java.util.Map">
+    insert into hpmgr.control_info
+    (control_id, control_typ, control_name, ori_tname, show_field,
+		show_name, screen_field, query_sql, show_title, show_tooltip)
+	select #{newControId},control_typ, control_name, ori_tname, show_field,
+		show_name, screen_field, query_sql, show_title, show_tooltip from hpmgr.control_info
+	where control_id=#{controlId};
+</insert>
+
+
+	<!-- 业务预警-组件-是否存在 -->
+	<select id="getAssemblyInfo" resultMap="assemblyInfo" parameterType="com.hpe.cmca.pojo.AssemblyInfoData">
+		select assembly_id, assembly_name, assembly_layout, control_id_arrays
+		from hpmgr.assembly_info
+		<include refid="whereAssemblyId"/>
+	</select>
+	<!--业务预警-组件-插入组件信息  -->
+	<insert id="insertAssemblyInfo"  parameterType="com.hpe.cmca.pojo.AssemblyInfoData">
+    insert into hpmgr.assembly_info
+    (assembly_id,assembly_type,assembly_name, assembly_layout, control_id_arrays)
+	 values(#{assemblyId},#{assemblyType},#{assemblyName},#{assemblyLayout},#{controlIdArrays})
+</insert>
+	<!-- 业务预警-组件-更新组件信息表数据 -->
+	<update id="updateAssemblyInfo"  parameterType="com.hpe.cmca.pojo.AssemblyInfoData">
+		update  hpmgr.assembly_info
+		<set>
+			<if test="assemblyName != null">assembly_name=#{assemblyName},</if>
+			<if test="assemblyLayout != null">assembly_layout=#{assemblyLayout},</if>
+			<if test="controlIdArrays != null">control_id_arrays=#{controlIdArrays}</if>
+		</set>
+		<include refid="whereAssemblyId"/>
+	</update>
+
+	<delete id="deleteAssemblyInfo" parameterType="String">
+	delete from hpmgr.assembly_info where assembly_id=#{assemblyId}
+</delete>
+	<!--业务预警-新增版本-复制组件信息  -->
+	<insert id="copyOfAssembly"  parameterType="java.util.Map">
+    insert into hpmgr.assembly_info
+    (assembly_id,assembly_type,assembly_name, assembly_layout, control_id_arrays)
+   	select  #{newAssemblyId},assembly_type,assembly_name, assembly_layout,#{newControlIds}
+   	from hpmgr.assembly_info
+   	where assembly_id=#{assemblyId}
+</insert>
+
+	<!-- 业务预警-查询监控点版本信息 -->
+	<select id="getMonitorPointInfo" resultMap="monitorPointsConfigData" parameterType="java.util.Map">
+		select point_version_id, point_code, version_code, assembly_id,assembly_type, assembly_order,create_person, create_time, update_time, is_open
+		from hpmgr.monitor_points_config
+		<where>
+			<if test="pointCode!=null">
+				point_code=#{pointCode}
+			</if>
+			<if test="pointVersionId!=null">
+				and point_version_id=#{pointVersionId}
+			</if>
+			<if test="isOpen!=null">
+				and is_open=#{isOpen}
+			</if>
+		</where>
+		order by is_open desc,point_version_id desc;
+	</select>
+	<!-- 业务预警-获取版本信息 -->
+	<select id="queryVersion" resultMap="monitorPointsConfigData" parameterType="java.util.Map">
+		<if test="pointVersionId!=null">
+			select point_version_id, point_code, version_code, assembly_id,assembly_type, is_open
+			from hpmgr.monitor_points_config
+			where point_version_id=#{pointVersionId};
+		</if>
+		<if test="pointVersionId==null">
+			select point_version_id, point_code, version_code, assembly_id,assembly_type, is_open
+			from (
+			select point_version_id, point_code, version_code, assembly_id,assembly_type, is_open
+			from hpmgr.monitor_points_config
+			where is_open=1
+			<if test="pointCode!=null">
+				and	point_code=#{pointCode}
+			</if>
+			union
+			select point_version_id, point_code, version_code, assembly_id,assembly_type, is_open
+			from hpmgr.monitor_points_config
+			where is_open=0
+			<if test="pointCode!=null">
+				and point_code=#{pointCode}
+			</if>
+			<if test="createPerson!=null">
+				and create_person=#{createPerson}
+			</if>)as a
+			order by is_open desc,point_version_id desc;
+		</if>
+	</select>
+
+	<!-- 业务预警-插入监控点版本信息 -->
+	<insert id="insertMonitorPointInfo"  parameterType="com.hpe.cmca.pojo.MonitorPointsConfigData">
+ 	INSERT	INTO hpmgr.monitor_points_config
+	(point_version_id, point_code, version_code, assembly_id,assembly_type, assembly_order,
+		create_person, create_time, is_open)
+	VALUES
+	(#{pointVersionId},#{pointCode},#{versionCode},#{assemblyId},#{assemblyType},#{assemblyOrder},#{createPerson},current_timestamp,#{isOpen});
+</insert>
+
+	<insert id="copyOfVersion"  parameterType="java.util.Map">
+ 	INSERT	INTO hpmgr.monitor_points_config
+	(point_version_id, point_code, version_code, assembly_id,assembly_type, assembly_order,
+		create_person, create_time, is_open)
+	select #{newPointVersionId}, point_code, #{versionCode}, #{newAssemblyIds},assembly_type, assembly_order,
+		#{newCreatePerson}, current_timestamp, 0
+	from hpmgr.monitor_points_config
+	where point_version_id=#{pointVersionId};
+</insert>
+	<!-- 业务预警-组件-更新监控点版本信息表数据 -->
+	<update id="updateMonitorPointInfo"  parameterType="com.hpe.cmca.pojo.MonitorPointsConfigData">
+		update  hpmgr.monitor_points_config
+		<set>
+			<if test="versionCode != null">version_code=#{versionCode},assembly_id=#{assemblyId},update_time=current_timestamp,</if>
+			<if test="isOpen != null">is_open=#{isOpen}</if>
+		</set>
+		<where>
+			<if test="pointCode!=null">
+				point_code=#{pointCode}
+			</if>
+			<if test="pointVersionId!=null">
+				and point_version_id=#{pointVersionId}
+			</if>
+		</where>
+	</update>
+
+	<!-- 业务预警-更新监控点版本为非默认版本信息表数据 -->
+	<update id="setNonDefaultVersion"  parameterType="com.hpe.cmca.pojo.MonitorPointsConfigData">
+		update  hpmgr.monitor_points_config
+		<set>
+			<if test="isOpen != null">is_open=0</if>
+		</set>
+		<where>
+			<if test="pointCode!=null">
+				point_code=#{pointCode}
+			</if>
+			<if test="pointVersionId!=null">
+				<![CDATA[
+		and point_version_id<>#{pointVersionId}
+		]]>
+			</if>
+		</where>
+	</update>
+
+	<!-- 业务预警-组件-更新监控点版本信息表数据-设置为默认版本 -->
+	<update id="setDefaultVersion"  parameterType="com.hpe.cmca.pojo.MonitorPointsConfigData">
+		update  hpmgr.monitor_points_config
+		<set>
+			<if test="versionCode != null">version_code=#{versionCode},</if>
+			<if test="isOpen != null">is_open=#{isOpen}</if>
+		</set>
+		<where>
+			<if test="pointVersionId!=null">
+				and point_version_id=#{pointVersionId}
+			</if>
+		</where>
+	</update>
+
+
+	<!-- 业务预警 -查询控件表 -->
+	<select id="getControldataInfos" resultType="Map" parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+		sel * from hpmgr.control_info
+		<where>
+			<if test="controlId !='' ">
+				and control_id =#{controlId}
+			</if>
+		</where>
+	</select>
+	<!-- 获取控件的数据 -->
+	<select id="executeSql" resultType="Map" parameterType="Map">
+	${dataSql}
+</select>
+
+	<!-- 获取监控点概览数据 -->
+	<resultMap type="com.hpe.cmca.pojo.MonitorOverViewData"  id="monitorOverViewData">
+		<result property="pointCode" column="point_code"/>
+		<result property="pointName" column="point_name"/>
+		<result property="systemCode" column="system_code"/>
+		<result property="systemName" column="system_name"/>
+		<result property="level1ProcessCode" column="level_1_process_code"/>
+		<result property="level1ProcessName" column="level_1_process_name"/>
+		<result property="level2ProcessCode" column="level_2_process_code"/>
+		<result property="level2ProcessName" column="level_2_process_name"/>
+		<result property="systemRisk" column="system_risk"/>
+		<result property="level1Risk" column="level_1_risk"/>
+		<result property="level2Risk" column="level_2_risk"/>
+		<result property="level3Risk" column="level_3_risk"/>
+		<result property="oriInterfTname" column="ori_interf_tname"/>
+		<result property="oriInterfBusiname" column="ori_interf_businame"/>
+		<result property="resultTname" column="result_tname"/>
+		<result property="resultBusiname" column="result_businame"/>
+		<result property="authorityAttr" column="authority_attr"/>
+		<result property="pointWeight" column="point_weight"/>
+		<result property="prvdId" column="prvd_id"/>
+		<result property="prvdNm" column="prvd_nm"/>
+		<!--
+        <result property="riskNum1"  column="risk_num1"/>
+        <result property="riskNum2"  column="risk_num2"/>
+        <result property="riskNum3"  column="risk_num3"/>
+        <result property="riskNum4"  column="risk_num4"/>
+        <result property="riskNum5"  column="risk_num5"/>
+        <result property="riskNum6"  column="risk_num6"/>
+        <result property="riskNum7"  column="risk_num7"/>
+        <result property="riskNum8"  column="risk_num8"/>
+        <result property="riskNum9"  column="risk_num9"/>
+        <result property="riskNum10" column="risk_num10"/>
+        <result property="riskNum11" column="risk_num11"/>
+        <result property="riskNum12" column="risk_num12"/>
+        -->
+		<result property="riskScore1"  column="risk_score1"/>
+		<result property="riskScore2"  column="risk_score2"/>
+		<result property="riskScore3"  column="risk_score3"/>
+		<result property="riskScore4"  column="risk_score4"/>
+		<result property="riskScore5"  column="risk_score5"/>
+		<result property="riskScore6"  column="risk_score6"/>
+		<result property="riskScore7"  column="risk_score7"/>
+		<result property="riskScore8"  column="risk_score8"/>
+		<result property="riskScore9"  column="risk_score9"/>
+		<result property="riskScore10" column="risk_score10"/>
+		<result property="riskScore11" column="risk_score11"/>
+		<result property="riskScore12" column="risk_score12"/>
+		<result property="riskTargetData1"  column="risk_target_data1"/>
+		<result property="riskTargetData2"  column="risk_target_data2"/>
+		<result property="riskTargetData3"  column="risk_target_data3"/>
+		<result property="riskTargetData4"  column="risk_target_data4"/>
+		<result property="riskTargetData5"  column="risk_target_data5"/>
+		<result property="riskTargetData6"  column="risk_target_data6"/>
+		<result property="riskTargetData7"  column="risk_target_data7"/>
+		<result property="riskTargetData8"  column="risk_target_data8"/>
+		<result property="riskTargetData9"  column="risk_target_data9"/>
+		<result property="riskTargetData10" column="risk_target_data10"/>
+		<result property="riskTargetData11" column="risk_target_data11"/>
+		<result property="riskTargetData12" column="risk_target_data12"/>
+
+	</resultMap>
+	<!-- 获取控件的数据
+    <select id="getMonitorOverViewData" resultMap="monitorOverViewData" parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+        SELECT	a.point_code, a.point_name, a.system_code, a.system_name, a.level_1_process_code,
+            a.level_1_process_name, a.level_2_process_code, a.level_2_process_name,
+            a.level_1_risk, a.level_2_risk, a.level_3_risk, a.ori_interf_tname, a.ori_interf_businame,
+            a.result_tname, a.result_businame,a.authority_attr,b.mon,b.risk_num
+        FROM hpmgr.monitor_points_overview a join
+        (select point_code ,mon,risk_num,row_number()over(partition  by point_code  order by mon desc)as rn
+        from  hpmgr.monitor_points_risk qualify rn<=12)b  on a.point_code = b.point_code
+        where a.authority_attr = #{_parameter}
+        order by a.point_code,b.mon
+    </select>
+    -->
+
+	<!--- 获取监控点概览数据   注意：如果此监控点某月没有风险数据，则也必须填值，不可不填该月记录add by pxl-->
+	<select id="getMonitorOverViewData" resultMap="monitorOverViewData" parameterType="Map">
+		SELECT	point_code, point_name, system_code, system_name, level_1_process_code,
+		level_1_process_name, level_2_process_code, level_2_process_name,ori_interf_tname, ori_interf_businame,
+		result_tname, result_businame,authority_attr,point_weight,prvd_id, prvd_nm,
+		risk_score1,risk_score2,risk_score3,risk_score4,risk_score5,risk_score6,risk_score7,risk_score8,risk_score9,risk_score10,risk_score11,risk_score12,risk_target_data1,risk_target_data2,risk_target_data3,risk_target_data4,risk_target_data5,risk_target_data6,risk_target_data7,risk_target_data8,risk_target_data9,risk_target_data10,risk_target_data11,risk_target_data12
+		FROM hpbus.sum_fxjk_point_code
+		where 1=1
+		<if test="authorityAttr!=null">
+			and authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="level1ProcessCode!=null">
+			and level_1_process_code = #{level1ProcessCode}
+		</if>
+		<if test="prvdId!=null">
+			and prvd_id = #{prvdId}
+		</if>
+		order by level_1_process_code,level_2_process_code,point_code ,prvd_id
+		qualify  max(aud_trm) over(partition by 1) = aud_trm
+	</select>
+
+
+	<!--- 获取省份一级流程下所有监控点的带权重数据   add by pxl-->
+	<select id="getLevel1OverViewData" resultMap="monitorOverViewData" parameterType="Map">
+		select  prvd_id,prvd_nm,
+		sum(risk_score1)as risk_score1,
+		sum(risk_score2)as risk_score2,
+		sum(risk_score3)as risk_score3,
+		sum(risk_score4)as risk_score4,
+		sum(risk_score5)as risk_score5,
+		sum(risk_score6)as risk_score6,
+		sum(risk_score7)as risk_score7,
+		sum(risk_score8)as risk_score8,
+		sum(risk_score9)as risk_score9,
+		sum(risk_score10)as risk_score10,
+		sum(risk_score11)as risk_score11,
+		sum(risk_score12)as risk_score12
+		from (select  prvd_id,prvd_nm,
+		risk_score1,
+		risk_score2,
+		risk_score3,
+		risk_score4,
+		risk_score5,
+		risk_score6,
+		risk_score7,
+		risk_score8,
+		risk_score9,
+		risk_score10,
+		risk_score11,
+		risk_score12
+		from
+		hpbus.sum_fxjk_risk_score
+		where <![CDATA[prvd_id<>10000]]>
+		<if test="authorityAttr!=null">
+			and authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="level1ProcessCode!=null">
+			and level_1_process_code = #{level1ProcessCode}
+		</if>
+		qualify  max(aud_trm) over(partition by 1) = aud_trm)a
+		group by 1,2
+		order by 1
+	</select>
+
+	<!-- 获取最新12个月 add by pxl-->
+
+	<select id="getMonitorOverViewMon" resultType="java.util.HashMap" parameterType="com.hpe.cmca.pojo.YWYJParameterData">
+		<!--	<![CDATA[
+            select
+            mon,row_number()over(  order by mon desc)as rn
+            from ( select mon from hpmgr.monitor_points_risk group by 1)a qualify rn<=12
+            ]]>-->
+
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-0)  as format 'yyyymm') as varchar(6)) as mon,1 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-1)  as format 'yyyymm') as varchar(6))  as mon,2 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-2)  as format 'yyyymm') as varchar(6))  as mon,3 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-3)  as format 'yyyymm') as varchar(6))  as mon,4 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-4)  as format 'yyyymm') as varchar(6))  as mon,5 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-5)  as format 'yyyymm') as varchar(6))  as mon,6 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-6)  as format 'yyyymm') as varchar(6))  as mon,7 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-7)  as format 'yyyymm') as varchar(6))  as mon,8 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-8)  as format 'yyyymm') as varchar(6))  as mon,9 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-9)  as format 'yyyymm') as varchar(6))  as mon,10 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-10)  as format 'yyyymm') as varchar(6))  as mon,11 as rn
+		from  hpbus.sum_fxjk_point_code
+		union all
+		select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-11)  as format 'yyyymm') as varchar(6))  as mon,12 as rn
+		from  hpbus.sum_fxjk_point_code ;
+
+	</select>
+	<!--获取审计月-->
+	<select id="queryMonth" resultType="java.util.HashMap" parameterType="Map">
+		select distinct aud_trm as mon
+		from hpbus.monitor_points_dataview
+		where point_code in(
+		select point_code
+		from hpmgr.monitor_points_overview
+		<where>
+			<if test="authorityAttr!=null">
+				authority_attr like  '%'||#{authorityAttr}||'%'
+			</if>
+			<if test="lv2Code!=null">
+				and level_2_process_code = #{lv2Code}
+			</if>
+			<if test="pointCode!=null">
+				and point_code = #{pointCode}
+			</if>
+		</where>)
+		order by aud_trm desc;
+		<!--
+        <if test="pointCode!=null">
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-0)  as format 'yyyymm') as varchar(6)) as mon,1 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-1)  as format 'yyyymm') as varchar(6))  as mon,2 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-2)  as format 'yyyymm') as varchar(6))  as mon,3 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-3)  as format 'yyyymm') as varchar(6))  as mon,4 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-4)  as format 'yyyymm') as varchar(6))  as mon,5 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-5)  as format 'yyyymm') as varchar(6))  as mon,6 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-6)  as format 'yyyymm') as varchar(6))  as mon,7 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-7)  as format 'yyyymm') as varchar(6))  as mon,8 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-8)  as format 'yyyymm') as varchar(6))  as mon,9 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-9)  as format 'yyyymm') as varchar(6))  as mon,10 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-10)  as format 'yyyymm') as varchar(6))  as mon,11 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode}
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-11)  as format 'yyyymm') as varchar(6))  as mon,12 as rn
+        from  hpbus.sum_fxjk_point_code where point_code=#{pointCode} ;
+        </if>
+        <if test="pointCode==null">
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-0)  as format 'yyyymm') as varchar(6)) as mon,1 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-1)  as format 'yyyymm') as varchar(6))  as mon,2 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-2)  as format 'yyyymm') as varchar(6))  as mon,3 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-3)  as format 'yyyymm') as varchar(6))  as mon,4 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-4)  as format 'yyyymm') as varchar(6))  as mon,5 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-5)  as format 'yyyymm') as varchar(6))  as mon,6 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-6)  as format 'yyyymm') as varchar(6))  as mon,7 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-7)  as format 'yyyymm') as varchar(6))  as mon,8 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-8)  as format 'yyyymm') as varchar(6))  as mon,9 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-9)  as format 'yyyymm') as varchar(6))  as mon,10 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-10)  as format 'yyyymm') as varchar(6))  as mon,11 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+        union all
+        select  cast(cast(ADD_MONTHS(CAST (max(aud_trm)||'01' AS DATE format 'YYYYMMDD'),-11)  as format 'yyyymm') as varchar(6))  as mon,12 as rn
+        from  hpbus.sum_fxjk_point_code
+        <where>
+                <if test="authorityAttr!=null">
+                 authority_attr like  '%'||#{authorityAttr}||'%'
+                </if>
+                <if test="level1ProcessCode!=null">
+                    and level_1_process_code = #{level1ProcessCode}
+                </if>
+                </where>
+
+        </if>
+        </select>
+        -->
+	</select>
+
+	<!-- 业务预警-排名汇总-源表 -->
+	<select id="getRankTableInfo" resultType="java.util.HashMap" parameterType="Map">
+		SELECT	point_code,rank_result_tname,rank_result_businame, screen_field, screen_value,query_filed,query_sql
+		FROM	hpmgr.monitor_rank_table
+		WHERE 1=1
+		<if test="pointCode != null">
+			and point_code=#{pointCode}
+		</if>
+		<if test="tableName != null">
+			and rank_result_tname=#{tableName}
+		</if>
+		order by rank_result_businame
+	</select>
+
+	<!-- 业务预警-清单-源表 -->
+	<select id="getDetailTableInfo" resultType="java.util.HashMap" parameterType="String">
+SELECT	point_code, detail_table_name, screen_field, screen_value,query_filed,query_sql
+FROM	hpmgr.monitor_detail_table
+WHERE  point_code=#{pointCode}
+</select>
+
+	<!-- 业务预警-清单-源表 -->
+	<select id="getPointNumber" resultType="java.util.HashMap" parameterType="String">
+select  level_1_process_code,level_1_process_name,pmhz_point_Number,sjqd_point_Number
+from hpmgr.monitor_points_number
+where level_1_process_code=#{fristlevelCode}
+</select>
+	<!-- 查询是否有生成请求 -->
+	<select id="getFileGenRequst" resultType="Map" parameterType="Map">
+		select b.id,a.aud_trm as audTrm,b.focus_cd as focusCd from (
+		select aud_trm,subject_id,prvd_id,sum( case when pmhz_status in(0,4) then 1 else 0 end )as need_gen,count(distinct focus_cd) as focus_num
+		from hpmgr.busi_model_notify_ywyj where prvd_id =10000  group by aud_trm,subject_id,prvd_id
+		having need_gen>0 and <![CDATA[focus_num>=#{focusNum}]]> and subject_id=#{subjectId}
+		<if test="audTrm != null">
+			and aud_trm =#{audTrm}
+		</if>
+		)a
+		join hpmgr.busi_model_notify_ywyj b
+		on a.aud_trm=b.aud_trm and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+	</select>
+
+	<!-- 更改业务预警-排名汇总生成状态 -->
+	<update id="updatePmhzStatus" parameterType="Map">
+		update hpmgr.busi_model_notify_ywyj set pmhz_status =#{pmhzStatus} where id =#{Id}
+	</update>
+
+	<update id="updatePmhzStatusByTrmSub" parameterType="Map">
+		update hpmgr.busi_model_notify_ywyj set pmhz_status =#{pmhzStatus}
+		where subject_id =#{subjectId} and aud_trm=#{audTrm}
+	</update>
+
+	<update id="updateFileGenReqStatusAndTimeBySubject" parameterType="java.util.Map">
+		update hpmgr.busi_model_notify_ywyj
+		<set>
+			<if test="status != null and status != '' ">
+				status=#{status},
+			</if>
+			<if test="csvFileGenTime != null and csvFileGenTime != '' ">
+				csv_file_gen_time=#{csvFileGenTime},
+			</if>
+			<if test="docFileGenTime != null and docFileGenTime != '' ">
+				doc_file_gen_time=#{docFileGenTime},
+			</if>
+			<if test="csvFileFtpTime != null and csvFileFtpTime != '' ">
+				csv_file_ftp_time=#{csvFileFtpTime},
+			</if>
+			<if test="docFileFtpTime != null and docFileFtpTime != '' ">
+				doc_file_ftp_time=#{docFileFtpTime},
+			</if>
+		</set>
+		<where>
+			aud_trm=#{audTrm}
+			<if test="prvdId>0">
+				and prvd_id=#{prvdId}
+			</if>
+			<if test="subjectId != null and subjectId != '' ">
+				and subject_id=#{subjectId}
+			</if>
+			and <![CDATA[ status<>5 ]]>
+
+			<if test="ids!= null">
+				and id in
+				<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</update>
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="fileGenReqList">
+		<result column="id" property="id" />
+		<result column="model_id" property="modelId" />
+		<result column="model_type" property="modelType" />
+		<result column="aud_trm" property="audTrm" />
+		<result column="subject_id" property="subjectId" />
+		<result column="focus_cd" property="focusCd" />
+		<result column="prvd_id" property="prvdId" />
+		<result column="status" property="status" />
+		<result column="model_fin_time" property="modelFinTime" />
+		<result column="csv_file_gen_time" property="csvFileGenTime" />
+		<result column="doc_file_gen_time" property="docFileGenTime" />
+		<result column="csv_file_ftp_time" property="csvFileFtpTime" />
+		<result column="doc_file_ftp_time" property="docFileFtpTime" />
+		<result column="exec_count" property="execCount" />
+	</resultMap>
+	<!-- 查询此次待生成清单文件和审计报告的请求 -->
+	<select id="selectFileGenReqList" resultMap="fileGenReqList" parameterType="java.util.Map">
+		SELECT * FROM hpmgr.busi_model_notify_ywyj
+		<where>
+			<![CDATA[ status<>5 ]]>
+			<if test="subjectId!=null">
+				and subject_id=#{subjectId}
+			</if>
+			<if test="audTrm != null and audTrm != '' ">
+				and  aud_trm=#{audTrm}
+			</if>
+			<if test="prvdId != null and prvdId != '' ">
+				and  prvd_id=#{prvdId}
+			</if>
+		</where>
+		order by prvd_id desc
+	</select>
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="fileConfig">
+		<result column="id" property="id"/>
+		<result column="subject_id" property="subjectId"/>
+		<result column="focus_cd" property="focusCd"/>
+		<result column="focus_category" property="focusCategory"/>
+		<result column="csv_sql" property="csvSql"/>
+		<result column="csv_header" property="csvHeader"/>
+		<result column="doc_template_path" property="docTemplatePath"/>
+		<result column="doc_template" property="docTemplate"/>
+		<result column="processor" property="processor"/>
+		<result column="config" property="config"/>
+		<result column="create_time" property="createTime"/>
+	</resultMap>
+	<!-- 根据subjectId和concernId查询对应的文件输出配置信息-->
+	<select id="selectFileConfig" resultMap="fileConfig" parameterType="java.util.Map">
+		SELECT *
+		FROM hpmgr.busi_report_ywyj_file_config
+		where subject_id=#{subjectId} and focus_cd=#{focusCd}
+	</select>
+	<!-- 根据busi_model_notify表判断同一审计周期某个省已经执行完毕的关注点的数量-->
+	<select id="selectFinishedConcerns" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT distinct focus_cd as focusCd
+		FROM hpmgr.busi_model_notify_ywyj
+		where aud_trm=#{audTrm}
+		<if test="prvdId != null and prvdId != '' ">
+			and prvd_id=#{prvdId}
+		</if>
+		<if test="subjectId != null and subjectId != '' ">
+			and subject_id=#{subjectId}
+		</if>
+		<if test="status != null and status>0">
+			and status=#{status}
+		</if>
+	</select>
+	<update id="updateFileGenReqExecCountBySubject" parameterType="java.util.Map">
+		update hpmgr.busi_model_notify_ywyj
+		<set>
+			exec_count=exec_count+1
+		</set>
+		<where>
+			aud_trm=#{audTrm}
+			<if test="prvdId>0">
+				and prvd_id=#{prvdId}
+			</if>
+			<if test="subjectId != null and subjectId != '' ">
+				and subject_id=#{subjectId}
+			</if>
+			<if test="ids!= null">
+				and id in
+				<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</update>
+
+	<!-- 根据监控点ID获取监控点名称-->
+	<select id="getPointNameByCode" resultType="java.util.Map" parameterType="String">
+		SELECT	point_code, point_name
+		FROM	hpmgr.monitor_points_overview
+		where point_code=#{pointCode}
+	</select>
+	<select id="selectAuditResultFile" resultType="java.lang.String" parameterType="java.util.Map">
+		SELECT file_name
+		FROM hpmgr.busi_report_log
+		where aud_trm=${audTrm} and <![CDATA[ prvd_id<>10000 ]]>
+		<if test="subjectId != null and subjectId != '' ">
+			and subject_id=#{subjectId}
+		</if>
+		<if test="focusCd != null and focusCd != '' ">
+			and focus_cd=#{focusCd}
+		</if>
+		<if test="fileType != null and fileType != '' ">
+			and file_type=#{fileType}
+		</if>
+	</select>
+
+
+	<select id="getLv1Info" resultType="java.util.Map" parameterType="java.util.Map">
+		select distinct level_1_process_code as lv1Code,level_1_process_name as lv1Name
+		from hpmgr.monitor_points_overview
+		where 1=1
+		<if test="authorityAttr!=null">
+			and authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+	</select>
+
+	<select id="getLv2Info" resultType="java.util.Map" parameterType="java.util.Map">
+		select distinct level_2_process_code as lv2Code,level_2_process_name as lv2Name
+		from hpmgr.monitor_points_overview
+		where 1=1
+		<if test="authorityAttr!=null">
+			and authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="lv1Code!=null">
+			and level_1_process_code = #{lv1Code}
+		</if>
+	</select>
+
+	<select id="getPointInfo" resultType="java.util.Map" parameterType="java.util.Map">
+		select distinct point_code as pointCode,point_name as pointName
+		from hpmgr.monitor_points_overview
+		where 1=1
+		<if test="authorityAttr!=null">
+			and authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="lv1Code!=null">
+			and level_1_process_code = #{lv1Code}
+		</if>
+		<if test="lv2Code!=null">
+			and level_2_process_code = #{lv2Code}
+		</if>
+	</select>
+
+	<select id="getDataView" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT	a.point_code,b.point_name, aud_trm, risk_target_nm,
+		case when risk_target_value_10000 is null or risk_target_value_10000='' then '-' else risk_target_value_10000 end as risk_target_value_10000,
+		case when risk_target_value_10100 is null or risk_target_value_10100='' then '-' else risk_target_value_10100 end as risk_target_value_10100,
+		case when risk_target_value_10200 is null or risk_target_value_10200='' then '-' else risk_target_value_10200 end as risk_target_value_10200,
+		case when risk_target_value_10300 is null or risk_target_value_10300='' then '-' else risk_target_value_10300 end as risk_target_value_10300,
+		case when risk_target_value_10400 is null or risk_target_value_10400='' then '-' else risk_target_value_10400 end as risk_target_value_10400,
+		case when risk_target_value_10500 is null or risk_target_value_10500='' then '-' else risk_target_value_10500 end as risk_target_value_10500,
+		case when risk_target_value_10600 is null or risk_target_value_10600='' then '-' else risk_target_value_10600 end as risk_target_value_10600,
+		case when risk_target_value_10700 is null or risk_target_value_10700='' then '-' else risk_target_value_10700 end as risk_target_value_10700,
+		case when risk_target_value_10800 is null or risk_target_value_10800='' then '-' else risk_target_value_10800 end as risk_target_value_10800,
+		case when risk_target_value_10900 is null or risk_target_value_10900='' then '-' else risk_target_value_10900 end as risk_target_value_10900,
+		case when risk_target_value_11000 is null or risk_target_value_11000='' then '-' else risk_target_value_11000 end as risk_target_value_11000,
+		case when risk_target_value_11100 is null or risk_target_value_11100='' then '-' else risk_target_value_11100 end as risk_target_value_11100,
+		case when risk_target_value_11200 is null or risk_target_value_11200='' then '-' else risk_target_value_11200 end as risk_target_value_11200,
+		case when risk_target_value_11300 is null or risk_target_value_11300='' then '-' else risk_target_value_11300 end as risk_target_value_11300,
+		case when risk_target_value_11400 is null or risk_target_value_11400='' then '-' else risk_target_value_11400 end as risk_target_value_11400,
+		case when risk_target_value_11500 is null or risk_target_value_11500='' then '-' else risk_target_value_11500 end as risk_target_value_11500,
+		case when risk_target_value_11600 is null or risk_target_value_11600='' then '-' else risk_target_value_11600 end as risk_target_value_11600,
+		case when risk_target_value_11700 is null or risk_target_value_11700='' then '-' else risk_target_value_11700 end as risk_target_value_11700,
+		case when risk_target_value_11800 is null or risk_target_value_11800='' then '-' else risk_target_value_11800 end as risk_target_value_11800,
+		case when risk_target_value_11900 is null or risk_target_value_11900='' then '-' else risk_target_value_11900 end as risk_target_value_11900,
+		case when risk_target_value_12000 is null or risk_target_value_12000='' then '-' else risk_target_value_12000 end as risk_target_value_12000,
+		case when risk_target_value_12100 is null or risk_target_value_12100='' then '-' else risk_target_value_12100 end as risk_target_value_12100,
+		case when risk_target_value_12200 is null or risk_target_value_12200='' then '-' else risk_target_value_12200 end as risk_target_value_12200,
+		case when risk_target_value_12300 is null or risk_target_value_12300='' then '-' else risk_target_value_12300 end as risk_target_value_12300,
+		case when risk_target_value_12400 is null or risk_target_value_12400='' then '-' else risk_target_value_12400 end as risk_target_value_12400,
+		case when risk_target_value_12500 is null or risk_target_value_12500='' then '-' else risk_target_value_12500 end as risk_target_value_12500,
+		case when risk_target_value_12600 is null or risk_target_value_12600='' then '-' else risk_target_value_12600 end as risk_target_value_12600,
+		case when risk_target_value_12700 is null or risk_target_value_12700='' then '-' else risk_target_value_12700 end as risk_target_value_12700,
+		case when risk_target_value_12800 is null or risk_target_value_12800='' then '-' else risk_target_value_12800 end as risk_target_value_12800,
+		case when risk_target_value_12900 is null or risk_target_value_12900='' then '-' else risk_target_value_12900 end as risk_target_value_12900,
+		case when risk_target_value_13000 is null or risk_target_value_13000='' then '-' else risk_target_value_13000 end as risk_target_value_13000,
+		case when risk_target_value_13100 is null or risk_target_value_13100='' then '-' else risk_target_value_13100 end as risk_target_value_13100
+		FROM	hpbus.monitor_points_dataview a join hpmgr.monitor_points_overview b
+		on a.point_code = b.point_code
+		where 1=1
+		<if test="audTrm!=null">
+			and a.aud_trm=#{audTrm}
+		</if>
+		<if test="authorityAttr!=null">
+			and b.authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="lv2Code!=null">
+			and b.level_2_process_code = #{lv2Code}
+		</if>
+	</select>
+
+
+	<select id="getPmhzView" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT	a.point_code,b.point_name, aud_trm, risk_target_nm,
+		case when risk_target_value_10000 is null or risk_target_value_10000='' then '-' else risk_target_value_10000 end as risk_target_value_10000,
+		case when risk_target_value_10100 is null or risk_target_value_10100='' then '-' else risk_target_value_10100 end as risk_target_value_10100,
+		case when risk_target_value_10200 is null or risk_target_value_10200='' then '-' else risk_target_value_10200 end as risk_target_value_10200,
+		case when risk_target_value_10300 is null or risk_target_value_10300='' then '-' else risk_target_value_10300 end as risk_target_value_10300,
+		case when risk_target_value_10400 is null or risk_target_value_10400='' then '-' else risk_target_value_10400 end as risk_target_value_10400,
+		case when risk_target_value_10500 is null or risk_target_value_10500='' then '-' else risk_target_value_10500 end as risk_target_value_10500,
+		case when risk_target_value_10600 is null or risk_target_value_10600='' then '-' else risk_target_value_10600 end as risk_target_value_10600,
+		case when risk_target_value_10700 is null or risk_target_value_10700='' then '-' else risk_target_value_10700 end as risk_target_value_10700,
+		case when risk_target_value_10800 is null or risk_target_value_10800='' then '-' else risk_target_value_10800 end as risk_target_value_10800,
+		case when risk_target_value_10900 is null or risk_target_value_10900='' then '-' else risk_target_value_10900 end as risk_target_value_10900,
+		case when risk_target_value_11000 is null or risk_target_value_11000='' then '-' else risk_target_value_11000 end as risk_target_value_11000,
+		case when risk_target_value_11100 is null or risk_target_value_11100='' then '-' else risk_target_value_11100 end as risk_target_value_11100,
+		case when risk_target_value_11200 is null or risk_target_value_11200='' then '-' else risk_target_value_11200 end as risk_target_value_11200,
+		case when risk_target_value_11300 is null or risk_target_value_11300='' then '-' else risk_target_value_11300 end as risk_target_value_11300,
+		case when risk_target_value_11400 is null or risk_target_value_11400='' then '-' else risk_target_value_11400 end as risk_target_value_11400,
+		case when risk_target_value_11500 is null or risk_target_value_11500='' then '-' else risk_target_value_11500 end as risk_target_value_11500,
+		case when risk_target_value_11600 is null or risk_target_value_11600='' then '-' else risk_target_value_11600 end as risk_target_value_11600,
+		case when risk_target_value_11700 is null or risk_target_value_11700='' then '-' else risk_target_value_11700 end as risk_target_value_11700,
+		case when risk_target_value_11800 is null or risk_target_value_11800='' then '-' else risk_target_value_11800 end as risk_target_value_11800,
+		case when risk_target_value_11900 is null or risk_target_value_11900='' then '-' else risk_target_value_11900 end as risk_target_value_11900,
+		case when risk_target_value_12000 is null or risk_target_value_12000='' then '-' else risk_target_value_12000 end as risk_target_value_12000,
+		case when risk_target_value_12100 is null or risk_target_value_12100='' then '-' else risk_target_value_12100 end as risk_target_value_12100,
+		case when risk_target_value_12200 is null or risk_target_value_12200='' then '-' else risk_target_value_12200 end as risk_target_value_12200,
+		case when risk_target_value_12300 is null or risk_target_value_12300='' then '-' else risk_target_value_12300 end as risk_target_value_12300,
+		case when risk_target_value_12400 is null or risk_target_value_12400='' then '-' else risk_target_value_12400 end as risk_target_value_12400,
+		case when risk_target_value_12500 is null or risk_target_value_12500='' then '-' else risk_target_value_12500 end as risk_target_value_12500,
+		case when risk_target_value_12600 is null or risk_target_value_12600='' then '-' else risk_target_value_12600 end as risk_target_value_12600,
+		case when risk_target_value_12700 is null or risk_target_value_12700='' then '-' else risk_target_value_12700 end as risk_target_value_12700,
+		case when risk_target_value_12800 is null or risk_target_value_12800='' then '-' else risk_target_value_12800 end as risk_target_value_12800,
+		case when risk_target_value_12900 is null or risk_target_value_12900='' then '-' else risk_target_value_12900 end as risk_target_value_12900,
+		case when risk_target_value_13000 is null or risk_target_value_13000='' then '-' else risk_target_value_13000 end as risk_target_value_13000,
+		case when risk_target_value_13100 is null or risk_target_value_13100='' then '-' else risk_target_value_13100 end as risk_target_value_13100
+		FROM	hpbus.monitor_points_pmhzview a join hpmgr.monitor_points_overview b
+		on a.point_code = b.point_code
+		where 1=1
+		<if test="audTrm!=null">
+			and a.aud_trm=#{audTrm}
+		</if>
+		<if test="authorityAttr!=null">
+			and b.authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="lv2Code!=null">
+			and b.level_2_process_code = #{lv2Code}
+		</if>
+	</select>
+	<select id="getZZT" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT	point_code, aud_trm, risk_target_nm, risk_target_unit, risk_target_prvd_nm,
+		risk_target_prvd_id, risk_target_prvd_value, risk_target_prvd_order
+		FROM	hpbus.monitor_points_zzt where  <![CDATA[risk_target_prvd_order<=3]]>
+		<if test="audTrm!=null">
+			and aud_trm=#{audTrm}
+		</if>
+		<if test="pointCode!=null">
+			and point_code = #{pointCode}
+		</if>
+		order by risk_target_prvd_order
+	</select>
+
+	<select id="getZZTOther" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT	point_code, aud_trm, risk_target_nm, risk_target_unit, risk_target_prvd_nm,
+		risk_target_prvd_id, risk_target_prvd_value, risk_target_prvd_order
+		FROM	hpbus.monitor_points_zzt where 1=1
+		<if test="prvdId!=null">
+			and risk_target_prvd_id = #{prvdId}
+		</if>
+		<if test="audTrmS!=null">
+			and <![CDATA[aud_trm>=#{audTrmS}]]>
+		</if>
+		<if test="audTrmE!=null">
+			and <![CDATA[aud_trm<=#{audTrmE}]]>
+		</if>
+		<if test="pointCode!=null">
+			and point_code = #{pointCode}
+		</if>
+		order by aud_trm desc
+	</select>
+
+	<select id="getZXT" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT	a.point_code,b.point_name, aud_trm, risk_target_nm, risk_target_unit, risk_target_value_10000,
+		risk_target_value_10100, risk_target_value_10200, risk_target_value_10300,
+		risk_target_value_10400, risk_target_value_10500, risk_target_value_10600,
+		risk_target_value_10700, risk_target_value_10800, risk_target_value_10900,
+		risk_target_value_11000, risk_target_value_11100, risk_target_value_11200,
+		risk_target_value_11300, risk_target_value_11400, risk_target_value_11500,
+		risk_target_value_11600, risk_target_value_11700, risk_target_value_11800,
+		risk_target_value_11900, risk_target_value_12000, risk_target_value_12100,
+		risk_target_value_12200, risk_target_value_12300, risk_target_value_12400,
+		risk_target_value_12500, risk_target_value_12600, risk_target_value_12700,
+		risk_target_value_12800, risk_target_value_12900, risk_target_value_13000,
+		risk_target_value_13100
+		FROM	hpbus.monitor_points_zxt a join hpmgr.monitor_points_overview b
+		on a.point_code = b.point_code
+		where 1=1
+		<if test="audTrm!=null">
+			and a.aud_trm=#{audTrm}
+		</if>
+		<if test="authorityAttr!=null">
+			and b.authority_attr like  '%'||#{authorityAttr}||'%'
+		</if>
+		<if test="lv2Code!=null">
+			and b.level_2_process_code = #{lv2Code}
+		</if>
+	</select>
+</mapper>
+

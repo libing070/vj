@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.XqglMapper">
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+    <resultMap type="com.hpe.cmca.pojo.XqglData" id="XqglData">
+        <result property="reqSrcDep" column="req_src_dep"/>
+        <result property="reqSrcType" column="req_src_type"/>
+        <result property="reqExpectTime" column="req_expect_time"/>
+        <result property="reqApprovePerson" column="req_approve_person"/>
+        <result property="reqApprovePersonId" column="req_approve_person_id"/>
+        <result property="reqApproveTime" column="req_approve_time"/>
+        <result property="reqApproveSuggestion" column="req_approve_suggestion"/>
+        <result property="reqFinishTime" column="req_finish_time"/>
+        <result property="reqHandleAttachAddr" column="req_handle_attach_addr"/>
+
+        <result property="reqStatus" column="req_status"/>
+        <result property="reqDestPerson" column="req_dest_person"/>
+        <result property="reqDestPersonName" column="req_dest_person_name"/>
+
+        <result property="reqNm" column="req_nm"/>
+        <result property="reqId" column="req_id"/>
+        <result property="reqSrcPerson" column="req_src_person"/>
+        <result property="reqSrcPersonId" column="req_src_person_id"/>
+        <result property="reqType" column="req_type"/>
+        <result property="reqTypeName" column="req_type_name"/>
+        <result property="reqTime" column="req_time"/>
+        <result property="reqDescription" column="req_description"/>
+        <result property="reqSubmitPerson" column="req_submit_person"/>
+        <result property="reqWorkload" column="req_workload"/>
+        <result property="reqTbNm" column="req_tb_nm"/>
+        <result property="reqColNm" column="req_col_nm"/>
+        <result property="reqFinishComments" column="req_finish_comments"/>
+        <result property="reqResultAddr" column="req_result_addr"/>
+        <result property="reqAttachAddr" column="req_attach_addr"/>
+        <result property="srcTb1Nm" column="src_tb1_nm"/>
+        <result property="srcTb1Audtrm" column="src_tb1_audtrm"/>
+        <result property="srcTb1Sensitive" column="src_tb1_sensitive"/>
+        <result property="srcTb1Output" column="src_tb1_output"/>
+        <result property="srcTb2Nm" column="src_tb2_nm"/>
+        <result property="srcTb2Audtrm" column="src_tb2_audtrm"/>
+        <result property="srcTb2Sensitive" column="src_tb2_sensitive"/>
+        <result property="srcTb2Output" column="src_tb2_output"/>
+        <result property="srcTb3Nm" column="src_tb3_nm"/>
+        <result property="srcTb3Audtrm" column="src_tb3_audtrm"/>
+        <result property="srcTb3Sensitive" column="src_tb3_sensitive"/>
+        <result property="srcTb3Output" column="src_tb3_output"/>
+        <result property="srcTb4Nm" column="src_tb4_nm"/>
+        <result property="srcTb4Audtrm" column="src_tb4_audtrm"/>
+        <result property="srcTb4Sensitive" column="src_tb4_sensitive"/>
+        <result property="srcTb4Output" column="src_tb4_output"/>
+        <result property="srcTb5Nm" column="src_tb5_nm"/>
+        <result property="srcTb5Audtrm" column="src_tb5_audtrm"/>
+        <result property="srcTb5Sensitive" column="src_tb5_sensitive"/>
+        <result property="srcTb5Output" column="src_tb5_output"/>
+
+        <result property="reqResultStartTime" column="req_result_start_time"/>
+        <result property="reqResultEndTime" column="req_result_end_time"/>
+        <result property="reqResultGenerter" column="req_result_generter"/>
+        <result property="reqResultState" column="req_result_state"/>
+    </resultMap>
+    <resultMap type="com.hpe.cmca.pojo.XqglListData" id="XqglListData">
+        <result property="reqTime" column="req_time"/>
+        <result property="reqNm" column="req_nm"/>
+        <result property="reqSrcType" column="req_src_type"/>
+        <result property="reqSrcPerson" column="req_src_person"/>
+        <result property="reqSrcPersonId" column="req_src_person_id"/>
+        <result property="reqSrcDep" column="req_src_dep"/>
+        <result property="reqApprovePerson" column="req_approve_person"/>
+        <result property="reqApprovePersonId" column="req_approve_person_id"/>
+        <result property="reqExpectTime" column="req_expect_time"/>
+        <result property="reqStatus" column="req_status"/>
+
+        <result property="reqId" column="req_id"/>
+        <result property="reqResultAddr" column="req_result_addr"/>
+        <result property="reqTbNm" column="req_tb_nm"/>
+
+    </resultMap>
+
+    <!--需求管理-突发性数据统计-结果列表-add by hufei -2018.04.16 -->
+    <select id="getList" resultMap="XqglListData" parameterType="com.hpe.cmca.pojo.XqglListData">
+        select req_id, req_time,req_nm, b.config_name as req_src_type,req_src_person,req_src_dep,c.config_name as
+        req_approve_person,req_approve_person_id,
+        cast(req_expect_time as varchar(20)) as req_expect_time,
+        d.config_name as req_status,
+        cast(req_time as varchar(20)) as req_time,
+        req_tb_nm,req_result_addr
+        from (select req_id, req_time,req_nm,
+        req_src_type,req_src_person,req_src_dep,req_approve_person,req_expect_time,req_status,req_approve_person_id,
+        req_tb_nm,req_result_addr
+        from hpmgr.busi_req_manage_config
+        where
+        req_effective='Y'
+        <if test="startReqTime!=null and startReqTime!=''">
+            <![CDATA[and req_time>=cast(#{startReqTime} as date format 'yymmdd')]]></if>
+        <if test="endReqTime!=null and endReqTime!=''">
+            <![CDATA[ and req_time<=cast(#{endReqTime} as date format 'yymmdd')]]></if>
+
+        <if test="reqStatus!=null and reqStatus!='all' and reqStatus!=''">and req_status =#{reqStatus}</if>
+
+        <if test="reqStatusList!=null">
+            and req_status in
+            <foreach collection="reqStatusList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="reqNm!=null and reqNm!=''">and req_nm like #{reqNm}</if>
+        <if test="reqSrcPersonId!=null and reqSrcPersonId!='all' and reqSrcPersonId!=''">and
+            req_src_person_id=#{reqSrcPersonId}
+        </if>
+        <if test="reqApprovePersonId!=null and reqApprovePersonId!='all' and reqApprovePersonId!=''">and
+            req_approve_person_id=#{reqApprovePersonId}
+        </if>
+        ) as a
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqSrcType') as b
+        on a.req_src_type=b.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='approvePerson') as c
+        on a.req_approve_person_id=c.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqStatus') as d
+        on a.req_status=d.config_value
+        order by req_time desc
+    </select>
+
+    <!--需求管理-突发性数据统计-获取系统配置项-add by hufei -2018.04.16 -->
+    <select id="getSysConfig" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select config_section as configSection, config_name as configName, config_value as configValue
+	from hpmgr.busi_req_manage_sys_config
+	where
+		config_activation='Y'
+		and config_section=#{configSection}
+	</select>
+    <!--需求管理-突发性数据统计-获取详情页-add by hufei -2018.04.16 -->
+    <select id="getDetailById" resultMap="XqglData" parameterType="java.util.Map">
+        select req_id, req_nm, req_src_person,req_src_dep,
+        c.config_name as req_approve_person,req_approve_person_id,
+        -- b.config_name as req_src_type,
+        req_src_type,
+        cast(req_expect_time as varchar(20)) as req_expect_time,
+        cast(req_time as varchar(20)) as req_time,
+        d.config_name as req_status,req_description,req_attach_addr,
+        cast(req_approve_time as varchar(20)) as req_approve_time,
+        req_approve_suggestion,
+        f.config_name as req_dest_person_name,
+        req_dest_person,
+        e.config_name as req_type_name,
+        req_type,
+
+        req_submit_person,req_workload,
+        req_tb_nm, req_col_nm, req_finish_comments,req_result_addr,
+        src_tb1_nm, src_tb1_audtrm, src_tb1_sensitive,
+        src_tb1_output, src_tb2_nm, src_tb2_audtrm, src_tb2_sensitive,
+        src_tb2_output, src_tb3_nm, src_tb3_audtrm, src_tb3_sensitive,
+        src_tb3_output, src_tb4_nm, src_tb4_audtrm, src_tb4_sensitive,
+        src_tb4_output, src_tb5_nm, src_tb5_audtrm, src_tb5_sensitive,
+        src_tb5_output,
+        req_handle_attach_addr,
+        cast(req_finish_time as varchar(20)) as req_finish_time
+        from (select *
+        from hpmgr.busi_req_manage_config
+        where req_id=#{reqId}
+        <if test="reqSrcPerson!=null and reqSrcPerson!=''">and req_dest_person=#{reqSrcPerson}</if>
+        ) as a
+        -- left join (select config_name,config_value
+        -- from hpmgr.busi_req_manage_sys_config
+        -- where config_section='reqSrcType') as b
+        -- on a.req_src_type=b.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='approvePerson') as c
+        on a.req_approve_person_id=c.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqStatus') as d
+        on a.req_status=d.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqType') as e
+        on a.req_type=e.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='destPerson') as f
+        on a.req_dest_person=f.config_value;
+    </select>
+
+
+    <!--需求管理-结果列表-add by pxl -2018.04.17 -->
+    <select id="getOutPutList" resultMap="XqglData" parameterType="com.hpe.cmca.pojo.XqglListData">
+        select req_id, req_nm, req_src_person,req_src_dep,
+        c.config_name as req_approve_person,req_approve_person_id,
+        b.config_name as req_src_type,
+        cast(req_expect_time as varchar(20)) as req_expect_time,
+        cast(req_time as varchar(20)) as req_time,
+        d.config_name as req_status,req_description,req_attach_addr,
+        cast(req_approve_time as varchar(20)) as req_approve_time,
+        req_approve_suggestion,
+        f.config_name as req_dest_person,
+        e.config_name as req_type,
+
+        req_submit_person,req_workload,
+        req_tb_nm, req_col_nm, req_finish_comments,
+        src_tb1_nm, src_tb1_audtrm, src_tb1_sensitive,
+        src_tb1_output, src_tb2_nm, src_tb2_audtrm, src_tb2_sensitive,
+        src_tb2_output, src_tb3_nm, src_tb3_audtrm, src_tb3_sensitive,
+        src_tb3_output, src_tb4_nm, src_tb4_audtrm, src_tb4_sensitive,
+        src_tb4_output, src_tb5_nm, src_tb5_audtrm, src_tb5_sensitive,
+        src_tb5_output,
+        req_handle_attach_addr,
+        cast(req_finish_time as varchar(20)) as req_finish_time
+        from (select *
+        from hpmgr.busi_req_manage_config
+        where
+        req_effective='Y'
+        <if test="startReqTime!=null and startReqTime!=''">
+            <![CDATA[and req_time>=cast(#{startReqTime} as date format 'yymmdd')]]></if>
+        <if test="endReqTime!=null and endReqTime!=''">
+            <![CDATA[ and req_time<=cast(#{endReqTime} as date format 'yymmdd')]]></if>
+        <if test="reqStatus!=null and reqStatus!='all' and reqStatus!=''">and req_status=#{reqStatus}</if>
+        <if test="reqNm!=null and reqNm!=''">and req_nm like #{reqNm}</if>
+        <if test="reqSrcPersonId!=null and reqSrcPersonId!='all' and reqSrcPersonId!=''">and
+            req_src_person_id=#{reqSrcPersonId}
+        </if>
+        <if test="reqApprovePersonId!=null and reqApprovePersonId!='all' and reqApprovePersonId!=''">and
+            req_approve_person_id=#{reqApprovePersonId}
+        </if>
+        ) as a
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqSrcType') as b
+        on a.req_src_type=b.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='approvePerson') as c
+        on a.req_approve_person_id=c.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqStatus') as d
+        on a.req_status=d.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='reqType') as e
+        on a.req_type=e.config_value
+        left join (select config_name,config_value
+        from hpmgr.busi_req_manage_sys_config
+        where config_section='destPerson') as f
+        on a.req_dest_person=f.config_value
+        order by req_time desc
+    </select>
+    <!--需求管理-突发性数据统计-获取当天最大MaxReqId-add by hufei -2018.04.16 -->
+    <select id="getCurrentMaxId" resultType="java.util.Map" parameterType="java.util.Map">
+	select max(req_id) as reqId
+	from hpmgr.busi_req_manage_config
+	where  req_time>=cast(#{currentDay} as date format 'YYYYMMDD')
+	<![CDATA[ and req_time<=cast(#{afterDay} as date format 'YYYYMMDD')
+        ]]>
+    </select>
+    <!-- 需求管理-突发性数据统计-新增需求 -->
+    <insert id="addRequirement" parameterType="com.hpe.cmca.pojo.XqglData">
+	INSERT	INTO hpmgr.busi_req_manage_config
+	( req_id, req_nm, req_src_person,req_src_person_id,req_src_dep, req_approve_person,req_approve_person_id, req_src_type,req_expect_time,req_time,
+		req_status,req_description,req_effective)
+	VALUES
+	(#{reqId},#{reqNm},#{reqSrcPerson},#{reqSrcPersonId},#{reqSrcDep},#{reqApprovePerson},#{reqApprovePersonId},#{reqSrcType},#{reqExpectTime},current_timestamp,
+		#{reqStatus},#{reqDescription},'Y');
+	</insert>
+    <!-- 需求管理-突发性数据统计-新增后编辑需求 -->
+    <update id="editRequirementByNew" parameterType="com.hpe.cmca.pojo.XqglData">
+	update hpmgr.busi_req_manage_config
+	set req_approve_person=#{reqApprovePerson},req_approve_person_id=#{reqApprovePersonId}, req_src_type=#{reqSrcType}, req_expect_time=#{reqExpectTime},req_description=#{reqDescription}
+	where req_id=#{reqId}
+	</update>
+    <!-- 需求管理-突发性数据统计-审批编辑需求 -->
+    <update id="editRequirementByApprove" parameterType="com.hpe.cmca.pojo.XqglData">
+	update hpmgr.busi_req_manage_config
+	set req_approve_suggestion=#{reqApproveSuggestion},req_status=#{reqStatus},req_approve_time=current_timestamp
+	where req_id=#{reqId}
+	</update>
+    <!-- 需求管理-突发性数据统计-处理编辑需求 -->
+    <update id="editRequirementByHandle" parameterType="com.hpe.cmca.pojo.XqglData">
+        update hpmgr.busi_req_manage_config
+        set req_dest_person=#{reqDestPerson}, req_type=#{reqType},
+        <if test="reqStatus!=null and reqStatus!='' ">req_status=#{reqStatus},</if>
+        req_submit_person=#{reqSubmitPerson}, req_workload=#{reqWorkload},
+        req_tb_nm=#{reqTbNm}, req_col_nm=#{reqColNm},
+        req_finish_comments=#{reqFinishComments},req_finish_time=current_timestamp,
+        src_tb1_nm=#{srcTb1Nm}, src_tb1_audtrm=#{srcTb1Audtrm},
+        src_tb1_sensitive=#{srcTb1Sensitive},src_tb1_output=#{srcTb1Output},
+        src_tb2_nm=#{srcTb2Nm}, src_tb2_audtrm=#{srcTb2Audtrm},
+        src_tb2_sensitive=#{srcTb2Sensitive},src_tb2_output=#{srcTb2Output},
+        src_tb3_nm=#{srcTb3Nm}, src_tb3_audtrm=#{srcTb3Audtrm},
+        src_tb3_sensitive=#{srcTb3Sensitive},src_tb3_output=#{srcTb3Output},
+        src_tb4_nm=#{srcTb4Nm}, src_tb4_audtrm=#{srcTb4Audtrm},
+        src_tb4_sensitive=#{srcTb4Sensitive},src_tb4_output=#{srcTb4Output},
+        src_tb5_nm=#{srcTb5Nm}, src_tb5_audtrm=#{srcTb5Audtrm},
+        src_tb5_sensitive=#{srcTb5Sensitive},src_tb5_output=#{srcTb5Output}
+        where req_id=#{reqId}
+    </update>
+    <select id="getTable" resultType="java.util.Map" parameterType="java.util.Map">
+    select trim(ColumnName) as columnName,trim(ColumnTitle) as columnTitle,trim(ColumnType) as columnType
+	from dbc.columns
+	where databasename=#{dataBaseName}
+		and tablename=#{tableName};
+	</select>
+
+    <select id="getRunList" resultType="int" parameterType="java.util.Map">
+        select count(*) as countRun
+        from hpmgr.busi_req_manage_config
+        <where>
+            <if test="lastDay!=null"><![CDATA[ req_result_end_time>=cast(#{lastDay} as date format 'yymmdd')]]></if>
+            <if test="reqResultState!=null and reqResultState!=''">and req_result_state=#{reqResultState}</if>
+        </where>
+    </select>
+    <update id="updateRequirement" parameterType="java.util.Map">
+        update hpmgr.busi_req_manage_config
+        <set>
+            <if test="reqResultStartTime!=null">req_result_start_time=current_timestamp,</if>
+            <if test="reqResultEndTime!=null">req_result_end_time=current_timestamp,</if>
+            <if test="reqResultGenerter!=null">req_result_generter=#{reqResultGenerter},</if>
+            <if test="reqResultAddr!=null">req_result_addr=#{reqResultAddr},</if>
+            <if test="reqStatus!=null and reqStatus!=''">req_status=#{reqStatus},</if>
+            <if test="reqResultState!=null and reqResultState!=''">req_result_state=#{reqResultState},</if>
+            <if test="reqEffective!=null and reqEffective!=''">req_effective=#{reqEffective},</if>
+
+        </set>
+        where req_id=#{reqId}
+        <if test="reqSrcPerson!=null and reqSrcPerson!=''">and req_src_person=#{reqSrcPerson}</if>
+    </update>
+
+    <update id="updateAttachAddr" parameterType="java.util.Map">
+		update hpmgr.busi_req_manage_config set req_attach_addr = #{addr}
+		where req_id = #{reqId}
+	</update>
+
+    <update id="updateHandleAttachAddr" parameterType="java.util.Map">
+		update hpmgr.busi_req_manage_config set req_handle_attach_addr = #{addr}
+		where req_id = #{reqId}
+	</update>
+
+    <update id="updateAttachAddrByAddr" parameterType="java.util.Map">
+		update hpmgr.busi_req_manage_config set
+		req_attach_addr =
+		 case when req_attach_addr = #{addr} then   null else req_attach_addr end,
+		 req_handle_attach_addr =
+		 case when req_handle_attach_addr = #{addr} then null else req_handle_attach_addr end
+		where req_attach_addr = #{addr} or req_handle_attach_addr = #{addr}
+	</update>
+
+    <update id="updateGenAddrByAddr" parameterType="java.util.Map">
+		update hpmgr.busi_req_manage_config set req_result_addr = null
+		where req_result_addr = #{addr}
+	</update>
+
+    <insert id="insertDownLoadLog" parameterType="java.util.Map">
+	INSERT	INTO hpmgr.busi_req_manage_download_log
+	(req_id, req_down_person, req_file_name, req_down_datetime)
+	VALUES
+	(#{reqId},#{userId},#{fileName},current_timestamp)
+	</insert>
+
+
+    <select id="getMyReqNum" resultType="int" parameterType="java.util.Map">
+    select count(distinct req_id)as myReqNum
+	from hpmgr.busi_req_manage_config
+	where req_src_person_id = #{reqSrcPersonId}
+	</select>
+
+    <select id="getDoneReqNumByApprove" resultType="int" parameterType="java.util.Map">
+    select count(distinct req_id)as doneReqNum
+	from hpmgr.busi_req_manage_config
+	where req_approve_person_id = #{reqApprovePersonId} and req_status='DSP'
+	</select>
+
+    <select id="getDoneReqNumByHandle" resultType="int">
+    select count(distinct req_id)as doneReqNum
+	from hpmgr.busi_req_manage_config
+	where  req_status='CLZ'
+	</select>
+
+
+</mapper>

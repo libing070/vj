@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>提交页面</title>
+    <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+</head>
+<style>
+    .middle {
+        width: 2000px;
+        margin: 0 auto;
+    }
+</style>
+
+<body class="light_style">
+    <div class="row middle">
+        <form>
+            <div class="form-group">
+                <label for="genDate">文件创建时间</label>
+                <input type="text" class="form-control" id="genDate" placeholder="形如20180401 不可为空" style="width:500px;height:50px">
+            </div>
+            <div class="form-group">
+                <label for="subjectId">专题</label>
+                <input type="text" class="form-control" id="subjectId" placeholder="形如1,5  0代表所有专题 不可为空" style="width:500px;height:50px">
+            </div>
+            <div class="form-group">
+                <label for="prvdId">省份</label>
+                <input type="text" class="form-control" id="prvdId" placeholder="形如12900,13100 0代表全部省份包括全国 不可为空" style="width:500px;height:50px">
+            </div>
+            <div class="form-group">
+                <label for="fileType">文件类型</label>
+                <input type="text" class="form-control" id="fileType" placeholder="形如1 1-报告和清单  2-排名汇总和通报 不可为空" style="width:500px;height:50px">
+            </div>
+            <button class="btn" id="btn">提交</button>
+        </form>
+    </div>
+</body>
+<script>
+    $("#btn").click(function(){
+        var postData = {
+            genDate:$("#genDate").val(),
+            subjectId: $('#subjectId').val(),
+            prvdId: $('#prvdId').val(),
+            fileType: $('#fileType').val()
+        };
+        $.ajax({
+            url: '/cmca/SynchronizeTwoSys/SynchronizeFilePath',
+            dataType: 'json',
+            type: 'POST',
+            data: postData,
+            async: false,
+            cache: false,
+            success: function(data) {
+              if(data==0) alert("提交失败")
+              if(data==1) alert("提交成功")
+            }
+        });
+    })
+</script>
+</html>

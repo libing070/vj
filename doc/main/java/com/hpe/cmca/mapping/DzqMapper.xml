@@ -1,0 +1,1527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.DzqMapper">
+
+	<!-- 地图下方卡片 -->
+	<resultMap type="com.hpe.cmca.pojo.DzqMapCardPojo"  id="dzqMapCardData">
+		<result property="prvdId" column="prvdId"/>
+		<result property="cmccErrAmts" column="cmccErrAmts"/> 
+		<result property="cmccErrAmtsZf" column="cmccErrAmtsZf"/>
+		<result property="cmccErrAmtPer" column="cmccErrAmtPer"/>
+		<result property="cmccErrAmtPerZf" column="cmccErrAmtPerZf"/>
+		<result property="baseSumAmt" column="baseSumAmt"/>
+		<result property="baseSumAmtZf" column="baseSumAmtZf"/>
+		<result property="cmccSumAmt" column="cmccSumAmt"/>
+		<result property="cmccSumAmtZf" column="cmccSumAmtZf"/>
+		<result property="baseErrAmts" column="baseErrAmts"/>
+		<result property="baseErrAmtsZf" column="baseErrAmtsZf"/>
+		<result property="baseErrAmtPer" column="baseErrAmtPer"/>
+		<result property="baseErrAmtPerZf" column="rn"/>
+		<result property="cmccErrNum" column="baseErrAmtPerZf"/>
+		<result property="cmccErrNumZf" column="cmccErrNumZf"/>
+		<result property="cmccErrNumPer" column="cmccErrNumPer"/>
+		<result property="cmccErrNumPerZf" column="cmccErrNumPerZf"/>
+	</resultMap>
+
+	<!-- 结果集映射 从实体对象到关系数据库     界面chart映射-->
+	<resultMap type="com.hpe.cmca.pojo.DzqChartPojo"  id="dzChartData">
+		<result property="rn" column="rn"/>
+		<result property="audTrm" column="audTrm"/>
+		<result property="prvdId" column="prvdId"/>
+		<result property="name" column="name"/>
+		<result property="amts" column="amts"/>
+		<result property="nums" column="nums"/>
+		<result property="pers" column="pers"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库     界面chart映射-->
+	<resultMap type="com.hpe.cmca.pojo.DzqPiePojo"  id="dzqPieData">
+		<result property="baseErrAmts" column="baseErrAmts"/>
+		<result property="cmccErrAmts" column="cmccErrAmts"/>
+		<result property="cmccbaseSumAmt" column="cmccbaseSumAmt"/>
+		<result property="bigAmts" column="bigAmts"/>
+		<result property="exAmts" column="exAmts"/>
+		<result property="highAmts" column="highAmts"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库     风险地图下钻数据表映射    （重点关注营销案）-->
+	<resultMap type="com.hpe.cmca.pojo.DzqOfferTabPojo"  id="dzqOfferTabData">
+		<result property="rankChinaNum" column="rank_china_num"/>
+		<result property="rankPrvdNum" column="rank_prvd_num"/>
+		<result property="rankChinaAmt" column="rank_china_amt"/>
+		<result property="rankPrvdAmt" column="rank_prvd_amt"/>
+		<result property="rankChina" column="rank_china_num"/>
+		<result property="rankPrvd" column="rank_prvd"/> 		  	
+		<result property="offerId" column="offer_id"/> 			
+		<result property="offerNm" column="offer_nm"/> 			
+		<result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/>  
+		<result property="cmccProvPrvdNm" column="cmcc_prov_prvd_nm"/> 	
+		<result property="offerCtyId" column="offer_cty_id"/> 		
+		<result property="offerCtyNm" column="offer_cty_nm"/> 		
+		<result property="offerSumAmt" column="offer_sum_amt"/> 		
+		<result property="offerSumNum" column="offer_sum_num"/>		
+		<result property="offerSumSubs" column="offer_sum_subs"/> 	
+		<result property="offerErrAmts" column="offer_err_amts"/> 	
+		<result property="offerErrNum" column="offer_err_num"/> 	  	
+		<result property="offerErrSubs" column="offer_err_subs"/> 	
+		<result property="offerErrAmtPer" column="offer_err_amt_per"/> 	
+		<result property="offererrHighAmts" column="offererr_b_amts"/> 	
+		<result property="offererrBigAmts" column="offererr_a_amts"/> 	
+		<result property="offererrSubsAmts" column="offererr_c_amts"/>	
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库    风险地图  数据表用户数 映射-->
+	<resultMap type="com.hpe.cmca.pojo.DzqSubsTabPojo"  id="dzqSubsTabData">
+		 <result property="rankChina" column="rank_china"/> 			
+		 <result property="rankPrvd" column="rank_prvd"/> 			
+		 <result property="cmccProvPrvdId" column="cmcc_prov_prvd_id"/> 	
+		 <result property="cmccProvPrvdNm" column="cmcc_prov_prvd_nm"/> 	
+		 <result property="cmccPrvdId" column="cmcc_prvd_id"/> 		
+		 <result property="cmccPrvdNm" column="cmcc_prvd_nm"/> 		
+		 <result property="subsId" column="subs_id"/> 			
+		 <result property="cmccSumAmt" column="cmcc_sum_amt"/> 	
+		 <result property="cmccErrNum" column="cmcc_err_num"/>
+		 <result property="cmccSumNum" column="cmcc_sum_num"/>	
+		 <result property="cmccErrAmts" column="cmcc_err_amts"/> 		
+		 <result property="cmccErrAmtPer" column="cmcc_err_amt_per"/>
+		 <result property="isBig" column="infraction_typ_a"/>
+		 <result property="isHigh" column="infraction_typ_b"/>
+		 <result property="isException" column="infraction_typ_c"/>
+	</resultMap>
+	
+	<!-- 结果集映射 从实体对象到关系数据库     审计报告映射-->
+	<resultMap type="com.hpe.cmca.pojo.DzqReportInfoPojo"  id="dzqReportInfoData">
+		<result property="prvdId" column="cmcc_prov_prvd_id"/>
+		<result property="cmccSumNum" column="cmcc_sum_num"/>
+		<result property="cmccAmt" column="cmcc_amt"/>
+		<result property="cmccErrAmt" column="cmcc_err_amt"/>
+		<result property="cmccErrNum" column="cmcc_err_num"/>
+		<result property="cmccErrAmtPer" column="cmcc_err_amt_per"/>
+	</resultMap>
+	
+	<!-- 风险地图数据   金额   -->
+	<select id="getMapAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			SELECT	
+				case when amts is not null then ROW_NUMBER() OVER (ORDER BY amts DESC)  else 0 end  as rn,
+				(cast(cmcc_err_amts as decimal(18,2))) as amts,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6002 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by amts desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			SELECT	
+				case when amts is not null then ROW_NUMBER() OVER (ORDER BY amts DESC)  else 0 end  as rn,
+				(cast(cmcty_err_amts as decimal(18,2))) as amts,
+				cmcc_prvd_nm as name,cmcc_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvdcty_det 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+			order by amts desc,prvdId
+		</if>
+	</select>
+	
+	<!-- 风险地图数据   金额占比   -->
+	<select id="getMapAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			SELECT	
+				case when pers is not null then ROW_NUMBER() OVER (ORDER BY pers DESC)  else 0 end  as rn,
+				cast((cmcc_err_amt_per*100) as decimal(18,2)) as pers,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6002 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by pers desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			SELECT	
+				case when pers is not null then ROW_NUMBER() OVER (ORDER BY pers DESC)  else 0 end  as rn,
+				cast((cmcty_err_amt_per*100) as decimal(18,2)) as pers,
+				cmcc_prvd_nm as name,cmcc_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvdcty_det 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+			order by pers desc,prvdId
+		</if>
+	</select>
+	
+	
+	<!-- 风险地图数据   数量   -->
+	<select id="getMapNumData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			SELECT	
+				case when nums is not null then ROW_NUMBER() OVER (ORDER BY nums DESC)  else 0 end  as rn,
+				cmcc_err_num as nums,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6002 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by nums desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			SELECT	
+				case when nums is not null then ROW_NUMBER() OVER (ORDER BY nums DESC)  else 0 end  as rn,
+				cmcty_err_num as nums,
+				cmcc_prvd_nm as name,cmcc_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvdcty_det 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+			order by nums desc,prvdId
+		</if>
+	</select>
+	
+	<!-- 风险地图数据   数量占比   -->
+	<select id="getMapNumPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+		<if test="prvdId == 10000">
+			SELECT	
+				case when pers is not null then ROW_NUMBER() OVER (ORDER BY pers DESC)  else 0 end  as rn,
+				cast((cmcc_err_num_per*100) as decimal(18,2)) as pers,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6002 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by pers desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			SELECT	
+				case when pers is not null then ROW_NUMBER() OVER (ORDER BY pers DESC)  else 0 end  as rn,
+				cast((cmcty_err_num_per*100) as decimal(18,2))  as pers,
+				cmcc_prvd_nm as name,cmcc_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvdcty_det 
+			where Aud_trm = #{audTrm}  <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+			order by pers desc,prvdId
+		</if>
+	</select>
+	
+	
+
+	<!-- 违规金额排名  (电子券) 柱图 -->
+	<select id="getColumnAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId == 10000">
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				(cast(b.cmcc_err_amts as decimal(18,2))) as amts
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	cmcc_err_amts,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6002  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by amts desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			select 
+				a.cmcc_prvd_id as prvdId,a.cmcc_prvd_nm as name, 
+				(cast(b.cmcty_err_amts as decimal(18,2))) as amts
+			from
+		    (
+		    	select 
+		    		cmcc_prov_prvd_id as cmcc_prov_prvd_id,
+		    		cmcc_prvd_cd as cmcc_prvd_id,
+		    		cmcc_prvd_nm_short as cmcc_prvd_nm
+				FROM	hpmgr.tb_sum_prvd_name
+				where cmcc_prov_prvd_id =#{prvdId}
+			)a
+		    left join 
+		    (
+			    select  cmcty_err_amts,cmcc_prvd_nm,cmcc_prov_prvd_id,cmcc_prvd_id
+	 			from  hpbus.sum_dzq_prvdcty_det 
+				where aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId} 
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id and a.cmcc_prvd_id = b.cmcc_prvd_id
+			order by amts desc,prvdId	
+		</if>
+	</select>
+	
+	<!-- 违规金额排名  (电子券) 折线 -->
+	<select id="getLineAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast(b.cmcc_err_amts as decimal(18,2))),0.00) as amts
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amts
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+			</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast(b.cmcc_err_amts as decimal(18,2))),0.00) as amts
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amts
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	
+	<!-- 违规金额占比排名  (电子券) 柱图 -->
+	<select id="getColumnAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId == 10000">
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				(cast((b.cmcc_err_amt_per)*100 as decimal(18,2))) as pers
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM  hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	cmcc_err_amt_per,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6002  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by pers desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			select 
+				a.cmcc_prvd_id as prvdId,a.cmcc_prvd_nm as name,
+				(cast((b.cmcty_err_amt_per)*100 as decimal(18,2))) as pers
+			from
+		    (
+		    	select 
+		    		cmcc_prov_prvd_id as cmcc_prov_prvd_id,
+		    		cmcc_prvd_cd as cmcc_prvd_id,
+		    		cmcc_prvd_nm_short as cmcc_prvd_nm
+				FROM	hpmgr.tb_sum_prvd_name
+				where cmcc_prov_prvd_id =#{prvdId}
+			)a
+		    left join 
+		    (
+			    select  cmcty_err_amt_per,cmcc_prvd_nm,cmcc_prov_prvd_id,cmcc_prvd_id
+	 			from  hpbus.sum_dzq_prvdcty_det 
+				where aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId} 
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id and a.cmcc_prvd_id = b.cmcc_prvd_id
+			order by pers desc,prvdId	
+		</if>
+	</select>
+	
+	<!-- 违规金额占比排名  (电子券) 折线 -->
+	<select id="getLineAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast((b.cmcc_err_amt_per)*100 as decimal(18,2))),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amt_per
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast((b.cmcc_err_amt_per*100) as decimal(18,2))),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amt_per
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	
+	<!-- 违规数量排名  (电子券) 柱图 -->
+	<select id="getColumnNumData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId == 10000">
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm name, b.cmcc_err_num as nums
+			from 
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	cmcc_err_num,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6002  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by nums desc,a.cmcc_prov_prvd_id
+		</if>
+		<if test="prvdId != 10000">
+			select 
+				a.cmcc_prvd_id as prvdId,a.cmcc_prvd_nm as name, b.cmcty_err_num as nums
+			from
+		    (
+		    	select 
+		    		cmcc_prov_prvd_id as cmcc_prov_prvd_id,
+		    		cmcc_prvd_cd as cmcc_prvd_id,
+		    		cmcc_prvd_nm_short as cmcc_prvd_nm
+				FROM	hpmgr.tb_sum_prvd_name
+				where cmcc_prov_prvd_id =#{prvdId}
+			)a
+		    left join 
+		    (
+			    select  cmcty_err_num,cmcc_prvd_nm,cmcc_prov_prvd_id,cmcc_prvd_id
+	 			from  hpbus.sum_dzq_prvdcty_det 
+				where aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId} 
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id and a.cmcc_prvd_id = b.cmcc_prvd_id
+			order by nums desc,prvdId	
+		</if>
+	</select>
+	
+	<!-- 违规数量排名  (电子券) 折线 -->
+	<select id="getLineNumData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,coalesce(b.cmcc_err_num,0) as nums  
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_num
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cmcc_err_num,0) as num
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_num
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+	  </if>
+	</select>
+	
+	<!-- 违规数量占比排名  (电子券) 柱图 -->
+	<select id="getColumnNumPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId == 10000">
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				(cast((b.cmcc_err_num_per)*100 as decimal(18,2))) as pers
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM  hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	cmcc_err_num_per,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6002  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by pers desc,prvdId
+		</if>
+		<if test="prvdId != 10000">
+			select 
+				a.cmcc_prvd_id as prvdId,a.cmcc_prvd_nm as name,
+				(cast((b.cmcty_err_num_per*100) as decimal(18,2))) as pers
+			from
+		    (
+		    	select 
+		    		cmcc_prov_prvd_id as cmcc_prov_prvd_id,
+		    		cmcc_prvd_cd as cmcc_prvd_id,
+		    		cmcc_prvd_nm_short as cmcc_prvd_nm
+				FROM	hpmgr.tb_sum_prvd_name
+				where cmcc_prov_prvd_id =#{prvdId}
+			)a
+		    left join 
+		    (
+			    select  cmcty_err_num_per,cmcc_prvd_nm,
+			    		cmcc_prov_prvd_id,cmcc_prvd_id
+	 			from  hpbus.sum_dzq_prvdcty_det 
+				where <![CDATA[ aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId} ]]>
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id and a.cmcc_prvd_id = b.cmcc_prvd_id
+			order by pers desc,prvdId	
+		</if>
+	</select>
+	
+	<!-- 违规数量占比排名  (电子券) 折线 -->
+	<select id="getLineNumPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,  
+				coalesce(cast((b.cmcc_err_num_per*100) as decimal(18,2)),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_num_per
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,  
+				coalesce(cast((b.cmcc_err_num_per*100) as decimal(18,2)),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_num_per
+				FROM hpbus.sum_dzq_prvd_6002 
+				where 1=1 and cmcc_prov_prvd_id = #{prvdId} 
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	<!--===============================================统计分析================================================-->
+	<!-- 排名汇总 -->
+	<select id="getRankTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000 and concern==6002">
+			select 
+			    coalesce(rank_amt,0) as rankAmt,
+				cmcc_prov_prvd_nm as name,
+				cast((cmcc_sum_amt) as decimal(18,2)) as cmccSumAmt,
+				cmcc_sum_num as cmccSumNum,
+				cmcc_sum_subs as cmccSumSubs,
+				cast((cmcc_err_amts) as decimal(18,2)) as errAmt,
+				cmcc_err_num as errNum,
+				cmcc_err_subs as errSubs,
+				cast((cmcc_err_amt_per*100) as decimal(18,2)) as errPer,
+				cast((cmccerr_b_amts) as decimal(18,2)) as highAmts,
+				cast((cmccerr_a_amts) as decimal(18,2)) as bigAmts,
+				cast((cmccerr_c_amts) as decimal(18,2)) as exAmts
+			from hpbus.sum_dzq_prvd_6002
+			where 1=1 <![CDATA[ and  aud_trm = #{audTrm} 
+			QUALIFY ROW_NUMBER() OVER (ORDER BY errAmt DESC,rankAmt asc)<='50' ]]> 
+		</if>
+		
+		<if test="prvdId != 10000 and concern==6002">
+			select 
+				coalesce(rank_prvd_amt,0) as rankAmt,
+				cmcc_prvd_nm as name,
+				cast((cmcty_amts) as decimal(18,2)) as cmccSumAmt,
+				cmcty_num as cmccSumNum,
+				cmcty_subs as cmccSumSubs,
+				cast((cmcty_err_amts) as decimal(18,2)) as errAmt,
+				cmcty_err_num as errNum,
+				cmcty_err_subs as errSubs,
+				cast((cmcty_err_amt_per*100) as decimal(18,2)) as errPer,
+				cast((cmctyerr_b_amts) as decimal(18,2)) as highAmts,
+				cast((cmctyerr_a_amts) as decimal(18,2)) as bigAmts,
+				cast((cmctyerr_c_amts) as decimal(18,2)) as exAmts
+			from hpbus.sum_dzq_prvdcty_det
+			where 1=1 <![CDATA[ and  aud_trm = #{audTrm} and cmcc_prov_prvd_id = #{prvdId} 
+			QUALIFY ROW_NUMBER() OVER (ORDER BY errAmt DESC,rankAmt asc)<='50' ]]>
+		</if>
+		<if test="prvdId==10000 and concern==6001">
+			select 
+				coalesce(rank_amt,0) as rankAmt,
+				cmcc_prov_prvd_nm name,
+				cast((base_sum_amt) as decimal(18,2))  as baseSumAmt,	
+				base_sum_num  as baseSumNum,	
+				cast((cmcc_sum_amt) as decimal(18,2))   as cmccSumAmt,
+				cmcc_sum_num  as cmccSumNum,	
+				cast((base_err_amts) as decimal(18,2))  as baseErrAmts,
+				base_err_num  as baseErrNum,	
+				cast((base_err_amt_per*100) as decimal(18,2)) as baseErrAmtPer,
+				cast((cmcc_err_amts) as decimal(18,2)) as cmccErrAmts,	
+				cmcc_err_num  as cmccErrNum,
+				cast((cmcc_err_amt_per*100) as decimal(18,2)) as cmccErrAmtPer
+			from 
+				hpbus.sum_dzq_prvd_6001
+			 where 1=1  <![CDATA[ and aud_trm = #{audTrm}  
+			 QUALIFY ROW_NUMBER() OVER (ORDER BY baseErrAmts DESC,rankAmt asc)<='50' ]]> 
+		</if>
+		
+		<if test="prvdId!=10000 and concern==6001">
+			select 
+				0 as rankAmt,
+				cmcc_prov_prvd_nm name,
+				cast((base_sum_amt) as decimal(18,2))  as baseSumAmt,	
+				base_sum_num  as baseSumNum,	
+				cast((cmcc_sum_amt) as decimal(18,2))   as cmccSumAmt,
+				cmcc_sum_num  as cmccSumNum,	
+				cast((base_err_amts) as decimal(18,2))  as baseErrAmts,
+				base_err_num  as baseErrNum,	
+				cast((base_err_amt_per*100) as decimal(18,2)) as baseErrAmtPer,
+				cast((cmcc_err_amts) as decimal(18,2)) as cmccErrAmts,	
+				cmcc_err_num  as cmccErrNum,
+				cast((cmcc_err_amt_per*100) as decimal(18,2)) as cmccErrAmtPer
+			from 
+				hpbus.sum_dzq_prvd_6001
+			 where 1=1  <![CDATA[ and aud_trm = #{audTrm} and cmcc_prov_prvd_id = #{prvdId}
+			  QUALIFY ROW_NUMBER() OVER (ORDER BY baseErrAmts DESC,rankAmt asc)<='50' ]]> 
+		</if>
+	</select>
+	
+	<!-- 获取统计分析-增量分析数据- -->
+	<select id="getIncrementalData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000 and concern==6001 and focusCd==600101">
+			select 
+				a.cmcc_prov_prvd_nm as name,b.amts,a.cmcc_prov_prvd_id as prvdId
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as  a
+			left join 	(
+				select  cmcc_prov_prvd_id,
+					coalesce(cast(base_err_amts_zf as decimal(18,2)),0.00) as amts
+				from  hpbus.sum_dzq_prvd_webcard_6001
+				where 1=1
+				and aud_trm=#{audTrm}
+			)as b
+			on a.cmcc_prov_prvd_id=b.cmcc_prov_prvd_id
+			order by b.amts desc, a.cmcc_prov_prvd_id;
+		</if>
+		<if test="prvdId == 10000 and concern==6001 and focusCd==600102">
+			select 
+				a.cmcc_prov_prvd_nm as name,b.amts,a.cmcc_prov_prvd_id as prvdId
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as  a
+			left join 	(
+				select  cmcc_prov_prvd_id,
+					coalesce(cast(cmcc_err_amts_zf as decimal(18,2)),0.00) as amts
+				from  hpbus.sum_dzq_prvd_webcard_6001
+				where 1=1
+				and aud_trm=#{audTrm}
+			)as b
+			on a.cmcc_prov_prvd_id=b.cmcc_prov_prvd_id
+			order by b.amts desc, a.cmcc_prov_prvd_id;
+		</if>
+		<if test="prvdId==10000 and concern==6002">
+			select 
+				a.cmcc_prov_prvd_nm as name,b.amts,a.cmcc_prov_prvd_id as prvdId
+			from hpmgr.ref_dm_cmcc_prov_prvd_cd as  a
+			left join 	(
+				select  cmcc_prov_prvd_id,
+					coalesce(cast(cmcc_err_amts_zf as decimal(18,2)),0.00) as amts
+				from  hpbus.sum_dzq_prvd_webcard_6002
+				where 1=1
+				and aud_trm=#{audTrm}
+			)as b
+			on a.cmcc_prov_prvd_id=b.cmcc_prov_prvd_id
+			order by b.amts desc, a.cmcc_prov_prvd_id;
+		</if>
+		
+	</select>
+	
+	
+	<!-- 重点关注地市 -->
+	<select id="getCityTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+	
+		<if test="prvdId == 10000">
+			select 
+				rank_china_amt as rankChinaAmt,
+				cmcc_prov_prvd_nm as prvdName,
+				cmcc_prvd_nm as cityName,
+				cast((cmcty_amt) as decimal(18,2)) as amt,
+				cmcty_num as num,
+				cmcty_subs subs,
+				cast((cmcty_err_amts) as decimal(18,2)) as errAmt,
+				cmcty_err_num as errNum,
+				cmcty_err_subs as errSubs,
+				cast((cmcty_err_amt_per*100) as decimal(18,2)) as errPer,
+				cast((cmctyerr_b_amts) as decimal(18,2)) as highAmts,
+				cast((cmctyerr_a_amts) as decimal(18,2)) as bigAmts,
+				cast((cmctyerr_c_amts) as decimal(18,2)) as exAmts
+			from hpbus.sum_dzq_prvdcty_det
+			where 1=1 <![CDATA[ and  aud_trm = #{audTrm} and cmcc_prvd_id <> '10000'
+			QUALIFY ROW_NUMBER() OVER (ORDER BY errAmt DESC,rankChinaAmt asc)<='50' ]]> 
+		</if>
+		
+		<if test="prvdId != 10000">
+			select 
+				rank_prvd_amt as rankChinaAmt,
+				cmcc_prov_prvd_nm as prvdName,
+				cmcc_prvd_nm as cityName,
+				
+				cast((cmcty_amt) as decimal(18,2)) as amt,
+				cmcty_num as num,
+				cmcty_subs subs,
+				
+				cast((cmcty_err_amts) as decimal(18,2)) as errAmt,
+				cmcty_err_num as errNum,
+				cmcty_err_subs as errSubs,
+				cast((cmcty_err_amt_per*100) as decimal(18,2)) as errPer,
+				
+				cast((cmctyerr_b_amts) as decimal(18,2)) as highAmts,
+				cast((cmctyerr_a_amts) as decimal(18,2)) as bigAmts,
+				cast((cmctyerr_c_amts) as decimal(18,2)) as exAmts
+			from hpbus.sum_dzq_prvdcty_det
+			where 1=1 <![CDATA[ and  aud_trm = #{audTrm} and cmcc_prov_prvd_id =#{prvdId}  and cmcc_prvd_id <> '10000'
+			QUALIFY ROW_NUMBER() OVER (ORDER BY errAmt DESC,rankChinaAmt asc)<='50' ]]> 
+			
+		</if>
+	
+	</select>
+	<!-- 重点关注营销案 table -->
+	<select id="getOfferTable" resultMap="dzqOfferTabData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000 and ctyId==0" >
+			select 
+					rank_china_amt as rank_china_amt,rank_prvd,offer_id,offer_nm,cmcc_prov_prvd_id,  
+					cmcc_prov_prvd_nm,offer_cty_id,offer_cty_nm,offer_sum_amt, 		
+					offer_sum_num,offer_sum_subs,offer_err_amts,offer_err_num, 	  	
+					offer_err_subs,offer_err_amt_per,offererr_b_amts,
+					offererr_a_amts,offererr_c_amts
+			from  hpbus.sum_dzq_offer_det
+			where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id <> '10000'  
+			QUALIFY ROW_NUMBER() OVER (ORDER BY offer_err_amts DESC,rank_china_amt asc)<='50' ]]>
+		</if>
+		<if test="prvdId != 10000 and ctyId==0">
+			select 
+					rank_prvd_amt as rank_china_amt,rank_prvd,offer_id,offer_nm,cmcc_prov_prvd_id,  
+					cmcc_prov_prvd_nm,offer_cty_id,offer_cty_nm,offer_sum_amt, 		
+					offer_sum_num,offer_sum_subs,offer_err_amts,offer_err_num, 	  	
+					offer_err_subs,offer_err_amt_per,offererr_b_amts,
+					offererr_a_amts,offererr_c_amts
+			from  hpbus.sum_dzq_offer_det
+			where 1=1  <![CDATA[ and  aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId}
+			QUALIFY ROW_NUMBER() OVER (ORDER BY offer_err_amts DESC,rank_china_amt asc)<='50' ]]>
+		</if>
+		
+		<if test="prvdId != 10000 and ctyId!=0">
+			select 
+					(ROW_NUMBER() OVER (ORDER BY offer_err_num DESC,rank_china_amt asc)) as rank_china_amt,
+					rank_prvd,offer_id,offer_nm,cmcc_prov_prvd_id,  
+					cmcc_prov_prvd_nm,offer_cty_id,offer_cty_nm,offer_sum_amt, 		
+					offer_sum_num,offer_sum_subs,offer_err_amts,offer_err_num, 	  	
+					offer_err_subs,offer_err_amt_per,offererr_b_amts,
+					offererr_a_amts,offererr_c_amts
+			from  hpbus.sum_dzq_offer_det
+			where 1=1  <![CDATA[ and  aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId}  and  offer_cty_id=#{ctyId}
+			QUALIFY ROW_NUMBER() OVER (ORDER BY offer_err_amts DESC,rank_china_amt asc)<='50' ]]>
+		</if>
+	</select>
+	
+	
+	<!-- 重点关注渠道 -->
+	<select id="getChannelTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+	
+		<if test="prvdId == 10000">
+			select 
+				rank_china_amt as rankChinaAmt,
+				chnl_id as chnlId,
+				chnl_nm as chnlName,
+				cmcc_prov_prvd_nm as prvdName,
+				chnl_cty_nm as cityName,
+				cast((chnl_amts) as decimal(18,2)) as chnlAmts,
+				chnl_num as chnlNum,
+				chnl_subs as chnlSubs,
+				cast((chnl_err_amts) as decimal(18,2)) chnlErrAmts,
+				chnl_err_num as chnlErrNum,
+				chnl_err_subs as chnlErrSubs,
+				cast((chnl_err_amt_per)*100 as decimal(18,2)) chnlErrAmtPer,
+				cast((chnlerr_a_amts) as decimal(18,2)) bigAmts,
+				cast((chnlerr_b_amts) as decimal(18,2)) highBAmts,
+				cast((chnlerr_c_amts) as decimal(18,2)) exAmts
+			from hpbus.sum_dzq_chnl_det
+			where 1=1 <![CDATA[ and  aud_trm = #{audTrm} and cmcc_prov_prvd_id <> '10000'
+			QUALIFY ROW_NUMBER() OVER (ORDER BY chnlErrAmts DESC,rankChinaAmt asc)<='50' ]]> 
+		</if>
+		
+		<if test="prvdId != 10000">
+			select 
+				rank_prvd_amt as rankChinaAmt,
+				chnl_id as chnlId,
+				chnl_nm as chnlName,
+				cmcc_prov_prvd_nm as prvdName,
+				chnl_cty_nm as cityName,
+				cast((chnl_amts) as decimal(18,2)) as chnlAmts,
+				chnl_num as chnlNum,
+				chnl_subs as  chnlSubs,
+				cast((chnl_err_amts) as decimal(18,2)) chnlErrAmts,
+				chnl_err_num as chnlErrNum,
+				chnl_err_subs as chnlErrSubs,
+				cast((chnl_err_amt_per)*100 as decimal(18,2)) chnlErrAmtPer,
+				cast((chnlerr_a_amts) as decimal(18,2)) bigAmts,
+				cast((chnlerr_b_amts) as decimal(18,2)) highAmts,
+				cast((chnlerr_c_amts) as decimal(18,2)) exAmts
+			from hpbus.sum_dzq_chnl_det
+			where 1=1 <![CDATA[ and  aud_trm = #{audTrm} and cmcc_prov_prvd_id = #{prvdId}
+			QUALIFY ROW_NUMBER() OVER (ORDER BY chnlErrAmts DESC,rankChinaAmt asc)<='50' ]]> 
+		</if>
+	
+	</select>
+	
+	
+	<!-- 重点关注用户 table -->
+	<select id="getSubsTable" resultMap="dzqSubsTabData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000 and ctyId==0">
+			select 
+					(ROW_NUMBER() OVER (ORDER BY cmcc_err_amts DESC,rank_china asc)) as rank_china,
+					cmcc_prov_prvd_id,cmcc_prov_prvd_nm, 	
+					cmcc_prvd_id,cmcc_prvd_nm,subs_id,cmcc_sum_amt,cmcc_sum_num,
+					cmcc_err_num,cmcc_err_amts,(cmcc_err_amt_per*100) as cmcc_err_amt_per,
+					coalesce(infraction_typ_a,'-') as isBig,
+					coalesce(infraction_typ_b,'-') as isHigh,
+					coalesce(infraction_typ_c,'-') as isException
+			from  hpbus.sum_dzq_subs_webtable
+			where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id <> '10000' and   falg=#{flagId}
+			QUALIFY ROW_NUMBER() OVER (ORDER BY cmcc_err_amts DESC,rank_china asc)<='50' ]]> 
+		</if>
+		<if test="prvdId != 10000 and ctyId==0">
+			select 
+					(ROW_NUMBER() OVER (ORDER BY cmcc_err_amts DESC,rank_prvd asc)) as rank_china,
+					rank_prvd,
+					cmcc_prov_prvd_id,cmcc_prov_prvd_nm, 	
+					cmcc_prvd_id,cmcc_prvd_nm,subs_id,cmcc_sum_amt,cmcc_sum_num,
+					cmcc_err_num,cmcc_err_amts,(cmcc_err_amt_per*100) as cmcc_err_amt_per,
+					coalesce(infraction_typ_a,'-') as isBig,
+					coalesce(infraction_typ_b,'-') as isHigh,
+					coalesce(infraction_typ_c,'-') as isException
+			from  hpbus.sum_dzq_subs_webtable
+			where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId} and  falg=#{flagId}
+			QUALIFY ROW_NUMBER() OVER (ORDER BY cmcc_err_amts DESC,rank_prvd asc)<='50' ]]> 
+		</if>
+		
+		<if test="prvdId != 10000 and ctyId!=0">
+			select 
+					(ROW_NUMBER() OVER (ORDER BY cmcc_err_amts DESC,rank_prvd asc)) as rank_china,
+					rank_prvd,
+					cmcc_prov_prvd_id,cmcc_prov_prvd_nm, 	
+					cmcc_prvd_id,cmcc_prvd_nm,subs_id,cmcc_sum_amt,cmcc_sum_num,
+					cmcc_err_num,cmcc_err_amts,(cmcc_err_amt_per*100) as cmcc_err_amt_per,
+					coalesce(infraction_typ_a,'-') as isBig,
+					coalesce(infraction_typ_b,'-') as isHigh,
+					coalesce(infraction_typ_c,'-') as isException
+			from  hpbus.sum_dzq_subs_webtable
+			where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id = #{prvdId} and  falg=#{flagId} and cmcc_prvd_id=#{ctyId}
+			QUALIFY ROW_NUMBER() OVER (ORDER BY cmcc_err_amts DESC,rank_prvd asc)<='50' ]]> 
+		</if>
+	</select>
+	
+	
+	<!-- 重点关注类型分布    饼图 -->
+	<select id="getTypeDistributionPie" resultMap="dzqPieData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select 
+				cast((sum(cmccerr_a_amts)) as decimal(18,2)) as bigAmts,
+				cast((sum(cmccerr_b_amts)) as decimal(18,2)) as highAmts,
+				cast((sum(cmccerr_c_amts)) as decimal(18,2)) as exAmts
+			from 
+				hpbus.sum_dzq_prvd_6002
+			 where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id <>'10000' ]]> 
+		</if>
+		
+		<if test="prvdId != 10000">
+			select 
+				cast((sum(cmctyerr_a_amts)) as decimal(18,2)) as bigAmts,
+				cast((sum(cmctyerr_b_amts)) as decimal(18,2)) as highAmts,
+				cast((sum(cmctyerr_c_amts)) as decimal(18,2)) as exAmts
+			from 
+				hpbus.sum_dzq_prvdcty_det
+			 where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id =#{prvdId} ]]> 
+		</if>
+	
+	</select>
+	
+	<!-- 重点关注类型分布    折线  -->
+	<select id="getTypeDistributionLine" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cast((sum(c.aAmts)) as decimal(18,2)),0.00) as bigAmts,
+				coalesce(cast((sum(c.bAmts)) as decimal(18,2)),0.00) as highAmts,
+				coalesce(cast((sum(c.cAmts)) as decimal(18,2)),0.00) as exAmts 
+				from (
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify 
+				where  1=1 and subject_id ='6'
+				<![CDATA[ and  aud_trm <=#{audTrm} and aud_trm >=cast(cast(add_months(cast(#{audTrm} ||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6)  
+				 ) ]]> group by 1
+				 )a
+			left join 
+			(select aud_trm,aAmts,bAmts,cAmts from 
+			(select  aud_trm,sum(cmccerr_a_amts) as aAmts,sum(cmccerr_b_amts) as bAmts,sum(cmccerr_c_amts) as cAmts
+			from hpbus.sum_dzq_prvd_6002
+			where  1=1 
+				<![CDATA[ and  aud_trm <=#{audTrm} and aud_trm >=cast(cast(add_months(cast(#{audTrm} ||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6)) ]]> 
+			group by aud_trm ) as b where aud_trm in (
+			select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				where switch_state>=0
+					and switch_type=1
+					and subject_code = 6
+				 	<![CDATA[ and aud_trm<=#{audTrm}
+					and aud_trm>='201710' ]]> 
+			))c  
+			on a.aud_trm=c.aud_trm  group by  a.aud_trm  ORDER BY a.aud_trm 
+		</if>
+		
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cast((sum(c.aAmts)) as decimal(18,2)),0.00) as bigAmts,
+				coalesce(cast((sum(c.bAmts)) as decimal(18,2)),0.00) as highAmts,
+				coalesce(cast((sum(c.cAmts)) as decimal(18,2)),0.00) as exAmts 
+				from (
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify 
+				where  1=1 and subject_id ='6'
+				<![CDATA[ and  aud_trm <=#{audTrm} and aud_trm >=cast(cast(add_months(cast(#{audTrm} ||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6) 
+				 ) ]]>  group by 1
+				 )a
+			left join 
+			(select aud_trm,aAmts,bAmts,cAmts from 
+			(select  aud_trm,sum(cmctyerr_a_amts) as aAmts,sum(cmctyerr_b_amts) as bAmts,sum(cmctyerr_c_amts) as cAmts
+			from hpbus.sum_dzq_prvdcty_det
+			where  1=1 
+				<![CDATA[ and  aud_trm <=#{audTrm} and aud_trm >=cast(cast(add_months(cast(#{audTrm} ||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6)) ]]> 
+			group by aud_trm ) as b where aud_trm in (
+			select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				where switch_state>=0
+					and switch_type=1
+					and subject_code = 6
+				 	<![CDATA[ and aud_trm<=#{audTrm}
+					and aud_trm>='201710' ]]> 
+			))c  
+			on a.aud_trm=c.aud_trm  group by  a.aud_trm  ORDER BY a.aud_trm 
+		</if>
+	</select>
+	
+	<!-- 地图下方卡片     600101 省有基地无    600102 省无基地有-->
+	<select id="getCardData" resultMap="dzqMapCardData" parameterType="com.hpe.cmca.pojo.ParameterData">
+			<if test="prvdId == 10000 and concern==6001 and focusCd==600102">
+				select 
+						cmcc_prov_prvd_id as prvdId,
+						cast(cmcc_err_amts as decimal(18,2)) as cmccErrAmts,
+						cast(cmcc_err_amts_zf as decimal(18,2)) as cmccErrAmtsZf,
+						
+						cast((cmcc_err_amt_per)*100 as decimal(18,2)) as cmccErrAmtPer,
+						cast((cmcc_err_amt_per_zf)*100 as decimal(18,2)) as cmccErrAmtPerZf,
+						
+						cast((base_sum_amt) as decimal(18,2)) as baseSumAmt,
+						cast((base_sum_amt_zf) as decimal(18,2)) as baseSumAmtZf,
+						
+						cast(cmcc_sum_amt as decimal(18,2)) as cmccSumAmt,
+						cast(cmcc_sum_amt_zf as decimal(18,2)) as cmccSumAmtZf
+				from 
+					hpbus.sum_dzq_prvd_webcard_6001 
+				where 1=1 and cmcc_prov_prvd_id ='10000'
+				and aud_trm = #{audTrm}
+			
+			</if>
+			
+			<if test="prvdId == 10000 and concern==6001 and focusCd==600101">
+				select 
+						cmcc_prov_prvd_id as prvdId,
+						cast(base_err_amts as decimal(18,2)) as baseErrAmts,
+						cast(base_err_amts_zf as decimal(18,2)) as baseErrAmtsZf,
+						
+						cast((base_err_amt_per)*100 as decimal(18,2)) as baseErrAmtPer,
+						cast((base_err_amt_per_zf)*100 as decimal(18,2)) as baseErrAmtPerZf,
+						
+						cast((base_sum_amt) as decimal(18,2)) as baseSumAmt,
+						cast((base_sum_amt_zf) as decimal(18,2)) as baseSumAmtZf,
+						
+						cast(cmcc_sum_amt as decimal(18,2)) as cmccSumAmt,
+						cast(cmcc_sum_amt_zf as decimal(18,2)) as cmccSumAmtZf
+				from 
+					hpbus.sum_dzq_prvd_webcard_6001 
+				where 1=1 and cmcc_prov_prvd_id ='10000'
+				and aud_trm = #{audTrm}
+			
+			</if>
+			
+			<if test="prvdId != 10000 and concern==6001 and focusCd==600102">
+				select 
+						cmcc_prov_prvd_id as prvdId,
+						cast(cmcc_err_amts as decimal(18,2)) as cmccErrAmts,
+						cast(cmcc_err_amts_zf as decimal(18,2)) as cmccErrAmtsZf,
+						
+						cast((cmcc_err_amt_per)*100 as decimal(18,2)) as cmccErrAmtPer,
+						cast((cmcc_err_amt_per_zf)*100 as decimal(18,2)) as cmccErrAmtPerZf,
+						
+						cast((base_sum_amt) as decimal(18,2)) as baseSumAmt,
+						cast((base_sum_amt_zf) as decimal(18,2)) as baseSumAmtZf,
+						
+						cast(cmcc_sum_amt as decimal(18,2)) as cmccSumAmt,
+						cast(cmcc_sum_amt_zf as decimal(18,2)) as cmccSumAmtZf
+				from 
+					hpbus.sum_dzq_prvd_webcard_6001 
+				where 1=1 and cmcc_prov_prvd_id =#{prvdId}
+				and aud_trm = #{audTrm}
+			
+			</if>
+			
+			<if test="prvdId != 10000 and concern==6001 and focusCd==600101">
+				select 
+						cmcc_prov_prvd_id as prvdId,
+						cast(base_err_amts as decimal(18,2)) as baseErrAmts,
+						cast(base_err_amts_zf as decimal(18,2)) as baseErrAmtsZf,
+						
+						cast((base_err_amt_per)*100 as decimal(18,2)) as baseErrAmtPer,
+						cast((base_err_amt_per_zf)*100 as decimal(18,2)) as baseErrAmtPerZf,
+						
+						cast((base_sum_amt) as decimal(18,2)) as baseSumAmt,
+						cast((base_sum_amt_zf) as decimal(18,2)) as baseSumAmtZf,
+						
+						cast(cmcc_sum_amt as decimal(18,2)) as cmccSumAmt,
+						cast(cmcc_sum_amt_zf as decimal(18,2)) as cmccSumAmtZf
+				from 
+					hpbus.sum_dzq_prvd_webcard_6001 
+				where 1=1 and cmcc_prov_prvd_id =#{prvdId}
+				and aud_trm = #{audTrm}
+			
+			</if>
+			<if test="prvdId == 10000 and concern==6002">
+				select 
+						cmcc_prov_prvd_id as prvdId,
+						cast(cmcc_err_amts as decimal(18,2)) as cmccErrAmts,
+						cast(cmcc_err_amts_zf as decimal(18,2)) as cmccErrAmtsZf,
+						cast((cmcc_err_amt_per)*100 as decimal(18,2)) as cmccErrAmtPer,
+						cast((cmcc_err_amt_per_zf)*100 as decimal(18,2)) as cmccErrAmtPerZf,
+						cast((cmcc_err_num) as decimal(18,2)) as cmccErrNum,
+						cast((cmcc_err_num_zf) as decimal(18,2)) as cmccErrNumZf,
+						cast((cmcc_err_num_per)*100 as decimal(18,2)) as cmccErrNumPer,
+						cast((cmcc_err_num_per_zf)*100 as decimal(18,2)) as cmccErrNumPerZf
+				from 
+					hpbus.sum_dzq_prvd_webcard_6002 
+				where 1=1 and cmcc_prov_prvd_id ='10000'
+				and aud_trm = #{audTrm}
+			</if>
+			
+			<if test="prvdId != 10000 and concern==6002">
+				select 
+						cmcc_prov_prvd_id as prvdId,
+						cast(cmcc_err_amts as decimal(18,2)) as cmccErrAmts,
+						cast(cmcc_err_amts_zf as decimal(18,2)) as cmccErrAmtsZf,
+						cast((cmcc_err_amt_per)*100 as decimal(18,2)) as cmccErrAmtPer,
+						cast((cmcc_err_amt_per_zf)*100 as decimal(18,2)) as cmccErrAmtPerZf,
+						cast((cmcc_err_num) as decimal(18,2)) as cmccErrNum,
+						cast((cmcc_err_num_zf) as decimal(18,2)) as cmccErrNumZf,
+						cast((cmcc_err_num_per)*100 as decimal(18,2)) as cmccErrNumPer,
+						cast((cmcc_err_num_per_zf)*100 as decimal(18,2)) as cmccErrNumPerZf
+				from 
+					hpbus.sum_dzq_prvd_webcard_6002 
+				where 1=1 and cmcc_prov_prvd_id =#{prvdId}
+				and aud_trm = #{audTrm}
+			</if>
+		</select>
+<!-- ================   电子券平台间数据不一致   start ====================================-->
+ 
+	<!-- 风险地图数据   金额    省有基地无        全国  start  -->
+	<select id="getPlatPrvdMapAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+			SELECT	
+				row_number() over(order by amts desc) as rn,
+				(cast(base_err_amts as decimal(18,2))) as amts,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6001 
+			where 1=1 <![CDATA[ and Aud_trm = #{audTrm}   and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by amts desc,prvdId
+		
+	</select>
+	
+	<!-- 风险地图数据   金额占比    省有基地无        全国  start  -->
+	<select id="getPlatPrvdMapAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+			SELECT	
+				row_number() over(order by pers desc) as rn,
+				(cast((base_err_amt_per)*100 as decimal(18,2))) as pers,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6001 
+			where 1=1 <![CDATA[ and Aud_trm = #{audTrm}   and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by pers desc,prvdId
+		
+	</select>
+	
+	<!-- 风险地图数据   金额    省无基地有   全国-->
+	<select id="getPlatBasePrvdMapAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+			SELECT	
+				row_number() over(order by amts desc) as rn,
+				(cast(cmcc_err_amts as decimal(18,2))) as amts,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6001 
+			where 1=1 <![CDATA[ and Aud_trm = #{audTrm}   and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by amts desc,prvdId
+	</select>
+	
+	<!-- 风险地图数据   金额 占比   省无基地有   全国-->
+	<select id="getPlatBasePrvdMapAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">		
+			SELECT	
+				row_number() over(order by pers desc) as rn,
+				(cast((cmcc_err_amt_per)*100 as decimal(18,2))) as pers,
+				cmcc_prov_prvd_nm as name,cmcc_prov_prvd_id as prvdId
+			FROM	hpbus.sum_dzq_prvd_6001 
+			where 1=1 <![CDATA[ and Aud_trm = #{audTrm}   and cmcc_prov_prvd_id <> #{prvdId} ]]>
+			order by pers desc,prvdId
+	</select>
+	
+	<!-- 风险地图数据   金额    省    -->
+	<select id="getPlatCityPieAmtData" resultMap="dzqPieData"  parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+				cast((sum(base_err_amts)) as decimal(18,2)) as baseErrAmts,
+				cast((sum(cmcc_err_amts)) as decimal(18,2)) as cmccErrAmts,
+				cast((sum(cmccbase_sum_amt)) as decimal(18,2)) as cmccbaseSumAmt
+			from 
+				hpbus.sum_dzq_prvd_6001
+			 where 1=1  <![CDATA[ and aud_trm = #{audTrm}  and cmcc_prov_prvd_id =#{prvdId} ]]> 
+	</select>
+<!-- 电子券平台间数据不一致  风险地图    end -->
+	
+	<!-- 电子券平台间数据不一致  统计图    start -->
+	<!-- 省无基地有  金额排名  (电子券) 柱图 -->
+	<select id="getPlatBaseColumnAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				(cast(b.cmcc_err_amts as decimal(18,2))) as amts
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>#{prvdId} ]]>
+			)a
+			left join
+			(
+				 select 
+				 	cmcc_err_amts,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6001  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by amts desc,prvdId
+	</select>
+	
+	<!-- 省无基地有金额排名  (电子券平台不一致) 折线 -->
+	<select id="getPlatBaseLineAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast(b.cmcc_err_amts as decimal(18,2))),0.00) as amts
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amts 
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast(b.cmcc_err_amts as decimal(18,2))),0.00) as amts
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amts
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	
+	<!-- 省无基地有  金额占比排名  (电子券) 柱图 -->
+	<select id="getPlatBaseColumnAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				cast((cmcc_err_amt_per*100) as decimal(18,2)) as pers
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	cmcc_err_amt_per,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6001  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by pers desc,prvdId
+	</select>
+	
+	
+	<!-- 省无基地有金额占比排名  (电子券平台不一致) 折线 -->
+	<select id="getPlatBaseLineAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cast((cmcc_err_amt_per*100) as decimal(18,2)),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amt_per
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cast((cmcc_err_amt_per*100) as decimal(18,2)),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,cmcc_err_amt_per
+				FROM hpbus.sum_dzq_prvd_6001 
+				where  1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	<!-- ========================================================================================================== -->
+	<!-- 省有基地无金额排名  (电子券平台不一致) 柱图 -->
+	<select id="getPlatPrvdColumnAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				(cast(b.base_err_amts as decimal(18,2))) as amts
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	base_err_amts,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6001  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by amts desc,prvdId
+	</select>
+	
+	<!-- 省有基地无     金额排名  line  (电子券平台数据不一致) -->
+	<select id="getPlatPrvdLineAmtData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast(b.base_err_amts as decimal(18,2))),0.00) as amts
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,base_err_amts 
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce((cast(b.base_err_amts as decimal(18,2))),0.00) as amts
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,base_err_amts
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	
+	<!-- 省有基地无  金额占比排名  (电子券 平台数据不一致) 柱图 -->
+	<select id="getPlatPrvdColumnAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+				a.cmcc_prov_prvd_id as prvdId,a.cmcc_prov_prvd_nm as name, 
+				cast((base_err_amt_per*100) as decimal(18,2)) as pers
+			from
+			(
+				select	CMCC_prov_prvd_cd as cmcc_prov_prvd_id, CMCC_prov_prvd_nm as cmcc_prov_prvd_nm
+				FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  <![CDATA[ where CMCC_prov_prvd_cd <>10000]]>
+			)a
+			left join
+			(
+				 select 
+				 	base_err_amt_per,cmcc_prov_prvd_nm,cmcc_prov_prvd_id
+				 from  hpbus.sum_dzq_prvd_6001  where aud_trm = #{audTrm}
+			)b
+			on a.cmcc_prov_prvd_id = b.cmcc_prov_prvd_id
+			order by pers desc,prvdId
+	</select>
+	
+	<!-- 省有基地无  金额占比排名  (电子券平台不一致) 折线 -->
+	<select id="getPlatPrvdLineAmtPerData" resultMap="dzChartData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId == 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cast((base_err_amt_per*100) as decimal(18,2)),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,base_err_amt_per
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+		<if test="prvdId != 10000">
+			select a.aud_trm as audTrm,
+				coalesce(cast((base_err_amt_per*100) as decimal(18,2)),0.00) as pers
+			from
+			(
+				SELECT aud_trm
+				FROM	hpmgr.busi_model_notify where <![CDATA[Aud_trm <= #{audTrm} and aud_trm>='201710']]>
+				group by aud_trm
+			)a
+			left join 
+			(
+				SELECT	aud_trm,base_err_amt_per
+				FROM hpbus.sum_dzq_prvd_6001 
+				where 1=1 <![CDATA[ and cmcc_prov_prvd_id = #{prvdId} ]]>
+				and aud_trm in (select distinct aud_trm
+				from hpmgr.busi_audit_switch_conf
+				<![CDATA[
+				where switch_state>=#{switchState}
+					and switch_type=1
+					and subject_code = 6
+				 	and aud_trm<=#{audTrm}
+					and aud_trm>='201710'
+				]]>)
+			)b
+			on a.aud_trm = b.aud_trm
+			order by audTrm
+		</if>
+	</select>
+	
+	<!-- 平台不一致排名汇总    -->
+	<select id="getPlatRankTable" resultType="java.util.Map"  parameterType="com.hpe.cmca.pojo.ParameterData">	
+			select 
+				rank_amt as rankAmt,
+				cmcc_prov_prvd_nm name,
+				cast((base_sum_amt) as decimal(18,2))  as baseSumAmt,	
+				base_sum_num  as baseSumNum,	
+				cast((cmcc_sum_amt) as decimal(18,2))   as cmccSumAmt,
+				cmcc_sum_num  as cmccSumNum,	
+				cast((base_err_amts) as decimal(18,2))  as baseErrAmts,
+				base_err_num  as baseErrNum,	
+				cast((base_err_amt_per*100) as decimal(18,2)) as baseErrAmtPer,
+				cast((cmcc_err_amts) as decimal(18,2)) as cmccErrAmts,	
+				cmcc_err_num  as cmccErrNum,
+				cast((cmcc_err_amt_per*100) as decimal(18,2)) as cmccErrAmtPer
+			from 
+				hpbus.sum_dzq_prvd_6001
+			 where 1=1  <![CDATA[ and aud_trm = #{audTrm}]]> 
+	</select>
+	<!-- 审计报告 -->
+	<select id="getReportInfoData" resultMap="dzqReportInfoData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select 
+			cmcc_prov_prvd_id,
+			cmcc_sum_num,
+			cmcc_amt,
+			cmcc_err_amt,
+			cmcc_err_num,
+			(cmcc_err_amt_per*100) as cmcc_err_amt_per
+		from hpbus.sum_dzq_prvd_6002
+		where 1=1 <![CDATA[ and aud_trm = #{audTrm} and  cmcc_prov_prvd_id = #{prvdId}  ]]> 
+	</select>
+</mapper>

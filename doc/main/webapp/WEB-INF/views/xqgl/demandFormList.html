@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>需求页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/plugins/bootstrap-select/bootstrap-select.min.css">
+    <script src="/cmca/resource/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/plugins/webuploader/webuploader.css">
+    <link rel="stylesheet" href="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/cmca/resource/css/cmca/xqgl.css" />
+</head>
+
+<body class="light_style row demandFormList">
+    <form id="queryParam">
+        <!-- 需求编号 -->
+        <input type="hidden" id="reqId" />
+        <!-- 权限 -->
+        <input type="hidden" id="jurisdiction" value="" />
+    </form>
+    <div class="demandForm">
+        <h4 class="formTitle"></h4>
+        <ul class="formList">
+            <li>
+                <label for="demandCode">需求编号</label>
+                <span class="td2">
+                    <input type="text" class="form-control" id="demandCode" disabled>
+                </span>
+                <span class="help-block">无需填写，提交后会自动生成</span>
+            </li>
+            <li>
+                <label for="demandName">*需求名称</label>
+                <span class="td2 td_1">
+                    <input type="text" id="demandName" class="form-control" disabled placeholder="文本长度支持最多50个汉字">
+                </span>
+            </li>
+            <li>
+                <label for="introducer">需求提出人</label>
+                <div class="dropdown_con">
+                    <div class="input_wrap">
+                        <input type="text" value="" class="form-control" id="introducer" readonly="readonly">
+                        <i class="caret_down"></i>
+                    </div>
+                    <div id="introducerWrap" class="dropdown_menu">
+                        <ul class="dropdown_list" value="" id="introducerList">
+                            <!-- 后台获取 -->
+                        </ul>
+                    </div>
+                </div>
+                <label for="section">需求部门</label>
+                <div class="dropdown_con">
+                    <div class="input_wrap">
+                        <input type="text" value="" class=" form-control" id="section" readonly="readonly">
+                        <i class="caret_down"></i>
+                    </div>
+                    <div id="sectionWrap" class="dropdown_menu">
+                        <ul class="dropdown_list" value="" id="sectionList">
+                            <!-- 后台获取 -->
+                        </ul>
+                    </div>
+                </div>
+            </li>
+             <li id="approverUnit">
+                <label for="approver">*需求审批人</label>
+                <div class="dropdown_con">
+                    <div class="input_wrap">
+                        <input type="text" value="" class=" form-control" id="approver" readonly="readonly">
+                        <i class="caret_down"></i>
+                    </div>
+                    <div id="approverWrap" class="dropdown_menu">
+                        <ul class="dropdown_list" value="" id="approverList">
+                            <!-- 后台获取 -->
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            <li id="demandTypeUnit">
+                <label for="demandType" id="demandType">*需求类型</label>
+                <span class="demandType">
+                    <label><input type="radio" name="demandType" value="SJTSJTJ" disabled>数据探索及统计</label>
+                    <label><input type="radio" name="demandType" value="ZTXQ" disabled>专题需求</label>
+                    <label><input type="radio" name="demandType" value="MXJGTSCL" disabled>模型结果特殊处理</label>
+                    <label><input type="radio" name="demandType" value="GNXQ" disabled>功能需求</label>
+                </span>
+            </li>
+             <li>
+                <label for=" expectedTime">期望完成时间</label>
+                <span class="td2">
+                    <input type="text" id="expectedTime" disabled readonly="readonly">
+                </span>
+            </li>
+            <li>
+                <label class="" for="demandTime">需求提出时间</label>
+                <span class="td2">
+                    <input type="text" class="form-control" disabled id="demandTime" placeholder="">
+                </span>
+                <label class="" for="demandState">需求状态</label>
+                <span class="td2">
+                    <input type="text" class="form-control" disabled id="demandState" placeholder="">
+                </span>
+                
+            </li>
+            <li>
+                <label class="" for="demandDescribe">*需求描述</label>
+                <span class="td1">
+                    <textarea class=" form-control demandDescribe" rows="3" disabled id="demandDescribe" placeholder="文本长度支持最多1000个汉字"></textarea>
+                </span>
+            </li>      
+            <li>
+                <label class="fl" for="demandDescribe">相关附件</label>
+                <div class="fl col-xs-10">
+                    <div id="uploader" class="wu-example">
+                        <input class="col-xs-12" type="text" id="relevantFileName">
+                        <!--用来存放文件信息-->
+                        <div class="fl">
+                            <div id="relevantPicker">选择文件</div>
+                        </div>
+                        <div id="relevantThelist" class="uploader-list col-xs-5"></div>
+                    </div>
+                    <button href="#" class="btn col-xs-2" id="relevantDownFile" disabled>下载</button>
+                    <p class="col-xs-12 help-block">支持.ZIP,.RAR,.DOCX,.DOC,.XLSX的格式上传，最大支持10M文件</p>
+                </div>                
+            </li>
+            <li class="myneedEdit todoListExamine">
+                <label class="" for="approvalTime">审批时间</label>
+                <span class="td2">
+                    <input type="text" id="approvalTime" disabled>
+                </span>
+            </li>
+            <li class="myneedEdit">
+                <label class=" " for="approvalOpinion ">审批意见</label>
+                <span class="td1">
+                    <textarea class=" form-control AccInstructions" disabled id="approvalOpinion" rows="3 " placeholder="可以支持1000汉字以内"></textarea>
+                </span>
+                <span class="help-block"></span>
+            </li>
+            <li class="myneedEdit todoListExamine">
+                <label for="principal">*需求负责人</label>
+                <div class="dropdown_con">
+                    <div class="input_wrap">
+                        <input type="text" value="" class=" form-control" disabled id="principal" value="" readonly="readonly">
+                        <i class="caret_down"></i>
+                    </div>
+                    <div id="principalWrap" class="dropdown_menu">
+                        <ul class="dropdown_list" value="" id="principalList">
+                            <!-- 后台获取 -->
+                        </ul>
+                    </div>
+                </div>
+                <label for="jobClassification" class="myneedDetails">*工作分类</label>
+                <div class="dropdown_con myneedDetails">
+                    <div class="input_wrap">
+                        <input type="text" value="" disabled class=" form-control" id="jobClassification" value="" readonly="readonly">
+                        <i class="caret_down"></i>
+                    </div>
+                    <div id="jobClassificationWrap" class="dropdown_menu">
+                        <ul class="dropdown_list" value="" id="jobClassificationList">
+                            <!-- 后台获取 -->
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            <li class="myneedEdit myneedDetails todoListExamine">
+                <label class="" for="author">提交人</label>
+                <span class="td2">
+                    <input type="text" class=" form-control" disabled id="author" placeeholder="">
+                </span>
+                <label class="" for="actualEffort">实际工作量</label>
+                <span class="td4">
+                    <input type="number" class="form-control actualEffort" disabled minlength="0" id="actualEffort">
+                </span>
+                <span class="help-block">小时(保留一位小数)</span>
+            </li>
+            <li class="myneedEdit myneedDetails todoListExamine">
+                <label class="" for="objectList">结果表名</label>
+                <span class="td2 td_1">
+                    <input type="text" class=" form-control objectList" disabled id="objectList" placeholder="只含数字/字母/下划线/点">
+                </span>
+                <span class="help-block ">多个表名之间用|分隔</span>
+            </li>
+            <li class="myneedEdit myneedDetails todoListExamine">
+                <label class="" for="fieldName">字段名</label>
+                <span class="td1">
+                    <textarea class="form-control fieldName" disabled id="fieldName" rows="3 " placeholder="可以支持1000汉字以内"></textarea>
+                </span>
+            </li>
+            <li class="myneedEdit myneedDetails todoListExamine">
+                <label class=" " for="AccInstructions ">任务完成说明</label>
+                <span class="td1">
+                    <textarea class=" form-control AccInstructions" disabled id="AccInstructions" rows="3 " placeholder="可以支持1000汉字以内"></textarea>
+                </span>
+                <span class="help-block"></span>
+            </li>
+            <li class="interfaceList myneedEdit myneedDetails todoListExamine">
+                <label class="" for="interface_1 ">涉及接口表1(库名表名)</label>
+                <span class="td4">
+                    <input type="text" class="form-control interface" disabled id="interface_1" name="">
+                </span>
+                <label class="dataCycleLabel" for="dataCycle_1">数据周期</label>
+                <span class="td4">
+                    <input type="text" class="form-control dataCycle" disabled id="dataCycle_1" name="">
+                </span>
+                <label class="control-label">是否金库审批</label>
+                <span class="controls ">
+                    <select class="input-xlarge trsApproval" id="trsApproval_1" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <label class="control-label">是否批量导出</label>
+                <span class="controls">
+                    <select class="input-xlarge batchExport" id="batchExport_1" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <!-- <i class="glyphicon glyphicon-plus-sign"></i> -->
+            </li>
+            <li class="interfaceList myneedEdit myneedDetails todoListExamine">
+                <label class="" for="interface_2 ">涉及接口表2(库名表名)</label>
+                <span class="td4">
+                    <input type="text" class="form-control interface" disabled id="interface_2" name="">
+                </span>
+                <label class="dataCycleLabel" for="dataCycle_2">数据周期</label>
+                <span class="td4">
+                    <input type="text" class="form-control dataCycle" disabled id="dataCycle_2" name="">
+                </span>
+                <label class="control-label">是否金库审批</label>
+                <span class="controls ">
+                    <select class="input-xlarge trsApproval" id="trsApproval_2" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <label class="control-label">是否批量导出</label>
+                <span class="controls">
+                    <select class="input-xlarge batchExport" id="batchExport_2" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+            </li>
+            <li class="interfaceList myneedEdit myneedDetails todoListExamine">
+                <label class="" for="interface_3 ">涉及接口表3(库名表名)</label>
+                <span class="td4">
+                    <input type="text" class="form-control interface" disabled id="interface_3" name="">
+                </span>
+                <label class="dataCycleLabel" for="dataCycle_3">数据周期</label>
+                <span class="td4">
+                    <input type="text" class="form-control dataCycle" disabled id="dataCycle_3" name="">
+                </span>
+                <label class="control-label">是否金库审批</label>
+                <span class="controls ">
+                    <select class="input-xlarge trsApproval" id="trsApproval_3" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <label class="control-label">是否批量导出</label>
+                <span class="controls">
+                    <select class="input-xlarge batchExport" id="batchExport_3" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <!-- <i class="glyphicon glyphicon-plus-sign"></i> -->
+            </li>
+            <li class="interfaceList myneedEdit myneedDetails todoListExamine">
+                <label class="" for="interface_4 ">涉及接口表4(库名表名)</label>
+                <span class="td4">
+                    <input type="text" class="form-control interface" disabled id="interface_4" name="">
+                </span>
+                <label class="dataCycleLabel" for="dataCycle_4">数据周期</label>
+                <span class="td4">
+                    <input type="text" class="form-control dataCycle" disabled id="dataCycle_4" name="">
+                </span>
+                <label class="control-label  ">是否金库审批</label>
+                <span class="controls ">
+                    <select class="input-xlarge trsApproval" id="trsApproval_4" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <label class="control-label">是否批量导出</label>
+                <span class="controls">
+                    <select class="input-xlarge batchExport" id="batchExport_4" disabled>
+                        <option selected="selected" value="null">请选择</option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <!-- <i class="glyphicon glyphicon-plus-sign"></i> -->
+            </li>
+            <li class="interfaceList myneedEdit myneedDetails todoListExamine">
+                <label class="" for="interface_5 ">涉及接口表5(库名表名)</label>
+                <span class="td4">
+                    <input type="text" class="form-control interface" disabled id="interface_5" name="">
+                </span>
+                <label class="dataCycleLabel" for="dataCycle_5">数据周期</label>
+                <span class="td4">
+                    <input type="text" class="form-control dataCycle" disabled id="dataCycle_5" name="">
+                </span>
+                <label class="control-label  ">是否金库审批</label>
+                <span class="controls ">
+                    <select class="input-xlarge trsApproval" id="trsApproval_5" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <label class="control-label">是否批量导出</label>
+                <span class="controls">
+                    <select class="input-xlarge batchExport" id="batchExport_5" disabled>
+                        <option selected="selected" value="null">请选择 </option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </span>
+                <!-- <i class="glyphicon glyphicon-plus-sign"></i> -->
+            </li>
+        </ul>
+        <div class="form-group uploadfileList myneedEdit myneedDetails todoListExamine">
+            <label for="keyword " class="col-xs-1 ">附件</label>
+            <div class="col-xs-11">
+                <div id="uploader" class="wu-example">
+                    <input class="col-xs-12 form-control" type="text" id="fileName">
+                    <!--用来存放文件信息-->
+                    <div class="fl">
+                        <div id="picker">选择文件</div>
+                    </div>
+                    <div id="thelist" class="uploader-list col-xs-5"></div>
+                </div>
+                <button href="#" class="btn col-xs-2" id="downFile" disabled>下载</button>
+                <p class="col-xs-12 help-block">仅限上传一个文件，可以把脚本文件、口径说明文件、需求来源文件打包压缩后上传</p>
+            </div>
+        </div>
+        <div class="form-group dispose myneedEdit row todoListExamine todoListDispose">
+            <label for="processingTime" class="fl">处理完成时间</label>
+            <span class="fl"><input class="form-control" type="text" disabled id="processingTime"></span>  
+        </div>
+        <div class="form-group dispose myneedEdit row todoListExamine todoListDispose resultsState">
+            <label class="fl" for="resultsState">处理结果说明</label>
+            <span class="td1">
+                <textarea class="form-control" disabled id="resultsState" rows="3 " placeholder="可以支持1000汉字以内"></textarea>
+            </span>
+            <span class="help-block"></span>
+        </div>
+        <div class="col-xs-5 col-xs-offset-8 submitBtn">
+            <button class="btn disposeBtn" disabled>处理完成</button>
+            <button class="btn approveBtn" disabled>审批通过</button>
+            <button class="btn saveBtn" disabled>保存</button>
+            <button class="btn abolishBtn" disabled>取消</button>
+            <button class="btn colseBtn">关闭</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/cmca/resource/js/cmca/cmca-common.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/xqgl/xqglData.js"></script>
+    <script type="text/javascript" src="/cmca/resource/plugins/webuploader/webuploader.min.js"></script>
+    <script type="text/javascript" src="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/xqgl/demandFormList.js "></script>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="jobReportMapper">
+<!--
+	<cache
+        eviction="LRU"
+        flushInterval="1800000"
+        size="4096"
+        readOnly="true" />
+  -->     
+  <resultMap type="java.util.Map"  id="busiJobReportJson">
+		<result property="id" column="id" jdbcType="VARCHAR" />
+		<result property="audTrm" column="aud_trm" jdbcType="VARCHAR" />
+		<result property="prvdId" column="prvd_id" jdbcType="VARCHAR" />
+		<result property="prvdName" column="prvd_name" jdbcType="VARCHAR" />
+		<result property="reportType" column="report_type" jdbcType="VARCHAR" />
+		<result property="reportJsonData" column="report_json_data" jdbcType="CLOB" />
+		<result property="reportStatus" column="report_status" jdbcType="INTEGER" />
+		<result property="reportTime" column="report_time" jdbcType="TIMESTAMP" />
+	</resultMap> 
+	<insert id="insertInto" keyProperty="id">
+    	insert into hppdata.busi_job_report_json (id,aud_trm,prvd_id,prvd_name,report_type,report_json_data,report_status,report_time)
+    	values (#{id},#{audTrm},#{prvdId},#{prvdName},#{reportType},#{reportJsonData},#{reportStatus},#{reportTime})
+    </insert>
+	
+	<select id="getQDYKList" resultMap="busiJobReportJson" parameterType="java.util.Map">
+		SELECT prvd_name as prvdName, report_json_data as reportJsonData
+		FROM hppdata.busi_job_report_json
+		WHERE report_type = #{reportType} AND aud_trm = #{audTrm}
+	</select>
+	
+	<delete id="delById"></delete>
+</mapper>
+

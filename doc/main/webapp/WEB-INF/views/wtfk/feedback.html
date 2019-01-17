@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>问题报送及反馈</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="/cmca/resource/js/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/plugins/bootstrap-select/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/cmca/resource/plugins/webuploader/webuploader.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/cmca/resource/css/cmca/wtfk.css" />
+</head>
+
+<body class="light_style row problemFormList">
+    <form id="queryParam">
+        <!-- 需求编号 -->
+        <input type="hidden" id="reqId" />
+        <!-- 权限 -->
+        <input type="hidden" id="jurisdiction" value="" />
+    </form>
+    <div class="problemForm" id="problemForm">
+      <div id="newWarp" class="ConNew hide">
+        <h4>问题报送</h4>
+        <ul class="newWarp">
+            <li>
+              <label>问题名称：</label>
+              <input type="text" class="Qname Qinput" id="Qname" placeholder="简要概括问题内容不超过30字">
+            </li>
+            <li>
+              <label>问题类别：</label>
+              <select id="QtypeList">
+              </select>
+            </li>
+            <li>
+              <label>优先级：</label>
+              <select id="QpriorityList">
+              </select>
+            </li>
+            <li>
+              <label>问题描述：</label>
+              <textarea name="" class="Qdescr Qinput" id="Qdescr" cols="60" rows="3" placeholder="详细描述问题内容不超过200字"></textarea>
+            </li>
+            <li>
+              <label>图片(选填，不超过2张)：</label>
+              <div id="uploader" class="wu-example">
+                <div id="fileList" class="uploader-list"></div>
+                  <div id="filePicker">选择图片</div>
+                </div>
+            </li>
+            <li>
+              <label>联系人：</label>
+              <input type="text" class="contacts Qinput" id="Qcontact">
+            </li>
+            <li class="way"><label>联系方式</label></li>
+            <li>
+              <label>电话：</label>
+              <input type="text" class="tel Qinput" id="Qtel">
+            </li>
+            <li>
+              <label>邮箱：</label>
+                <input type="email" class="email Qinput" id="Qemail">
+            </li>
+          </ul>
+        <div class="newForm">
+          <button class="btn submit" id="newSubmit">提交</button>
+          <button class="btn closeSub">取消</button>
+        </div>
+      </div>
+      <div id="replyWarp" class="ConReply hide">
+        <h4 class="Qtitle">问题：<span></span></h4>
+        <table class="table table-bordered replyTable">
+          <tbody>
+            <tr>
+              <td class="text-right">问题名称:</td>
+              <td class="text-center" id="RListQname"></td>
+              <td class="text-right">状态:</td>
+              <td class="text-center" id="RListQstate"></td>
+            </tr>
+            <tr>
+              <td class="text-right">问题类别:</td>
+              <td class="text-center" id="RListQtype"></td>
+              <td class="text-right">优先级:</td>
+              <td class="text-center" id="RListQpriority"></td>
+            </tr>
+            <tr>
+              <td class="text-right">创建时间:</td>
+              <td class="text-center" id="RListQcreatTime"></td>
+              <td class="text-right">联系人:</td>
+              <td class="text-center" id="RListQperContact"></td>
+            </tr>
+            <tr>
+              <td class="text-right">电话:</td>
+              <td class="text-center" id="RListQtel"></td>
+              <td class="text-right">邮箱:</td>
+              <td class="text-center" id="RListQeMail"></td>
+            </tr>
+            <tr >
+              <td class="text-right">问题描述:</td>
+              <td class="text-center" colspan="3" id="RListQdescribe" placeholder="详细描述问题内容不超过200字"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div>
+          <img src="" alt="图片加载中请稍等" class="img-thumbnail" id="RListQimg">
+        </div>
+        <ul class="replyWarp">
+          <li>
+            <label>问题答复：</label>
+            <textarea name="" class="Qinput" id="Rdescr" cols="60" rows="3"></textarea>
+          </li>
+          <li>
+            <label>图片(选填，不超过2张)：</label>
+            <div id="uploader" class="wu-example">
+              <div id="replyFileList" class="uploader-list"></div>
+              <div id="replyFilePicker">选择图片</div>
+            </div>
+          </li>
+          <li>
+            <label>反馈人：</label>
+            <input type="text" class="contacts Qinput" id="Rcontact">
+          </li>
+          <li class="way"><label>联系方式</label></li>
+          <li>
+            <label>电话：</label>
+            <input type="" class="tel Qinput" id="Rtel">
+          </li>
+          <li>
+            <label>邮箱：</label>
+              <input type="email" class="email Qinput" id="Remail">
+          </li>
+        </ul>
+        <div class="replyForm">
+          <button class="btn" id="replySubmit">提交</button>
+          <button class="btn closeSub">取消</button>
+        </div>
+      </div>
+      <div id="resultWarp" class="ConResult hide">
+      <h4 class="Qtitle">问题：<span></span></h4>
+        <table class="table table-bordered resultTable">
+          <tbody>
+            <tr>
+              <td class="text-right">问题名称:</td>
+              <td class="text-center" id="RsListQname"></td>
+              <td class="text-right">状态:</td>
+              <td class="text-center" id="RsListQstate"></td>
+            </tr>
+            <tr>
+              <td class="text-right">问题类别:</td>
+              <td class="text-center" id="RsListQtype"></td>
+              <td class="text-right">优先级:</td>
+              <td class="text-center" id="RsListQpriority"></td>
+            </tr>
+            <tr>
+              <td class="text-right">创建时间:</td>
+              <td class="text-center" id="RsListQcreatTime"></td>
+              <td class="text-right">联系人:</td>
+              <td class="text-center" id="RsListQperContact"></td>
+            </tr>
+            <tr>
+              <td class="text-right">电话:</td>
+              <td class="text-center" id="RsListQtel"></td>
+              <td class="text-right">邮箱:</td>
+              <td class="text-center" id="RsListQeMail"></td>
+            </tr>
+            <tr >
+              <td class="text-right">问题描述:</td>
+              <td class="text-center" colspan="3" id="RsListQdescribe"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div>
+          <img src="" alt="图片加载中请稍等" class="img-thumbnail" id="RsListQimg">
+        </div>
+        <h4 class="Qtitle df">答复：<span></span></h4>
+        <table class="table table-bordered resultTable2 df">
+          <tbody>
+            <tr>
+              <td class="text-right">问题名称:</td>
+              <td class="text-center" id="RsListRname"></td>
+              <td class="text-right">状态:</td>
+              <td class="text-center" id="RsListRstate"></td>
+            </tr>
+            <tr>
+              <td class="text-right">问题类别:</td>
+              <td class="text-center" id="RsListRtype"></td>
+              <td class="text-right">优先级:</td>
+              <td class="text-center" id="RsListRpriority"></td>
+            </tr>
+            <tr>
+              <td class="text-right">答复时间:</td>
+              <td class="text-center" id="RsListRcreatTime"></td>
+              <td class="text-right">反馈人:</td>
+              <td class="text-center" id="RsListRperContact"></td>
+            </tr>
+            <tr>
+              <td class="text-right">电话:</td>
+              <td class="text-center" id="RsListRtel"></td>
+              <td class="text-right">邮箱:</td>
+              <td class="text-center" id="RsListReMail"></td>
+            </tr>
+            <tr >
+              <td class="text-right">问题答复:</td>
+              <td class="text-center" colspan="3" id="RsListRdescribe"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="df">
+          <img src="" alt="图片加载中请稍等" class="img-thumbnail" id="RsListRimg">
+        </div>
+        <div class="resultForm df">
+          <button class="btn resolved">已解决</button>
+          <button class="btn updata">更新问题</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/cmca/resource/js/cmca/cmca-common.js"></script>
+    <script src="/cmca/resource/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/wtfk/wtfkData.js"></script>
+    <script type="text/javascript" src="/cmca/resource/plugins/webuploader/webuploader.min.js"></script>
+    <script type="text/javascript" src="/cmca/resource/plugins/jqueryUI/jquery-ui-1.10.4.min.js"></script>
+    <script type="text/javascript" src="/cmca/resource/js/cmca/wtfk/feedback.js "></script>
+</body>
+
+</html>

@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.WtfkMapper">
+	<!-- 问题提出的pojo -->
+	<resultMap type="com.hpe.cmca.pojo.WtfkPojo" id="wtfkPojo">
+		<result property="proId" column="pro_id" />
+		<result property="proPutId" column="pro_put_id" />
+		<result property="proEncod" column="pro_encod" />
+		<result property="proName" column="pro_name" />
+		<result property="classId" column="class_id" />
+
+		<result property="statusName" column="status_name" />
+		<result property="priorityId" column="priority_id" />
+		<result property="proDescribe" column="pro_describe" />
+		<result property="proTime" column="pro_time" />
+		<result property="proStatus" column="pro_status" />
+		<result property="proRcontent" column="pro_rcontent" />
+		<result property="proTel" column="pro_tel" />
+		<result property="proPutName" column="pro_put_name" />
+		<result property="proEmail" column="pro_email" />
+		<result property="className" column="class_name" />
+		<result property="priorityName" column="priority_name" />
+		<result property="dealId" column="deal_id" />
+		<result property="proId" column="pro_id" />
+		<result property="dealDescribe" column="deal_describe" />
+		<result property="dealProId" column="deal_pro_id" />
+		<result property="dealProName" column="deal_pro_name" />
+		<result property="dealTel" column="deal_tel" />
+		<result property="dealEmail" column="deal_email" />
+		<result property="dealTime" column="deal_time" />
+		<result property="proPhotoName" column="pro_photo_name" />
+		<result property="dealPhotoName" column="deal_photo_name" />
+	</resultMap>
+
+	<!-- 双回显得pojo -->
+	<resultMap type="com.hpe.cmca.pojo.WtfkDealPojo" id="wtfkDealPojo">
+		<result property="proName" column="pro_name" />
+		<result property="proStatus" column="pro_status" />
+		<result property="statusName" column="status_name" />
+		<result property="classId" column="class_id" />
+		<result property="className" column="class_name" />
+		<result property="priorityId" column="priority_id" />
+		<result property="priorityName" column="priority_name" />
+		<result property="proDescribe" column="pro_describe" />
+		<result property="proPhotoName" column="pro_photo_name" />
+		<result property="proTime" column="pro_time" />
+		<result property="proRcontent" column="pro_rcontent" />
+		<result property="proTel" column="pro_tel" />
+		<result property="proEmail" column="pro_email" />
+		<result property="dealDescribe" column="deal_describe" />
+		<result property="dealTel" column="deal_tel" />
+		<result property="dealProName" column="deal_pro_name" />
+		<result property="dealEmail" column="deal_email" />
+		<result property="dealPhotoName" column="deal_photo_name" />
+		<result property="dealTime" column="deal_time" />
+	</resultMap>
+	<!-- 解决问题回显 -->
+	<resultMap type="com.hpe.cmca.pojo.WtfkData" id="wtfkData">
+		<result property="proName" column="pro_name" />
+		<result property="proStatus" column="pro_status" />
+		<result property="classId" column="class_id" />
+		<result property="className" column="class_name" />
+		<result property="priorityId" column="priority_id" />
+		<result property="priorityName" column="priority_name" />
+		<result property="proDescribe" column="pro_describe" />
+		<result property="proPhotoName" column="pro_photo_name" />
+		<result property="proTime" column="pro_time" />
+		<result property="proRcontent" column="pro_rcontent" />
+		<result property="proTel" column="pro_tel" />
+		<result property="proEmail" column="pro_email" />
+		<result property="proStatus" column="pro_status" />
+		<result property="statusName" column="status_name" />
+	</resultMap>
+
+	<!--提问图片 -->
+	<resultMap type="com.hpe.cmca.pojo.WtfkProPhoto" id="proPhoto">
+		<result property="proPhotoId" column="pro_photo_id" />
+		<result property="proEncod" column="pro_encod" />
+		<result property="proPhotoName" column="pro_photo_name" />
+
+	</resultMap>
+	<!--解决图片 -->
+	<resultMap type="com.hpe.cmca.pojo.WtfkDealPhoto" id="dealPhoto">
+		<result property="dealPhotoId" column="deal_photo_id" />
+		<result property="proEncod" column="pro_encod" />
+		<result property="dealPhotoName" column="deal_photo_name" />
+	</resultMap>
+	<!-- 图片汇总pojo -->
+	<resultMap type="com.hpe.cmca.pojo.WtfkPhotod" id="doublePhoto">
+		<result property="proPhotoName" column="pro_photo_name" />
+		<result property="dealPhotoName" column="deal_photo_name" />
+	</resultMap>
+	<!-- 提出问题 -->
+	<insert id="insertQue" parameterType="java.util.Map">
+		INSERT INTO
+		hpbus.busi_problem_back
+		(pro_put_id, pro_name,
+		class_id,
+		pro_encod,
+		priority_id,
+		pro_describe, pro_rcontent, pro_time,
+		pro_status, pro_tel,
+		pro_del,
+		pro_put_name, pro_email,user_prvd_id,user_dept_id)
+		VALUES
+		(#{pro_put_id},#{pro_name},#{class_id},#{pro_encod},#{priority_id}
+		,#{pro_describe},#{pro_rcontent},#{pro_time},'0',#{pro_tel},'1',#{pro_put_name},#{pro_email},#{user_prvd_id},#{user_dept_id})
+	</insert>
+
+
+
+	<select id="selectByUserId" resultMap="wtfkPojo" parameterType="java.util.Map">
+		SELECT a.pro_id, a.pro_put_id,a. pro_name,a. pro_encod,
+		a.pro_describe,a. pro_rcontent,a. pro_time,a. pro_tel,a.pro_status,
+		a.pro_del,a.pro_put_name,a. pro_email,
+		c.priority_name,d.class_name,e.status_name,f.pro_photo_name,
+		g.deal_photo_name
+		FROM
+		hpbus.busi_problem_back as a left
+		join
+		hpbus.busi_problem_priority
+		as c
+		on a.priority_id=c.priority_id
+		left
+		join
+		hpbus.busi_problem_class
+		as d
+		on a.class_id=d.class_id left join
+		hpbus.busi_problem_status as e
+		on a.pro_status=e.status_id left join
+		hpbus.busi_problem_photo as f
+		on a.pro_encod=f.pro_encod
+		left join
+		hpbus.busi_deal_photo as g
+		on a.pro_encod=g.pro_encod
+		where 1=1
+		and
+		a.pro_del=1 and (
+		<if test="user_dept_id=='10009'">
+			d.class_id in(1,2,3,4,5) or
+		</if>
+		<if test="user_dept_id=='18'">
+			d.class_id in (1,2,3,5) or
+		</if>
+		<if test="user_dept_id=='12'">
+			d.class_id in (1,2,3,5) or
+		</if>
+		a.pro_put_id=#{pro_put_id} or a.user_prvd_id=#{user_prvd_id})
+
+		order by
+		a.pro_time desc
+	</select>
+
+
+	<select id="findClass" resultType="Map">
+		SELECT class_id, class_name
+		FROM hpbus.busi_problem_class
+	</select>
+
+	<select id="findPriority" resultType="Map">
+		SELECT priority_id,
+		priority_name
+		FROM hpbus.busi_problem_priority
+	</select>
+
+	<!-- 批量逻辑删除删除状态改为0就可以 -->
+	<update id="deleteProblem" parameterType="map">
+		update hpbus.busi_problem_back set pro_del='0'
+		where pro_encod in
+		<foreach item="item" index="index" collection="proEncod" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+
+	</update>
+	<!-- 进行审批问题 ，这是根据处理人的id以及问题编号，来先查询deal表的信息，再根据里面的问题id找到对应的问题表 传入编号和用户id 
+		插入时把用户编号和问题编号带过去，插入deal表 -->
+	<select id="dealProblemOne" parameterType="map" resultMap="wtfkData">
+		SELECT a.pro_id, a.pro_put_id,a. pro_name,a. pro_encod,
+		a.pro_describe,a. pro_rcontent,a. pro_time,a. pro_status,a. pro_tel,
+		a.pro_del,a.pro_put_name,a.pro_email,a.class_id,a.priority_id,
+		c.priority_name,d.class_name,p.pro_photo_name,e.status_name
+		FROM
+		hpbus.busi_problem_back as a left join
+		hpbus.busi_problem_priority
+		as c
+		on a.priority_id=c.priority_id
+		left join
+		hpbus.busi_problem_class
+		as
+		d
+		on
+		a.class_id=d.class_id left
+		join
+		hpbus.busi_problem_photo as p
+		on
+		a.pro_encod=p.pro_encod
+		left
+		join hpbus.busi_problem_status as e
+		on
+		a.pro_status=e.status_id
+		where
+		a.pro_del=1
+		and
+		a.pro_encod=#{pro_encod}
+
+	</select>
+
+	<!-- 第一次处理问题 -->
+	<insert id="dealProblemTwo" parameterType="map">
+		INSERT INTO
+		hpbus.busi_problem_deal
+		( pro_encod,
+		deal_describe, deal_pro_id,
+		deal_pro_name,
+		deal_tel,
+		deal_email,deal_time)
+		VALUES
+		(
+		#{pro_encod} ,
+		#{deal_describe}
+		,
+		#{deal_pro_id},#{ deal_pro_name}
+		, #{deal_tel} ,
+		#{deal_email} ,#{deal_time})
+	</insert>
+	<!-- 确认答复结果信息，把答复表和问题表联查后就可以得到答复结果确认页面，根据问题提出人的id查询此信息，如果得到确认把 -->
+	<select id="selreqProblem" resultMap="wtfkDealPojo">
+		SELECT
+		a.pro_id,a.
+		pro_put_id,a. pro_name,a. pro_encod,
+		a.pro_describe,a.
+		pro_rcontent,
+		a.pro_status,a. pro_tel,a.class_id,a.priority_id,
+		a.pro_put_name,
+		a.pro_email,a.pro_time,b.class_name,c.priority_name,d.pro_photo_name,
+		e.deal_describe, e.deal_pro_id, e.deal_pro_name,
+		e.deal_tel,e.deal_time,
+		e.deal_email,f.deal_photo_name,z.status_name
+		FROM
+		hpbus.busi_problem_back as a left
+		join hpbus.busi_problem_class
+		as b
+		on a.class_id=b.class_id left join
+		hpbus.busi_problem_priority as
+		c
+		on
+		a.priority_id = c.priority_id
+		left join hpbus.busi_problem_photo
+		as
+		d
+		on
+		a.pro_encod=d.pro_encod
+		left join hpbus.busi_problem_deal as e
+		on
+		a.pro_encod=e.pro_encod
+		left join hpbus.busi_deal_photo as f on a.
+		pro_encod=f.pro_encod left join hpbus.busi_problem_status as z on
+		a.pro_status=z.status_id
+		where a.pro_encod=#{pro_encod}
+	</select>
+
+	<!-- 插入提出问题图片 -->
+	<insert id="insertProPhoto">
+
+		INSERT INTO
+		hpbus.busi_problem_photo
+		(pro_encod,
+		pro_photo_name)
+		VALUES
+		(#{pro_encod},
+		#{pro_photo_name})
+	</insert>
+	<!-- 插入解决问题图片 -->
+	<insert id="backProblemUploader">
+		INSERT INTO
+		hpbus.busi_deal_photo
+		(pro_encod,deal_photo_name)
+		VALUES
+		(#{pro_encod},
+		#{deal_photo_name})
+	</insert>
+
+	<!-- 已解决 -->
+	<update id="resolvedPro" parameterType="map">
+		update
+		hpbus.busi_problem_back set pro_status=1 where
+		pro_encod=#{pro_encod}
+	</update>
+	<!-- 跟新状态为重新打开 <update id="updatePro" parameterType="String"> update hpbus.busi_problem_back 
+		set pro_status=2 where pro_encod=#{pro_encod} </update> -->
+	<!-- 更改问题状态为3，已反馈待确认 -->
+	<update id="updateProStatus" parameterType="map">
+		update
+		hpbus.busi_problem_back set pro_status=3
+		where pro_encod=#{pro_encod}
+
+	</update>
+	<!-- 重新修改自己的问题 -->
+	<update id="updateProblem" parameterType="map">
+		update
+		hpbus.busi_problem_back
+		set
+		pro_name=#{pro_name},class_id=#{class_id},priority_id=#{priority_id},
+		pro_describe=#{pro_describe},pro_time=#{pro_time},pro_tel=#{pro_tel},
+		pro_email=#{pro_email},pro_rcontent=#{pro_rcontent},pro_status=2
+		where
+		pro_encod=#{pro_encod}
+	</update>
+	<!-- 查找提问图片 -->
+	<select id="selectByCode" resultMap="proPhoto">
+		SELECT pro_photo_id,
+		pro_encod, pro_photo_name
+		FROM
+		hpbus.busi_problem_photo where
+		pro_encod=#{pro_encod}
+	</select>
+	<!-- 查找解决图片 -->
+	<select id="selectByDealCode" resultMap="dealPhoto">
+		SELECT deal_photo_id,
+		pro_encod, deal_photo_name
+		FROM hpbus.busi_deal_photo where
+		pro_encod=#{pro_encod}
+	</select>
+
+	<update id="updateByCode">
+		update hpbus.busi_problem_photo set
+		pro_photo_name=#{pro_photo_name} where
+		pro_encod=#{pro_encod}
+	</update>
+
+	<update id="updateByDealCode">
+		update hpbus.busi_deal_photo set
+		deal_photo_name=#{deal_photo_name} where
+		pro_encod=#{pro_encod}
+	</update>
+
+	<select id="getProPhoto" resultMap="doublePhoto">
+		SELECT
+		d.pro_photo_name,
+		f.deal_photo_name
+		FROM
+		hpbus.busi_problem_back as a
+
+		left join
+		hpbus.busi_problem_photo
+		as d
+		on a.pro_encod=d.pro_encod
+		left join
+		hpbus.busi_deal_photo as f
+		on
+		a.pro_encod=f.pro_encod
+		where
+		a.pro_encod=#{pro_encod}
+	</select>
+
+	<!-- 查找解决图片 -->
+
+
+
+</mapper>
+
+

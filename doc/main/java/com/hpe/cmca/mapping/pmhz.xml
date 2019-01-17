@@ -1,0 +1,1897 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<!-- 命名空间 -->
+<mapper namespace="pmhz">
+
+
+	<select id="getFileGenRequst" resultType="Map" parameterType="Map">
+		<if test="isAuto==true">
+			select b.id,a.aud_trm as audTrm from (		
+			select aud_trm,subject_id,prvd_id,sum( case when pmhz_status in(0,4) then 1 else 0 end )as need_gen,count(distinct focus_cd) as focus_num
+			from hpmgr.busi_model_notify where prvd_id =10000  group by aud_trm,subject_id,prvd_id
+			having need_gen>0 and <![CDATA[focus_num>=#{focusNum}]]> and subject_id=#{subjectId}
+			<if test="audTrm != null">
+			and aud_trm =#{audTrm} 
+			</if>
+			)a 
+			join hpmgr.busi_model_notify b
+			on a.aud_trm=b.aud_trm and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+		</if>
+		<if test="isAuto==false">
+			select b.id,a.aud_trm as audTrm from (		
+			select aud_trm,subject_id,prvd_id,sum( case when pmhz_status in(0,4) then 1 else 0 end )as need_gen,count(distinct focus_cd) as focus_num
+			from hpmgr.busi_model_notify group by aud_trm,subject_id,prvd_id
+			having need_gen>0 and <![CDATA[focus_num>=#{focusNum}]]> and subject_id=#{subjectId}
+			<if test="audTrm != null">
+			and aud_trm =#{audTrm} 
+			</if>
+			)a 
+			join hpmgr.busi_model_notify b
+			on a.aud_trm=b.aud_trm and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+		</if>
+	</select>
+	
+	<select id="getFileGenRequstNew" resultType="Map" parameterType="Map">
+		<if test="isAuto==true">
+			select b.id,a.aud_trm as audTrm from (		
+			select aud_trm,subject_id,prvd_id,sum( case when pmhz_status in(0,4) then 1 else 0 end )as need_gen,count(distinct focus_cd) as focus_num
+			from hpmgr.busi_model_notify_new where prvd_id =10000  group by aud_trm,subject_id,prvd_id
+			having need_gen>0 and <![CDATA[focus_num>=#{focusNum}]]> and subject_id=#{subjectId}
+			<if test="audTrm != null">
+			and aud_trm =#{audTrm} 
+			</if>
+			)a 
+			join hpmgr.busi_model_notify_new b
+			on a.aud_trm=b.aud_trm and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+		</if>
+		<if test="isAuto==false">
+			select b.id,a.aud_trm as audTrm from (		
+			select aud_trm,subject_id,prvd_id,sum( case when pmhz_status in(0,4) then 1 else 0 end )as need_gen,count(distinct focus_cd) as focus_num
+			from hpmgr.busi_model_notify_new group by aud_trm,subject_id,prvd_id
+			having need_gen>0 and <![CDATA[focus_num>=#{focusNum}]]> and subject_id=#{subjectId}
+			<if test="audTrm != null">
+			and aud_trm =#{audTrm} 
+			</if>
+			)a 
+			join hpmgr.busi_model_notify_new b
+			on a.aud_trm=b.aud_trm and a.subject_id=b.subject_id and a.prvd_id=b.prvd_id
+		</if>
+	</select>
+	
+	<update id="updatePmhzStatus" parameterType="Map">
+		update hpmgr.busi_model_notify set pmhz_status =#{pmhzStatus} where id =#{Id}
+	</update>
+	
+	<update id="updatePmhzStatusNew" parameterType="Map">
+		update hpmgr.busi_model_notify_new set pmhz_status =#{pmhzStatus} where id =#{Id}
+	</update>
+	
+	<update id="updatePmhzStatusByTrmSub" parameterType="Map">
+		update hpmgr.busi_model_notify set pmhz_status =#{pmhzStatus} 
+		where subject_id =#{subjectId} and aud_trm=#{audTrm}
+	</update>
+	
+	<update id="updatePmhzStatusByTrmSubNew" parameterType="Map">
+		update hpmgr.busi_model_notify_new set pmhz_status =#{pmhzStatus} 
+		where subject_id =#{subjectId} and aud_trm=#{audTrm}
+	</update>
+	
+	<!-- 新增一条下载信息 -->
+	<insert id="addHandAndDownloadInfo" parameterType="java.util.Map">
+		INSERT	INTO hpmgr.busi_notification_op( user_name, audit_monthly, audit_subject, focus_cd, op_type,op_time,op_prvd)
+		VALUES	(#{userName}, #{audTrm},#{subjectId}, #{focusCd}, #{opType},current_timestamp,#{opPrvd});
+	</insert>
+
+
+	<!-- 获取审计月份列表 -->
+	<select id="getNotiFileMonthList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT DISTINCT(audit_monthly),audit_subject,focus_cd
+		FROM hpmgr.busi_notification_file ORDER BY audit_subject,focus_cd,audit_monthly DESC
+	</select>
+	<!-- 审计通报列表-pager专用 -->
+	<select id="notiFileListForPager" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT id, audit_monthly,audit_subject,focus_cd,status,create_time,download_time,download_url,create_num,download_num
+		FROM hpmgr.busi_notification_file
+		WHERE <![CDATA[focus_cd=#{params.focusCdStr}]]> AND <![CDATA[audit_monthly=#{params.month}]]>
+	</select>
+	<!-- 检查完成的省份数量 -->
+	<select id="checkPrvdCount" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT 	count(distinct prvd_id) AS total_num
+		FROM hpmgr.busi_model_notify
+		WHERE aud_trm=#{audTrm} AND subject_id=#{subjectId} AND pmhz_status in('2','3') 
+	</select>
+	<!--检查是否正在执行 -->
+	<select id="checkIsProc" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT 	count(distinct prvd_id) AS total_num
+		FROM hpmgr.busi_model_notify
+		WHERE aud_trm=#{audTrm} AND subject_id=#{subjectId} AND pmhz_status in('5','6')
+	</select>
+	<!-- 获取审计通报个数 -->
+	<select id="getNotiFileCountByFocusCDAndMonth" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT COUNT(1) AS total_num
+		FROM hpmgr.busi_notification_file
+		WHERE <![CDATA[focus_cd=#{focusCdStr}]]> AND <![CDATA[audit_monthly=#{month}]]>
+	</select>
+	<!-- 获取审计报表个数 -->
+	<select id="getReportFileCountByFocusCDAndMonth" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT COUNT(1) AS total_num
+		FROM hpmgr.busi_report_file
+		WHERE <![CDATA[audit_concern=#{focusCdStr}]]> AND <![CDATA[audit_monthly=#{month}]]>
+	</select>
+	<!-- 添加新的审计通报记录 -->
+	<select id="addNotiFile" parameterType="java.util.Map">
+		INSERT INTO hpmgr.busi_notification_file		
+		(audit_monthly, audit_subject, focus_cd, status, create_time,download_time, create_num, download_num,download_url)		
+		VALUES (#{audTrm},#{subjectId},#{focusCd}, #{status}, current_time,null, 1, 0,#{downloadUrl})
+	</select>
+	<!-- 获取审计通报列表 -->
+	<select id="getNotiFileList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT id, audit_monthly,audit_subject,focus_cd,status,create_time,download_time,create_num,download_num,download_url
+		FROM hpmgr.busi_notification_file
+		WHERE <![CDATA[audit_monthly=#{month}]]>
+		<if test="focusCdStr!=null">
+			<![CDATA[AND focus_cd = #{focusCdStr}]]>
+		</if>
+		<if test="status!=null">
+			<![CDATA[AND status = #{status}]]>
+		</if>
+	</select>
+	<!-- 获取审计通报信息 -->
+	<select id="getNotiFile" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT id, audit_monthly,audit_subject,focus_cd,status,create_time,download_time,create_num,download_num,download_url
+		FROM hpmgr.busi_notification_file
+		WHERE <![CDATA[focus_cd=#{focusCdStr}]]> AND <![CDATA[audit_monthly=#{month}]]>
+		<if test="status!=null">
+			<![CDATA[AND status = #{status}]]>
+		</if>
+	</select>
+	<!-- 获取审计通报信息 -->
+	<select id="getNotiFileById" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT id, audit_monthly,audit_subject,focus_cd,status,create_time,download_time,create_num,download_num,download_url
+		FROM hpmgr.busi_notification_file
+		WHERE id=#{id}
+	</select>
+	
+	<!-- 获取下载次数 -->
+	<select id="getDownloadTimes" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT id, audit_monthly,audit_subject,focus_cd,status,create_time,download_time,create_num,download_num,download_url
+		FROM hpmgr.busi_notification_file
+		WHERE audit_subject=#{subjectId} 
+		AND audit_monthly=#{audTrm}
+	</select>
+	<!-- lock审计通报信息 -->
+	<select id="lockNotiFile" resultType="java.util.HashMap" parameterType="java.util.Map">
+		LOCKING ROW FOR WRITE
+		SELECT * FROM hpmgr.busi_notification_file 
+		WHERE <![CDATA[focus_cd=#{focusCdStr}]]> AND <![CDATA[audit_monthly=#{month}]]>
+		<if test="status!=null">
+			<![CDATA[AND status = #{status}]]>
+		</if>
+	</select>
+	<!-- 获取渠道样卡汇总信息-综合 -->
+	<select id="getNotiFile2000DataSum" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT nation_ent_num nation_ent_num,
+	       nation_qdyk_subs_num nation_qdyk_subs_num,
+	       nation_qdyk_num_perc*1.0000 nation_qdyk_num_perc,
+	       SUM(qdyk_chnl_num) total_qdyk_chnl_num,
+	       total_qdyk_chnl_num * 1.0000 / nation_chnl_num total_qdyk_chnl_perc,
+	       SUM(chnl_num) nation_chnl_num
+		FROM hpbus.sum_qdyk_2002_prvd
+ 		WHERE <![CDATA[aud_trm=#{month}]]> AND chnl_class = #{chnlClass}
+		GROUP BY 1, 2, 3
+ 	</select>
+ 	<!-- 获取渠道样卡汇总信息-综合缓存 -->
+	<select id="getNotiFile2000DataSumCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT aud_trm, nation_ent_num, nation_qdyk_subs_num, nation_qdyk_num_perc, total_qdyk_chnl_num, total_qdyk_chnl_perc, nation_chnl_num,trim(chnl_class) as chnl_class
+		FROM hpmgr.busi_noti_cd_2000_sum
+ 		WHERE <![CDATA[aud_trm>=#{monthF}]]> AND <![CDATA[aud_trm<=#{monthT}]]> AND chnl_class = #{chnlClass}
+		ORDER BY aud_trm DESC
+ 	</select>
+ 	<!-- 添加渠道样卡汇总信息-综合缓存 -->
+ 	<select id="addNotiFile2000DataSumCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		INSERT INTO hpmgr.busi_noti_cd_2000_sum 
+ 		(aud_trm,nation_ent_num,nation_qdyk_subs_num,nation_qdyk_num_perc,total_qdyk_chnl_num,total_qdyk_chnl_perc, chnl_class) VALUES 
+ 		(#{aud_trm},#{nation_ent_num},#{nation_qdyk_subs_num},#{nation_qdyk_num_perc},#{total_qdyk_chnl_num},#{total_qdyk_chnl_perc},#{chnl_class});
+ 	</select>
+ 	<!-- 获取渠道样卡汇总信息-百分比排序 -->
+ 	<select id="getNotiFile2000QtyPerc" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT prvd_id, prvd_name,qdyk_subs_num, qdyk_num_perc*100 qdyk_num_perc,Aud_trm as aud_trm
+  		FROM hpbus.sum_qdyk_2002_prvd
+		WHERE <![CDATA[aud_trm=#{month}]]> AND chnl_class = #{chnlClass}
+		ORDER BY qdyk_num_perc DESC;
+ 	</select>
+ 	<!-- 获取渠道样卡汇总信息-百分比排序缓存 -->
+ 	<select id="getNotiFile2000QtyPercCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		SELECT aud_trm, prvd_id, prvd_name, qdyk_subs_num, qdyk_num_perc,qdyk_num_perc_id,trim(chnl_class) as chnl_class,qdyk_num_perc_id
+		FROM hpmgr.busi_noti_cd_2000_qp
+		WHERE <![CDATA[aud_trm>=#{monthF}]]> AND <![CDATA[aud_trm<=#{monthT}]]> AND chnl_class = #{chnlClass}
+		ORDER BY aud_trm DESC, qdyk_num_perc DESC
+ 	</select>
+ 	 <!-- 添加渠道样卡汇总信息-百分比排序缓存 -->
+ 	<select id="addNotiFile2000QtyPercCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		INSERT INTO hpmgr.busi_noti_cd_2000_qp 
+ 		(aud_trm,prvd_id,prvd_name,qdyk_subs_num,qdyk_num_perc,qdyk_num_perc_id,chnl_class) VALUES 
+ 		(#{aud_trm},#{prvd_id},#{prvd_name},#{qdyk_subs_num},#{qdyk_num_perc},#{qdyk_num_perc_id},#{chnl_class});
+ 	</select>
+ 	<select id="updateNotiFile2000QtyPercCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_noti_cd_2000_qp SET
+ 		qdyk_num_perc_id = #{qdyk_num_perc_id}
+ 		WHERE aud_trm=#{aud_trm} AND prvd_id=#{prvd_id} AND chnl_class=#{chnl_class}
+ 	</select>
+ 	<!-- 获取渠道样卡汇总信息-chnl 排序-->
+ 	 <select id="getNotiFile2000ChnlPerc" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT prvd_id, prvd_name,qdyk_chnl_num, qdyk_chnl_perc*100 qdyk_chnl_perc, Aud_trm as aud_trm
+  		FROM hpbus.sum_qdyk_2002_prvd
+		WHERE <![CDATA[aud_trm=#{month}]]> AND chnl_class = #{chnlClass}
+		ORDER BY qdyk_chnl_perc DESC;
+ 	</select>
+ 	 <!-- 获取渠道样卡渠道信息-百分比排序缓存 -->
+ 	<select id="getNotiFile2000ChnlPercCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		SELECT aud_trm, prvd_id, prvd_name, qdyk_chnl_num, qdyk_chnl_perc,qdyk_chnl_perc_id,trim(chnl_class) as chnl_class,qdyk_chnl_perc_id
+		FROM hpmgr.busi_noti_cd_2000_cp
+		WHERE <![CDATA[aud_trm>=#{monthF}]]> AND <![CDATA[aud_trm<=#{monthT}]]> AND chnl_class = #{chnlClass}
+		ORDER BY aud_trm DESC, qdyk_chnl_perc DESC
+ 	</select>
+ 	 <!-- 添加渠道样卡渠道数量信息-百分比排序缓存 -->
+ 	<select id="addNotiFile2000ChnlPercCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		INSERT INTO hpmgr.busi_noti_cd_2000_cp 
+ 		(aud_trm,prvd_id,prvd_name,qdyk_chnl_num,qdyk_chnl_perc,qdyk_chnl_perc_id,chnl_class) VALUES 
+ 		(#{aud_trm},#{prvd_id},#{prvd_name},#{qdyk_chnl_num},#{qdyk_chnl_perc},#{qdyk_chnl_perc_id},#{chnl_class});
+ 	</select>
+ 	<select id="updateNotiFile2000ChnlPercCache" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_noti_cd_2000_cp SET
+ 		qdyk_chnl_perc_id = #{qdyk_chnl_perc_id}
+ 		WHERE aud_trm=#{aud_trm} AND prvd_id=#{prvd_id} AND chnl_class=#{chnl_class}
+ 	</select>
+ 	
+ 	<!-- 获取各省疑似养卡号码数量排名前三地市 -->
+ 	<select id="getNotiFile2000NumTop3Cty" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	select prvd_id,prvd_name,cty_name_short,qdyk_subs_num,qdyk_num_perc  from  hpbus.sum_qdyk_2002_cty
+	where aud_trm = #{audTrm}  
+	<![CDATA[and qdyk_subs_num_rank<= 3]]>
+	and chnl_class = '0'
+	order by prvd_id, qdyk_subs_num_rank
+ 	
+ 	</select>
+ 	
+ 	<!-- 获取各省疑似养卡号码占比排名前三地市 -->
+ 	<select id="getNotiFile2000PerTop3Cty" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	select prvd_id,prvd_name,cty_name_short,qdyk_num_perc , qdyk_subs_num from  hpbus.sum_qdyk_2002_cty
+	where aud_trm = #{audTrm}  
+	<![CDATA[and qdyk_num_perc_rank<= 3]]>
+	and chnl_class = '0'
+	order by prvd_id, qdyk_num_perc_rank
+ 	
+ 	</select>
+ 	
+ 	<!-- 各省疑似养卡号码数量排名前十渠道 -->
+ 	<select id="getNotiFile2000NumTop10Chnl" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	select prvd_id,prvd_name,chnl_name,cty_name_short,rase_crd_qty, 
+ 	<![CDATA[case when tol_usrs > 0 then rase_crd_qty*1.0000/tol_usrs else 0 end qdyk_per]]>  
+ 	from hpbus.sum_qdyk_2002
+	where aud_trm = #{audTrm}  
+	<![CDATA[qualify row_number()  over (partition by aud_trm , prvd_id order by rase_crd_qty desc, qdyk_per desc ) <= 10 ]]>
+ 	
+ 	</select>
+ 	
+ 	<!-- 各省疑似养卡号码数量占比前十渠道 -->
+ 	<select id="getNotiFile2000PerTop10Chnl" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	select prvd_id,prvd_name,chnl_name,cty_name_short,rase_crd_qty,
+	<![CDATA[case when tol_usrs > 0 then rase_crd_qty*1.0000/tol_usrs else 0 end qdyk_per]]>
+	from hpbus.sum_qdyk_2002
+	where aud_trm = #{audTrm} 
+	<![CDATA[qualify row_number()  over (partition by aud_trm , prvd_id order by qdyk_per desc, rase_crd_qty desc ) <= 10 ]]>
+ 	
+ 	</select>
+ 	
+ 	 <!-- 获取全国所有省份ID和名称 -->
+ 	<select id="getAllPrvd" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	SELECT	CMCC_prov_prvd_nm as prvd_name , CMCC_prov_prvd_id as prvd_id
+	FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd  
+	<![CDATA[where CMCC_prov_prvd_id <>10000]]>
+	order by prvd_id
+ 	</select>
+ 	
+ 	<!-- 获取渠终端套利汇总信息-综合 -->
+ 	<select id="getNotiFileZdtlData3000" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT aud_trm, focus_cd, CMCC_prov_prvd_nm, tol_num, totalChnlQty,
+			weigui_num, weigui_chnlqty, weigui_per_cnt, weigui_order, taoli_num,
+			infraction_sett_amt, taoli_chnlqty, taoli_per_cnt, taoli_weigui_per_cnt,
+			taoli_weigui_order
+		FROM hpbus.rank_sum_zdtl_3000
+		WHERE <![CDATA[aud_trm=#{month}]]>
+		ORDER BY weigui_order ASC  
+ 	</select>
+ 	<!-- 获取省份信息  -->
+ 	<select id="getAllPrvdData" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		SELECT CMCC_prov_prvd_nm AS prvd_nm, CMCC_prov_prvd_id AS prvd_id
+		FROM hpmgr.ref_dm_cmcc_prov_prvd_cd
+		WHERE <![CDATA[CMCC_prov_prvd_id <> '10000']]>
+ 	</select>
+ 	<!-- 获取渠终端套利汇总信息-渠道 -->
+ 	<select id="getNotiFileZdtlData" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT aud_trm, focus_cd, CMCC_prov_prvd_nm, weigui_num, weigui_chnlqty,
+			taoli_num, infraction_sett_amt, taoli_chnlqty, weigui_per_cnt,
+			taoli_weigui_per_cnt, weigui_order, taoli_order, tol_num
+		FROM hpbus.rank_zdtl_3000
+		WHERE <![CDATA[aud_trm=#{month}]]> AND focus_cd = #{focusCdStr}
+		ORDER BY weigui_order ASC 
+ 	</select>
+ 	<!-- 获取有价卡信息-汇总   数量汇总排序-->
+ 	<select id="getNotiFileYjkSumQty" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT t2.CMCC_prov_prvd_nm,t1.t_cnt1,t1.cnt1,t1.per_cnt1,t1.t_amt1,t1.amt1,t1.per_amt1
+		FROM (
+			SELECT prvd_id,SUM(infraction_num) AS cnt1 ,SUM(tol_num) AS t_cnt1,
+				CASE WHEN t_cnt1=0 THEN 0 ELSE cnt1*1.00000/t_cnt1*1.00000 END AS per_cnt1,
+				SUM(infraction_amt) AS amt1,SUM(tol_amt) AS t_amt1,
+				CASE WHEN t_amt1=0 THEN 0 ELSE amt1*1.00000/t_amt1*1.00000 END AS per_amt1
+			FROM hpbus.Sum_yjk_1000_prvd
+			WHERE aud_trm=#{month} and focus_cd = '1001,1002,1003,1004,1005' GROUP BY 1
+		) t1
+		RIGHT JOIN (SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[CMCC_prov_prvd_id <>10000]]> ) t2 
+		ON t1.prvd_id = t2.CMCC_prov_prvd_cd
+		ORDER BY per_cnt1 DESC,t1.cnt1 desc
+ 	</select>
+ 	<!-- 获取有价卡信息-金额汇总排序 -->
+ 	<select id="getNotiFileYjkSumAmt" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT t2.CMCC_prov_prvd_nm,t1.t_cnt1,t1.cnt1,t1.per_cnt1,t1.t_amt1,t1.amt1,t1.per_amt1
+		FROM (
+			SELECT prvd_id,SUM(infraction_num) AS cnt1 ,SUM(tol_num) AS t_cnt1,
+				CASE WHEN t_cnt1=0 THEN 0 ELSE cnt1*1.00000/t_cnt1*1.00000 END AS per_cnt1,
+				SUM(infraction_amt) AS amt1,SUM(tol_amt) AS t_amt1,
+				CASE WHEN t_amt1=0 THEN 0 ELSE amt1*1.00000/t_amt1*1.00000 END AS per_amt1
+			FROM hpbus.Sum_yjk_1000_prvd
+			WHERE aud_trm=#{month} AND focus_cd = '1001,1002,1003,1004,1005' GROUP BY 1
+	 	) t1
+		RIGHT JOIN (SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[CMCC_prov_prvd_id <>10000]]> ) t2 
+		ON t1.prvd_id = t2.CMCC_prov_prvd_cd
+		ORDER BY per_amt1 DESC,amt1 DESC
+ 	</select>
+ 	<!-- 获取有价卡信息-百分比排序 -->
+ 	<select id="getNotiFileYjkRankOld" resultType="java.util.HashMap" parameterType="java.util.Map">
+	 	SELECT t2.CMCC_prov_prvd_nm,t1.t_cnt1,t1.cnt1,t1.per_cnt1,t1.t_amt1,t1.amt1,t1.per_amt1 
+	 	FROM (
+	 		SELECT prvd_id,SUM(infraction_num) AS cnt1 ,SUM(tol_num) AS t_cnt1,
+				CASE WHEN t_cnt1=0 THEN 0 ELSE cnt1*1.00000/t_cnt1*1.00000 END AS per_cnt1,
+				SUM(infraction_amt) AS amt1,SUM(tol_amt) AS  t_amt1,
+				CASE WHEN t_amt1=0 THEN 0 ELSE amt1*1.00000/t_amt1*1.00000 END AS per_amt1
+			FROM hpbus.Sum_yjk_1000_prvd
+			WHERE aud_trm=#{month} AND focus_cd = #{focusCdStr} GROUP BY 1
+		) t1
+		RIGHT JOIN (SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[CMCC_prov_prvd_id <>10000]]> ) t2 
+		ON t1.prvd_id = t2.CMCC_prov_prvd_cd
+		ORDER BY per_cnt1 DESC
+ 	</select>
+ 	<select id="getNotiFileYjkRank" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	    SELECT CMCC_prov_prvd_nm, t_cnt1, cnt1, per_cnt1, t_amt1, amt1, per_amt1, infraction_typ_name 
+ 	    FROM hpbus.rank_yjk_1000
+		WHERE Aud_trm=#{month} AND Focus_cd = #{focusCdStr}
+		ORDER BY per_cnt1 DESC
+ 	</select>
+ 	<!-- 获取有价卡信息-非法汇总 -->
+ 	<select id="getNotiFileYjkSumIllegal" resultType="java.util.HashMap" parameterType="java.util.Map">
+	 	SELECT t2.CMCC_prov_prvd_nm,t1.cnt1,t1.amt1 
+	 	FROM (
+	 		SELECT prvd_id,SUM(infraction_num) AS cnt1 ,SUM(tol_num) AS t_cnt1,
+			CASE WHEN t_cnt1=0 THEN 0 ELSE cnt1*1.00000/t_cnt1*1.00000 END AS per_cnt1,
+			SUM(infraction_amt) AS amt1,SUM(tol_amt) AS t_amt1,
+			CASE WHEN t_amt1=0 THEN 0 ELSE amt1*1.00000/t_amt1*1.00000 END AS per_amt1
+			FROM hpbus.Sum_yjk_1000_prvd
+			WHERE aud_trm=#{month} AND focus_cd = #{focusCdStr} GROUP BY 1
+		) t1
+		RIGHT JOIN  (SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[CMCC_prov_prvd_id <>10000]]> ) t2 
+		ON t1.prvd_id = t2.CMCC_prov_prvd_cd
+		ORDER BY  CMCC_prov_prvd_id
+ 	</select>
+ 	<!-- 添加通报操作记录 -->
+ 	<select id="AddNotiFileOp" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		INSERT INTO hpmgr.busi_notification_op 
+ 			(user_name,audit_monthly,audit_subject,focus_cd,op_type,op_time) 
+ 		VALUES (#{userName},#{month},#{auditSubject},#{focusCdStr},#{opType},current_time);
+	</select>
+	<!-- 增加下载次数 -->
+	<select id="incNotiFileDLNumById" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_notification_file
+ 		SET download_num = download_num + 1,download_time = current_time
+ 		WHERE id=#{id}
+	</select>
+	<!-- 增加创建次数 -->
+	<select id="incNotiFileCRNumById" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_notification_file
+ 		SET create_num = create_num + 1,create_time = current_time
+ 		WHERE id=#{id}
+	</select>
+	<!-- 更新通报信息 -->
+	<select id="updateNotiFileStatusById" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_notification_file
+ 		SET status = #{status}
+ 		WHERE id=#{id}
+	</select>
+	<!-- 更新通报信息-创建 -->
+	<select id="updateNotificationFile" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_notification_file
+ 		SET status = #{status},create_num = create_num + 1,create_time = current_time,download_url=#{downloadUrl}
+ 		WHERE id=#{id}
+	</select>
+	
+	<select id="getPmhzGenInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select id,download_url,status,create_time,download_time,create_num,download_num from  hpmgr.busi_notification_file 
+	where audit_monthly=#{audTrm} and audit_subject=#{subjectId}
+	qualify row_number()over(order by create_time desc,download_time desc)  =1
+	
+	</select>
+
+	
+	<select id="getPmhzYKNum" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select
+		A2.Aud_trm,  A2.prvd_name,
+		A2.qdyk_num_perc_rank, 
+		 A2.qdyk_subs_num,
+	  	A2.qdyk_num_perc,
+		 A2.qdyk_num_zb,
+		A2.qdyk_num_hb, 
+	  	A1.qdyk_num_perc_rank as rankNo
+		from	(select * from hpbus.SUM_QDYK_2002_QQD_PRVD where
+		Aud_trm=#{audTrm}) A1
+		right join (select * from hpbus.SUM_QDYK_2002_QQD_PRVD where 1=1
+			<if test="audTrmStr != ''">
+			and Aud_trm in
+				<foreach item="item" index="index" collection="audTrms"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		 ) A2
+		on A1.prvd_id=A2.prvd_id
+		order by  A1.Aud_trm desc,A1.qdyk_num_perc_rank asc
+	</select>
+	
+	<select id="getPmhzYKChnl" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select A2.Aud_trm, A2.prvd_name,
+		A2.qdyk_chnl_perc_rank, 
+		A2.qdyk_chnl_num,
+		A2.qdyk_chnl_perc,
+		A2.qdyk_chnl_zb,
+		A2.qdyk_chnl_hb, 
+	   	A1.qdyk_chnl_perc_rank as rankNo 
+		from	(select * from hpbus.SUM_QDYK_2002_QQD_PRVD where
+		Aud_trm=#{audTrm}) A1
+		right join (select * from hpbus.SUM_QDYK_2002_QQD_PRVD where 1=1
+		<if test="audTrmStr != ''">
+		and Aud_trm in
+				<foreach item="item" index="index" collection="audTrms"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+		</if>
+		) A2
+		on A1.prvd_id=A2.prvd_id
+		order by A1.Aud_trm desc, A1.qdyk_chnl_perc_rank asc
+	</select>
+	<select id="getPmhzYKSum" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT  coalesce(trim(Aud_trm),'') as Aud_trm,
+		qqd_num, 
+		ys_num,
+		zb,
+		sjqqd_num,
+		qqd_zb,
+		zf_qqd_num, 
+		zf_ys_num,
+		zf_zb, 
+		zf_sjqqd_num,
+		zf_qqd_zb 
+		FROM	hpbus.SUM_QDYK_2002_QQD_HZ where 1=1
+		<if test="audTrmStr != ''">
+		and Aud_trm in
+				<foreach item="item" index="index" collection="audTrms"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+		</if>
+		<if test="audTrmStr == ''">
+		and Aud_trm ='201619'
+		</if>
+		 order by Aud_trm desc 
+	</select>
+	
+	<update id="update1000Num" parameterType="Map">
+	update  hpbus.busi_yjk_pmhz_num  t1
+	set ranking = (select ranking_old from  hpbus.busi_yjk_pmhz_num  where aud_trm = #{audTrm} and t1.prvd_id = prvd_id) ,
+	gen_date =(select cast(cast(current_timestamp as format 'YYYYMMDDHHMISS') as char(14)) as  gen_date) ;
+	</update>
+	
+	<update id="update1000Amt" parameterType="Map">
+	update  hpbus.busi_yjk_pmhz_amt  t1
+	set ranking = (select ranking_old from hpbus.busi_yjk_pmhz_amt where aud_trm = #{audTrm} and t1.prvd_id = prvd_id),
+	gen_date =(select cast(cast(current_timestamp as format 'YYYYMMDDHHMISS') as char(14)) as  gen_date) ; 
+	</update>
+	
+	<select id="getPmhzYJKNum" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select coalesce(trim(prvd_name),'') as prvd_name, coalesce(trim(aud_trm),'') as aud_trm, coalesce(trim(Ranking),'') as Ranking, coalesce(trim(Ranking_old),'') as Ranking_old, 
+total_num,
+total_num_foul, 
+ratio_num, 
+ ratio_zb_zf,
+ ratio_hb_zf
+ 	from hpbus.busi_yjk_pmhz_num
+	where  1=1
+		<if test="audTrmStr != ''">
+		and aud_trm in
+				<foreach item="item" index="index" collection="audTrms"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+		</if>
+		 order by aud_trm desc, Ranking asc
+	</select>
+		
+	<select id="getPmhzYJKAmt" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select 
+	coalesce(trim(prvd_name),'') as prvd_name,
+	coalesce(trim(aud_trm),'') as aud_trm,
+	coalesce(trim(Ranking),'') as Ranking, 
+	coalesce(trim(Ranking_old),'') as Ranking_old,
+	 total_amt,
+ total_amt_foul,
+ ratio_num,
+ratio_zb_zf,
+ ratio_hb_zf
+	from hpbus.busi_yjk_pmhz_amt 
+	where  1=1
+		<if test="audTrmStr != ''">
+		and aud_trm in
+				<foreach item="item" index="index" collection="audTrms"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+		</if>
+		 order by aud_trm desc, Ranking asc
+	</select>
+	<select id="getPmhzYJKSum" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select coalesce(trim(prvd_id),'') as prvd_id , coalesce(prvd_name,'') as prvd_name , 
+		coalesce(aud_trm,'') as aud_trm, coalesce(trim(stat_type),'') as stat_type, 
+		coalesce(stat_name,'') as stat_name,
+		stat_num, 
+	 	stat_zf
+		from hpbus.busi_yjk_pmhz
+		where  1=1
+		<if test="audTrmStr != ''">
+		and aud_trm in
+				<foreach item="item" index="index" collection="audTrms"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+		</if> order by aud_trm desc,stat_type asc
+	</select>
+	
+	<select id="selHisGRTop1000" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT row_number () over(partition by aud_trm ORDER BY dbt_amt DESC) AS numbers, 
+		aud_trm,
+		T3.CMCC_prov_prvd_nm,
+		T4.CMCC_prvd_nm_short,
+		t1.acct_id,
+		acct_nm,
+		CASE acct_stat_typ_cd
+		WHEN 1 THEN '正常'
+		WHEN 2 THEN '停用'
+		WHEN 3 THEN '销户'
+		WHEN 9 THEN '其他'
+		ELSE acct_stat_typ_cd END AS acct_stat_typ_nm,
+		dbt_amt,
+		min_acct_prd_ytm,
+		aging,
+		cut_ytm,
+		MSISDN,
+		t1.subs_id,
+		CASE subs_stat_typ_cd
+		WHEN 1010 THEN '正常'
+		ELSE  subs_stat_typ_cd END ,
+		CASE subs_pay_typ_cd
+		WHEN 1 THEN '预付费'
+		WHEN 2 THEN '后付费'
+		ELSE subs_pay_typ_cd END AS   subs_pay_typ_nm,
+		CASE subs_typ_cd
+		WHEN 1 THEN '普通'
+		WHEN 2 THEN '公免'
+		WHEN 3 THEN '内部测试'
+		ELSE subs_typ_cd END AS subs_typ_nm,
+		blto_cust_id,
+		CASE trim(cust_stat_typ_cd)
+		WHEN '10' THEN '不在网(潜在)'
+		WHEN '11' THEN '离网'
+		WHEN '12' THEN '未入网'
+		WHEN '20' THEN '在网' 
+		ELSE cust_stat_typ_cd END AS cust_stat_typ_nm,
+		subs_attr
+FROM	HPBUS.DET_DEBT_4003	T1
+INNER JOIN	(SELECT	acct_id,
+							subs_id,
+							MAX(aging) AS max_aging,
+							COUNT(distinct acct_prd_ytm) AS cut_ytm,
+							SUM(dbt_amt)  AS sum_amt
+					FROM	HPBUS.DET_DEBT_4003 
+					WHERE	aud_trm  = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))
+					AND		new_subs = '非月度新增用户'
+					GROUP BY 1 ,2 
+					QUALIFY ROW_NUMBER() OVER (ORDER BY sum_amt DESC ) &lt;= 100)T2 
+ON	T1.acct_id = T2.acct_id AND T1.subs_id = T2.subs_id AND T1.aging = T2.max_aging
+LEFT JOIN	hpmgr.ref_dm_cmcc_prov_prvd_cd T3
+ON	T1.CMCC_prov_prvd_id = T3.CMCC_prov_prvd_cd
+LEFT JOIN	hpmgr.tb_sum_prvd_name	T4
+ON	T1.CMCC_prvd_id = T4.CMCC_prvd_cd
+WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)) 
+AND	new_subs = '非月度新增用户';
+	<!-- SELECT RANK() OVER (ORDER BY A.dbt_amt DESC) AS numbers,A.* FROM
+(SELECT 
+		aud_trm,prvd_nm,prvd_nm_short,acct_id,acct_nm,
+		CASE WHEN acct_stat_typ_cd = 1 THEN '正常' 
+			WHEN  acct_stat_typ_cd = 1 THEN '停用'
+			WHEN  acct_stat_typ_cd = 3 THEN '销户'
+			WHEN  acct_stat_typ_cd = 9 THEN '其它' END AS acct_stat_typ_nm ,
+		dbt_amt,min_acct_prd_ytm,aging,cnt_month,subs_typ_cd,MSISDN,subs_id,subs_stat_typ_cd,				
+		CASE WHEN subs_pay_typ_cd = 1 THEN '预付费'
+			WHEN subs_pay_typ_cd = 2 THEN '后付费' END AS   subs_pay_typ_nm,
+		subs_typ_cd AS subs_typ_nm,blto_cust_id,
+		CASE WHEN cust_stat_typ_cd = 10  THEN '不在网（潜在）'
+			WHEN cust_stat_typ_cd = 11  THEN '离网'
+			WHEN cust_stat_typ_cd = 12  THEN '未入网'
+			WHEN cust_stat_typ_cd = 20 THEN '在网' END AS cust_stat_typ_nm  ,
+		subs_attr
+FROM  hpbus.det_debt_4000 
+<![CDATA[WHERE cust_typ = '个人客户' AND  aud_trm < #{audTrm} 
+QUALIFY ROW_NUMBER() OVER(PARTITION BY cust_typ ORDER BY dbt_amt DESC) <= 100 ) A]]> ; -->
+	</select>
+	
+	<select id="selCurGRTop100" resultType="java.util.HashMap" parameterType="java.util.Map">
+	
+	SELECT row_number () over(partition by aud_trm ORDER BY dbt_amt DESC) AS numbers, 
+		aud_trm,
+		T3.CMCC_prov_prvd_nm,
+		T4.CMCC_prvd_nm_short,
+		t1.acct_id,
+		acct_nm,
+		CASE acct_stat_typ_cd
+		WHEN 1 THEN '正常'
+		WHEN 2 THEN '停用'
+		WHEN 3 THEN '销户'
+		WHEN 9 THEN '其他'
+		ELSE acct_stat_typ_cd END AS acct_stat_typ_nm , 
+		dbt_amt,
+		min_acct_prd_ytm,
+		aging,
+		cut_ytm,
+		MSISDN,
+		t1.subs_id,
+		CASE subs_stat_typ_cd
+		WHEN 1010 THEN '正常'
+		ELSE  subs_stat_typ_cd END ,
+		CASE subs_pay_typ_cd
+		WHEN 1 THEN '预付费'
+		WHEN 2 THEN '后付费'
+		ELSE subs_pay_typ_cd END AS subs_pay_typ_nm,
+		CASE subs_typ_cd
+		WHEN 1 THEN '普通'
+		WHEN 2 THEN '公免'
+		WHEN 3 THEN '内部测试'
+		ELSE subs_typ_cd END AS subs_typ_nm,
+		blto_cust_id,
+		CASE trim(cust_stat_typ_cd)
+		WHEN '10' THEN '不在网(潜在)'
+		WHEN '11' THEN '离网'
+		WHEN '12' THEN '未入网'
+		WHEN '20' THEN '在网' 
+		ELSE cust_stat_typ_cd END AS cust_stat_typ_nm,
+		subs_attr
+FROM	HPBUS.DET_DEBT_4003	T1
+INNER JOIN	(SELECT	acct_id,
+							subs_id,
+							MAX(aging) AS max_aging,
+							COUNT(distinct acct_prd_ytm) AS cut_ytm,
+							SUM(dbt_amt)  AS sum_amt
+					FROM	HPBUS.DET_DEBT_4003 
+					WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))
+					AND		new_subs = '月度新增用户'
+					GROUP BY 1 ,2 
+					QUALIFY ROW_NUMBER() OVER (ORDER BY sum_amt DESC ) &lt;= 100)T2
+ON	T1.acct_id = T2.acct_id AND T1.subs_id = T2.subs_id AND T1.aging = T2.max_aging
+LEFT JOIN	hpmgr.ref_dm_cmcc_prov_prvd_cd T3
+ON	T1.CMCC_prov_prvd_id = T3.CMCC_prov_prvd_cd
+LEFT JOIN	hpmgr.tb_sum_prvd_name	T4
+ON	T1.CMCC_prvd_id = T4.CMCC_prvd_cd
+WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)) 
+AND	new_subs = '月度新增用户';
+	
+	<!-- SELECT RANK() OVER (ORDER BY A.dbt_amt DESC) AS numbers,A.* FROM
+(SELECT 
+		aud_trm,prvd_nm,prvd_nm_short,acct_id,acct_nm,
+		CASE WHEN acct_stat_typ_cd = 1 THEN '正常' 
+			WHEN  acct_stat_typ_cd = 1 THEN '停用'
+			WHEN  acct_stat_typ_cd = 3 THEN '销户'
+			WHEN  acct_stat_typ_cd = 9 THEN '其它' END AS acct_stat_typ_nm ,
+		dbt_amt,min_acct_prd_ytm,aging,cnt_month,subs_typ_cd,MSISDN,subs_id,subs_stat_typ_cd,				
+		CASE WHEN subs_pay_typ_cd = 1 THEN '预付费'
+			WHEN subs_pay_typ_cd = 2 THEN '后付费' END AS   subs_pay_typ_nm,
+		subs_typ_cd AS subs_typ_nm,blto_cust_id,
+		CASE WHEN cust_stat_typ_cd = 10  THEN '不在网（潜在）'
+			WHEN cust_stat_typ_cd = 11  THEN '离网'
+			WHEN cust_stat_typ_cd = 12  THEN '未入网'
+			WHEN cust_stat_typ_cd = 20 THEN '在网' END AS cust_stat_typ_nm  ,
+		subs_attr
+FROM  hpbus.det_debt_4000 
+<![CDATA[WHERE cust_typ = '个人客户' AND  aud_trm = #{audTrm} AND (subs_id NOT  IN (SELECT subs_id FROM  hpbus.det_debt_4000 
+WHERE cust_typ = '个人客户' AND  aud_trm < #{audTrm}))
+QUALIFY ROW_NUMBER() OVER(PARTITION BY cust_typ ORDER BY dbt_amt DESC) <= 100 ) A]]>; -->
+	</select>
+	
+	<select id="selHisJTTop100" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT  row_number () over(partition by aud_trm ORDER BY dbt_amt DESC) AS numbers ,
+		aud_trm,
+		T3.CMCC_prov_prvd_nm,
+		T4.CMCC_prvd_nm_short,
+		T1.acct_id,
+		acct_nm,
+		CASE acct_stat_typ_cd
+		WHEN 1 THEN '正常'
+		WHEN 2 THEN '停用'
+		WHEN 3 THEN '销户'
+		WHEN 9 THEN '其他' END AS acct_stat_typ_nm,
+		dbt_amt,
+		ear_trm,
+		acct_age,
+		cut_ytm,
+		null,
+		null,
+		null,
+		null,
+		null,
+		cust_id,
+		CASE trim(cust_stat_typ_cd)
+		WHEN '10' THEN '不在网(潜在)'
+		WHEN '11' THEN '离网'
+		WHEN '12' THEN '未入网'
+		WHEN '20' THEN '在网' END AS cust_stat_typ_nm,
+		CASE org_cust_lvl
+		WHEN 4 THEN 'A类'
+		WHEN 5 THEN 'B类'
+		WHEN 6 THEN 'C类'
+		WHEN 7 THEN 'D类'
+		ELSE org_cust_lvl END 
+FROM	hpbus.DET_ORG_CUST_CHG T1
+INNER JOIN (SELECT	acct_id,
+						MAX(acct_age) AS max_aging,
+						COUNT(distinct acct_prd_ytm) AS cut_ytm,
+						SUM(dbt_amt)  AS sum_amt
+				FROM	hpbus.DET_ORG_CUST_CHG
+				WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))
+				AND		new_acct_id = '非月度新增账户'
+				GROUP BY 1  
+				QUALIFY ROW_NUMBER() OVER (ORDER BY sum_amt DESC ) &lt;= 100	) T2
+ON	T1.acct_id = T2.acct_id  AND T1.acct_age = T2.max_aging
+LEFT JOIN	hpmgr.ref_dm_cmcc_prov_prvd_cd T3
+ON	T1.prvd_id = T3.CMCC_prov_prvd_cd
+LEFT JOIN	hpmgr.tb_sum_prvd_name	T4
+ON	T1.cty_id = T4.CMCC_prvd_cd 
+WHERE aud_trm = cast(cast(add_months(cast( #{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)) 
+AND new_acct_id = '非月度新增账户';
+	
+	
+<!-- SELECT RANK() OVER (ORDER BY A.dbt_amt DESC) AS numbers,A.* FROM
+(SELECT aud_trm,prvd_nm,prvd_nm_short,acct_id,acct_nm,
+		 CASE WHEN acct_stat_typ_cd = 1 THEN '正常' 
+			WHEN  acct_stat_typ_cd = 1 THEN '停用'
+			WHEN  acct_stat_typ_cd = 3 THEN '销户'
+			WHEN  acct_stat_typ_cd = 9 THEN '其它' END AS acct_stat_typ_nm ,
+		dbt_amt,min_acct_prd_ytm,aging,cnt_month,subs_typ_cd,MSISDN,subs_id,subs_stat_typ_cd,				
+		CASE WHEN subs_pay_typ_cd = 1 THEN '预付费'
+			WHEN subs_pay_typ_cd = 2 THEN '后付费' END AS   subs_pay_typ_nm,
+		subs_typ_cd AS subs_typ_nm,blto_cust_id,
+		CASE WHEN cust_stat_typ_cd = 10  THEN '不在网（潜在）'
+			WHEN cust_stat_typ_cd = 11  THEN '离网'
+			WHEN cust_stat_typ_cd = 12  THEN '未入网'
+			WHEN cust_stat_typ_cd = 20 THEN '在网' END AS cust_stat_typ_nm  ,
+		subs_attr
+FROM  hpbus.det_debt_4000 
+<![CDATA[WHERE cust_typ = '集团客户' AND  aud_trm < #{audTrm} 
+QUALIFY ROW_NUMBER() OVER(PARTITION BY cust_typ ORDER BY dbt_amt DESC) <= 100) A
+ORDER BY numbers ]]>; -->
+	</select>
+	
+	<select id="selCurJTTop100" resultType="java.util.HashMap" parameterType="java.util.Map">
+	
+	SELECT  row_number () over(partition by aud_trm ORDER BY dbt_amt DESC) AS numbers ,
+		aud_trm,
+		T3.CMCC_prov_prvd_nm,
+		T4.CMCC_prvd_nm_short,
+		T1.acct_id,
+		acct_nm,
+		CASE acct_stat_typ_cd
+		WHEN 1 THEN '正常'
+		WHEN 2 THEN '停用'
+		WHEN 3 THEN '销户'
+		WHEN 9 THEN '其他' END AS acct_stat_typ_nm,
+		dbt_amt,
+		ear_trm,
+		acct_age,
+		cut_ytm,
+		null,
+		null,
+		null,
+		null,
+		null,
+		cust_id,
+		CASE trim(cust_stat_typ_cd)
+		WHEN '10' THEN '不在网(潜在)'
+		WHEN '11' THEN '离网'
+		WHEN '12' THEN '未入网'
+		WHEN '20' THEN '在网' END AS cust_stat_typ_nm,
+		CASE org_cust_lvl
+		WHEN 4 THEN 'A类'
+		WHEN 5 THEN 'B类'
+		WHEN 6 THEN 'C类'
+		WHEN 7 THEN 'D类'
+		ELSE org_cust_lvl END 
+FROM	hpbus.DET_ORG_CUST_CHG T1
+INNER JOIN (SELECT	acct_id,
+						MAX(acct_age) AS max_aging,
+						COUNT(distinct acct_prd_ytm) AS cut_ytm,
+						SUM(dbt_amt)  AS sum_amt
+				FROM	hpbus.DET_ORG_CUST_CHG
+				WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))
+				AND		new_acct_id = '月度新增账户'
+				GROUP BY 1  
+				QUALIFY ROW_NUMBER() OVER (ORDER BY sum_amt DESC ) &lt;= 100	) T2
+ON	T1.acct_id = T2.acct_id  AND T1.acct_age = T2.max_aging
+LEFT JOIN	hpmgr.ref_dm_cmcc_prov_prvd_cd T3
+ON	T1.prvd_id = T3.CMCC_prov_prvd_cd
+LEFT JOIN	hpmgr.tb_sum_prvd_name	T4
+ON	T1.cty_id = T4.CMCC_prvd_cd 
+WHERE aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6))  
+AND new_acct_id = '月度新增账户';
+	
+	<!-- SELECT RANK() OVER (ORDER BY A.dbt_amt DESC) AS numbers,A.* FROM
+(SELECT aud_trm,prvd_nm,prvd_nm_short,acct_id,acct_nm,
+		 CASE WHEN acct_stat_typ_cd = 1 THEN '正常' 
+			WHEN  acct_stat_typ_cd = 1 THEN '停用'
+			WHEN  acct_stat_typ_cd = 3 THEN '销户'
+			WHEN  acct_stat_typ_cd = 9 THEN '其它' END AS acct_stat_typ_nm ,
+		dbt_amt,min_acct_prd_ytm,aging,cnt_month,subs_typ_cd,MSISDN,subs_id,subs_stat_typ_cd,				
+		CASE WHEN subs_pay_typ_cd = 1 THEN '预付费'
+			WHEN subs_pay_typ_cd = 2 THEN '后付费' END AS   subs_pay_typ_nm,
+		subs_typ_cd AS subs_typ_nm,blto_cust_id,
+		CASE WHEN cust_stat_typ_cd = 10  THEN '不在网（潜在）'
+			WHEN cust_stat_typ_cd = 11  THEN '离网'
+			WHEN cust_stat_typ_cd = 12  THEN '未入网'
+			WHEN cust_stat_typ_cd = 20 THEN '在网' END AS cust_stat_typ_nm  ,
+		subs_attr
+FROM  hpbus.det_debt_4000 
+<![CDATA[WHERE cust_typ = '集团客户' AND  aud_trm = #{audTrm} AND (blto_cust_id NOT  IN (SELECT blto_cust_id FROM  hpbus.det_debt_4000 
+WHERE cust_typ = '集团客户' AND  aud_trm < #{audTrm}))
+QUALIFY ROW_NUMBER() OVER(PARTITION BY cust_typ ORDER BY dbt_amt DESC) <= 100) A
+ORDER BY numbers ]]>; -->
+	</select>
+	
+	<select id="selGRorJTTop100" resultType="java.util.HashMap" parameterType="java.util.Map">
+SELECT RANK() OVER (ORDER BY A.dbt_amt DESC) AS numbers,A.* FROM
+(SELECT aud_trm,prvd_nm,prvd_nm_short,acct_id,acct_nm,
+		 CASE WHEN acct_stat_typ_cd = 1 THEN '正常' 
+			WHEN  acct_stat_typ_cd = 1 THEN '停用'
+			WHEN  acct_stat_typ_cd = 3 THEN '销户'
+			WHEN  acct_stat_typ_cd = 9 THEN '其它' END AS acct_stat_typ_nm ,
+		dbt_amt,min_acct_prd_ytm,aging,cnt_month,subs_typ_cd,MSISDN,subs_id,subs_stat_typ_cd,				
+		CASE WHEN subs_pay_typ_cd = 1 THEN '预付费'
+			WHEN subs_pay_typ_cd = 2 THEN '后付费' END AS   subs_pay_typ_nm,
+		subs_typ_cd AS subs_typ_nm,blto_cust_id,
+		CASE WHEN cust_stat_typ_cd = 10  THEN '不在网（潜在）'
+			WHEN cust_stat_typ_cd = 11  THEN '离网'
+			WHEN cust_stat_typ_cd = 12  THEN '未入网'
+			WHEN cust_stat_typ_cd = 20 THEN '在网' END AS cust_stat_typ_nm 
+FROM  hpbus.det_debt_4000 
+<![CDATA[WHERE cust_typ = '按个人客户统计' 
+QUALIFY ROW_NUMBER() OVER(PARTITION BY cust_typ ORDER BY dbt_amt DESC) <= 100) A
+ORDER BY numbers ]]>;
+	</select>
+	
+	<select id="selGRAge" resultType="java.util.HashMap" parameterType="java.util.Map">
+	
+		SELECT	CMCC_prov_prvd_nm,
+			SUM(sum_cust) AS cust_num,
+			SUM(sum_dbt_amt) AS dbt_amt_num,
+			Rank() OVER (ORDER BY cust_num DESC )  - 1 AS num_rank,
+			Rank() OVER (ORDER BY dbt_amt_num DESC ) - 1  AS amt_rank,
+			SUM(CASE cengci  WHEN '01' THEN sum_cust ELSE 0  END) AS num1,
+			SUM(CASE cengci  WHEN '01' THEN sum_dbt_amt ELSE 0  END) AS amt1,
+			SUM(CASE cengci  WHEN '02' THEN sum_cust ELSE 0  END) AS num2,
+			SUM(CASE cengci  WHEN '02' THEN sum_dbt_amt ELSE 0  END) AS amt2,
+			SUM(CASE cengci  WHEN '03' THEN sum_cust ELSE 0  END) AS num3,
+			SUM(CASE cengci  WHEN '03' THEN sum_dbt_amt ELSE 0  END) AS amt3	
+		FROM	HPBUS.SUM_CUST_CHG_AGE
+		WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)) 
+		AND flag = 10000
+		GROUP BY CMCC_prov_prvd_nm ;
+
+	<!-- select  '全公司'as CMCC_prov_prvd_nm, 
+              sum(sum_cust)   as  cust_num, 
+              sum(sum_dbt_amt)  as  dbt_amt_num, 
+              0 as  num_rank, 0  as amt_rank,
+              sum(case  when  cengci = '01' then  sum_cust  else  0 end) as num1,
+              sum(case  when  cengci = '01' then  sum_dbt_amt  else  0.00 end) as amt1,
+              sum(case  when  cengci = '02' then  sum_cust  else 0 end) as num2,
+              sum(case  when  cengci = '02' then  sum_dbt_amt  else 0.00 end) as amt2,
+              sum(case  when  cengci = '03' then  sum_cust  else  0  end) as num3,
+              sum(case  when  cengci = '03' then  sum_dbt_amt  else  0.00  end) as amt3
+   from  hpbus.SUM_CUST_CHG_AGE 
+where  aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date  format 'YYYYMMDD'),-7) as  date  format 'YYYYMMDD') as varchar(6))
+and  flag = 10000
+and  CMCC_prov_prvd_id = 10000
+group  by  1
+union  all
+select  CMCC_prov_prvd_nm, 
+              sum(sum_cust)  as  cust, 
+              sum(sum_dbt_amt)  as  dbt_amt, 
+              RANK() OVER (ORDER BY cust DESC),
+	          RANK() OVER (ORDER BY dbt_amt DESC),
+              sum(case  when  cengci = '01' then  sum_cust  else  0 end) ,
+              sum(case  when  cengci = '01' then  sum_dbt_amt  else  0.00 end) ,
+              sum(case  when  cengci = '02' then  sum_cust  else 0 end) ,
+              sum(case  when  cengci = '02' then  sum_dbt_amt  else 0.00 end) ,
+              sum(case  when  cengci = '03' then  sum_cust  else  0  end) ,
+              sum(case  when  cengci = '03' then  sum_dbt_amt  else  0.00  end) 
+   from  hpbus.SUM_CUST_CHG_AGE 
+where  aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date  format 'YYYYMMDD'),-7) as  date  format 'YYYYMMDD') as varchar(6))
+and  flag = 10000
+<![CDATA[and  CMCC_prov_prvd_id <> 10000]]>
+group  by  1
+order  by  3  desc; -->
+
+ </select>
+ 
+	<select id="selGRAmt" resultType="java.util.HashMap" parameterType="java.util.Map">
+	
+	SELECT	CMCC_prov_prvd_nm,
+		SUM(sum_cust) AS cust_num,
+		SUM(sum_dbt_amt) AS dbt_amt_num,
+		Rank() OVER (ORDER BY cust_num DESC )  - 1 AS num_rank,
+		Rank() OVER (ORDER BY dbt_amt_num DESC ) - 1  AS amt_rank,
+		SUM(CASE WHEN debt_grade =  '02' THEN sum_cust ELSE 0  END) AS num1,
+		SUM(CASE WHEN debt_grade =  '02' THEN sum_dbt_amt ELSE 0  END) AS amt1,
+		SUM(CASE WHEN debt_grade =  '03' THEN sum_cust ELSE 0  END) AS num2,
+		SUM(CASE WHEN debt_grade =  '03' THEN sum_dbt_amt ELSE 0  END) AS amt2,
+		SUM(CASE WHEN debt_grade =  '04' OR  debt_grade = '05' THEN sum_cust ELSE 0  END) AS num3,
+		SUM(CASE WHEN debt_grade =  '04' OR  debt_grade = '05' THEN sum_dbt_amt ELSE 0  END) AS amt3	
+	FROM	HPBUS.SUM_CUST_CHG_DBT_AMT
+	WHERE	aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6)) AND flag = 10000
+	GROUP BY CMCC_prov_prvd_nm ;
+	
+	
+	<!-- select  CMCC_prov_prvd_nm, 
+              sum(sum_cust)  as  cust_num, 
+              sum(sum_dbt_amt)  as  dbt_amt_num, 
+              0 as num_rank, 0 as amt_rank,
+              sum(case  when  debt_grade = '01'  or  debt_grade = '02'  then  sum_cust  else  0 end) as num1,
+              sum(case  when  debt_grade = '01'  or  debt_grade = '02'  then  sum_dbt_amt  else  0 end) as amt1,
+              sum(case  when  debt_grade = '03'  then sum_cust  else 0 end) as num2,
+              sum(case  when  debt_grade = '03'  then sum_dbt_amt  else 0 end)as amt2,
+              sum(case  when  debt_grade = '04'  or  debt_grade = '05'  then  sum_cust  else  0  end)as num3,
+              sum(case  when  debt_grade = '04'  or  debt_grade = '05'  then  sum_dbt_amt  else  0  end)as amt3
+   from  hpbus.SUM_CUST_CHG_DBT_AMT
+where  Aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date  format 'YYYYMMDD'),-7) as  date  format 'YYYYMMDD') as varchar(6))
+and  flag = 10000
+and  CMCC_prov_prvd_id  =  10000
+group  by  1
+union  all
+select  CMCC_prov_prvd_nm, 
+              sum(sum_cust)  as  cust_num, 
+              sum(sum_dbt_amt)  as  dbt_amt_num, 
+              RANK() OVER (ORDER BY cust_num DESC),
+	          RANK() OVER (ORDER BY dbt_amt_num DESC),
+              sum(case  when  debt_grade = '01'  or  debt_grade = '02'  then  sum_cust  else  0 end),
+              sum(case  when  debt_grade = '01'  or  debt_grade = '02'  then  sum_dbt_amt  else  0 end),
+              sum(case  when  debt_grade = '03'  then sum_cust  else 0 end),
+              sum(case  when  debt_grade = '03'  then sum_dbt_amt  else 0 end),
+              sum(case  when  debt_grade = '04'  or  debt_grade = '05'  then  sum_cust  else  0  end),
+              sum(case  when  debt_grade = '04'  or  debt_grade = '05'  then  sum_dbt_amt  else  0  end)
+   from  hpbus.SUM_CUST_CHG_DBT_AMT
+where  Aud_trm =cast(cast(add_months(cast(#{audTrm}||'01' as date  format 'YYYYMMDD'),-7) as  date  format 'YYYYMMDD') as varchar(6))
+and  flag = 10000
+<![CDATA[and  CMCC_prov_prvd_id  <>  10000]]>
+group  by  1
+order  by  3  desc; -->
+</select>
+
+<select id="selJTAge" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	'全公司' AS CMCC_prov_prvd_nm,
+			SUM(cust_num) AS cust_num,
+		SUM(debt_amt) AS dbt_amt_num,
+			0 AS num_rank,
+			0  AS amt_rank,
+			SUM(CASE age_level  WHEN '2' THEN cust_num ELSE 0  END) AS num1,
+			SUM(CASE age_level  WHEN '2' THEN debt_amt ELSE 0  END) AS amt1,
+			SUM(CASE age_level  WHEN '3' THEN cust_num ELSE 0  END) AS num2,
+			SUM(CASE age_level  WHEN '3' THEN debt_amt ELSE 0  END) AS amt2,
+			SUM(CASE age_level  WHEN '4' THEN cust_num ELSE 0  END) AS num3,
+			SUM(CASE age_level  WHEN '4' THEN debt_amt ELSE 0  END) AS amt3	
+	FROM	HPBUS.SUM_ORG_CUST_CHG_CTY_AGING
+	WHERE	Aud_trm =cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)) AND cty_id = 10000
+	GROUP BY CMCC_prov_prvd_nm 
+	UNION ALL
+	SELECT	CMCC_prov_prvd_nm,
+			SUM(cust_num) AS cust,
+			SUM(debt_amt) AS dbt_amt,
+			Rank() OVER (ORDER BY cust DESC )  AS num_order,
+		Rank() OVER (ORDER BY dbt_amt DESC )  AS amt_order,
+			SUM(CASE age_level  WHEN '2' THEN cust_num ELSE 0  END),
+			SUM(CASE age_level  WHEN '2' THEN debt_amt ELSE 0  END),
+			SUM(CASE age_level  WHEN '3' THEN cust_num ELSE 0  END),
+			SUM(CASE age_level  WHEN '3' THEN debt_amt ELSE 0  END),
+			SUM(CASE age_level  WHEN '4' THEN cust_num ELSE 0  END),
+			SUM(CASE age_level  WHEN '4' THEN debt_amt ELSE 0  END)	
+	FROM	HPBUS.SUM_ORG_CUST_CHG_CTY_AGING
+	WHERE	Aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)) AND cty_id = 10000
+	GROUP BY CMCC_prov_prvd_nm
+	ORDER BY 5 ;
+
+<!-- select  '全公司' as CMCC_prov_prvd_nm, 
+              sum(cust_num)  as  cust_num, 
+              sum(debt_amt)  as  dbt_amt_num, 
+              0 as num_rank , 0 as amt_rank ,
+              sum(case  when  age_level = 2  then  cust_num  else  0 end) as num1,
+              sum(case  when  age_level = 2  then  debt_amt  else  0 end) as amt1 ,
+              sum(case  when  age_level = 3  then  cust_num  else 0 end)as num2 ,
+              sum(case  when  age_level = 3  then  debt_amt  else 0 end)as amt2 ,
+              sum(case  when  age_level = 4  then  cust_num  else  0  end)as num3,
+              sum(case  when  age_level = 4  then  debt_amt  else  0  end) as  amt3
+from  hpbus.SUM_ORG_CUST_CHG_CTY_AGING
+where  Aud_trm =cast(cast(add_months(cast(${audTrm}||'01' as date  format 'YYYYMMDD'),-19) as  date  format 'YYYYMMDD') as varchar(6))
+and  cty_id = 10000
+group  by  1
+union  all
+select  CMCC_prov_prvd_nm, 
+              sum(cust_num)  as  cust, 
+              sum(debt_amt)  as  dbt_amt, 
+              RANK() OVER (ORDER BY cust DESC),
+	          RANK() OVER (ORDER BY dbt_amt DESC),
+              sum(case  when  age_level = 2  then  cust_num  else  0 end) ,
+              sum(case  when  age_level = 2  then  debt_amt  else  0 end),
+              sum(case  when  age_level = 3  then  cust_num  else 0 end) ,
+              sum(case  when  age_level = 3  then  debt_amt  else 0 end) ,
+              sum(case  when  age_level = 4  then  cust_num  else  0  end) ,
+              sum(case  when  age_level = 4  then  debt_amt  else  0  end)
+   from  hpbus.SUM_ORG_CUST_CHG_CTY_AGING
+where  Aud_trm = cast(cast(add_months(cast(${audTrm}||'01' as date  format 'YYYYMMDD'),-19) as  date  format 'YYYYMMDD') as varchar(6))
+and  cty_id = 10000
+group  by  1
+order  by  3  desc; -->
+</select>
+
+<select id="selJTAmt" resultType="java.util.HashMap" parameterType="java.util.Map">
+
+	SELECT	'全公司' as CMCC_prov_prvd_nm,
+		SUM(num) AS cust_num,
+		SUM(debt_amt) AS dbt_amt_num,
+		0 AS num_rank,
+		0 AS amt_rank,
+		SUM(CASE amt_level  WHEN '1' THEN num ELSE 0  END) AS num1,
+		SUM(CASE amt_level  WHEN '1' THEN debt_amt ELSE 0  END) AS amt1,
+		SUM(CASE amt_level  WHEN '2' THEN num ELSE 0  END) AS num2,
+		SUM(CASE amt_level  WHEN '2' THEN debt_amt ELSE 0  END) AS amt2,
+		SUM(CASE amt_level  WHEN '3' THEN num ELSE 0  END) AS num3,
+		SUM(CASE amt_level  WHEN '3' THEN debt_amt ELSE 0  END) AS amt3	
+	FROM	HPBUS.SUM_ORG_CUST_CHG_CTY_AMT
+	WHERE	Aud_trm = cast(cast(add_months(cast(#{audTrm} ||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)) AND cty_id = 10000
+	GROUP BY CMCC_prov_prvd_nm 
+	UNION ALL
+	SELECT	CMCC_prov_prvd_nm,
+			SUM(num) AS cust_num,
+			SUM(debt_amt) AS dbt_amt_num,
+			Rank() OVER (ORDER BY cust_num DESC ),
+			Rank() OVER (ORDER BY dbt_amt_num DESC ),
+			SUM(CASE amt_level  WHEN '1' THEN num ELSE 0  END),
+			SUM(CASE amt_level  WHEN '1' THEN debt_amt ELSE 0  END),
+			SUM(CASE amt_level  WHEN '2' THEN num ELSE 0  END),
+			SUM(CASE amt_level  WHEN '2' THEN debt_amt ELSE 0  END),
+			SUM(CASE amt_level  WHEN '3' THEN num ELSE 0  END),
+			SUM(CASE amt_level  WHEN '3' THEN debt_amt ELSE 0  END)	
+	FROM	HPBUS.SUM_ORG_CUST_CHG_CTY_AMT
+	WHERE	Aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6)) AND cty_id = 10000
+	GROUP BY CMCC_prov_prvd_nm
+	ORDER BY 5 ;
+
+<!-- select  '全公司' as CMCC_prov_prvd_nm, 
+              sum(num)  as  cust_num, 
+              sum(debt_amt)  as  dbt_amt_num, 
+              0 as num_rank , 0 as amt_rank,
+              sum(case  when  amt_level = 1  then  num  else  0 end) as num1,
+              sum(case  when  amt_level = 1  then  debt_amt  else  0 end)as amt1,
+              sum(case  when  amt_level = 2  then num  else 0 end)as num2,
+              sum(case  when  amt_level = 2  then debt_amt  else 0 end)as amt2 ,
+              sum(case  when  amt_level = 3  then  num  else  0  end)as num3,
+              sum(case  when  amt_level = 3  then  debt_amt  else  0  end) as amt3
+from  hpbus.SUM_ORG_CUST_CHG_CTY_AMT
+where  Aud_trm = cast(cast(add_months(cast(${audTrm}||'01' as date  format 'YYYYMMDD'),-19) as  date  format 'YYYYMMDD') as varchar(6))
+and  cty_id = 10000
+group  by  1
+union  all
+select  CMCC_prov_prvd_nm, 
+              sum(num)  as  cust_num, 
+              sum(debt_amt)  as  dbt_amt_num, 
+              RANK() OVER (ORDER BY cust_num DESC),
+	          RANK() OVER (ORDER BY dbt_amt_num DESC),
+              sum(case  when  amt_level = 1  then  num  else  0 end) ,
+              sum(case  when  amt_level = 1  then  debt_amt  else  0 end) ,
+              sum(case  when  amt_level = 2  then num  else 0 end) ,
+              sum(case  when  amt_level = 2  then debt_amt  else 0 end) ,
+              sum(case  when  amt_level = 3  then  num  else  0  end) ,
+              sum(case  when  amt_level = 3  then  debt_amt  else  0  end) 
+   from  hpbus.SUM_ORG_CUST_CHG_CTY_AMT
+where  Aud_trm = cast(cast(add_months(cast(${audTrm}||'01' as date  format 'YYYYMMDD'),-19) as  date  format 'YYYYMMDD') as varchar(6))
+and  cty_id = 10000
+group  by  1
+order  by  3  desc; -->
+</select>
+
+<select id="selGRPmhz" resultType="java.util.HashMap" parameterType="java.util.Map">
+
+SELECT ROW_NUMBER() OVER (ORDER BY sum_dbt_amt DESC ) AS rn ,
+		CMCC_prov_prvd_nm,
+		sum_dbt_amt as infraction_amt,
+		sum_cust1 as infraction_num,
+		amt_new,
+		subs_new,
+		(sum_dbt_amt - amt_new)as amt_old, 
+		(sum_cust1 - subs_new)as num_old
+		<!-- sum_dbt_amt- amt_new AS BEFORE_AMT,
+		sum_cust1 - subs_new AS BEFORE_SUBS -->
+FROM	HPBUS.SUM_CUST_CHG_PRVD
+WHERE  <![CDATA[CMCC_prov_prvd_id  <>  10000]]>	 AND flag = 10000
+	AND aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6));
+
+<!-- select  row_number()over(order by infraction_amt desc)as rn,  CMCC_prov_prvd_nm,  sum_dbt_amt as infraction_amt, sum_cust1 as infraction_num, 							
+            amt_new, subs_new,
+            (sum_dbt_amt - amt_num)as amt_old, (sum_cust1 - subs_num)as num_old
+	from  hpbus.SUM_CUST_CHG_PRVD							
+	where  aud_trm  = cast(cast(add_months(cast(#{audTrm}||'01' as date  format 'YYYYMMDD'),-7) as  date  format 'YYYYMMDD') as varchar(6))
+	and  flag  = 10000					
+	<![CDATA[and  CMCC_prov_prvd_id  <>  10000]]>							
+	order  by  infraction_amt  desc; -->
+</select>
+
+<select id="selJTPmhz" resultType="java.util.HashMap" parameterType="java.util.Map">
+
+SELECT ROW_NUMBER() OVER (ORDER BY infraction_amt DESC ) AS rn ,
+		CMCC_prov_prvd_nm,
+		infraction_amt,
+		infraction_num,
+		amt_new,
+		subs_new,
+		(infraction_amt - amt_new)as amt_old, 
+		(infraction_num - subs_new)as num_old
+		<!-- infraction_amt- amt_new AS BEFORE_AMT,
+		infraction_num - subs_new AS BEFORE_SUBS -->
+FROM	HPBUS.SUM_ORG_CUST_CHG_PRVD
+WHERE <![CDATA[prvd_id  <>  10000]]>	 AND aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-19) as date format 'YYYYMMDD') as varchar(6));
+
+<!-- select  row_number()over(order by infraction_amt desc)as rn,   CMCC_prov_prvd_nm,  infraction_amt, infraction_num, 							
+            amt_new, subs_new,
+            (infraction_amt - amt_dif)as amt_old, (infraction_num - num_dif)as num_old
+from  hpbus.SUM_ORG_CUST_CHG_PRVD							
+where  aud_trm  =  cast(cast(add_months(cast(#{audTrm}||'01' as date  format 'YYYYMMDD'),-19) as  date  format 'YYYYMMDD') as varchar(6))			
+<![CDATA[and  prvd_id  <>  10000]]>							
+order  by  infraction_amt  desc; -->
+</select>
+	
+<!-- start-审计专题汇总排名汇总v1.1需求-->
+
+<!--start 排名汇总-终端套利  -->
+<select id="getZdtl3000allReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+SELECT	Gen_date, zx_order, aud_trm, focus_cd, CMCC_prov_prvd_nm,
+		CMCC_prov_prvd_id, tol_num, tol_chnlqty, weigui_num, weigui_chnlqty,
+		weigui_pnt, weigui_order, taoli_weigui_num, taoli_jine, taoli_weigui_chnlqty,
+		taoli_tol_pnt, taoli_weigui_pnt, taoli_weigui_order, tol_huanbi,
+		tol_chnlqty_huanbi, weigui_huanbi, diff_weigui_pnt, weigui_chnlqty_huanbi,
+		taoli_huanbi, diff_taoli_tol_pnt, taoli_chnlqty_huanbi
+FROM	hpbus.sum_zdtl_3000_hz
+where <![CDATA[aud_trm <=#{audTrm} and aud_trm >='201510']]>
+ 	<if test="prvd_id!=null">
+			<![CDATA[ and CMCC_prov_prvd_id = #{prvd_id}]]>
+	</if>
+
+</select>
+<select id="setZdtl3000allReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+	update hpbus.sum_zdtl_3000_hz  set zx_order=''
+</select>
+<select id="updateZdtl3000allReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+     update hpbus.sum_zdtl_3000_hz a 
+		set zx_order=(
+		select weigui_order from hpbus.sum_zdtl_3000_hz where aud_trm=#{audTrm} and <![CDATA[cmcc_prov_prvd_id<>'10000' ]]>and cmcc_prov_prvd_id=a.cmcc_prov_prvd_id),
+		gen_date=(select cast(cast(current_timestamp as format 'YYYYMMDDHHMISS') as char(14)) as  gen_date)
+		where <![CDATA[a.aud_trm<=#{audTrm}]]>
+		and a.cmcc_prov_prvd_id in (select cmcc_prov_prvd_id from hpbus.sum_zdtl_3000_hz where aud_trm=#{audTrm} and <![CDATA[cmcc_prov_prvd_id<>'10000' ]]>);
+</select>
+
+<!--end 排名汇总-终端套利  -->
+
+<!-- Start 客户欠费-汇总-Excel -->
+	<select id="getKhqf4000allReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	Gen_date, Aud_trm, flag, CMCC_prov_prvd_nm, tol_num, tol_amt,
+		tol_num_per, tol_amt_per, subs_new, amt_new, subs_new_per, amt_new_per,
+		subs_before, amt_before,subs_before_per,amt_before_per,
+		amt_all_recover,sum_subs_recover,amt_other_var,
+		amt_all_recover_inc,sum_subs_recover_inc,amt_other_var_inc
+	FROM	hpbus.sum_cust_chg_report
+	<![CDATA[WHERE	aud_trm <=#{audTrm} and aud_trm >='201610']]>
+	and flag = #{flag}
+	</select>
+	
+	<select id="getKhqf4000prvdReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	Gen_date, Aud_trm, flag, prvd_id, prvd_nm, amt_order, amt_order_new,
+		tol_num, tol_amt, subs_new, amt_new, subs_before, amt_before,
+		subs_new_per, amt_new_per ,
+		amt_all_recover,sum_subs_recover,amt_other_var,
+			case when amt_pre =0.00 then 0.00 
+		when amt_all_recover =-9999.00 or amt_pre =-9999.00 then -9999.00
+		else cast((amt_all_recover/(amt_pre*1.0000))*100 as decimal(18,2)) end as amt_recover_per,
+		case when amt_pre =0.00 then 0.00 
+		when amt_pre =-9999.00 or amt_pre =-9999.00 then -9999.00
+		else cast((amt_new/(amt_pre*1.0000))*100 as decimal(18,2)) end  as amt_new_per1,amt_pre
+	FROM	hpbus.sum_cust_chg_prvdreport
+	<![CDATA[WHERE	aud_trm <=#{audTrm} and aud_trm >='201610']]>
+	and flag = #{flag}
+	order by amt_order_new asc;
+	</select>
+
+	<select id="setKhqf4000prvdReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+	update  hpbus.sum_cust_chg_prvdreport  t1 set amt_order_new =''
+	</select>
+	<select id="updateKhqf4000prvdReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+	update  hpbus.sum_cust_chg_prvdreport  t1
+	set amt_order_new = (select amt_order from  hpbus.sum_cust_chg_prvdreport  
+ 	where aud_trm = #{audTrm} and flag = #{flag} and t1.prvd_id = prvd_id ) ,
+	gen_date =(select cast(cast(current_timestamp as format 'YYYYMMDDHHMISS') as char(14)) as  gen_date) 
+	where <![CDATA[t1.aud_trm<=#{audTrm} ]]>
+	and flag = #{flag}
+	and t1.prvd_id in (select  prvd_id  from hpbus.sum_cust_chg_prvdreport    where aud_trm=#{audTrm}  ) ;
+	</select>
+	
+
+<!--Start 5.15员工异常操作-增加SQL -->
+
+<!--Start  异常积分赠送积分值-->
+<!-- 异常积分赠送积分值排名前50的用户 -->
+<select id="getYCJFZSTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,subs_id,msisdn,total_Time,total_Staff,total_Points_Chnl,total_blto_Chnl,prvd_id
+		FROM  hpbus.YGYC_Sum_Subs_5001
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND   china_no <= 50]]>
+			ORDER BY china_no;	
+	</if>
+	<if test="prvdId!='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,subs_id,msisdn,total_Time,total_Staff,total_Points_Chnl,total_blto_Chnl,city_id
+		FROM  hpbus.YGYC_Sum_Subs_5001
+		WHERE Aud_trm = #{audTrm}
+		AND   prvd_id = #{prvdId}
+		<![CDATA[AND   prvd_no <= '50']]>
+		ORDER BY prvd_no;
+	</if>
+</select>
+
+<!-- 表2 异常积分赠送积分值公司排名 -->
+<select id="getYCJFZSCOMTop50" resultType="java.util.HashMap" parameterType="java.util.Map">	
+	SELECT A2.Aud_trm,A2.china_no,A1.CMCC_prov_prvd_nm as prvd_name,A2.total_City,A2.total_value,A2.total_Amt,A2.total_Amt_10000,A2.total_Time,A2.total_Subs,A2.total_Msisdn,A2.total_staff,A2.total_Points_Chnl,A2.total_Blto_Chnl,A1.CMCC_prov_prvd_id as prvd_id 
+		FROM	(SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[CMCC_prov_prvd_id <> '10000']]>)	A1
+		LEFT JOIN (SELECT * FROM  hpbus.YGYC_Sum_Prvd_5001 WHERE Aud_trm =#{audTrm})		A2
+		ON	A1.CMCC_prov_prvd_id = A2.prvd_id
+		<if test="prvdId!='10000'">
+		where A1.CMCC_prov_prvd_id =#{prvdId}
+		</if>
+		ORDER BY A2.total_value desc;
+</select>
+
+<!--表3 异常积分赠送积分值排名前50用户涉及操作工号 -->
+<select id="getYCJFZSTop50ReleseStaff" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,prvd_id
+			FROM  hpbus.YGYC_Sum_Staff_Subs_5001
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND    china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">	
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,city_id
+			FROM  hpbus.YGYC_Sum_Staff_Subs_5001
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id = #{prvdId}
+			<![CDATA[AND    prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+
+<!--表4 异常积分赠送排名前50操作工号 -->
+<select id="getYCJFZSStaffTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_5001
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND    china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+		SELECT Aud_trm,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,city_id
+			FROM hpbus.YGYC_Sum_Staff_5001
+			WHERE Aud_trm =#{audTrm}
+			AND  prvd_id = #{prvdId}
+			<![CDATA[AND    prvd_no <= '50']]>
+			ORDER BY prvd_no;
+
+	</if>
+</select>
+
+<!--End  异常积分赠送积分值-->
+
+
+
+<!--Start  异常积分转移积分值-->
+
+<!-- 异常积分转移积分值排名前50的用户 -->
+<select id="getYCJFZYTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,subs_id,msisdn,total_Time,total_Staff,total_Points_Chnl,total_blto_Chnl,total_opposite_msisdn,prvd_id 
+		FROM hpbus.YGYC_Sum_Subs_5002
+		WHERE Aud_trm = #{audTrm}
+		<![CDATA[AND   china_no <= '50']]>
+		ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,subs_id,msisdn,total_Time,total_Staff,total_Points_Chnl,total_blto_Chnl,total_opposite_msisdn,city_id 
+		FROM hpbus.YGYC_Sum_Subs_5002
+		WHERE Aud_trm = #{audTrm}
+		AND   prvd_id = #{prvdId}
+		<![CDATA[AND   prvd_no <= '50']]>
+		ORDER BY prvd_no;
+	</if>
+</select>
+
+<!-- 表2 异常积分转移积分值公司排名 -->
+<select id="getYCJFZYCOMTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT A2.Aud_trm,A2.china_no,A1.CMCC_prov_prvd_nm as prvd_name,A2.total_City,A2.total_Value,A2.total_Amt,A2.total_Amt_10000,A2.total_Time,A2.total_Subs,A2.total_Msisdn,A2.total_Staff,A2.total_Points_Chnl,A2.total_Blto_Chnl,A1.CMCC_prov_prvd_id as prvd_id
+		FROM	(SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE<![CDATA[ CMCC_prov_prvd_id <> '10000']]>)	A1
+		LEFT JOIN (SELECT * FROM  hpbus.YGYC_Sum_Prvd_5002 WHERE Aud_trm =#{audTrm})		A2
+		ON	A1.CMCC_prov_prvd_id = A2.prvd_id
+		<if test="prvdId!='10000'">
+			where  A1.CMCC_prov_prvd_id=#{prvdId}
+		</if>
+		ORDER BY A2.total_Value desc;
+</select>
+
+<!--表3 异常积分转移积分值排名前50用户涉及操作工号 -->
+<select id="getYCJFZYTop50ReleseStaff" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,total_opp_misidn_num,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_Subs_5002
+			WHERE Aud_trm = #{audTrm}
+			<![CDATA[AND   china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">	
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,total_opp_misidn_num,city_id
+			FROM hpbus.YGYC_Sum_Staff_Subs_5002
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id =#{prvdId}
+			<![CDATA[AND   prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+
+<!--表4 异常积分转移排名前50操作工号 -->
+<select id="getYCJFZYStaffTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,total_opposite_msisdn,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_5002
+			WHERE Aud_trm = #{audTrm}
+			<![CDATA[AND   china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+		SELECT Aud_trm,prvd_no,prvd_name,city_name,total_Value,total_Amt,total_Amt_10000,staff_id,total_Time,total_Subs,total_Msisdn,total_Points_Chnl,total_opposite_msisdn,city_id
+			FROM hpbus.YGYC_Sum_Staff_5002
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id =#{prvdId}
+			<![CDATA[AND   prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+<!--End  异常积分转移积分值-->
+
+
+<!--Start  异常话费赠送-->
+<!-- 异常话费赠送金额排名前50的用户 -->
+<select id="getYCHFZSTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,acct_id,total_Amt,total_Amt_10000,total_Time,total_subs_id,total_msisdn,total_Opr,total_Blto_Chnl,total_Busi_Chnl,org_cust_id,indvl_cust_id,prvd_id   
+		FROM hpbus.YGYC_Sum_Acct_5003
+		WHERE Aud_trm = #{audTrm}
+		<![CDATA[AND   china_no <= '50']]>
+		ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,acct_id,total_Amt,total_Amt_10000,total_Time,total_subs_id,total_msisdn,total_Opr,total_Blto_Chnl,total_Busi_Chnl,org_cust_id,indvl_cust_id,city_id   
+		FROM hpbus.YGYC_Sum_Acct_5003
+		WHERE Aud_trm =#{audTrm}
+		AND   prvd_id =#{prvdId}
+		<![CDATA[AND   prvd_no <= '50']]>
+		ORDER BY prvd_no;
+	</if>
+</select>
+
+<!-- 表2 异常话费赠送金额公司排名 -->
+<select id="getYCHFZSCOMTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	SELECT A2.Aud_trm,A2.china_no,A1.CMCC_prov_prvd_nm as prvd_name,A2.total_City,A2.total_Amt,A2.total_Amt_10000,A2.total_Time ,A2.total_Acct,A2.total_Subs,A2.total_Msisdn,A2.total_Opr,A2.total_Chnl,A2.total_Org,A2.total_Indvl,A1.CMCC_prov_prvd_id as prvd_id
+		FROM	(SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[CMCC_prov_prvd_id <> '10000']]>)	A1
+		LEFT JOIN (SELECT * FROM  hpbus.YGYC_Sum_Prvd_5003 WHERE Aud_trm =#{audTrm})		A2
+		ON	A1.CMCC_prov_prvd_id = A2.prvd_id
+		<if test="prvdId!='10000'">
+		where  A1.CMCC_prov_prvd_id=#{prvdId}
+		</if>
+		ORDER BY A2.total_Amt desc;
+
+</select>
+
+<!--表3 异常话费赠送话费值排名前50用户涉及操作工号 -->
+<select id="getYCHFZSTop50ReleseStaff" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Amt,total_Amt_10000,opr_id,total_Time,total_Acct,total_Subs,total_Msisdn,total_Busi_Chnl,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_Acct_5003
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND   china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">	
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,total_Amt,total_Amt_10000,opr_id,total_Time,total_Acct,total_Subs,total_Msisdn,total_Busi_Chnl,city_id
+			FROM hpbus.YGYC_Sum_Staff_Acct_5003
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id =#{prvdId}
+			<![CDATA[AND   prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+
+<!--表4 异常话费赠送排名前50操作工号 -->
+<select id="getYCHFZSStaffTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_name,city_name,total_Amt,total_Amt_10000,opr_id,total_Time,total_Acct,total_Subs,total_Msisdn,total_Busi_Chnl,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_5003
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND   china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+		SELECT Aud_trm,prvd_no,prvd_name,city_name,total_Amt,total_Amt_10000,opr_id,total_Time,total_Acct,total_Subs,total_Msisdn,total_Busi_Chnl,city_id
+			FROM hpbus.YGYC_Sum_Staff_5003
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id =#{prvdId}
+			<![CDATA[AND   prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+<!--End  异常话费赠送-->
+
+
+<!--Start  异常退费-->
+<!-- 异常退费金额排名前50的用户 -->
+<select id="getYCTFTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,acct_id,sum_amt,total_Amt_10000,cnt_num,sum_amt_self,sum_amt_shehui,cnt_subs,cnt_msisdn,cnt_opr_id,cnt_chnl,cnt_self,cnt_shehui,org_cust_id,indvl_cust_id,prvd_id
+		FROM hpbus.YGYC_Sum_Acct_5004
+		WHERE Aud_trm =#{audTrm}
+		<![CDATA[AND   china_no <= '50']]>
+		ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+	SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,acct_id,sum_amt,total_Amt_10000,cnt_num,sum_amt_self,sum_amt_shehui,cnt_subs,cnt_msisdn,cnt_opr_id,cnt_chnl,cnt_self,cnt_shehui,org_cust_id,indvl_cust_id,city_id
+		FROM hpbus.YGYC_Sum_Acct_5004
+		WHERE Aud_trm =#{audTrm}
+		AND   prvd_id =#{prvdId}
+		<![CDATA[AND   prvd_no <= '50']]>
+		ORDER BY prvd_no;
+	</if>
+</select>
+
+<!-- 表2 异常退费金额公司排名 -->
+<select id="getYCTFCOMTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	SELECT A2.Aud_trm,A2.china_no,A1.CMCC_prov_prvd_nm as prvd_name,A2.cnt_area,A2.sum_amt,A2.total_Amt_10000,A2.cnt_num,A2.sum_amt_self,A2.sum_amt_shehui,A2.cnt_acct,A2.cnt_subs,A2.cnt_msisdn,A2.cnt_opr_id,A2.cnt_chnl,A2.cnt_self,A2.cnt_shehui,A2.cnt_staff_chnl,A2.total_Org,A2.total_Indvl,A1.CMCC_prov_prvd_id as prvd_id
+		FROM	(SELECT * FROM HPMGR.ref_dm_cmcc_prov_prvd_cd WHERE <![CDATA[ CMCC_prov_prvd_id <> '10000']]>)	A1
+		LEFT JOIN (SELECT * FROM  hpbus.YGYC_Sum_Prvd_5004 WHERE Aud_trm =#{audTrm}) A2
+		ON	A1.CMCC_prov_prvd_id = A2.prvd_id
+		<if test="prvdId!='10000'">
+			where  A1.CMCC_prov_prvd_id=#{prvdId}
+		</if>
+		ORDER BY A2.sum_amt desc;
+</select>
+
+<!--表3 异常退费话费值排名前50账户涉及操作工号 -->
+<select id="getYCTFTop50ReleseStaff" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,opr_id,sum_amt,total_Amt_10000,cnt_num,cnt_acct,cnt_subs,cnt_msisdn,cnt_chnl,cnt_self,cnt_shehui,sum_amt_self,sum_amt_shehui,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_Acct_5004
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND   china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">	
+		SELECT Aud_trm,china_no,prvd_no,prvd_name,city_name,opr_id,sum_amt,total_Amt_10000,cnt_num,cnt_acct,cnt_subs,cnt_msisdn,cnt_chnl,cnt_self,cnt_shehui,sum_amt_self,sum_amt_shehui,city_id
+			FROM hpbus.YGYC_Sum_Staff_Acct_5004
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id =#{prvdId}
+			<![CDATA[AND   prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+
+<!--表4 异常退费排名前50操作工号 -->
+<select id="getYCTFStaffTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	<if test="prvdId=='10000'">
+		SELECT Aud_trm,china_no,prvd_name,city_name,opr_id,sum_amt,total_Amt_10000,cnt_num,cnt_acct,cnt_subs,cnt_msisdn,cnt_chnl,cnt_self,cnt_shehui,sum_amt_self,sum_amt_shehui,prvd_id
+			FROM hpbus.YGYC_Sum_Staff_5004
+			WHERE Aud_trm =#{audTrm}
+			<![CDATA[AND   china_no <= '50']]>
+			ORDER BY china_no;
+	</if>
+	<if test="prvdId!='10000'">
+		SELECT Aud_trm,prvd_no,prvd_name,city_name,opr_id,sum_amt,total_Amt_10000,cnt_num,cnt_acct,cnt_subs,cnt_msisdn,cnt_chnl,cnt_self,cnt_shehui,sum_amt_self,sum_amt_shehui,city_id
+			FROM hpbus.YGYC_Sum_Staff_5004
+			WHERE Aud_trm =#{audTrm}
+			AND   prvd_id =#{prvdId}
+			<![CDATA[AND   prvd_no <= '50']]>
+			ORDER BY prvd_no;
+	</if>
+</select>
+<!--End  异常退费-->
+
+<!--Start 省份选择  -->
+<!--省份选择 -->
+<select id="getSFXZ" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	prvd_name,Num_5001,Min_5001,Max_5001,Num_5002,Min_5002,Max_5002,Num_5003,Min_5003,Max_5003,Num_5004,Min_5004,Max_5004,HZ_Num,Min_5005,Max_5005,Min_5006,Max_5006,Min_5007,Max_5007,Min_5008,Max_5008,Sel_Reason
+		FROM	hpbus.YGYC_Sum_SFXZ_5000
+		WHERE	Aud_trm =#{audTrm}
+		ORDER BY HZ_Num desc;
+</select>
+<select id="getQKTB" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT    Aud_trm,prvd_name,Num_5001,Min_5001,Max_5001,Num_5002,Min_5002,Max_5002,Num_5003,Min_5003,Max_5003,Num_5004,Min_5004,Max_5004
+		FROM      hpbus.YGYC_Sum_SFXZ_5000
+		<![CDATA[WHERE	Aud_trm <=#{audTrm}]]>
+		ORDER BY Aud_trm DESC,prvd_id ASC;
+</select>
+
+
+<!--End 省份选择  -->
+<!--Start 获取省份 -->
+<select id="getPrvd" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	CMCC_prov_prvd_id
+		FROM	hpmgr.TB_SUM_PRVD_NAME
+		group by CMCC_prov_prvd_id
+</select>
+<select id="getPrvdName" resultType="java.util.HashMap" parameterType="java.util.Map">
+	SELECT	CMCC_prov_prvd_nm as prvdName
+		FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd
+		where CMCC_prov_prvd_cd=#{CMCC_prov_prvd_cd}
+</select>
+<select id="getPrvdAndCode" resultType="java.util.HashMap" parameterType="java.util.Map">
+	sel CMCC_prov_prvd_cd,CMCC_prov_prvd_nm
+	from hpmgr.ref_dm_cmcc_prov_prvd_cd
+	order by CMCC_prov_prvd_cd
+</select>
+
+<!--End 5.15员工异常操作-增加SQL -->
+
+<!-- 流量转移（7001 集团）排名汇总 -->
+	<select id="getLlzy7000prvdReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="flag =='7001' and prvd_id != 10000 ">
+		 sel * from(
+		 sel ranking,
+			 rank_prvd,
+			 aud_trm,
+			CMCC_prov_prvd_nm,
+			tf_cnt_org,
+			tf_sum_strm_cap,
+			tf_sum_cnt,
+			tf_sum_msisdn,
+			yszs_cnt_org,
+			yszs_sum_strm_cap,
+			yszs_sum_cnt,
+			yszs_sum_msisdn,
+			cast(yszs_propor*100 as decimal(18,2)) as yszs_propor,
+			sum_a1,
+			sum_a2,
+			sum_a3,
+			sum_b1,
+			sum_b2
+			from hpbus.sum_lltf_7001_prvd
+			<where>  
+			   cmcc_prov_prvd_id =10000
+				<if test="audTrm != null">
+		 			<![CDATA[and aud_trm <=#{audTrm} and aud_trm >='201710']]>
+		 		</if>  
+			</where> 
+			union all
+			 sel ranking,
+			 rank_prvd,
+			 aud_trm,
+			CMCC_prov_prvd_nm,
+			tf_cnt_org,
+			tf_sum_strm_cap,
+			tf_sum_cnt,
+			tf_sum_msisdn,
+			yszs_cnt_org,
+			yszs_sum_strm_cap,
+			yszs_sum_cnt,
+			yszs_sum_msisdn,
+			cast(yszs_propor*100 as decimal(18,2)) as yszs_propor,
+			sum_a1,
+			sum_a2,
+			sum_a3,
+			sum_b1,
+			sum_b2
+			from hpbus.sum_lltf_7001_prvd
+			<where>
+			  <![CDATA[ cmcc_prov_prvd_id <>10000]]>
+		 		<if test="audTrm != null">
+		 			<![CDATA[ and aud_trm <=#{audTrm} and aud_trm >='201710']]>
+		 		</if>
+	 		</where> 
+		) a 
+		order by a.ranking
+		</if>
+		<if test="flag =='7001' and prvd_id == 10000 ">
+		 sel aud_trm,
+			tf_cnt_org,
+			tf_sum_strm_cap,
+			yszs_cnt_org,
+			yszs_sum_strm_cap,
+			cast(yszs_propor*100 as decimal(18,2)) as yszs_propor
+			from hpbus.sum_lltf_7001_prvd
+			<where>
+			  <![CDATA[ cmcc_prov_prvd_id =10000]]>
+		 		<if test="audTrm != null">
+		 			<![CDATA[ and aud_trm <=#{audTrm} and aud_trm >='201710']]>
+		 		</if>
+	 		</where> 
+		</if>
+		<if test="flag =='7002' ">
+			
+		</if>
+	</select>
+	<!-- 排名汇总 清单 -->
+	<select id="getLlzy7000order" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="flag =='7001' ">
+			 sel 
+			rank_org,
+			CMCC_prov_prvd_nm,
+			jt_cmcc_prvd_nm_short,
+			busn_mode_nm,
+			org_nm,
+			trim(org_cust_id) as org_cust_id,
+			sum_strm_cap,
+			avg_strm_cap,
+			cast(strm_cap_per*100 as decimal(18,2)) as strm_cap_per,
+			sum_cnt,
+			sum_msisdn,
+			cast(member_stab_rate*100 as decimal(18,2)) as member_stab_rate,
+			cast(cty_level_rate*100 as decimal(18,2)) as cty_level_rate,
+			a3,
+			sum_dt,
+			duoci_sum,
+			duochu_sum
+			from hpbus.sum_lltf_7001_org
+			<where>
+				<if test="prvdId != null">
+		 			and cmcc_prov_prvd_id =#{prvdId}
+		 		</if>
+		 		<if test="audTrm != null">
+		 			and aud_trm =#{audTrm}
+		 		</if>
+	 		</where>
+	 		order by rank_org
+		</if>
+		<if test="flag =='7002' ">
+			
+		</if>
+	</select>
+	<!-- 更新最新排名 -->
+	<select id="updateLlzy7000prvdReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="flag =='7001' ">
+	     update  hpbus.sum_lltf_7001_prvd a 
+			set ranking=(
+			select rank_prvd from hpbus.sum_lltf_7001_prvd where trim(aud_trm)=#{audTrm} and <![CDATA[cmcc_prov_prvd_id<>'10000' ]]>and cmcc_prov_prvd_id=a.cmcc_prov_prvd_id)
+			where <![CDATA[trim(a.aud_trm) <= #{audTrm}]]>
+			and a.cmcc_prov_prvd_id in (select cmcc_prov_prvd_id from hpbus.sum_lltf_7001_prvd where trim(aud_trm) = #{audTrm} and <![CDATA[cmcc_prov_prvd_id<>'10000' ]]>)
+		</if>
+		<if test="flag =='7002' ">
+		</if>
+	</select>
+	
+	<!-- 获取流量异常赠送V1.2版本-排名汇总-全国数据 -->
+	<select id="getLlzs8000allReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select aud_trm,
+		giv_value_tol,
+		giv_cnt_tol,
+		giv_subs_tol,
+		infrac_value,
+		infrac_cnt,
+		infrac_subs_cnt, 
+		infrac_value_pre
+	from hpbus.sum_llzs_prvd_new
+	<![CDATA[
+	where aud_trm <=#{audTrm} 
+		and aud_trm >='201710'
+		and prvd_id =10000
+	]]>
+	</select>
+	<!-- 流量异常赠送V1.2版本 -根据生成月更新排名 -->
+	<select id="setLlzs8000prvdReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+	update  hpbus.sum_llzs_prvd_new set rank_china_new =''
+	</select>
+	<select id="updateLlzs8000prvdReportSort" resultType="java.util.HashMap" parameterType="java.util.Map">
+	<![CDATA[
+	update  hpbus.sum_llzs_prvd_new  t1
+	set rank_china_new = (
+		select	 rank_china 
+		from	 hpbus.sum_llzs_prvd_new  
+ 		where aud_trm = #{audTrm}
+ 			and t1.prvd_id = prvd_id ) 
+	where  t1.aud_trm<=#{audTrm}
+		and t1.prvd_id in (
+			select	 prvd_id  
+			from	hpbus.sum_llzs_prvd_new    
+		where	aud_trm=#{audTrm}) ;
+	]]>
+	</select>
+	<!-- 获取流量异常赠送V1.2版本-排名汇总-省份数据 -->
+	<select id="getLlzs8000prvdReport" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select aud_trm,rank_china_new,prvd_id,prvd_nm, 
+           giv_value_tol, giv_cnt_tol,giv_subs_tol,
+           infrac_value, infrac_cnt,infrac_subs_cnt,infrac_value_pre, 
+           hf_value, hf_cnt, hf_value_per, hq_value, hq_cnt, hq_value_per, yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_prvd_new
+	<![CDATA[
+	where aud_trm <=#{audTrm} 
+		and aud_trm >='201710'
+	order by rank_china_new;
+	]]>
+	</select>
+	<!-- 获取流量异常赠送V1.2版本-地市Top50清单 -->
+	<select id="getLlzs8000cityTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select  aud_trm, rank_china, prvd_nm, cty_nm,
+       giv_value_tol, giv_cnt_tol, giv_subs_tol,
+       infrac_value, infrac_cnt,infrac_subs_cnt,infrac_value_pre,
+       hf_value, hf_cnt,hf_value_per, 
+       hq_value, hq_cnt, hq_value_per,
+       yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_city_new
+	<![CDATA[
+	where aud_trm = #{audTrm} 
+		and rank_china <= 50
+	order by rank_china;
+	]]>
+	</select>
+	<!-- 获取流量异常赠送V1.2版本-营销案Top50清单 -->
+	<select id="getLlzs8000offerTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select aud_trm,rank_china, trim(offer_nm) as offer_nm , trim(offer_cd) as offer_cd, prvd_nm, cty_nm, 
+           giv_value_tol, giv_cnt_tol,giv_subs_tol,infrac_value, infrac_cnt,infrac_subs_cnt,infrac_value_pre, 
+           hf_value, hf_cnt, hf_value_per, hq_value, hq_cnt, hq_value_per, yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_offer_info_top
+	where aud_trm = #{audTrm} 
+	order by rank_china;
+	</select>
+	
+	<!-- 获取流量异常赠送V1.2版本-渠道Top50清单 -->
+	<select id="getLlzs8000chnlTop50" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select rank_china, chnl_nm, chnl_id, prvd_nm, cty_nm, aud_trm,
+           giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+           infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre, 
+           hf_value, hf_cnt, hf_value_per, hq_value, hq_cnt, hq_value_per, yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_chnl_top
+	where aud_trm = #{audTrm}
+	order by rank_china;
+	</select>
+	
+	<select id="getLlzs8000PrvdInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select aud_trm,
+		giv_value_tol,
+		giv_cnt_tol,
+		giv_subs_tol,
+		infrac_value,
+		infrac_cnt,
+		infrac_subs_cnt, 
+		infrac_value_pre
+	from hpbus.sum_llzs_prvd_new
+	where aud_trm = #{audTrm}
+		and prvd_id =#{prvdId}
+	</select>
+	<!-- 获取流量异常赠送V1.2版本-该省地市排名汇总情况 -->
+	<select id="getLlzs8000city" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select  aud_trm,rank_prvd, cty_nm, giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+            infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre, 
+            hf_value, hf_cnt, hf_value_per, hq_value, hq_cnt, hq_value_per, yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_city_new
+	where aud_trm = #{audTrm}
+		and prvd_id =#{prvdId}
+	order by rank_prvd;
+	
+	</select>
+	<!-- 获取流量异常赠送V1.2版本-该省营销案清单 -->
+	<select id="getLlzs8000offer" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select aud_trm,rank_prvd, offer_nm, offer_cd, prvd_nm, cty_nm, 
+           giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+           infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre, 
+           hf_value, hf_cnt, hf_value_per, hq_value, hq_cnt, hq_value_per, yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_offer_info_prvd
+	where aud_trm = #{audTrm}
+		and prvd_id =#{prvdId}
+	order by rank_prvd;
+	</select>
+	<!-- 获取流量异常赠送V1.2版本-该省渠道清单 -->
+	<select id="getLlzs8000chnl" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select rank_prvd,aud_trm, chnl_nm, chnl_id, prvd_nm, cty_nm, 
+           giv_value_tol, giv_cnt_tol, giv_subs_tol, 
+           infrac_value, infrac_cnt, infrac_subs_cnt, infrac_value_pre, 
+           hf_value, hf_cnt, hf_value_per, hq_value, hq_cnt, hq_value_per, yk_value, yk_cnt, yk_value_per
+	from hpbus.sum_llzs_chnl_prvd
+	where aud_trm = #{audTrm}
+		and prvd_id = #{prvdId}
+	order by rank_prvd;
+	</select>
+	<!--end 流量异常赠送 -->
+
+	<!-- 添加新的审计通报记录 -->
+	<select id="addNotiFileTmp" parameterType="java.util.Map">
+		INSERT INTO hpmgr.busi_notification_file		
+		(audit_monthly, audit_subject, focus_cd, status, create_time,download_time, create_num, download_num,download_url)		
+		VALUES (#{month},#{auditSubject},#{focusCdStr}, '3', current_time,null, 0, 0,#{downUrl})
+	</select>
+	<update id="updateNotiFileDLNum" parameterType="java.util.Map">
+ 		UPDATE hpmgr.busi_notification_file
+ 		SET download_num = download_num + 1,create_time =current_timestamp,download_time = current_timestamp,download_url=#{downloadUrl},
+ 		create_num = create_num + 1
+ 		WHERE audit_subject = #{auditSubject} and focus_cd =#{focusCd} and audit_monthly =#{audTrm}
+	</update>
+	<select id="selNotiFileDLNum" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 		select * from hpmgr.busi_notification_file
+ 		WHERE audit_subject = #{auditSubject} and focus_cd =#{focusCd} and audit_monthly =#{audTrm}
+	</select>
+	
+	<select id="selectDetailsConfig" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select  csv_header, csv_sql
+		from hpmgr.busi_details_csv_config
+		where focus_cd=#{focusCd}
+		and subject_id=#{subjectId}
+	</select>
+	<!-- 个人客户长期高额欠费-按用户类型汇总 -->
+<select id="selKhqf4000UserByType" resultType="java.util.HashMap" parameterType="java.util.Map">
+SELECT	aud_trm, prvd_id, prvd_nm, sum_dbt_amt, sum_cust, amt_new,
+		subs_new, amt_red, amt_red_per, subs_red, subs_red_per, amt_red_new,
+		amt_red_new_per, subs_red_new, subs_red_new_per, amt_red_expired,
+		amt_red_expired_per, subs_red_expired, subs_red_expired_per,
+		amt_red_expired_new, amt_red_expired_new_per, subs_red_expired_new,
+		subs_red_expired_new_per, amt_subs_non_sim_m2m, amt_subs_non_sim_m2m_per,
+		subs_non_sim_m2m, subs_non_sim_m2m_per, amt_subs_non_sim_m2m_new,
+		amt_subs_non_sim_m2m_new_per, subs_non_sim_m2m_new, subs_non_sim_m2m_new_per,
+		amt_subs_sim, amt_subs_sim_per, subs_sim, subs_sim_per, amt_subs_sim_new,
+		amt_subs_sim_new_per, subs_sim_new, subs_sim_new_per, amt_subs_m2m,
+		amt_subs_m2m_per, subs_m2m, subs_m2m_per, amt_subs_m2m_new, amt_subs_m2m_new_per,
+		subs_m2m_new, subs_m2m_new_per, amt_subs_iot, amt_subs_iot_per,
+		subs_iot, subs_iot_per, amt_subs_iot_new, amt_subs_iot_new_per,
+		subs_iot_new, subs_iot_new_per, rank_amt
+FROM	hpbus.sum_cust_chg_subs_prvd
+WHERE  aud_trm = cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-7) as date format 'YYYYMMDD') as varchar(6))
+<![CDATA[
+and prvd_id<>10000
+]]>
+order by rank_amt
+</select>
+	
+	
+</mapper>

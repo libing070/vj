@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 个人-->
+<mapper namespace="customerDebtGEKH">
+ 	
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="totalReport">
+		<result property="statCycle" column="statCycle"/>
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="count" column="errQty"/>
+		<result property="percent" column="qtyPercent"/>
+	</resultMap>
+	
+	<resultMap type="java.util.Map"  id="mapReport">
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="numberSum" column="errQty"/>
+		<result property="numberPrecent" column="qtyPrecent"/>
+		<result property="amountSum" column="errAmt"/>
+		<result property="amountPercent" column="amtPercent"/>
+		<result property="totalNum" column="totalNum"/>
+	</resultMap>
+	
+
+	<!-- 总体情况之全国地图  这里必须关联省市常量表，以变获取31个省数据，即使值为null，也要成一条记录，这样地图显示才完整  20160804 create by GuoXY -->
+	<select id="totalReport_selectChinaMap" resultMap="mapReport" parameterType="java.util.Map">
+	   <if test="provinceCode==10000">	
+			select 
+				prvCon.short_name as regionName, 
+				prvCon.prvd_id as regionId, 
+				t.errQty, 
+				t.totalNum, 
+				t.qtyPercent, 
+				t.errAmt, 
+				t.amtPercent	
+			from HPMGR.busi_workspace_org  prvCon left join
+				(
+					select 
+						CMCC_prov_prvd_id as regionId, 
+						sum_cust1 as errQty, 
+						zhanbi1 as qtyPercent, 
+						sum_dbt_amt as errAmt, 
+						zhanbi2 as amtPercent,
+						sum_cust3 as totalNum  
+					from  HPbus.SUM_CUST_CHG_PRVD 
+					where 1=1
+						and sum_cust2  > 0
+					<if test="statCycle!=null">
+						and aud_trm=#{statCycle}
+					</if>
+				)  t		
+			on t.regionId = prvCon.prvd_id		
+			order by qtyPercent desc
+		</if>
+		
+		<if test="provinceCode!=10000">
+			select 
+				ctyCon.CMCC_prvd_nm_short as regionName, 
+				ctyCon.CMCC_prvd_cd as regionId, 
+				t.errQty, 
+				t.totalNum, 
+				t.qtyPercent, 
+				t.errAmt, 
+				t.amtPercent	
+			from hpmgr.TB_SUM_PRVD_NAME ctyCon left join
+				(
+						select 
+							CMCC_prvd_id as regionId, 
+							sum_cust1 as errQty, 
+							zhanbi1 as qtyPercent, 
+							sum_dbt_amt as errAmt, 
+							zhanbi2 as amtPercent,
+							sum_cust3 as totalNum  
+						from  Hpbus.SUM_CUST_CHG_CTY
+						where 1=1
+							and sum_cust_id  > 0
+						and CMCC_prov_prvd_id=#{provinceCode}
+						<if test="statCycle!=null">
+							and aud_trm=#{statCycle}
+						</if>
+				)  t		
+			on   t.regionId = ctyCon.CMCC_prvd_cd		
+			order by qtyPercent desc
+		</if>
+	</select>
+	
+	<!-- 总体情况之数量前五名 20160804 create by GuoXY-->
+	<select id="totalReport_selectNumberTop5" resultMap="totalReport" parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			select t.*, row_number() OVER(ORDER BY tolQty desc, qtyPercent desc) RN 
+			from (	
+				select 
+				CMCC_prov_prvd_id as regionId, 
+				CMCC_prov_prvd_nm as regionName,
+				sum_cust1 as errQty, 
+				sum_cust3 as tolQty,  
+				zhanbi1 as qtyPercent
+				from Hpbus.SUM_CUST_CHG_PRVD 
+				<where> 1=1
+					and tolQty >0
+					<if test="statCycle!=null">
+						and aud_trm=#{statCycle}
+					</if>
+				</where>
+			) as t
+			<![CDATA[QUALIFY  RN<=5]]>
+			order by errQty desc, RN asc
+		</if>
+		<if test="provinceCode!=10000">
+			select t.*, row_number() OVER(ORDER BY tolQty desc, qtyPercent desc) RN 
+			from (	
+				select 
+				CMCC_prvd_id as regionId, 
+				CMCC_prvd_nm as regionName,
+				sum_cust1 as errQty, 
+				sum_cust3 as tolQty,  
+				zhanbi1 as qtyPercent
+				from Hpbus.SUM_CUST_CHG_CTY 
+				<where> 1=1
+					and tolQty >0
+					and CMCC_prov_prvd_id=#{provinceCode}
+					<if test="statCycle!=null">
+						and aud_trm=#{statCycle}
+					</if>
+				</where>
+			) as t
+			<![CDATA[QUALIFY  RN<=5]]>
+			order by errQty desc, RN asc
+		</if>
+	</select>
+
+	<!-- 总体情况之占比前五名 20160804 create by GuoXY-->
+	<select id="totalReport_selectPercentTop5" resultMap="totalReport" parameterType="java.util.Map">
+		<if test="provinceCode==10000">
+			select t.*, row_number() OVER(ORDER BY qtyPercent desc, tolQty desc) RN 
+			from (	
+				select 
+				CMCC_prov_prvd_id as regionId, 
+				CMCC_prov_prvd_nm as regionName,
+				sum_cust1 as errQty, 
+				sum_cust3 as tolQty,  
+				zhanbi1 as qtyPercent
+				from Hpbus.SUM_CUST_CHG_PRVD 
+				<where> 1=1
+					and tolQty >0
+					<if test="statCycle!=null">
+						and aud_trm=#{statCycle}
+					</if>
+				</where>
+			) as t
+			<![CDATA[QUALIFY  RN<=5]]>
+			order by qtyPercent desc, RN asc
+		</if>
+		<if test="provinceCode!=10000">
+			select t.*, row_number() OVER(ORDER BY qtyPercent desc, tolQty desc) RN 
+			from (	
+				select 
+				CMCC_prvd_id as regionId, 
+				CMCC_prvd_nm as regionName,
+				sum_cust1 as errQty, 
+				sum_cust3 as tolQty,  
+				zhanbi1 as qtyPercent
+				from Hpbus.SUM_CUST_CHG_CTY 
+				<where> 1=1
+					and tolQty >0
+					and CMCC_prov_prvd_id=#{provinceCode}
+					<if test="statCycle!=null">
+						and aud_trm=#{statCycle}
+					</if>
+				</where>
+			) as t
+			<![CDATA[QUALIFY  RN<=5]]>
+			order by qtyPercent desc, RN asc
+		</if>
+	</select>
+	
+
+	<!-- 统计分析之按地区趋势  20160804 create by GuoXY-->
+	<select id="statReport_timeTrend" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+			SELECT
+				aud_trm AS statisticalObj,
+				 
+				coalesce(sum(sum_cust1),0) as errQty,				
+				coalesce(sum(sum_cust3),0) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				coalesce(sum(sum_dbt_amt),0) as errAmount, 
+				coalesce(sum(sum_dbt_amt1),0) as totalAmount,
+				case when totalAmount=0 then 0 else cast(errAmount as decimal(16,2))*100/totalAmount end amountPercent
+	
+				from Hpbus.SUM_CUST_CHG_PRVD
+			WHERE 1=1
+				<if test="params.dateF!=null">
+					<![CDATA[and statisticalObj >= #{params.dateF}]]>
+				</if>
+				 <if test="params.dateT!=null">
+					<![CDATA[and statisticalObj <= #{params.dateT}]]>
+				</if>
+				<if test="params.selProvCodeSTR!=null">
+					and CMCC_prov_prvd_id in ${params.selProvCodeSTR}
+				</if>
+			GROUP BY statisticalObj
+		</if>
+	
+		<if test="params.groupByField=='cty_id'">
+			SELECT
+				aud_trm AS statisticalObj,
+
+				coalesce(sum(cty.sum_cust1),0) as errQty,				
+				coalesce(sum(cty.sum_cust3),0) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				coalesce(sum(cty.sum_dbt_amt),0)  as errChnlQty, 
+				coalesce(sum(cty.sum_dbt_amt1),0) as totalChnlQty,
+				case when totalChnlQty=0 then 0 else cast(errChnlQty as decimal(16,2))*100/totalChnlQty end amountPercent
+	
+				from Hpbus.SUM_CUST_CHG_CTY cty
+			WHERE 1=1
+					<if test="params.dateF!=null">
+						<![CDATA[and cty.aud_trm >= #{params.dateF}]]>
+					</if>
+					<if test="params.dateT!=null">
+						<![CDATA[and cty.aud_trm <= #{params.dateT}]]>
+					</if>
+					<if test="params.selCityCodeSTR!=null">
+						and cty.CMCC_prvd_id in ${params.selCityCodeSTR}
+					</if>
+			GROUP BY statisticalObj
+		</if>
+	</select>
+
+
+	<!-- 统计分析之地区横向对比  20160806 create by GuoXY-->
+	<select id="statReport_areaTrend" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+			SELECT
+				prvd.CMCC_prov_prvd_id AS regionId,
+				prvd.CMCC_prov_prvd_nm AS statisticalObj,
+				
+				coalesce(sum(prvd.sum_cust1),0) as errQty,				
+				coalesce(sum(prvd.sum_cust3),0) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				coalesce(sum(prvd.sum_dbt_amt),0)  as errChnlQty, 
+				coalesce(sum(prvd.sum_dbt_amt1),0) as totalChnlQty,
+				case when totalChnlQty=0 then 0 else cast(errChnlQty as decimal(16,2))*100/totalChnlQty end qtyChnlPercent
+	
+				from Hpbus.SUM_CUST_CHG_PRVD prvd
+			WHERE 1=1
+				<if test="params.dateF!=null">
+					<![CDATA[and prvd.aud_trm >= #{params.dateF}]]>
+				</if>
+				<if test="params.dateT!=null">
+					<![CDATA[and prvd.aud_trm <= #{params.dateT}]]>
+				</if>
+				<if test="params.selProvCodeSTR!=null">
+					and prvd.CMCC_prov_prvd_id in ${params.selProvCodeSTR}
+				</if>
+			GROUP BY regionId, statisticalObj
+		</if>
+	
+		<if test="params.groupByField=='cty_id'">
+			SELECT
+				cty.CMCC_prvd_id AS regionId,
+				cty.CMCC_prvd_nm AS statisticalObj,
+
+				coalesce(sum(cty.sum_cust1),0) as errQty,				
+				coalesce(sum(cty.sum_cust3),0) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				coalesce(sum(cty.sum_dbt_amt),0) as errChnlQty, 
+				coalesce(sum(cty.sum_dbt_amt1),0) as totalChnlQty,
+				case when totalChnlQty=0 then 0 else cast(errChnlQty as decimal(16,2))*100/totalChnlQty end qtyChnlPercent
+	
+				from Hpbus.SUM_CUST_CHG_CTY cty
+			WHERE 1=1
+					<if test="params.dateF!=null">
+						<![CDATA[and cty.aud_trm >= #{params.dateF}]]>
+					</if>
+					<if test="params.dateT!=null">
+						<![CDATA[and cty.aud_trm <= #{params.dateT}]]>
+					</if>
+					<if test="params.selCityCodeSTR!=null">
+						and cty.CMCC_prvd_id in ${params.selCityCodeSTR}
+					</if>
+			GROUP BY regionId, statisticalObj
+		</if>
+	</select><!-- ORDER BY t.prvd_id  DESC -->
+	
+	
+	
+	<!-- 报表展现-数据查询  20160806 create by GuoXY-->
+	<select id="tableReport_getProvinceData" resultType="java.util.HashMap" parameterType="java.util.Map">
+			SELECT
+				prvd.CMCC_prov_prvd_id AS regionId,
+				prvd.CMCC_prov_prvd_nm AS statisticalObj,
+				(
+					select count(1)
+					from Hpbus.SUM_CUST_CHG_CTY cty  
+					where 1=1
+					and cty.sum_cust1 > 0
+					<if test="params.dateF!=null">
+						<![CDATA[and cty.aud_trm >= #{params.dateF}]]>
+					</if>
+					 <if test="params.dateT!=null">
+						<![CDATA[and cty.aud_trm <= #{params.dateT}]]>
+					</if>
+					and cty.CMCC_prov_prvd_id = prvd.CMCC_prov_prvd_id
+				) as cityCount,
+				coalesce(sum(prvd.sum_cust1),0) as errQty,				
+				coalesce(sum(prvd.sum_cust3),0) as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty as decimal(16,2))*100/totalQty end qtyPercent,
+				
+				coalesce(sum(prvd.sum_dbt_amt),0)  as errChnlQty, 
+				coalesce(sum(prvd.sum_dbt_amt1),0) as totalChnlQty,
+				case when totalChnlQty=0 then 0 else cast(errChnlQty as decimal(16,2))*100/totalChnlQty end qtyChnlPercent
+	
+				from Hpbus.SUM_CUST_CHG_PRVD prvd
+			WHERE 1=1
+				<if test="params.dateF!=null">
+					<![CDATA[and prvd.aud_trm >= #{params.dateF}]]>
+				</if>
+				<if test="params.dateT!=null">
+					<![CDATA[and prvd.aud_trm <= #{params.dateT}]]>
+				</if>
+				<if test="params.selCityCodeSTR!=null">
+					and cty.CMCC_prvd_id in ${params.selCityCodeSTR}
+				</if>
+				<if test="params.selProvCodeSTR!=null">
+					and prvd.CMCC_prov_prvd_id in ${params.selProvCodeSTR}
+				</if>
+			GROUP BY regionId, statisticalObj
+	</select>
+
+	
+	<!-- 报表分析之有地市公司数量下钻明细    20160807 create by GuoXY-->
+	<select id="statReport_cityDetailData" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			cty.CMCC_prvd_id AS regionId,
+			cty.CMCC_prvd_nm AS regionName,
+
+			cty.sum_cust1 as errQty,				
+			cty.sum_cust3 as totalQty, 
+			cty.zhanbi1 as qtyPercent,
+			
+			cty.sum_dbt_amt as errChnlQty, 
+			cty.sum_dbt_amt1 as totalChnlQty,
+			cty.zhanbi2 as qtyChnlPercent
+
+			from Hpbus.SUM_CUST_CHG_CTY cty
+		WHERE 1=1
+			and cty.sum_cust1 > 0
+			<if test="params.dateF!=null">
+				<![CDATA[and cty.aud_trm >= #{params.dateF}]]>
+			</if>
+			 <if test="params.dateT!=null">
+				<![CDATA[and cty.aud_trm <= #{params.dateT}]]>
+			</if>
+			<if test="params.selCityCodeSTR!=null">
+				and cty.CMCC_prvd_id in ${params.selCityCodeSTR}
+			</if>
+			<if test="params.provinceCode!=null">
+				and cty.CMCC_prov_prvd_id = ${params.provinceCode}
+			</if>
+	</select>
+
+
+
+	<!-- 报表分析之长期高额欠费客户数量下钻    20160809 create by GuoXY-->
+	<select id="statReport_customerDetailData" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT
+			t.cmcc_prov_prvd_id AS prvdId,
+			prov.short_name AS prvdName,
+			t.cmcc_prvd_id as cityId, 
+			cty.CMCC_prvd_nm_short as cityName,
+
+			t.acct_prd_ytm as accPeriod,
+			t.subs_id as accountId,
+			t.MSISDN as phone,
+			t.pref_pmt_mthd_cd as num,
+			t.all_mer_amt as total,
+			t.subs_typ_cd as userAtt
+		from Hpbus.det_debt t
+		left join HPMGR.busi_workspace_org prov on t.cmcc_prov_prvd_id = prov.prvd_id
+		left join hpmgr.TB_SUM_PRVD_NAME cty on t.cmcc_prvd_id = cty.CMCC_prvd_cd
+		WHERE 1=1
+			and t.dbt_amt > 0
+			<if test="params.dateF!=null">
+				<![CDATA[and t.aud_trm >= #{params.dateF}]]>
+			</if>
+			 <if test="params.dateT!=null">
+				<![CDATA[and t.aud_trm <= #{params.dateT}]]>
+			</if>
+			<!-- 省ID和地市ID共同做约束条件时，可能会针对地市条件报些莫名的格式错误  20160815 add by GuoXY -->
+			<if test="params.selProvCode!=null and params.selCityCodeSTR==null">	
+				and t.cmcc_prov_prvd_id = #{params.selProvCode}
+			</if>
+			<if test="params.selCityCodeSTR!=null">
+				and t.CMCC_prvd_id in ${params.selCityCodeSTR}
+			</if>	
+
+	</select>
+
+
+
+	<!-- 审计报告_1_长期高额欠费个人客户总体信息 20160819 create by GuoXY  
+	<select id="auditReport_select_totalInfo" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			t0.flag as regionId,
+			t0.flag_name as regionName, 
+			
+		    coalesce(t0.sum_cust1,0) as errQty_tmp,	
+			trim (errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			
+			coalesce(t0.sum_cust3,0) as tolQty_tmp,	
+			trim (tolQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as totalQty,
+			
+			t0.zhanbi1 as qtyPercent_tmp,
+		    trim( (case when t0.zhanbi1 is null then 0 else (cast(t0.zhanbi1 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as qtyPercent,
+
+			coalesce(t0.sum_dbt_amt,0) as errAmt_tmp,	
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,	
+			trim ((errAmt_tmp*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmtW,
+			coalesce(t0.sum_dbt_amt1,0) as totalAmt_tmp,	
+			trim (totalAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as totalAmt,
+			trim ((totalAmt_tmp*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as totalAmtW,
+			
+			t0.zhanbi2 as amtPercent_tmp,
+			 trim( (case when t0.zhanbi2 is null then 0 else (cast(t0.zhanbi2 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as amtPercent,
+			
+			
+			
+			
+			coalesce(t1.sum_cust1,0) as last_errQty_tmp,	
+			trim (last_errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as last_errQty,	
+			
+			coalesce(t1.sum_cust3,0) as last_totalQty_tmp,	
+			trim (last_totalQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as  last_totalQty,
+			
+			t1.zhanbi1 as last_qtyPercent_tmp,
+		    trim( (case when t1.zhanbi1 is null then 0 else (cast(t1.zhanbi1 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as last_qtyPercent,
+			
+			
+			coalesce(t1.sum_dbt_amt,0) as last_errAmt_tmp,	
+			trim (last_errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as last_errAmt,	
+
+			coalesce(t1.sum_dbt_amt1,0) as last_totalAmt_tmp,	
+			trim (last_totalAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as last_totalAmt,
+			
+			t1.zhanbi2 as last_amtPercent_tmp,
+			trim( (case when t1.zhanbi2 is null then 0 else (cast(t1.zhanbi2 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as amtPercent,
+			
+			
+			
+			(case when (qtyPercent_tmp - last_qtyPercent_tmp)>=0 then '上升'  else '下降' end) || (trim (case when last_errQty_tmp=0 then 'N/A' else (cast((qtyPercent_tmp - last_qtyPercent_tmp) as decimal(16,2))(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end))  as abs_fbQtyPercent, 
+			(case when (amtPercent_tmp - last_amtPercent_tmp)>=0 then '上升' else '下降' end) || (trim (case when last_errAmt_tmp=0 then 'N/A' else (cast((amtPercent_tmp - last_amtPercent_tmp)as decimal(16,2))(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end)) as abs_fbAmtPercent,
+			
+			(case when (errQty_tmp - last_errQty_tmp)>=0 then '增加'  else '减少' end) || (trim (case when last_errQty_tmp=0 then '0' else (cast((errQty_tmp - last_errQty_tmp) as decimal(16,2))(FORMAT 'ZZZ,ZZZ,ZZZ')(VARCHAR(11))) end))  as changeQty, 
+			(case when (errAmt_tmp - last_errAmt_tmp)>=0 then '增加' else '减少' end) || (trim (case when last_errAmt_tmp=0 then '0.00' else (cast((errAmt_tmp - last_errAmt_tmp)as decimal(16,2))(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end)) as changeAmt,
+			
+			trim(case when errAmt_tmp=0 then 0 else (( errAmt_tmp/cast(errQty_tmp as decimal(16,4)))(FORMAT 'ZZZ,ZZ9.99')(VARCHAR(14)) ) end) as averageMoney
+		from  
+		( select * from  Hpbus.SUM_CUST_CHG_PRVD where aud_trm=#{statCycle} ) as t0 
+		LEFT JOIN 
+		(
+			select * from  Hpbus.SUM_CUST_CHG_PRVD where aud_trm=cast((add_months(cast( #{statCycle} as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))
+		) as t1 
+		ON t0.flag = t1.flag and t0.CMCC_prov_prvd_id = t1.CMCC_prov_prvd_id
+		where 1=1
+			and t0.sum_cust1 > 0
+			and t0.flag=10000
+			and t0.CMCC_prov_prvd_id=#{provinceCode}
+	</select>
+	-->
+		<select id="auditReport_select_totalInfo" resultType="java.util.HashMap" parameterType="java.util.Map">	
+			select t11.*,
+			case when t1.newLastper-t11.newLastper >0 then '低于' 
+			when t1.newLastper-t11.newLastper <![CDATA[<]]>0 then '高于' else '同' end as perflag 
+ 			from (select t0.aud_trm,
+			t0.flag as regionId,
+			t0.flag_name as regionName, 
+			
+		    coalesce(t0.sum_cust1,0) as errQty_tmp,	
+			trim (errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			
+			coalesce(t0.sum_cust3,0) as tolQty_tmp,	
+			trim (tolQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as totalQty,
+			
+			t0.zhanbi1 as qtyPercent_tmp,
+		    trim( (case when t0.zhanbi1 is null then 0 else (cast(t0.zhanbi1 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as qtyPercent,
+
+			coalesce(t0.sum_dbt_amt,0) as errAmt_tmp,	
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,	
+			trim ((errAmt_tmp*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmtW,
+			coalesce(t0.sum_dbt_amt1,0) as totalAmt_tmp,	
+			trim (totalAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as totalAmt,
+			trim ((totalAmt_tmp*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as totalAmtW,
+			t0.zhanbi2 as amtPercent_tmp,
+			 trim( (case when t0.zhanbi2 is null then 0 else (cast(t0.zhanbi2 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as amtPercent,
+			trim(case when errAmt_tmp=0 then 0 else (( errAmt_tmp/cast(errQty_tmp as decimal(16,4)))(FORMAT 'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14)) ) end) as averageMoney,
+			<![CDATA[case when subs_num<0 then '减少' else '增加' end as subs_num_flag]]>,
+			trim (subs_num(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as subs_num,	
+			<![CDATA[case when amt_num<0 then '减少' else '增加' end as amt_num_flag]]>,
+			trim (amt_num(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_num,	
+			trim ((amt_num*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_numW,
+			
+			trim (subs_new(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as subs_new,	
+			trim (amt_new(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_new,
+			trim ((amt_new*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as amt_newW
+			,case when coalesce(sum_dbt_amt,0.00)-coalesce(amt_num,0.00)=0.00 then 0 else cast(coalesce(amt_new,0)/((coalesce(sum_dbt_amt,0)-coalesce(amt_num,0))*1.0000) as decimal(18,4)) end  as errPer_tmp
+		,sum_subs_recover
+		,trim(amt_all_recover/10000(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')) as amt_all_recover
+		,case when coalesce(sum_dbt_amt,0.00)-coalesce(amt_num,0.00)=0.00 then 0 else cast((coalesce(amt_all_recover,0)/((coalesce(sum_dbt_amt,0.00)-coalesce(amt_num,0.00))*1.0000)*100) as decimal(18,2))  end as newLastper   
+		,trim(newLastper(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')) as newLastperGR
+		,amt_new_order,amt_new_per_order
+		,amt_new_per*100 as amt_new_per,
+		cast(sum_dbt_amt_pre as varchar(18)) as sum_dbt_amt_pre
+		from  
+		 hpbus.SUM_CUST_CHG_PRVD t0 	
+		where 1=1
+		and aud_trm= #{statCycle} 
+			and t0.flag=10000
+			and t0.CMCC_prov_prvd_id=#{provinceCode}) t11
+			left join (
+				select aud_trm,
+			case when coalesce(sum_dbt_amt,0.00)-coalesce(amt_num,0.00)=0.00 then 0 else cast(coalesce(amt_all_recover,0)/((coalesce(sum_dbt_amt,0.00)-coalesce(amt_num,0.00))*1.0000)*100 as decimal(18,2))  end as newLastper
+		    from 
+			hpbus.SUM_CUST_CHG_PRVD t0
+			where
+			 aud_trm= #{statCycle} 
+			and t0.flag=10000
+			and t0.CMCC_prov_prvd_id=10000
+			) t1 on t11.aud_trm =t1.aud_trm
+	</select>
+	
+	
+	<!-- 审计报告_2_长期高额欠费个人客户数量排名前5的公司 20160819 create by GuoXY  -->
+	<select id="auditReport_select_cusNumComp_top5" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				flag as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				CMCC_prov_prvd_id as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			coalesce(sum_cust1,0) as sum_cust1_tmp,	
+			trim (sum_cust1_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			
+			coalesce(sum_dbt_amt,0) as errAmt_tmp,	
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,	
+			
+			trim( (case when zhanbi1 is null then 0 else (cast(zhanbi1 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as qtyPercent,
+			
+			num_order as rn
+		from  HPbus.SUM_CUST_CHG_PRVD 
+		where 1=1
+			<![CDATA[and num_order <= 5]]>
+			and flag=#{provinceCode}
+			and num_order is not null
+			and amt_order is not null
+			and sum_cust1 >0
+			<![CDATA[and CMCC_prov_prvd_id<>10000]]>
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+		order by num_order asc
+	</select>
+
+	
+	<!-- 审计报告_3_长期高额欠费个人客户欠费金额排名前5的省公司/地市 20160819 create by GuoXY  -->
+	<select id="auditReport_select_monNumComp_top5" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				flag as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				CMCC_prov_prvd_id as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>		
+			coalesce(sum_cust1,0) as sum_cust1_tmp,	
+			trim (sum_cust1_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			
+			coalesce(sum_dbt_amt,0) as errAmt_tmp,	
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,	
+			
+			trim( (case when zhanbi2 is null then 0 else (cast(zhanbi2 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as amtPercent,
+
+			amt_order as rn
+		from  HPbus.SUM_CUST_CHG_PRVD 
+		where 1=1
+			<![CDATA[and amt_order <= 5]]>
+			and flag=#{provinceCode}
+			and num_order is not null
+			and amt_order is not null
+			and sum_dbt_amt > 0
+			<![CDATA[and CMCC_prov_prvd_id<>10000]]>
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+		order by amt_order asc
+	</select>
+
+	<!-- 审计报告_4_按客户重要等级分-总体 20160819 create by GuoXY  -->
+	<select id="auditReport_select_totalImportantLevel" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			flag as regionId,
+			flag_name as regionName,
+			
+			sum_004 as errQty_tmp,	
+			trim (errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			
+			sum_dbt_amt as errAmt_tmp,	
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,	
+
+			trim( (case when zhanbi3 is null then 0 else (cast(zhanbi3 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as amountPercent,
+			
+
+			sum_003 as errQty2_tmp,	
+			trim (errQty2_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty2,	
+			
+			sum_dbt_amt1 as errAmt2_tmp,	
+			trim (errAmt2_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt2,
+			trim ((errAmt2_tmp*1.00/10000)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt2W,	
+			
+			trim( (case when zhanbi4 is null then 0 else (cast(zhanbi4 as decimal(16,4))*100) end) (FORMAT 'ZZ9.99%')(VARCHAR(7)) )  as amountPercent2
+		from  HPbus.SUM_CUST_TYP 
+		where 1=1
+			and flag=10000
+			and CMCC_prov_prvd_id=#{provinceCode}
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+	</select>
+
+	<!-- 审计报告_5_按客户重要等级分-显示按欠费金额top5的省/地市分别显示 20160819 create by GuoXY  -->
+	<select id="auditReport_select_top5ImportantLevel" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				p.flag as regionId,
+				p.CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				p.CMCC_prov_prvd_id as regionId,
+				p.CMCC_prov_prvd_nm as regionName, 
+			</if>
+			t.sum_004 as errQty1_tmp,	
+			trim (errQty1_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty1,	
+			
+			t.sum_dbt_amt as errAmt1_tmp,	
+			trim (errAmt1_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt1,	
+		
+			t.sum_003 as errQty2_tmp,	
+			trim (errQty2_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty2,
+			
+			t.sum_dbt_amt1 as errAmt2_tmp,	
+			trim (errAmt2_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt2,	
+			
+			p.amt_order as rn
+		from  HPbus.SUM_CUST_CHG_PRVD p
+		left join HPbus.SUM_CUST_TYP t on p.flag = t.flag and p.CMCC_prov_prvd_id = t.CMCC_prov_prvd_id and p.aud_trm = t.aud_trm
+		where 1=1
+			<![CDATA[and p.amt_order <= 5]]>
+			<![CDATA[and p.CMCC_prov_prvd_id<>10000]]>
+			and p.flag=#{provinceCode} 
+			<if test="provinceCode==10000">
+				and p.num_order is not null
+				and p.amt_order is not null
+			</if>
+			<if test="provinceCode!=10000">	
+				and t.num_putong_order is not null
+				and t.amt_putong_order is not null
+				and t.num_vip_order is not null
+				and t.amt_vip_order is not null
+			</if>
+			<if test="statCycle!=null">
+				and p.aud_trm=#{statCycle}
+			</if>
+		order by amt_order asc
+	</select>
+	
+	<!-- 审计报告_6_按欠费账龄分布（欠费月份区间）-总体 20160819 create by GuoXY  -->
+	<select id="auditReport_select_totalMonthRange" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			flag as regionId,
+			flag_name as regionName,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=1 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty1,
+			(
+				select  
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=1 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt1,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=2 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty2,
+			(
+				select  
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=2 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt2,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=3 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty3,
+			(
+				select  
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=3 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt3,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=4 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty4,
+			(
+				select 
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=4 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt4
+		from  HPbus.SUM_CUST_CHG_PRVD p
+		where 1=1
+			and flag=10000
+			and CMCC_prov_prvd_id=#{provinceCode}
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+	</select>
+	
+	
+	<!-- 审计报告_7_按欠费账龄分布（欠费月份区间）-显示按欠费金额top5的省/地市分别显示 20160819 create by GuoXY  -->
+	<select id="auditReport_select_top5MonthRange" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				flag as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				CMCC_prov_prvd_id as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=1 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty1,
+			(
+				select  
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=1 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt1,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=2 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty2,
+			(
+				select  
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=2 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt2,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=3 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty3,
+			(
+				select  
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=3 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt3,
+			(
+				select  
+					trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=4 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errQty4,
+			(
+				select 
+					trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_cust
+				from HPbus.SUM_CUST_CHG_AGE  
+				where 1=1 and cengci=4 and p.flag = flag and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.aud_trm = aud_trm
+			) as errAmt4
+		from  HPbus.SUM_CUST_CHG_PRVD p
+		where 1=1
+			<![CDATA[and amt_order <= 5]]>
+			and flag=#{provinceCode} 
+			and num_order is not null
+			and amt_order is not null
+			<![CDATA[and CMCC_prov_prvd_id<>10000]]>
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+		order by amt_order asc
+	</select>
+
+	<!-- 审计报告_8_按欠费金额分布（欠费金额区间）-总体 20160819 create by GuoXY  -->
+	<select id="auditReport_select_totalMoneyScope" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			flag as regionId,
+			flag_name as regionName,
+			(
+				select trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=1 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty1,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=1 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt1,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=2 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty2,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt 
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=2 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt2,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=3 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty3,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=3 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt3,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=4 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty4,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=4 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt4,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=5 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty5,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=5 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt5
+		from  HPbus.SUM_CUST_CHG_PRVD p
+		where 1=1
+			and flag=10000
+			and CMCC_prov_prvd_id=#{provinceCode}
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+	</select>
+	
+	<!-- 审计报告_9_按欠费金额分布（欠费金额区间）-显示按欠费金额top5的省/地市分别显示 20160819 create by GuoXY  -->
+	<select id="auditReport_select_top5MoneyScope" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				flag as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				CMCC_prov_prvd_id as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			(
+				select trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=1 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty1,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=1 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt1,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=2 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty2,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt 
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=2 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt2,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=3 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty3,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=3 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt3,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=4 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty4,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=4 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt4,
+			(
+				select  trim (cast(sum_cust as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as sum_cust
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=5 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errQty5,
+			(
+				select  trim (cast(sum_dbt_amt as decimal(16,2)) (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(22))) as sum_dbt_amt
+				from HPbus.SUM_CUST_CHG_DBT_AMT  
+				where 1=1 and debt_grade=5 and p.CMCC_prov_prvd_id = CMCC_prov_prvd_id and p.flag = flag and p.aud_trm = aud_trm
+			) as errAmt5
+		from  HPbus.SUM_CUST_CHG_PRVD p
+		where 1=1
+			<![CDATA[and amt_order <= 5 ]]>
+			and flag=#{provinceCode}
+			and num_order is not null
+			and amt_order is not null
+			<![CDATA[and CMCC_prov_prvd_id<>10000]]>
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+		order by amt_order asc
+	</select>
+
+	<!-- 审计报告_按欠费金额top10 PXL -->
+	<select id="auditReport_indvl_top10" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		sel amt_order , 
+			<if test="provinceCode==10000">				
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">					
+				CMCC_prvd_nm_short as regionName, 
+			</if>	
+		subs_id ,MSISDN ,sum_dbt_amt ,max_aging ,subs_attr ,new_subs
+ 		from hpbus.SUM_CUST_indvl_AmtOrder  
+ 		where aud_trm =#{statCycle} 
+ 		and sum_dbt_amt >0
+ 		<![CDATA[and amt_order<11]]>
+ 	<if test="provinceCode==10000">
+ 		and flag=10000  
+	</if>
+	<if test="provinceCode!=10000">	
+ 		and flag=#{provinceCode}
+ 	</if>
+ 	order by amt_order
+ 	</select>
+ 	
+ 	<!-- 审计报告__当期新增用户长期高额欠费金额排名前5的公司 -->
+	<select id="auditReport_select_newAmtComp_top5" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				flag as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				CMCC_prov_prvd_id as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			coalesce(subs_new,0) as sum_cust1_tmp,	
+			trim (sum_cust1_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			coalesce(amt_new,0) as errAmt_tmp,	
+			trim (errAmt_tmp/10000.00(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt10000,
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,	
+			row_number() over(order by errAmt_tmp desc) as rn
+		from  HPbus.SUM_CUST_CHG_PRVD 
+		where flag=#{provinceCode}
+			and num_order is not null
+			and amt_order is not null
+			 and amt_new >0
+			<![CDATA[and CMCC_prov_prvd_id<>10000]]>
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+			QUALIFY rn <![CDATA[<=]]>5
+	</select>
+	
+	<!-- 审计报告__当期新增用户长期高额欠费金额占上期长期高额欠费金额的比例名前5的省公司 -->
+	<select id="auditReport_select_newAmtPerComp_top5" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			<if test="provinceCode==10000">
+				flag as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			<if test="provinceCode!=10000">	
+				CMCC_prov_prvd_id as regionId,
+				CMCC_prov_prvd_nm as regionName, 
+			</if>
+			coalesce(subs_new,0) as sum_cust1_tmp,	
+			trim (sum_cust1_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			case when coalesce(sum_dbt_amt,0.00)-coalesce(amt_num,0.00)=0.00 then 0 else cast(coalesce(amt_new,0)/((coalesce(sum_dbt_amt,0)-coalesce(amt_num,0))*1.0000) as decimal(18,4)) end  as errAmt_tmp,	
+			trim((errAmt_tmp*100)(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99'))||'%' as errPer,
+			row_number() over(order by errAmt_tmp desc) as rn
+		from  HPbus.SUM_CUST_CHG_PRVD 
+		where 
+			 flag=#{provinceCode}
+			and num_order is not null
+			and amt_order is not null
+			<!--  and amt_new >0 -->
+			and errAmt_tmp > 0
+			<![CDATA[and CMCC_prov_prvd_id<>10000]]>
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+			QUALIFY rn <![CDATA[<=]]>5
+	</select>
+	
+	
+	<!-- 审计报告__新增用户信息和欠费回收信息部分 -->
+	<select id="auditReport_grqf_xinzeng" resultType="java.util.HashMap" parameterType="java.util.Map">	
+		select 
+			flag as regionId,
+			CMCC_prov_prvd_nm as regionName, 			
+			coalesce(subs_new,0) as errQty_tmp,	
+			trim (errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,	
+			
+			coalesce(amt_new,0.00)/10000 as errAmt_tmp,
+			trim (errAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as errAmt,
+			
+			coalesce(sum_subs_recover,0) as recoverQty_tmp,
+			trim (recoverQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as recoverQty,
+			
+			coalesce(amt_all_recover,0.00)/10000 as recoverAmt_tmp,
+			trim (recoverAmt_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9.99')(VARCHAR(18))) as recoverAmt,
+			trim(case when sum_dbt_amt_pre=0   then 0 else cast(coalesce(amt_all_recover/(sum_dbt_amt_pre*1.0000),0)*100 as decimal(18,2)) end (FORMAT 'ZZZ,ZZ9.99%')(VARCHAR(11)))  as recoverAmtPer
+
+		from  hpbus.SUM_CUST_CHG_PRVD 
+		where 
+			 flag=10000
+			 and CMCC_prov_prvd_id=10000
+			<if test="statCycle!=null">
+				and aud_trm=#{statCycle}
+			</if>
+	</select>
+</mapper>
+

@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.FileGenMapper">
+
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+    <resultMap type="com.hpe.cmca.pojo.FileGenData" id="fileGenData">
+
+        <result property="audTrm" column="aud_trm"/>
+        <result property="prvdId" column="prvd_id"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="fileAudType" column="file_aud_type"/>
+        <result property="fileFormatType" column="file_format_type"/>
+        <result property="filePrvdType" column="file_prvd_type"/>
+        <result property="fileOrder" column="file_order"/>
+        <result property="fileName" column="file_name"/>
+        <result property="fileCode" column="file_code"/>
+        <result property="versionId" column="version_id"/>
+    </resultMap>
+
+
+    <select id="getFileGenData" resultMap="fileGenData" parameterType="java.util.Map">
+        select aa.*,bb.version_id from
+        (select a.aud_trm,a.prvd_id,
+        a.subject_id, a.file_aud_type, a.file_format_type, a.file_prvd_type,a.file_order, a.file_name,
+        trim(a.subject_id)||'-'|| trim(a.file_aud_type)||'-'|| trim(a.file_format_type)||'-'|| trim(a.file_prvd_type)||'-'|| trim(a.file_order) as file_code
+        from
+        (
+        select a.aud_trm,a.prvd_id,
+        b.subject_id, b.file_aud_type, b.file_format_type, b.file_prvd_type,b.file_order, b.file_name from
+        (select  aud_trm,subject_id,prvd_id,case when prvd_id=10000 then 1 else 0 end as prvd_type  from hpmgr.busi_file_gen_trigger)a
+        join
+        (select  subject_id, file_aud_type, file_format_type, file_prvd_type,
+        file_order, file_name from  hpmgr.busi_file_zip_rule group by 1,2,3,4,5,6 )b
+        on a.subject_id=b.subject_id and (a.prvd_type=b.file_prvd_type or b.file_prvd_type=2 )
+        )a
+        left join hpmgr.busi_file_gen_result b
+        on a.aud_trm=b.aud_trm and a.prvd_id=b.prvd_id and  trim(a.subject_id)||'-'|| trim(a.file_aud_type)||'-'|| trim(a.file_format_type)||'-'|| trim(a.file_prvd_type)||'-'|| trim(a.file_order) =b.file_code
+        where b.id is null
+        group by 1,2,3,4,5,6,7,8)aa  join (SELECT  excel_code as file_code, version_code as version_id,effec_month
+        FROM	hpmgr.busi_excel_model_config where is_full_version=1 and is_default_version=1 and delete_flag=1
+        group by 1,2,3
+        union all
+        SELECT  word_code as file_code, version_code as version_id,effec_month
+        FROM	hpmgr.busi_word_model_config where is_full_version=1 and is_default_version=1 and delete_flag=1
+        group by 1,2,3)bb on  aa.file_code=bb.file_code <![CDATA[and bb.effec_month<=aa.aud_trm
+        ]]>
+    </select>
+
+    <resultMap type="com.hpe.cmca.pojo.WordModelConfig" id="wordModelConfig">
+        <result property="wordCode" column="word_code"/>
+        <result property="wordName" column="word_name"/>
+        <result property="versionCode" column="version_code"/>
+        <result property="blockOrder" column="block_order"/>
+        <result property="querySql" column="query_sql"/>
+        <result property="showType" column="show_type"/>
+        <result property="showSql" column="show_sql"/>
+        <result property="mergeLast" column="merge_last"/>
+        <result property="titleLevel" column="title_level"/>
+        <result property="isFullVersion" column="is_full_version"/>
+    </resultMap>
+    <!-- 获取对应省份和专题word文件配置信息 -->
+    <select id="selectWordModel" resultMap="wordModelConfig" parameterType="java.util.Map">
+		SELECT	word_code,word_name, version_code, block_order,
+		query_sql, show_type,show_sql, merge_last,title_level,is_full_version
+		FROM	hpmgr.busi_word_model_config
+		where  word_code=#{fileCode} and version_code=#{versionId}  and delete_flag=1
+		order by block_order
+	</select>
+
+    <!-- 根据文件编号版本id段落序号获取word文件配置信息 -->
+    <select id="selectWordModelByIds" resultMap="wordModelConfig" parameterType="java.util.Map">
+		SELECT	word_code,word_name, version_code, block_order,
+		query_sql, show_type,show_sql, merge_last,title_level,is_full_version
+		FROM	hpmgr.busi_word_model_config
+		where word_code=#{rowCode}and version_code=#{versionId} and block_order=#{blockOrder}  and delete_flag=1
+		order by block_order
+	</select>
+
+    <resultMap type="com.hpe.cmca.pojo.ExcelModelConfig" id="excelModelConfig">
+        <result property="excelCode" column="excel_code"/>
+        <result property="excelName" column="excel_name"/>
+        <result property="sheetOrder" column="sheet_order"/>
+        <result property="versionCode" column="version_code"/>
+        <result property="blockOrder" column="block_order"/>
+        <result property="querySql" column="query_sql"/>
+        <result property="vH" column="v_h"/>
+        <result property="isWideTb" column="is_wide_tb"/>
+        <result property="wideTbMonth" column="wide_tb_month"/>
+        <result property="wideTbCol" column="wide_tb_col"/>
+        <result property="audTrmOption" column="aud_trm_option"/>
+        <result property="isFullVersion" column="is_full_version"/>
+    </resultMap>
+    <!-- 获取对应省份和专题excel文件配置信息 -->
+    <select id="selectExcelModel" resultMap="excelModelConfig" parameterType="java.util.Map">
+	SELECT	excel_code,excel_name, sheet_order,version_code,
+	block_order, query_sql, v_h, is_wide_tb, wide_tb_month, wide_tb_col,aud_trm_option,
+	is_full_version
+	FROM	hpmgr.busi_excel_model_config
+	where excel_code=#{fileCode} and version_code=#{versionId}  and delete_flag=1
+	order by sheet_order, block_order
+</select>
+
+    <!-- 根据文件编号版本编号sheet编号段落序号获取excel文件配置信息 -->
+    <select id="selectExcelModelByIds" resultMap="excelModelConfig" parameterType="java.util.Map">
+	SELECT	excel_code,excel_name, sheet_order,version_code,
+	block_order, query_sql, v_h, is_wide_tb, wide_tb_month, wide_tb_col,aud_trm_option,
+	is_full_version
+	FROM	hpmgr.busi_excel_model_config
+	where excel_code=#{rowCode}and version_code=#{versionId} and sheet_order=#{sheetOrder} and block_order=#{blockOrder}  and delete_flag=1
+	order by sheet_order, block_order
+</select>
+
+
+    <insert id="insertGenRecord" parameterType="java.util.Map">
+
+        INSERT	INTO hpmgr.busi_file_gen_result(aud_trm, prvd_id, file_code,file_name, file_path,file_time)
+        VALUES
+        (#{audTrm},
+		#{prvdId},#{fileCode},
+		#{fileName}, #{filePath},current_timestamp)
+	</insert>
+
+    <delete id="deleteGenRecord" parameterType="java.util.Map">
+        delete from hpmgr.busi_file_gen_result where
+        aud_trm =#{audTrm}
+        and prvd_id =#{prvdId}
+        and file_code =#{fileCode}
+        and file_name=#{fileName}
+        and file_path=#{filePath}
+    </delete>
+
+
+    <!-- 获取压缩包信息 -->
+    <select id="selectZipRule" resultType="java.util.Map" parameterType="java.util.Map">
+SELECT	subject_id, file_name, zip_name
+FROM	hpmgr.busi_file_zip_rule where subject_id=#{subjectId} and file_name=#{fileName}
+order by zip_name
+</select>
+
+    <!-- 获取专题信息 -->
+    <select id="getSubject" resultType="java.util.Map">
+SELECT	subject_id as id,b.name as name
+FROM	hpmgr.busi_file_zip_rule a join hpmgr.busi_stat_subject b on a.subject_id=b.id
+group by 1,2
+order by 1
+    </select>
+
+    <!-- 获取专模板类别 -->
+    <select id="getModeltype" resultType="java.util.Map" parameterType="java.util.Map">
+    SELECT
+    (case
+    when  file_aud_type =0 then '审计报告'
+    when  file_aud_type =1 then '排名汇总'
+    when  file_aud_type =2 then '审计通报'
+    when  file_aud_type =3 then '审计问责表'
+    when  file_aud_type =4 then '审计清单'
+    end) ||
+    (case
+    when file_prvd_type=0 then '-省公司'
+    when file_prvd_type=1 then '-全公司'
+    when file_prvd_type=2 then '-全公司及省公司'
+    end) as modelTypeName,
+    trim(subject_id)||'-'||trim(file_aud_type)||'-'||trim(file_format_type)||'-'||trim(file_prvd_type) as modelTypeId
+    FROM	hpmgr.busi_file_zip_rule where  subject_id=#{subjectId} and file_format_type =#{fileFormatType}
+    group by 1,2
+ </select>
+
+    <select id="getTableData" resultType="java.util.Map" parameterType="java.util.Map">
+
+        select a.modelTypeName as modelTypeName,b.version_code as defaultVersionId,
+        a.file_name as fileName,a.file_code as rowCode ,b.is_full_version as isOfficial,
+        b.is_default_version as isDefault, b.reviser, cast(b.revision_time as varchar(16)) as revisionTime,
+        b.effec_month as effectiveTime from
+        (SELECT trim(subject_id)||'-'|| trim(file_aud_type)||'-'|| trim(file_format_type)||'-'||
+        trim(file_prvd_type)||'-'|| trim(file_order) as file_code,file_name,
+        (case
+        when file_aud_type =0 then '审计报告'
+        when file_aud_type =1 then '排名汇总'
+        when file_aud_type =2 then '审计通报'
+        when file_aud_type =3 then '审计问责表'
+        when file_aud_type =4 then '审计清单'
+        end) ||
+        (case
+        when file_prvd_type=0 then '-省公司'
+        when file_prvd_type=1 then '-全公司'
+        when file_prvd_type=2 then '-全公司及省公司'
+        end) as modelTypeName
+        FROM hpmgr.busi_file_zip_rule
+        where 1=1
+        <if test="modelTypeId != 'all'">
+            and
+            trim(subject_id)||'-'||trim(file_aud_type)||'-'||trim(file_format_type)||'-'||trim(file_prvd_type)=#{modelTypeId}
+        </if>
+        <if test="modelTypeId == 'all'">
+            and trim(subject_id) =#{subjectId}
+            and trim(file_format_type)= #{fileFormatType}
+        </if>
+        group by 1,2,3)a
+        left join
+        <if test="fileFormatType == 0">
+            (select version_code,word_name as file_name,word_code as file_code,is_full_version,
+            is_default_version, effec_month,max(reviser)as reviser, max(revision_time)as revision_time from
+            hpmgr.busi_word_model_config where
+            is_full_version=1 and is_default_version=1 and delete_flag=1 group by 1,2,3,4,5,6)b on a.file_code=b.file_code
+        </if>
+        <if test="fileFormatType == 1">
+            (select version_code,excel_name as file_name,excel_code as file_code, is_full_version,
+            is_default_version, effec_month, max(reviser)as reviser, max(revision_time)as revision_time from
+            hpmgr.busi_excel_model_config where
+            is_full_version=1 and is_default_version=1 and delete_flag=1 group by 1,2,3,4,5,6)b on a.file_code=b.file_code
+        </if>
+        group by 1,2,3,4,5,6,7,8,9
+    </select>
+
+    <select id="getVersionData" resultType="java.util.Map" parameterType="java.util.Map">
+        select a.modelTypeName as modelTypeName,b.version_code as defaultVersionId,a.file_name as fileName,a.file_code as rowCode,b.is_full_version as isOfficial,
+        b.is_default_version as isDefault, b.reviser, b.revision_time as revisionTime, b.effec_month as effectiveTime from
+        (SELECT trim(subject_id)||'-'|| trim(file_aud_type)||'-'|| trim(file_format_type)||'-'||
+        trim(file_prvd_type)||'-'|| trim(file_order) as file_code,file_name,
+        (case
+        when  file_aud_type =0 then '审计报告'
+        when  file_aud_type =1 then '排名汇总'
+        when  file_aud_type =2 then '审计通报'
+        when  file_aud_type =3 then '审计问责表'
+        when  file_aud_type =4 then '审计清单'
+        end) ||
+        (case
+        when file_prvd_type=0 then '-省公司'
+        when file_prvd_type=1 then '-全公司'
+        when file_prvd_type=2 then '-全公司及省公司'
+        end) as modelTypeName
+        FROM hpmgr.busi_file_zip_rule
+        where 1=1 and
+        trim(subject_id)||'-'|| trim(file_aud_type)||'-'|| trim(file_format_type)||'-'||
+        trim(file_prvd_type)||'-'|| trim(file_order)=#{rowCode}
+        group by 1,2,3)a
+         join
+            (select version_code,word_name as file_name,word_code as file_code,is_full_version,
+            is_default_version, effec_month,max(reviser)as reviser, max(revision_time)as revision_time from hpmgr.busi_word_model_config where
+            version_code=#{versionId} and delete_flag=1 group by 1,2,3,4,5,6
+            union all
+            select version_code,excel_name as file_name,excel_code as file_code, is_full_version,
+            is_default_version, effec_month,max(reviser)as reviser, max(revision_time)as revision_time from hpmgr.busi_excel_model_config where
+            version_code=#{versionId} and delete_flag=1 group by 1,2,3,4,5,6)b
+            on a.file_code=b.file_code
+        group by 1,2,3,4,5,6,7,8,9
+    </select>
+
+    <select id="getVersion" resultType="java.util.Map" parameterType="java.util.Map">
+        select version_code as id,word_name as name,cast(version_code as decimal(3,0))as order_id from hpmgr.busi_word_model_config where
+        word_code=#{fileCode} and delete_flag=1 group by 1,2,3
+        union all
+        select version_code as id,excel_name as name,cast(version_code as decimal(3,0))as order_id from hpmgr.busi_excel_model_config where
+        excel_code=#{fileCode} and delete_flag=1 group by 1,2,3
+        order by 3
+    </select>
+
+    <select id="getMaxVersion" resultType="java.util.Map" parameterType="java.util.Map">
+        select max(version_code) as id,word_name as name from hpmgr.busi_word_model_config where
+        word_code=#{fileCode} and delete_flag=1 group by 2
+        union all
+        select max(version_code) as id,excel_name as name from hpmgr.busi_excel_model_config where
+        excel_code=#{fileCode} and delete_flag=1 group by 2
+        order by 1
+    </select>
+
+
+    <update id="deleteVersionWord" parameterType="java.util.Map">
+        update hpmgr.busi_word_model_config set delete_flag=0  where version_code=#{versionId} and word_code=#{rowCode} and delete_flag=1
+    </update>
+    <update id="deleteVersionExcel" parameterType="java.util.Map">
+        update hpmgr.busi_excel_model_config set delete_flag=0  where version_code=#{versionId} and excel_code=#{rowCode} and delete_flag=1
+    </update>
+
+
+    <select id="getExcelSheetName" resultType="java.util.Map" parameterType="java.util.Map">
+    select sheet_order as sheetOrder,'Sheet'||trim(sheet_order+1) as sheetName from  hpmgr.busi_excel_model_config where version_code=#{versionId} and excel_code=#{rowCode} and delete_flag=1 group by 1,2 order by 1
+    </select>
+
+    <select id="getModelFileName" resultType="java.util.Map" parameterType="java.util.Map">
+        select file_name as name from hpmgr.busi_file_zip_rule where
+        trim(subject_id)||'-'|| trim(file_aud_type)||'-'|| trim(file_format_type)||'-'||
+        trim(file_prvd_type)||'-'|| trim(file_order)=#{fileCode} group by 1
+
+    </select>
+
+
+    <insert id="insertExcelModel" parameterType="java.util.Map">
+
+        INSERT	INTO hpmgr.busi_excel_model_config(excel_code, excel_name, version_code,sheet_order,block_order,reviser,revision_time)
+        VALUES
+        (#{rowCode},
+		#{fileName},#{versionId},
+		#{sheetOrder}, #{blockOrder},#{reviser},current_timestamp)
+	</insert>
+
+    <insert id="insertWordModel" parameterType="java.util.Map">
+
+        INSERT	INTO hpmgr.busi_word_model_config(word_code, word_name, version_code,block_order,reviser,revision_time)
+        VALUES
+        (#{rowCode},
+		#{fileName},#{versionId},
+		#{blockOrder},#{reviser},current_timestamp)
+	</insert>
+
+    <select id="getBlockList" resultType="java.util.Map" parameterType="java.util.Map">
+        select block_order as blockOrder,'段落'||trim(block_order+1) as blockName from hpmgr.busi_word_model_config where
+        word_code=#{rowCode} and version_code= #{versionId} and delete_flag=1 group by 1
+        union all
+        select block_order as blockOrder,'表格'||trim(block_order+1) as blockName  from hpmgr.busi_excel_model_config where
+        excel_code=#{rowCode} and version_code= #{versionId} and delete_flag=1 and sheet_order=#{sheetOrder}  group by 1
+        order by 1
+    </select>
+
+    <update id="updateExcelModel" parameterType="java.util.Map">
+        update hpmgr.busi_excel_model_config set
+        <if test="querySql != null">
+            query_sql=#{querySql},
+        </if>
+        <if test="querySql == null">
+            query_sql=null,
+        </if>
+
+        <if test="isWideTb != null">
+            is_wide_tb=#{isWideTb},
+        </if>
+        <if test="isWideTb == null">
+            is_wide_tb=0,
+        </if>
+
+        <if test="wideTbMonth != null">
+            wide_tb_month=#{wideTbMonth},
+        </if>
+        <if test="wideTbMonth == null">
+            wide_tb_month=null,
+        </if>
+
+        <if test="wideTbCol != null">
+            wide_tb_col=#{wideTbCol},
+        </if>
+        <if test="wideTbCol == null">
+            wide_tb_col=0,
+        </if>
+
+        <if test="audTrmOption != null">
+            aud_trm_option=#{audTrmOption},
+        </if>
+        <if test="audTrmOption == null">
+            aud_trm_option=0,
+        </if>
+
+        <if test="vH != null">
+            v_h=#{vH},
+        </if>
+
+        <if test="reviser != null">
+            reviser=#{reviser},
+        </if>
+
+        <if test="effectiveTime != null">
+            effec_month=#{effectiveTime},
+        </if>
+        revision_time=current_timestamp
+        where
+        excel_code =#{excelCode}
+        and version_code =#{versionCode}
+        and sheet_order =#{sheetOrder}
+        and block_order =#{blockOrder}
+        and delete_flag=1
+    </update>
+
+    <update id="updateWordModel" parameterType="java.util.Map">
+        update hpmgr.busi_word_model_config set
+        <if test="querySql != null">
+            query_sql=#{querySql},
+        </if>
+        <if test="querySql == null">
+            query_sql=null,
+        </if>
+
+        <if test="showType != null">
+            show_type=#{showType},
+        </if>
+        <if test="showType == null">
+            show_type=0,
+        </if>
+
+        <if test="showSql != null">
+            show_sql=#{showSql},
+        </if>
+        <if test="showSql == null">
+            show_sql=null,
+        </if>
+
+        <if test="mergeLast != null">
+            merge_last=#{mergeLast},
+        </if>
+        <if test="mergeLast == null">
+            merge_last=0,
+        </if>
+
+        <if test="reviser != null">
+            reviser=#{reviser},
+        </if>
+
+        <if test="effectiveTime != null">
+            effec_month=#{effectiveTime},
+        </if>
+        revision_time=current_timestamp
+        where
+        word_code =#{wordCode}
+        and version_code =#{versionCode}
+        and block_order =#{blockOrder}
+        and delete_flag=1
+    </update>
+
+    <update id="cancelWordDefaultVersion" parameterType="java.util.Map">
+        update hpmgr.busi_word_model_config set  is_default_version=0
+        where word_code =#{rowCode} and is_default_version=1 and delete_flag=1
+    </update>
+    <update id="setWordDefaultVersion" parameterType="java.util.Map">
+        update hpmgr.busi_word_model_config set  is_default_version=1,effec_month=#{effectiveTime}
+        where word_code =#{rowCode} and version_code =#{versionId} and delete_flag=1
+    </update>
+
+    <update id="cancelExcelDefaultVersion" parameterType="java.util.Map">
+        update hpmgr.busi_excel_model_config set  is_default_version=0
+        where excel_code =#{rowCode} and is_default_version=1 and delete_flag=1
+    </update>
+    <update id="setExcelDefaultVersion" parameterType="java.util.Map">
+        update hpmgr.busi_excel_model_config set  is_default_version=1,effec_month=#{effectiveTime}
+        where excel_code =#{rowCode} and version_code =#{versionId} and delete_flag=1
+    </update>
+
+
+    <update id="setExcelFullVersion" parameterType="java.util.Map">
+        update hpmgr.busi_excel_model_config set  is_full_version=1
+        where excel_code =#{rowCode} and version_code =#{versionId} and delete_flag=1
+    </update>
+
+    <update id="setWordFullVersion" parameterType="java.util.Map">
+        update hpmgr.busi_word_model_config set  is_full_version=1
+        where word_code =#{rowCode} and version_code =#{versionId} and delete_flag=1
+    </update>
+
+    <select id="getOutputExcelConfTitle" resultType="java.util.Map" parameterType="java.util.Map">
+    HELP TABLE	hpmgr.busi_excel_model_config
+     </select>
+
+
+    <select id="getOutputExcelConfContent" resultType="java.util.Map" parameterType="java.util.Map">
+    SELECT	*
+    FROM	hpmgr.busi_excel_model_config where excel_code =#{rowCode} and version_code =#{versionId} and delete_flag=1
+     </select>
+
+    <select id="getOutputWordConfTitle" resultType="java.util.Map" parameterType="java.util.Map">
+    HELP TABLE	hpmgr.busi_word_model_config
+     </select>
+
+    <select id="getOutputWordConfContent" resultType="java.util.Map" parameterType="java.util.Map">
+    SELECT	*
+    FROM	hpmgr.busi_word_model_config where word_code =#{rowCode} and version_code =#{versionId} and delete_flag=1
+     </select>
+
+    <select id="executeSql" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<![CDATA[
+        ${querySql}
+        ]]>
+	</select>
+
+    <select id="getExcelName" resultType="java.util.HashMap" parameterType="java.util.Map">
+    select excel_name as fileName
+    from hpmgr.busi_excel_model_config
+    where
+    excel_code =#{rowCode}
+    and version_code =#{versionId} and delete_flag=1
+    group by 1
+    </select>
+    <select id="getWordName" resultType="java.util.HashMap" parameterType="java.util.Map">
+    select word_name as fileName
+    from hpmgr.busi_word_model_config
+    where
+    word_code =#{rowCode}
+    and version_code =#{versionId} and delete_flag=1
+    group by 1
+    </select>
+
+    <select id="getPreGenAudTrm" resultType="java.util.HashMap" parameterType="java.util.Map">
+      SELECT	 aud_trm as id,aud_trm as name
+      FROM	hpmgr.busi_file_gen_trigger where subject_id=#{subjectId}
+    group by 1,2
+    </select>
+
+    <select id="getPreGenPrvd" resultType="java.util.HashMap" parameterType="java.util.Map">
+      select a.prvd_id as id,b.CMCC_prov_prvd_nm as name
+      from (SELECT	 prvd_id
+      FROM	hpmgr.busi_file_gen_trigger where subject_id=#{subjectId}
+    group by 1)a
+    join ref_dm_cmcc_prov_prvd_cd b on a.prvd_id=b.CMCC_prov_prvd_id
+    group by 1,2
+    </select>
+</mapper>
+

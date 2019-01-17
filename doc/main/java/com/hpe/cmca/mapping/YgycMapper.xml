@@ -1,0 +1,1618 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.YgycMapper">
+
+   <!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.YgycData"  id="ygycData">
+		<result property="genDate" column="Gen_date"/>
+		<result property="audTrm" column="Aud_trm"/>
+		<result property="prvdId" column="prvd_id"/>
+		<result property="prvdName" column="prvd_name"/>
+		<result property="ctyId" column="city_id"/>
+		<result property="ctyName" column="city_name"/>
+		<result property="rn" column="rn"/>
+		<result property="concern" column="concern"/>
+		<result property="employeeQty" column="total_Opr"/>
+		<result property="totalAmt" column="total_Amount"/>
+		<result property="prvdNum" column="prvd_num"/>
+		<result property="totalSubs" column="total_Subs"/>
+		<result property="totalTimes" column="total_Time"/>
+		<result property="staffId" column="staff_id"/>
+		<result property="subsId" column="subs_id"/>
+		<result property="chnlType" column="blto_chnl_typ"/>
+		<result property="chnlName" column="chnl_nm"/>
+		<result property="accountId" column="acct_id"/>
+		<result property="operateTime" column="opr_tm"/>
+		<result property="prvdNumMom" column="prvd_numMoM"/>
+		<result property="totalAmountMom" column="total_AmountMoM"/>
+		<result property="totalOprMom" column="total_OprMoM"/>
+		<result property="totalSubsMom" column="total_SubsMoM"/>
+	</resultMap>
+	 <!-- 异常赠送话费  员工数量排名（柱形图） -->
+	<select id="getYgycEmployeeQty" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000 and concern==5001">
+		SELECT  
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.userqty as total_Opr
+			from 
+			<![CDATA[
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<> 10000 ) a
+			left join(
+			select 
+			row_number() over(ORDER BY userqty desc) as rn,
+			Aud_trm,prvd_name,prvd_id,sum(total_Staff)  as userqty
+					FROM hpbus.YGYC_Sum_Subs_5001
+					WHERE Aud_trm =#{audTrm}
+					AND   china_no <= '50'
+					]]>
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.userqty desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000 and concern==5001">
+		SELECT  
+				b.Aud_trm,
+				a.CMCC_prvd_nm_short  as prvd_name,
+				a.CMCC_prvd_cd  as  prvd_id,
+				b.userqty as total_Opr
+				from 
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  =#{prvdId}) a
+				left join(
+				select 
+				row_number() over(ORDER BY userqty desc) as rn,
+				Aud_trm,city_name,city_id,prvd_id,sum(total_Staff)  as userqty
+					FROM hpbus.YGYC_Sum_Subs_5001
+						WHERE Aud_trm =#{audTrm}
+						<![CDATA[
+						AND   china_no <= '50'
+						]]>
+						and prvd_id =#{prvdId}
+						group by Aud_trm,city_name,city_id,prvd_id
+						) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+						order by b.userqty desc,a.CMCC_prvd_cd
+		</if>
+		<if test="prvdId ==10000 and concern==5002">
+		SELECT  
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.userqty as total_Opr
+			from 
+			<![CDATA[
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<> 10000 ) a
+			left join(
+			select 
+			row_number() over(ORDER BY userqty desc) as rn,
+			Aud_trm,prvd_name,prvd_id,sum(total_Staff)  as userqty
+					FROM hpbus.YGYC_Sum_Subs_5002
+					WHERE Aud_trm =#{audTrm}
+					AND   china_no <= '50'
+					]]>
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.userqty desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000 and concern==5002">
+		SELECT  
+				b.Aud_trm,
+				a.CMCC_prvd_nm_short  as prvd_name,
+				a.CMCC_prvd_cd  as  prvd_id,
+				b.userqty as total_Opr
+				from 
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  =#{prvdId}) a
+				left join(
+				select 
+				row_number() over(ORDER BY userqty desc) as rn,
+				Aud_trm,city_name,city_id,prvd_id,sum(total_Staff)  as userqty
+					FROM hpbus.YGYC_Sum_Subs_5002
+						WHERE Aud_trm =#{audTrm}
+						<![CDATA[
+						AND   china_no <= '50'
+						]]>
+						and prvd_id =#{prvdId}
+						group by Aud_trm,city_name,city_id,prvd_id
+						) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+						order by b.userqty desc,a.CMCC_prvd_cd
+		</if>
+		<if test="prvdId ==10000 and concern==5003">
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.userqty as total_Opr
+			from 
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			left join(
+			select 
+			row_number() over(ORDER BY userqty desc) as rn,
+			Aud_trm,prvd_name,prvd_id,sum(total_Opr)  as userqty
+					FROM HPBUS.YGYC_Sum_Acct_5003
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '50'
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.userqty desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000 and concern==5003">
+			SELECT  
+				b.Aud_trm,
+				a.CMCC_prvd_nm_short  as prvd_name,
+				a.CMCC_prvd_cd  as  prvd_id,
+				b.userqty as total_Opr
+				from 
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+				left join(
+				select 
+				row_number() over(ORDER BY userqty desc) as rn,
+				Aud_trm,city_name,city_id,prvd_id,sum(total_Opr)  as userqty
+						FROM HPBUS.YGYC_Sum_Acct_5003
+						WHERE Aud_trm = #{audTrm}
+						AND   china_no <![CDATA[<=]]> '100'
+						and prvd_id =#{prvdId}
+						group by Aud_trm,city_name,city_id,prvd_id
+						) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+						order by b.userqty desc,a.CMCC_prvd_cd
+		</if>
+		<if test="prvdId ==10000 and concern==5004">	
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.total_Opr
+			from 
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			left join(
+					SELECT 
+					Aud_trm,prvd_name,prvd_id,sum(cnt_opr_id) as total_Opr
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.total_Opr desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000 and concern==5004">	
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prvd_nm_short  as prvd_name,
+			a.CMCC_prvd_cd  as  prvd_id,
+			b.total_Opr 
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+			left join(
+					SELECT 
+					Aud_trm,
+					city_name,
+					city_id,
+					prvd_id,
+					sum(cnt_opr_id) as total_Opr
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+					and prvd_id =#{prvdId}
+					group by Aud_trm,city_name,prvd_id,city_id
+					) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+					order by b.total_Opr desc,a.CMCC_prvd_cd
+		</if>
+	</select>
+	
+	<!-- 异常赠送话费  金额排名（柱形图） -->
+	<select id="getYgycPresentAmount" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="prvdId ==10000 and concern==5001">	
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			left join(
+			select 
+			row_number() over(ORDER BY total_Amt1 desc) as rn,
+			Aud_trm,prvd_name,prvd_id,sum(total_Amt_10000)  as total_Amt1
+					FROM hpbus.YGYC_Sum_Subs_5001
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '50'
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.total_Amt1 desc,a.CMCC_prov_prvd_cd
+			
+		</if>
+		<if test="prvdId !=10000 and concern==5001">
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prvd_nm_short  as prvd_name,
+			a.CMCC_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+			left join(
+			select 
+			row_number() over(ORDER BY total_Amt1 desc) as rn,
+			Aud_trm,city_name,city_id,prvd_id,sum(total_Amt_10000)  as total_Amt1
+					FROM hpbus.YGYC_Sum_Subs_5001
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '50'
+					and prvd_id =#{prvdId}
+					group by Aud_trm,city_name,city_id,prvd_id
+					) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+					order by b.total_Amt1 desc,a.CMCC_prvd_cd
+		</if>
+		<if test="prvdId ==10000 and concern==5002">	
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			left join(
+			select 
+			row_number() over(ORDER BY total_Amt1 desc) as rn,
+			Aud_trm,prvd_name,prvd_id,sum(total_Amt_10000)  as total_Amt1
+					FROM hpbus.YGYC_Sum_Subs_5002
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '50'
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.total_Amt1 desc,a.CMCC_prov_prvd_cd
+			
+		</if>
+		<if test="prvdId !=10000 and concern==5002">
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prvd_nm_short  as prvd_name,
+			a.CMCC_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+			left join(
+			select 
+			row_number() over(ORDER BY total_Amt1 desc) as rn,
+			Aud_trm,city_name,city_id,prvd_id,sum(total_Amt_10000)  as total_Amt1
+					FROM hpbus.YGYC_Sum_Subs_5002
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '50'
+					and prvd_id =#{prvdId}
+					group by Aud_trm,city_name,city_id,prvd_id
+					) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+					order by b.total_Amt1 desc,a.CMCC_prvd_cd
+		</if>
+		<if test="prvdId ==10000 and concern==5003">	
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd<![CDATA[<>]]> 10000 ) a
+			left join(
+			select 
+			row_number() over(ORDER BY total_Amt1 desc) as rn,
+			Aud_trm,prvd_name,prvd_id,sum(total_Amt_10000)  as total_Amt1
+					FROM HPBUS.YGYC_Sum_Acct_5003
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.total_Amt1 desc,a.CMCC_prov_prvd_cd
+			
+		</if>
+		<if test="prvdId !=10000 and concern==5003">
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prvd_nm_short  as prvd_name,
+			a.CMCC_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+			left join(
+			select 
+			row_number() over(ORDER BY total_Amt1 desc) as rn,
+			Aud_trm,city_name,city_id,prvd_id,sum(total_Amt_10000)  as total_Amt1
+					FROM HPBUS.YGYC_Sum_Acct_5003
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '50'
+					and prvd_id =#{prvdId}
+					group by Aud_trm,city_name,city_id,prvd_id
+					) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+					order by b.total_Amt1 desc,a.CMCC_prvd_cd
+		</if>
+		<if test="prvdId ==10000 and concern==5004">
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prov_prvd_nm  as prvd_name,
+			a.CMCC_prov_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[<>]]> 10000 ) a
+			left join(
+					SELECT 
+					Aud_trm,prvd_name,prvd_id,sum(total_Amt_10000) as total_Amt1
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+					group by Aud_trm,prvd_name,prvd_id
+					) b on a.CMCC_prov_prvd_cd = b.prvd_id
+					order by b.total_Amt1 desc,a.CMCC_prov_prvd_cd
+		</if>
+		<if test="prvdId !=10000 and concern==5004">
+			SELECT  
+			b.Aud_trm,
+			a.CMCC_prvd_nm_short  as prvd_name,
+			a.CMCC_prvd_cd  as  prvd_id,
+			b.total_Amt1/100 as total_Amount
+			from 
+			(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+			left join(
+					SELECT 
+					Aud_trm,
+					city_name,
+					city_id,
+					prvd_id,
+					sum(total_Amt_10000) as total_Amt1
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE Aud_trm = #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+					and prvd_id =#{prvdId}
+					group by Aud_trm,city_name,prvd_id,city_id
+					) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+					order by b.total_Amt1 desc,a.CMCC_prvd_cd
+		</if>
+	</select>
+	
+	<!-- 异常赠送话费  员工数量趋势（折线图） -->
+	<select id="getYgycEmployeeQtyLine" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+	<if test="concern==5001">	
+			select a.aud_trm,
+			coalesce(b.total_Opr1,0) as total_Opr
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]>  #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(	SELECT  row_number() over(ORDER BY total_Opr1 desc) as rn,
+				Aud_trm,
+				sum(total_Staff) as total_Opr1  
+				FROM HPBUS.YGYC_Sum_Subs_5001
+				WHERE  china_no <![CDATA[<= '50'
+				and Aud_trm >= 201610 and Aud_trm <=  #{audTrm}
+				]]>
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>	
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		
+		</if>	
+		<if test="concern==5002">	
+			select a.aud_trm,
+			coalesce(b.total_Opr1,0) as total_Opr
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]>  #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(	SELECT  row_number() over(ORDER BY total_Opr1 desc) as rn,
+				Aud_trm,
+				sum(total_Staff) as total_Opr1  
+				FROM HPBUS.YGYC_Sum_Subs_5002
+				WHERE  china_no <![CDATA[<= '50'
+				and Aud_trm >= 201610 and Aud_trm <=  #{audTrm}
+				]]>
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>	
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		
+		</if>	
+		
+		<if test="concern==5003">	
+			select a.aud_trm,
+			coalesce(b.total_Opr1,0) as total_Opr
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]>  #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(	SELECT  row_number() over(ORDER BY total_Opr1 desc) as rn,
+				Aud_trm,
+				sum(total_Opr) as total_Opr1  
+				FROM HPBUS.YGYC_Sum_Acct_5003
+				WHERE  china_no <![CDATA[<=]]> '100'
+				and Aud_trm >= 201610 and Aud_trm <![CDATA[<=]]>  #{audTrm}		
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		
+		</if>
+		<if test="concern==5004">	
+			select a.aud_trm,
+			coalesce(b.total_Opr,0) as total_Opr
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]>  #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(		SELECT 
+					Aud_trm,sum(cnt_opr_id) as total_Opr
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE aud_trm >= '201610' and aud_trm <![CDATA[<=]]> #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+	</select>
+	
+	<!-- 异常赠送话费  赠送金额趋势（折线图） -->
+	<select id="getYgycPreAmountLine" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">	
+		<if test="concern==5001">	
+			select a.aud_trm,
+			coalesce(b.total_Amt1,0) as total_Amount 
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(	SELECT  row_number() over(ORDER BY total_Amt1 desc) as rn,
+				Aud_trm,
+				sum(total_Amt_10000)/100 as total_Amt1  
+				FROM HPBUS.YGYC_Sum_Subs_5001
+				WHERE  china_no <![CDATA[<=]]> '50'
+				and Aud_trm >= '201610' and Aud_trm <![CDATA[<=]]> #{audTrm}
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>	
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+		
+		<if test="concern==5002">	
+			select a.aud_trm,
+			coalesce(b.total_Amt1,0) as total_Amount 
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(	SELECT  row_number() over(ORDER BY total_Amt1 desc) as rn,
+				Aud_trm,
+				sum(total_Amt_10000)/100 as total_Amt1  
+				FROM HPBUS.YGYC_Sum_Subs_5002
+				WHERE  china_no <![CDATA[<=]]> '50'
+				and Aud_trm >= '201610' and Aud_trm <![CDATA[<=]]> #{audTrm}
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>	
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+	
+		<if test="concern==5003">	
+		select a.aud_trm,
+			coalesce(b.total_Amt1,0) as total_Amount 
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]> #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(	SELECT  row_number() over(ORDER BY total_Amt1 desc) as rn,
+				Aud_trm,
+				sum(total_Amt_10000)/100 as total_Amt1  
+				FROM HPBUS.YGYC_Sum_Acct_5003
+				WHERE  china_no <![CDATA[<=]]> '50'
+				and Aud_trm >= '201610' and Aud_trm <![CDATA[<=]]> #{audTrm}
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>	
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+		<if test="concern==5004">
+			select a.aud_trm,
+			coalesce(b.total_Amt1,0) as total_Amount
+			from
+			(
+			SELECT aud_trm
+			FROM	hpmgr.busi_model_notify where aud_trm >= '201610'
+			and aud_trm <![CDATA[<=]]>   #{audTrm}
+			group by aud_trm
+			) a
+			left join 
+			(		SELECT 
+					Aud_trm,sum(total_Amt_10000)/100 as total_Amt1
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE aud_trm >= '201610' and aud_trm <![CDATA[<=]]>   #{audTrm}
+					AND   china_no <![CDATA[<=]]> '100'
+				<if test="prvdId !=10000">
+				and prvd_id = #{prvdId}
+				</if>
+			and Aud_trm in(select distinct aud_trm from hpmgr.busi_audit_switch_conf <![CDATA[ where switch_state>=#{switchState}
+				and switch_type=1
+				and subject_code =5
+			]]>)
+			<if test="prvdId !=10000">
+			group by Aud_trm,prvd_name,prvd_id
+			</if>	
+			<if test="prvdId ==10000">
+			group by Aud_trm
+			</if>
+			) b
+			on a.aud_trm = b.aud_trm
+			order by a.aud_trm
+		</if>
+	</select>
+	
+	<!-- 员工异常 风险地图 -->
+	<select id="getYgycMapData" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="prvdId ==10000 and concern==5001">	
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prov_prvd_cd as prvd_id,
+				a.CMCC_prov_prvd_nm as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[<>]]> 10000 ) a
+				left join (
+				SELECT row_number() over(order by total_Amount desc) as rn,
+						Aud_trm,
+						prvd_name,
+						prvd_id,
+						sum(total_Staff) as total_Opr,
+						sum(total_Amt_10000)/100 as total_Amount
+						FROM HPBUS.YGYC_Sum_Subs_5001
+						WHERE aud_trm = #{audTrm}  and prvd_id <![CDATA[<>]]>10000
+						and china_no <![CDATA[<=]]> '50'
+						group by Aud_trm,prvd_name,prvd_id
+				) b on a.CMCC_prov_prvd_cd = b.prvd_id
+				order by b.total_Amount desc
+			
+		</if>
+		<if test="prvdId !=10000 and concern==5001">
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prvd_cd as city_id,
+				a.CMCC_prvd_nm_short as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+				left join (
+				SELECT row_number() over(order by total_Amount desc) as rn,
+					Aud_trm,
+					city_name as prvd_name,
+					city_id,
+					prvd_id,
+					sum(total_Staff) as total_Opr,
+					sum(total_Amt_10000)/100 as total_Amount
+					FROM HPBUS.YGYC_Sum_Subs_5001
+					WHERE  china_no <![CDATA[<=]]> '50'
+					and aud_trm = #{audTrm}   and prvd_id =#{prvdId}
+					group by Aud_trm,prvd_id,city_name,city_id
+				) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+				order by b.total_Amount desc
+			
+		</if>
+		<if test="prvdId ==10000 and concern==5002">	
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prov_prvd_cd as prvd_id,
+				a.CMCC_prov_prvd_nm as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[<>]]> 10000 ) a
+				left join (
+				SELECT row_number() over(order by total_Amount desc) as rn,
+						Aud_trm,
+						prvd_name,
+						prvd_id,
+						sum(total_Staff) as total_Opr,
+						sum(total_Amt_10000)/100 as total_Amount
+						FROM HPBUS.YGYC_Sum_Subs_5002
+						WHERE aud_trm = #{audTrm}  and prvd_id <![CDATA[<>]]>10000
+						and china_no <![CDATA[<=]]> '50'
+						group by Aud_trm,prvd_name,prvd_id
+				) b on a.CMCC_prov_prvd_cd = b.prvd_id
+				order by b.total_Amount desc
+			
+		</if>
+		<if test="prvdId !=10000 and concern==5002">
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prvd_cd as city_id,
+				a.CMCC_prvd_nm_short as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+				left join (
+				SELECT row_number() over(order by total_Amount desc) as rn,
+					Aud_trm,
+					city_name as prvd_name,
+					city_id,
+					prvd_id,
+					sum(total_Staff) as total_Opr,
+					sum(total_Amt_10000)/100 as total_Amount
+					FROM HPBUS.YGYC_Sum_Subs_5002
+					WHERE  china_no <![CDATA[<=]]> '50'
+					and aud_trm = #{audTrm}   and prvd_id =#{prvdId}
+					group by Aud_trm,prvd_id,city_name,city_id
+				) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+				order by b.total_Amount desc
+			
+		</if>
+		<if test="prvdId ==10000 and concern==5004">	
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prov_prvd_cd as prvd_id,
+				a.CMCC_prov_prvd_nm as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[<>]]> 10000 ) a
+				left join (
+				SELECT row_number() over(order by total_Amount desc) as rn,
+						Aud_trm,
+						prvd_name,
+						prvd_id,
+						sum(cnt_opr_id) as total_Opr,
+						sum(total_Amt_10000)/100 as total_Amount
+						FROM HPBUS.YGYC_Sum_Acct_5004
+						WHERE aud_trm = #{audTrm}  and prvd_id <![CDATA[<>]]>10000
+						and china_no <![CDATA[<=]]> '100'
+						group by Aud_trm,prvd_name,prvd_id
+				) b on a.CMCC_prov_prvd_cd = b.prvd_id
+				order by b.total_Amount desc
+			
+		</if>
+		<if test="prvdId !=10000 and concern==5004">
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prvd_cd as city_id,
+				a.CMCC_prvd_nm_short as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+				left join (
+				SELECT row_number() over(order by total_Amount desc) as rn,
+					Aud_trm,
+					city_name as prvd_name,
+					city_id,
+					prvd_id,
+					sum(cnt_opr_id) as total_Opr,
+					sum(total_Amt_10000)/100 as total_Amount
+					FROM HPBUS.YGYC_Sum_Acct_5004
+					WHERE  china_no <![CDATA[<=]]> '100'
+					and aud_trm = #{audTrm}   and prvd_id =#{prvdId}
+					group by Aud_trm,prvd_id,city_name,city_id
+				) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+				order by b.total_Amount desc
+		
+		</if>
+		<if test="prvdId ==10000 and concern==5003">	
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prov_prvd_cd as prvd_id,
+				a.CMCC_prov_prvd_nm as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prov_prvd_cd,CMCC_prov_prvd_nm from hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd <![CDATA[<>]]> 10000 ) a
+				left join (
+				select
+				row_number() over(ORDER BY total_Amount desc) as rn,
+				Aud_trm,
+				prvd_id,
+				prvd_name,
+				sum(total_Amt_10000)/100 as total_Amount ,
+				sum(total_Opr) as total_Opr 
+				FROM HPBUS.YGYC_Sum_Acct_5003
+				WHERE  china_no <![CDATA[<=]]> '50'
+				and Aud_trm = #{audTrm}
+				group by Aud_trm,prvd_id,prvd_name
+				) b on a.CMCC_prov_prvd_cd = b.prvd_id
+				order by b.total_Amount desc
+				
+		</if>
+		<if test="prvdId !=10000 and concern==5003">
+		SELECT  b.rn,
+				b.Aud_trm,
+				a.CMCC_prvd_cd as city_id,
+				a.CMCC_prvd_nm_short as prvd_name,
+				 b.total_Amount ,
+				b.total_Opr 
+				from
+				(select  CMCC_prvd_cd,CMCC_prvd_nm_short,CMCC_prov_prvd_id from HPMGR.TB_SUM_PRVD_NAME WHERE CMCC_prov_prvd_id  = #{prvdId}) a
+				left join (
+				select
+				row_number() over(ORDER BY total_Amount desc) as rn,
+				Aud_trm,
+				prvd_id,
+				city_id,
+				city_name,
+				sum(total_Amt_10000)/100 as total_Amount ,
+				sum(total_Opr) as total_Opr 
+				FROM HPBUS.YGYC_Sum_Acct_5003
+				WHERE  china_no <![CDATA[<=]]> '50'
+				and Aud_trm = #{audTrm}
+				and prvd_id =#{prvdId}
+				group by Aud_trm,prvd_id,city_id,city_name
+				) b on a.CMCC_prov_prvd_id = b.prvd_id and a.CMCC_prvd_cd =b.city_id
+				order by b.total_Amount desc
+		</if>
+	</select>
+	
+	<!-- 员工异常 风险地图 下面卡片-->
+	<select id="getYgycMapBottomData" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern==5001 or concern==5002">	
+			sel  prvd_id,
+				Aud_trm,
+				prvd_name,
+				cnt_prvd_id as prvdNum,
+				sum_total_Amt/1000000 as total_Amount, 
+				sum_total_Opr as total_Opr, 
+				count_subs_id as total_Subs,
+				abs_cnt_prvd_id as prvd_numMoM,
+				abs_sum_total_Amt/1000000 as total_AmountMoM, 
+				abs_sum_total_Opr as total_OprMoM, 
+				abs_count_subs_id as total_SubsMoM
+			from hpbus.ygyc_sum_subs_5001_5002_top50
+			where concerns_point_id=#{concern} 
+				and Aud_trm=#{audTrm} 
+				and prvd_id=#{prvdId}	
+		</if>
+		<if test="concern==5003 or concern==5004">
+				select 
+					aud_trm,
+					prvd_id,
+					cnt_prvd_id as prvd_num,
+					abs_cnt_prvd_id as prvd_numMoM,
+					sum_total_Amt/1000000 as total_Amount,
+					abs_sum_total_Amt/1000000 as total_AmountMoM,
+					sum_total_Opr as total_Opr,
+					abs_sum_total_Opr as total_OprMoM,
+					count_acct_id as total_Subs,
+					abs_count_acct_id as total_SubsMoM
+					from hpbus.ygyc_sum_acct_5003_5004_top100
+					where concerns_point_id=#{concern} 
+					and aud_trm = #{audTrm} and prvd_id =#{prvdId}
+		</if>
+	</select>
+	
+	<!-- 风险地图 地市下钻用户的工号信息表-->
+	<select id="getYgycJobnumber" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+	<if test="concern==5001">
+	SELECT row_number() over(order by total_Amount desc) as rn,
+		prvd_name,
+		city_name,
+		total_Value,
+		total_Amt as total_Amount,
+		staff_id,
+		total_Time,
+		total_Subs 
+	FROM(
+		SELECT  distinct prvd_name,city_name,total_Value,total_Amt,staff_id,total_Time,total_Subs
+		FROM  HPBUS.YGYC_Sum_Staff_Subs_5001
+		WHERE Aud_trm =#{audTrm}
+			<![CDATA[ 
+			AND    subs_china_no <= '50'
+			]]>
+			AND city_id=#{ctyId}) as t1
+	ORDER BY total_Amt desc;
+	
+	</if>
+	<if test="concern==5002">
+	SELECT row_number() over(order by total_Amount desc) as rn,
+		prvd_name,
+		city_name,
+		total_Value,
+		total_Amt as total_Amount,
+		staff_id,
+		total_Time,
+		total_Subs 
+	FROM(
+		SELECT  distinct prvd_name,city_name,total_Value,total_Amt,staff_id,total_Time,total_Subs
+		FROM  HPBUS.YGYC_Sum_Staff_Subs_5002
+		WHERE Aud_trm =#{audTrm}
+			<![CDATA[ 
+			AND    subs_china_no <= '50'
+			]]>
+			AND city_id=#{ctyId}) as t1
+	ORDER BY total_Amt desc;
+	
+	</if>
+	<if test="concern==5003">
+		select  row_number() over(order by total_Amount desc) as rn,
+		opr_id as staff_id,
+		city_name,
+		prvd_name,
+		total_Amt as total_Amount,
+		total_Subs,
+		total_Time
+		from(select distinct
+			opr_id,
+			city_name,
+			prvd_name,
+			total_Amt,
+			total_Subs,
+			total_Time
+			FROM HPBUS.YGYC_Sum_Staff_Acct_5003
+			where prvd_id =#{prvdId} and aud_trm =#{audTrm}    and city_id =#{ctyId}
+			and acct_china_no <![CDATA[<=]]> '50') as  t1
+		order by total_Amt desc
+		</if>
+		<if test="concern==5004">
+			select  row_number() over(order by total_Amount desc) as rn,
+			opr_id as staff_id,
+			city_name,
+			prvd_name,
+			sum_amt as total_Amount,
+			cnt_subs as total_Subs,
+			cnt_num as total_Time
+			from(select distinct
+				opr_id,
+				city_name,
+				prvd_name,
+				sum_amt,
+				cnt_subs,
+				cnt_num
+				FROM HPBUS.YGYC_Sum_Staff_Acct_5004
+				where prvd_id =#{prvdId} and aud_trm =#{audTrm}    and city_id =#{ctyId}
+				and acct_china_no <![CDATA[<=]]>'100') as  t1
+			order by sum_amt desc
+		</if>
+	</select>
+	
+	<!-- 风险地图 地市下钻用户的工号-手机号汇总信息表-->
+	<select id="getYgycPhoneTable" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern==5001">
+		sel row_number() over(order by total_Amount desc) as rn,
+			staff_id,
+			msisdn as acct_id,
+			sum(trade_value) as total_Amount,
+			count(trade_value) as totalTimes,
+			prvd_name,
+			city_name 
+		from HPBUS.det_ygyc_5001_sum
+		where aud_trm=#{audTrm}
+			and city_id=#{ctyId}
+			and  staff_id=#{staffId}  
+			and flag='subs_staff50'
+			<![CDATA[and china_no<=50]]>
+		group by prvd_name,city_name,staff_id,msisdn
+		</if>
+		<if test="concern==5002">
+		sel row_number() over(order by total_Amount desc) as rn,
+			staff_id,
+			msisdn as acct_id,
+			sum(trade_value) as total_Amount,
+			count(trade_value) as totalTimes,
+			prvd_name,
+			city_name 
+		from HPBUS.det_ygyc_5002_sum
+		where aud_trm=#{audTrm}
+			and city_id=#{ctyId}
+			and  staff_id=#{staffId} 
+			and flag='subs_staff50'
+			<![CDATA[and china_no<=50]]>
+		group by prvd_name,city_name,staff_id,msisdn
+		</if>
+		
+		<if test="concern==5003">
+			sel row_number() over(order by total_Amount desc) as rn,
+			opr_id as staff_id,
+			acct_id,
+			sum(trade_amt) as total_Amount,
+			count(trade_amt) as totalTimes,
+			prvd_name,
+			city_name 
+			from HPBUS.det_ygyc_5003_sum
+			where aud_trm=#{audTrm}
+			and city_id=#{ctyId}
+			and  staff_id=#{staffId}
+			and flag='acct_staff50'
+			<![CDATA[and china_no<=100]]>  
+			group by prvd_name,city_name,staff_id,acct_id
+		</if>
+		<if test="concern==5004">
+			sel row_number() over(order by total_Amount desc) as rn,
+			opr_id as staff_id,
+			acct_id,
+			sum(abs(trade_amt)) as total_Amount,
+			count(trade_amt) as totalTimes,
+			prvd_name,
+			city_name 
+			from HPBUS.det_ygyc_5004_sum
+			where aud_trm=#{audTrm}
+			and city_id=#{ctyId}
+			and  staff_id=#{staffId}  
+			and flag='acct_staff50'
+			<![CDATA[and china_no<=100]]>
+			group by prvd_name,city_name,staff_id,acct_id
+		</if>
+	</select>
+	
+	<!-- 风险地图 手机号码下钻操作员工赠送明细表-->
+	<select id="getYgycOperatorByphone" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+	<if test="concern==5001">
+	sel row_number() over(order by total_Amount desc) as rn,
+		staff_id,
+		msisdn as acct_id,
+		trade_value as total_Amount,
+		trade_tm as operateTime,
+		chnl_nm,
+		blto_chnl_typ,
+		prvd_name,
+		city_name 
+	from HPBUS.det_ygyc_5001_sum
+	where aud_trm=#{audTrm} and city_id=#{ctyId} and  staff_id=#{staffId}  and msisdn=#{acctId} and flag='subs_staff50'
+		<![CDATA[and china_no<=50]]>
+	</if>
+	<if test="concern==5002">
+	sel row_number() over(order by total_Amount desc) as rn,
+		staff_id,
+		msisdn as acct_id,
+		trade_value as total_Amount,
+		trade_tm as operateTime,
+		chnl_nm,
+		blto_chnl_typ,
+		prvd_name,
+		city_name 
+	from HPBUS.det_ygyc_5002_sum
+	where aud_trm=#{audTrm} and city_id=#{ctyId} and  staff_id=#{staffId}  and msisdn=#{acctId} and flag='subs_staff50'
+		<![CDATA[and china_no<=50]]>
+	</if>
+	<if test="concern==5003">
+		SELECT  row_number() over(order by total_Amount desc ) as rn,
+		opr_id as staff_id,
+		acct_id,
+		trade_amt as total_Amount,
+		opr_tm,
+		chnl_nm,
+		blto_chnl_typ,
+		city_name,
+		prvd_name
+		from HPBUS.det_ygyc_5003_sum
+		WHERE
+		 aud_trm=#{audTrm}  and prvd_id =#{prvdId} and city_id =#{ctyId}  and  acct_id =#{acctId}
+		 and opr_id =#{staffId}  
+		 and flag='acct_staff50'
+		 <![CDATA[and china_no<=100]]>
+	</if>
+	<if test="concern==5004">
+		SELECT  row_number() over(order by total_Amount desc ) as rn,
+		opr_id as staff_id,
+		acct_id,
+		abs(trade_amt) as total_Amount,
+		opr_tm,
+		staff_chnl_nm as chnl_nm,
+		chnl_typ as blto_chnl_typ,
+		city_name,
+		prvd_name
+		from HPBUS.det_ygyc_5004_sum
+		WHERE
+		 aud_trm=#{audTrm}  and prvd_id =#{prvdId} and city_id =#{ctyId}  and  acct_id =#{acctId}
+		 and opr_id =#{staffId}  
+		 and flag='acct_staff50'
+		 <![CDATA[and china_no<=100]]>
+		</if>
+	</select>
+	<!-- 员工异常操作-统计分析-排名汇总-各省排名信息 -->
+	<select id="getRankTable" resultMap="ygycData" parameterType="com.hpe.cmca.pojo.ParameterData">
+	<if test="concern==5001 and prvdId ==10000">
+	SELECT A2.Aud_trm, ROW_NUMBER() OVER (ORDER BY a2.totalAmt desc,A1.CMCC_prov_prvd_id)-1 as rn,
+		A1.CMCC_prov_prvd_nm as prvdName,A2.prvdNum,
+		A2.totalAmt,A2.totalTimes,A2.totalSubs,
+		A2.employeeQty,A1.CMCC_prov_prvd_id as prvdId 
+	from (
+		SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+			FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd 
+		) as A1
+	LEFT JOIN (
+		SELECT Aud_trm,sum(total_City) as prvdNum,
+			sum(total_Amt_10000) as totalAmt,sum(total_Time) as totalTimes,sum(total_Subs) as totalSubs,
+			sum(total_staff) as employeeQty,10000 as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5001
+		WHERE	Aud_trm =#{audTrm}
+		group by Aud_trm
+		union all
+		SELECT Aud_trm,total_City as prvdNum,
+			total_Amt_10000 as totalAmt,total_Time as totalTimes,total_Subs as totalSubs,
+			total_staff as employeeQty,prvd_id as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5001
+		WHERE	Aud_trm =#{audTrm} )as	A2
+	ON	A1.CMCC_prov_prvd_id = A2.prvdId
+	order by rn;
+	</if>
+	<if test="concern==5001 and prvdId !=10000">
+	SELECT china_no as rn,Aud_trm,total_City as prvdNum,
+			total_Amt_10000 as totalAmt,total_Time as totalTimes,total_Subs as totalSubs,
+			total_staff as employeeQty,prvd_id as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5001
+		WHERE	Aud_trm =#{audTrm} 
+			and prvd_id=#{prvdId}
+	</if>
+	<if test="concern==5002 and prvdId ==10000">
+	SELECT A2.Aud_trm, ROW_NUMBER() OVER (ORDER BY a2.totalAmt desc,A1.CMCC_prov_prvd_id)-1 as rn,
+			A1.CMCC_prov_prvd_nm as prvdName,A2.prvdNum,
+			A2.totalAmt,A2.totalTimes,A2.totalSubs,
+			A2.employeeQty,A1.CMCC_prov_prvd_id as prvdId 
+	FROM (
+		SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+			FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd 
+		) as A1
+	LEFT JOIN (
+		SELECT Aud_trm,sum(total_City) as prvdNum,
+			sum(total_Amt_10000) as totalAmt,sum(total_Time) as totalTimes,sum(total_Subs) as totalSubs,
+			sum(total_staff) as employeeQty,10000 as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =#{audTrm}
+		group by Aud_trm
+		union all
+		SELECT Aud_trm,total_City as prvdNum,
+			total_Amt_10000 as totalAmt,total_Time as totalTimes,total_Subs as totalSubs,
+			total_staff as employeeQty,prvd_id as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5002
+		WHERE	Aud_trm =#{audTrm} )as	A2
+	ON	A1.CMCC_prov_prvd_id = A2.prvdId
+	ORDER BY rn;
+	</if>
+	<if test="concern==5002 and prvdId !=10000">
+		SELECT china_no as rn,Aud_trm,total_City as prvdNum,
+			total_Amt_10000 as totalAmt,total_Time as totalTimes,total_Subs as totalSubs,
+			total_staff as employeeQty,prvd_id as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5002
+		WHERE	Aud_trm =#{audTrm}
+			and prvd_id=#{prvdId}
+	</if>
+	<if test="concern==5003 and prvdId ==10000">
+	SELECT A2.Aud_trm, ROW_NUMBER() OVER (ORDER BY a2.totalAmt desc,A1.CMCC_prov_prvd_id)-1 as rn,
+		A1.CMCC_prov_prvd_nm as prvdName,A2.prvdNum,
+		A2.totalAmt,A2.totalTimes,A2.totalSubs,
+		A2.employeeQty,A1.CMCC_prov_prvd_id as prvdId 
+	from (
+		SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+			FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd 
+		) as A1
+	LEFT JOIN (
+		SELECT Aud_trm, sum(total_City) as prvdNum,
+			sum(total_Amt_10000) as totalAmt,sum(total_Time) as totalTimes,sum(total_Acct) as totalSubs,
+			sum(total_Opr) as employeeQty,10000 as prvdId 
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =#{audTrm}
+		group by Aud_trm
+		union all
+		SELECT Aud_trm, total_City as prvdNum,
+			total_Amt_10000 as totalAmt,total_Time as totalTimes,total_Acct as totalSubs,
+			total_Opr as employeeQty,prvd_id as prvdId 
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =#{audTrm} )as	A2
+	ON	A1.CMCC_prov_prvd_id = A2.prvdId
+	order by rn;
+	</if>
+	<if test="concern==5003 and prvdId !=10000">
+	SELECT china_no as rn, Aud_trm, total_City as prvdNum,
+			total_Amt_10000 as totalAmt,total_Time as totalTimes,total_Acct as totalSubs,
+			total_Opr as employeeQty,prvd_id as prvdId 
+	FROM	 hpbus.YGYC_Sum_Prvd_5003 
+	WHERE	Aud_trm =#{audTrm}
+		and prvd_id=#{prvdId} 
+	</if>
+	<if test="concern==5004 and prvdId ==10000">
+	SELECT A2.Aud_trm, 
+		ROW_NUMBER() OVER (ORDER BY a2.totalAmt desc,A1.CMCC_prov_prvd_id)-1 as rn,
+		A1.CMCC_prov_prvd_nm as prvdName,A2.prvdNum,
+		A2.totalAmt,A2.totalTimes,A2.totalSubs,
+		A2.employeeQty,A1.CMCC_prov_prvd_id as prvdId 
+	from (
+		SELECT	CMCC_prov_prvd_id,CMCC_prov_prvd_nm
+			FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd 
+		) as A1
+	LEFT JOIN (
+		SELECT Aud_trm,sum(cnt_area) as prvdNum,sum(total_Amt_10000) as totalAmt,sum(cnt_num) as totalTimes,sum(cnt_acct) as totalSubs,sum(cnt_opr_id) as employeeQty,10000 as prvdId
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =#{audTrm}
+		group by Aud_trm
+		union all
+		SELECT Aud_trm,cnt_area as prvdNum,
+			total_Amt_10000 as totalAmt,cnt_num as totalTimes,cnt_acct as totalSubs,
+			cnt_opr_id as employeeQty,prvd_id as prvdId 
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =#{audTrm} )as	A2
+	ON	A1.CMCC_prov_prvd_id = A2.prvdId
+	order by rn;
+	</if>
+	<if test="concern==5004 and prvdId !=10000">
+	SELECT  china_no as rn,Aud_trm,cnt_area as prvdNum,
+			total_Amt_10000 as totalAmt,cnt_num as totalTimes,cnt_acct as totalSubs,
+			cnt_opr_id as employeeQty,prvd_id as prvdId 
+	FROM	 hpbus.YGYC_Sum_Prvd_5004 
+	WHERE	Aud_trm =#{audTrm}
+		and prvd_id=#{prvdId} 
+	</if>
+	</select>
+	
+	<!-- 员工异常操作-统计分析-历史统计-2017.09.06-->
+	<select id="getHistoryTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+	select ROW_NUMBER() OVER (order by tol_num_t1 desc ,CMCC_prov_prvd_id)-1 AS rn,
+	 		CMCC_prov_prvd_nm as prvdName, 
+	 		coalesce(trim(tol_num_t1(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month1,
+			coalesce(trim(tol_num_t2(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month2,
+			coalesce(trim(tol_num_t3(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month3,
+			coalesce(trim(tol_num_t4(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month4,
+			coalesce(trim(tol_num_t5(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month5,
+			coalesce(trim(tol_num_t6(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month6
+	FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd  as	A	
+	LEFT JOIN (
+		SELECT	 prvd_id, tol_num_t1, tol_num_t2,
+			tol_num_t3, tol_num_t4, tol_num_t5, tol_num_t6
+		FROM	hpbus.sum_ygyc_prvd_total
+		where aud_trm=#{audTrm}
+			and type_id=#{concern})as	A1
+	ON	A.CMCC_prov_prvd_id = A1.prvd_id
+	order by rn
+	</select>
+	
+	<!-- 员工异常操作-统计分析-排名汇总-历史统计-废弃原因：后台重新做表，去除关联
+	<select id="getHistoryTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+	<if test="concern==5001">
+	SELECT ROW_NUMBER() OVER (order by a1 desc ,CMCC_prov_prvd_id) AS rn,
+		CMCC_prov_prvd_id,CMCC_prov_prvd_nm as prvdName,
+		coalesce(trim(a1(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month1,
+		coalesce(trim(a2(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month2,
+		coalesce(trim(a3(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month3,
+		coalesce(trim(a4(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month4,
+		coalesce(trim(a5(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month5,
+		coalesce(trim(a6(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month6
+		FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd  as	A	
+	LEFT JOIN (
+		SELECT	total_Time as a1,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5001 
+		WHERE	Aud_trm =#{audTrm} )as	A1
+		ON	A.CMCC_prov_prvd_id = A1.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a2,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5001 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6))))as	A2
+		ON	A.CMCC_prov_prvd_id = A2.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a3,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5001 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6))))as	A3
+		ON	A.CMCC_prov_prvd_id = A3.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a4,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5001 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6))))as	A4
+		ON	A.CMCC_prov_prvd_id = A4.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a5,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5001 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-4) as date format 'YYYYMMDD') as varchar(6))))as	A5
+		ON	A.CMCC_prov_prvd_id = A5.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a6,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5001 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))))as	A6
+		ON	A.CMCC_prov_prvd_id = A6.prvd_id
+	order by a1 desc ,CMCC_prov_prvd_id;
+	</if>
+	<if test="concern==5002">
+	SELECT ROW_NUMBER() OVER (order by a1 desc ,CMCC_prov_prvd_id) AS rn,
+		CMCC_prov_prvd_id,CMCC_prov_prvd_nm as prvdName,
+		coalesce(trim(a1(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month1,
+		coalesce(trim(a2(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month2,
+		coalesce(trim(a3(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month3,
+		coalesce(trim(a4(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month4,
+		coalesce(trim(a5(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month5,
+		coalesce(trim(a6(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month6
+		FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd  as	A	
+	LEFT JOIN (
+		SELECT	total_Time as a1,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =#{audTrm} )as	A1
+		ON	A.CMCC_prov_prvd_id = A1.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a2,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6))))as	A2
+		ON	A.CMCC_prov_prvd_id = A2.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a3,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6))))as	A3
+		ON	A.CMCC_prov_prvd_id = A3.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a4,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6))))as	A4
+		ON	A.CMCC_prov_prvd_id = A4.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a5,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-4) as date format 'YYYYMMDD') as varchar(6))))as	A5
+		ON	A.CMCC_prov_prvd_id = A5.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a6,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5002 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))))as	A6
+		ON	A.CMCC_prov_prvd_id = A6.prvd_id
+	order by a1 desc ,CMCC_prov_prvd_id;
+	</if>
+	<if test="concern==5003">
+	SELECT ROW_NUMBER() OVER (order by a1 desc ,CMCC_prov_prvd_id) AS rn,
+		CMCC_prov_prvd_id,CMCC_prov_prvd_nm as prvdName,
+		coalesce(trim(a1(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month1,
+		coalesce(trim(a2(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month2,
+		coalesce(trim(a3(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month3,
+		coalesce(trim(a4(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month4,
+		coalesce(trim(a5(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month5,
+		coalesce(trim(a6(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month6
+		FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd  as	A	
+	LEFT JOIN (
+		SELECT	total_Time as a1,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =#{audTrm} )as	A1
+		ON	A.CMCC_prov_prvd_id = A1.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a2,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6))))as	A2
+		ON	A.CMCC_prov_prvd_id = A2.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a3,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6))))as	A3
+		ON	A.CMCC_prov_prvd_id = A3.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a4,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6))))as	A4
+		ON	A.CMCC_prov_prvd_id = A4.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a5,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-4) as date format 'YYYYMMDD') as varchar(6))))as	A5
+		ON	A.CMCC_prov_prvd_id = A5.prvd_id
+	LEFT JOIN (
+		SELECT	total_Time as a6,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5003 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))))as	A6
+		ON	A.CMCC_prov_prvd_id = A6.prvd_id
+	order by a1 desc ,CMCC_prov_prvd_id;
+	</if>
+	<if test="concern==5004">
+	SELECT ROW_NUMBER() OVER (order by a1 desc ,CMCC_prov_prvd_id) AS rn,
+		CMCC_prov_prvd_id,CMCC_prov_prvd_nm as prvdName,
+		coalesce(trim(a1(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month1,
+		coalesce(trim(a2(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month2,
+		coalesce(trim(a3(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month3,
+		coalesce(trim(a4(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month4,
+		coalesce(trim(a5(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month5,
+		coalesce(trim(a6(FORMAT 'ZZZZZZZZZZZZZZ9')(VARCHAR(20))),'-') as month6
+		FROM	HPMGR.ref_dm_cmcc_prov_prvd_cd  as	A	
+	LEFT JOIN (
+		SELECT	cnt_num as a1,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =#{audTrm} )as	A1
+		ON	A.CMCC_prov_prvd_id = A1.prvd_id
+	LEFT JOIN (
+		SELECT	cnt_num as a2,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-1) as date format 'YYYYMMDD') as varchar(6))))as	A2
+		ON	A.CMCC_prov_prvd_id = A2.prvd_id
+	LEFT JOIN (
+		SELECT	cnt_num as a3,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6))))as	A3
+		ON	A.CMCC_prov_prvd_id = A3.prvd_id
+	LEFT JOIN (
+		SELECT	cnt_num as a4,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6))))as	A4
+		ON	A.CMCC_prov_prvd_id = A4.prvd_id
+	LEFT JOIN (
+		SELECT	cnt_num as a5,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-4) as date format 'YYYYMMDD') as varchar(6))))as	A5
+		ON	A.CMCC_prov_prvd_id = A5.prvd_id
+	LEFT JOIN (
+		SELECT	cnt_num as a6,prvd_id
+		FROM	 hpbus.YGYC_Sum_Prvd_5004 
+		WHERE	Aud_trm =trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-6) as date format 'YYYYMMDD') as varchar(6))))as	A6
+		ON	A.CMCC_prov_prvd_id = A6.prvd_id
+	order by a1 desc ,CMCC_prov_prvd_id;
+	</if>
+	</select>
+	 -->
+	 <!-- 员工异常操作-统计分析-重点关注用户-2017.09.06-数据库中存储的金额单位为万元-->
+	<select id="getFocusUserTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+	SELECT	RN  as rn, aud_trm as audTrm,prvd_name as prvdName, city_name as cityName, subs_id as subsId,
+		coalesce(total_Value_t1,'-') as total_Value_t1,
+		coalesce(total_Staff_t1,'-') as total_Staff_t1,
+		coalesce(total_Value_t2,'-') as total_Value_t2,
+		coalesce(total_Staff_t2,'-') as total_Staff_t2,
+		coalesce(total_Value_t3,'-') as total_Value_t3,
+		coalesce(total_Staff_t3,'-') as total_Staff_t3
+	FROM	hpbus.sum_ygyc_emp_subs_tol
+	where aud_trm=#{audTrm}
+	and focus_id=#{concern}
+	order by RN;
+	</select>
+	
+	<!-- 员工异常操作-统计分析-重点关注用户-下钻-2017.09.07-->
+	<select id="getFocusUserDetaile" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+	<if test="concern==5001">
+	sel row_number() over(order by audTrm desc, totalAmt desc) as rn,
+		Aud_trm as audTrm,
+		prvd_name,
+		city_name,
+		subs_id,
+		staff_id, 
+		sum(trade_value) as totalAmt
+	from hpbus.det_ygyc_5001_sum
+	<![CDATA[		
+	where Aud_trm<=#{audTrm}
+	and Aud_trm >trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6)))
+	and china_no<=50
+	]]>
+	and subs_id=#{acctId}
+	and flag='subs50'
+	group by Aud_trm,prvd_name,city_name,subs_id,staff_id
+	order by audTrm desc,totalAmt desc;
+	</if>
+	<if test="concern==5002">
+	sel row_number() over(order by audTrm desc,totalAmt desc) as rn,
+		Aud_trm as audTrm,
+		prvd_name,
+		city_name,
+		subs_id,
+		staff_id, 
+		sum(trade_value) as totalAmt
+	from hpbus.det_ygyc_5002_sum
+	<![CDATA[		
+	where Aud_trm<=#{audTrm}
+	and Aud_trm >trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6)))
+	and china_no<=50
+	]]>
+	and subs_id=#{acctId}
+	and flag='subs50'
+	group by Aud_trm,prvd_name,city_name,subs_id,staff_id
+	order by audTrm desc,totalAmt desc;
+	</if>
+	<if test="concern==5003">
+	SELECT  row_number() over(order by audTrm desc,totalAmt desc ) as rn,
+		Aud_trm as audTrm,
+		prvd_name,
+		city_name,
+		acct_id as subs_id,
+		opr_id as staffId, 
+		sum(trade_amt) as totalAmt
+	from hpbus.det_ygyc_5003_sum
+	<![CDATA[		
+	where Aud_trm<=#{audTrm}
+		and Aud_trm >trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6)))
+	]]>
+		and acct_id=#{acctId}
+		and flag='acct100_qg'
+	group by Aud_trm,prvd_name,city_name,acct_id,opr_id
+	order by audTrm desc,totalAmt desc;
+	</if>
+	<if test="concern==5004">
+	SELECT  row_number() over(order by audTrm desc,totalAmt desc ) as rn,
+		Aud_trm as audTrm,
+		prvd_name,
+		city_name,
+		acct_id as subs_id,
+		opr_id as staffId, 
+		sum(abs(trade_amt)) as totalAmt
+	from hpbus.det_ygyc_5004_sum
+	<![CDATA[		
+	where Aud_trm<=#{audTrm}
+		and Aud_trm >trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-3) as date format 'YYYYMMDD') as varchar(6)))
+		and china_no<=100
+	]]>
+		and acct_id=#{acctId}
+		and flag='acct100'
+	group by Aud_trm,prvd_name,city_name,acct_id,opr_id
+	order by  audTrm desc,totalAmt desc; 
+	</if>
+	</select>
+	
+	<!-- 员工异常 重店关注员工号 -->
+	<select id="getYgycFocusEmployee" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+		select 
+		RN, aud_trm, prvd_name, 
+		city_name, staff_id, 
+		coalesce(total_Value_t1,'-') as total_Value_t1,
+		coalesce(total_Subs_t1,'-') as total_Subs_t1, 
+		coalesce(total_Value_t2,'-') as total_Value_t2, 
+		coalesce(total_Subs_t2,'-') as total_Subs_t2, 
+		coalesce(total_Value_t3,'-') as total_Value_t3, 
+		coalesce(total_Subs_t3,'-') as total_Subs_t3
+	from hpbus.sum_ygyc_emp_staff_tol
+	where aud_trm =#{audTrm}  and focus_id =#{concern}
+	order by RN
+	</select>
+	<!-- 员工异常 重店关注员工号 下钻 -->
+	<select id="getYgycFocusEmployeeTable" resultType="java.util.Map" parameterType="com.hpe.cmca.pojo.ParameterData">
+		<if test="concern== '5001'">
+		sel row_number() over(order by Aud_trm desc,trade_amt_tot desc) as rn,
+			prvd_name,
+			city_name,
+			staff_id,
+			Aud_trm,
+			sum(trade_value) as trade_amt_tot,
+			subs_id
+		from hpbus.det_ygyc_5001_sum
+		where Aud_trm  <![CDATA[<=]]> #{audTrm}
+		and Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6)))
+		and staff_id= #{staffId}
+		and flag = 'staff50'
+		and china_no <![CDATA[<=]]>50
+		group by prvd_name,city_name,staff_id,Aud_trm,subs_id
+		</if>
+		<if test="concern=='5002'">
+		sel row_number() over(order by Aud_trm desc,trade_amt_tot desc) as rn,
+			prvd_name,
+			city_name,
+			staff_id,
+			Aud_trm,
+			sum(trade_value) as trade_amt_tot,
+			subs_id
+		from hpbus.det_ygyc_5002_sum
+		where 
+		Aud_trm  <![CDATA[<=]]> #{audTrm}
+		and Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6)))
+		and staff_id= #{staffId}
+		and flag = 'staff50'
+		and china_no <![CDATA[<=]]>50
+		group by prvd_name,city_name,staff_id,Aud_trm,subs_id
+		</if>
+		<if test="concern=='5003'">
+		sel row_number() over(order by Aud_trm desc,trade_amt_tot desc) as rn,
+			prvd_name,
+			city_name,
+			opr_id as staff_id,
+			Aud_trm,
+			sum(trade_amt) as trade_amt_tot,
+			subs_id
+		from hpbus.det_ygyc_5003_sum
+		where 
+		Aud_trm  <![CDATA[<=]]> #{audTrm}
+		and Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_id= #{staffId}
+		and flag = 'staff50'
+		and china_no <![CDATA[<=]]>50
+		group by prvd_name,city_name,opr_id,Aud_trm,subs_id
+		</if>
+		<if test="concern=='5004'">
+		sel row_number() over(order by Aud_trm desc,trade_amt_tot desc) as rn,
+			prvd_name,
+			city_name,
+			opr_id as staff_id,
+			Aud_trm,
+			sum(abs(trade_amt)) as trade_amt_tot,
+			subs_id
+		from hpbus.det_ygyc_5004_sum
+		where 
+		Aud_trm  <![CDATA[<=]]> #{audTrm}
+		and Aud_trm >= trim(cast(cast(add_months(cast(#{audTrm}||'01' as date format 'YYYYMMDD'),-2) as date format 'YYYYMMDD') as varchar(6)))
+		and opr_id= #{staffId}
+		and flag = 'staff100'
+		and china_no <![CDATA[<=]]>100
+		group by prvd_name,city_name,opr_id,Aud_trm,subs_id
+		</if>
+	
+	</select>
+</mapper>
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+
+<mapper namespace="com.hpe.cmca.interfaces.GRSJMapper">
+
+	<resultMap type="com.hpe.cmca.pojo.GRSJData"  id="grsj">
+		<result property="execAud" column="exec_aud"/>
+		<result property="prvdId" column="prvd_id"/> 
+		<result property="prvdNm" column="prvd_nm"/>
+		<result property="queryDt" column="exec_dt"/>
+		<result property="status" column="status"/>  
+		<result property="subjectId" column="subject_id"/>
+		<result property="subjectNm" column="subject_nm"/>
+		<result property="process" column="audit_process"/>
+	</resultMap>
+
+	<select id="getCollec" resultMap="grsj"  parameterType="String">
+		select substr(exec_dt,0,7) exec_aud,prvd_id,prvd_nm,substr(exec_dt,7,2) exec_dt,status,subject_id,subject_nm,audit_process from hpbus.busi_audit_task_manage where exec_aud=#{month}
+	</select>
+	
+	<select id="getDep" resultMap="grsj" >
+		select substr(exec_dt,0,7) exec_aud,prvd_id,prvd_nm,substr(exec_dt,7,2) exec_dt,status,subject_id,subject_nm,audit_process from hpbus.busi_audit_task_manage where exec_aud=#{month}and subject_id=#{ztid}
+	</select>
+	
+	
+	<select id="getInter" resultMap="grsj" >
+		select substr(exec_dt,0,7) exec_aud,prvd_id,prvd_nm,substr(exec_dt,7,2) exec_dt,status,subject_id,subject_nm,audit_process from hpbus.busi_audit_task_manage where exec_aud=#{month}and subject_id=#{ztid} and audit_process='接口重传'
+	</select>
+	
+	<select id="getZt"  resultType="com.hpe.cmca.pojo.GRSJzt" >
+		SELECT	DISTINCT subject_id as ztId, subject_nm as ztNm
+          FROM  hpmgr.busi_model_inter_info order by ztId 
+	</select>
+	<select id="getsf"  resultType="com.hpe.cmca.pojo.GRSJsf" >
+		SELECT	DISTINCT CMCC_prov_prvd_cd as sfId, CMCC_prov_prvd_nm as sfNm
+          FROM  hpmgr.ref_dm_cmcc_prov_prvd_cd where CMCC_prov_prvd_cd not in '10000' order by sfId
+	</select>
+	
+	<select id="getMaxDay" resultMap="grsj" >
+		select substr(exec_dt,0,7) exec_aud,prvd_id,prvd_nm,substr(exec_dt,7,2) exec_dt,status,subject_id,subject_nm,audit_process from hpbus.busi_audit_task_manage where audit_process=#{process} and exec_aud=#{month}and subject_nm=#{ztmc}
+	</select>
+	<select id="getDepMaxDay" resultMap="grsj" >
+		select substr(exec_dt,0,7) exec_aud,prvd_id,prvd_nm,substr(exec_dt,7,2) exec_dt,status,subject_id,subject_nm,audit_process from hpbus.busi_audit_task_manage where audit_process=#{process} and exec_aud=#{month}and subject_nm=#{ztmc} and prvd_nm=#{prvd}
+	</select>
+	
+	
+</mapper> 

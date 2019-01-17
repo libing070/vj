@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 监控告警     如果选择了具体省分，则饼图生成规则：本省&其他省合计按照条件取得的短信数/ 按照条件取得的短信记录数总数。-->
+<mapper namespace="jkgj">
+	<select id="getColumnofPerHour" resultType="Map" parameterType="Map">
+		select   SUBSTRING(cast (t.create_time as varchar(24)) FROM 12 for 2) as perHour,	count(*) as smsCount
+		from HPMGR.busi_sms_notify_mid t where t.create_time = CAST(#{warnDay} AS DATE FORMAT'YYYYMMDD')
+		<if test="prvdIds!='10000'">
+		and  t.prvdId in (${prvdIds})
+		</if>
+		<if test="monitorPoint!='100'">
+		and  t.Warn_id in (${monitorPoint})
+		</if>
+		group by SUBSTRING(cast (t.create_time as varchar(24)) FROM 12 for 2)
+	</select>
+	<select id="getPrvdpie" resultType="Map" parameterType="Map">
+		select t.prvdId  as prvdId,	count(*)  as smsCount
+		from HPMGR.busi_sms_notify_mid t 
+		where
+		<![CDATA[  
+		t.create_time >=CAST(#{warnMonth} AS DATE FORMAT'YYYYMM')
+		and t.create_time <ADD_MONTHS (CAST(#{warnMonth} AS DATE FORMAT'YYYYMM'),1) 
+		]]>
+		<if test="prvdStr!='10000'">
+		and t.prvdId in (${prvdStr})
+		</if>
+		<if test="monitorPoint!='100'">
+		and  t.Warn_id in (${monitorPoint})
+		</if>
+		group by t.prvdId 
+		order by count(*) desc 
+	</select>
+	<select id="getMonitorPointPie" resultType="Map" parameterType="Map">
+		select case 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='111' then '接口数据入库' 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='112' then '接口数据重传' 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='121' then '模型执行' 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='141' then '审计报告' 
+			when    SUBSTRING(trim(t.Warn_id) from 0 for 4)='131' then '数据库空间' 
+			when    SUBSTRING(trim(t.Warn_id) from 0 for 4)='113' then '接口数据差异量比较' 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='114' then '接口数据31省完整性' 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='115' then '接口数据到达时间 ' 
+			when	SUBSTRING(trim(t.Warn_id) from 0 for 4)='142' then '审计报告监控' 
+		end	as Warn_name,
+		count(*) as smsCount
+		from HPMGR.busi_sms_notify_mid t  
+		where
+		<![CDATA[  
+		t.create_time >=CAST(#{warnMonth} AS DATE FORMAT'YYYYMM')
+		and t.create_time <ADD_MONTHS (CAST(#{warnMonth} AS DATE FORMAT'YYYYMM'),1) 
+		]]>
+		<if test="prvdStr!='10000'"> 
+		and t.prvdId in (${prvdStr})
+		</if>
+		<if test="monitorPoint!='100'">
+		and  t.Warn_id in (${monitorPoint})
+		</if>
+		group by SUBSTRING(trim(t.Warn_id) from 0 for 4)
+		order by count(*) desc 
+	</select>
+	<select id="getMonitorConfiguration" resultType="Map" parameterType="Map">
+		SELECT alarm_type,int_id, int_nm, trim(zhuanti_id) as zhuanti_id, zhuanti_nm, user_nm_id, user_nm,
+		phone
+		FROM hpmgr.tb_alarm_busi_new
+	</select>
+	<update id="modifyReceiverPhone"  parameterType="Map" >
+		update hpmgr.tb_alarm_busi_new
+		SET user_nm= #{user_nm},phone=#{phone}
+		WHERE alarm_type=#{alarm_type} 
+		<if test="int_id!=null">
+		and int_id=#{int_id}
+		</if>
+		<if test="zhuanti_id!=null">
+		and zhuanti_id=#{zhuanti_id}
+		</if>
+	</update>
+
+	<insert id="addMonitorConfiguration" parameterType="Map" useGeneratedKeys="true">
+		<if test="int_id!=null and int_id!='' and int_nm!=null and int_nm!='' ">
+			INSERT INTO hpmgr.tb_alarm_busi
+			(int_id, int_nm, zhuanti_id, zhuanti_nm, user_nm_id, user_nm, phone)
+			VALUES	
+			(#{int_id},#{int_nm},#{zhuanti_id},#{zhuanti_nm},'', #{user_nm},#{phone})
+		</if>
+	</insert>
+	
+	<delete id="deleteMonitorConfiguration" parameterType="Map">
+		delete from hpmgr.tb_alarm_busi where int_id=#{int_id}
+	</delete>
+	<!--  查询数据空间的监控明细-->
+	<select id="getMonitorDetailsThree" resultType="Map" parameterType="Map">
+		SELECT t.create_time as create_time,trim(SubString(t.Content from 0 for 10)) as databaseNm,t.send_count as send_count
+		FROM hpmgr.busi_sms_notify_mid t where t.Warn_id='131' 
+		and t.create_time =CAST(#{today} AS DATE FORMAT'YYYYMMDD')
+		order by t.create_time desc
+	</select>
+	<!-- 查询模型执行的监控明细 -->
+	<select id="getMonitorDetailsTwo" resultType="Map" parameterType="Map">
+		SELECT  case when SUBSTRING(trim(t.subject_id) from 0 for 2)='1' then '有价卡管理违规'  when SUBSTRING(trim(t.subject_id) from 0 for 2)='2' then '渠道养卡'  when SUBSTRING(trim(t.subject_id) from 0 for 2)='3' then '终端套利' when SUBSTRING(trim(t.subject_id) from 0 for 2)='4' then '客户欠费' when SUBSTRING(trim(t.subject_id) from 0 for 2)='5' then '员工异常操作' else '' end as subjectNm,
+		count(*) as focusCount,case when t.jobstatus='fail' then '未完成' when  t.jobstatus='pending' then '执行失败' else '' end as status
+		FROM hpmgr.busi_sms_notify_mid t where trim(t.Warn_id)='121'
+		and t.create_time =CAST(#{today} AS DATE FORMAT'YYYYMMDD')
+		group by SUBSTRING(trim(t.subject_id) from 0 for 2),t.jobstatus
+	</select>
+	<!--  查询接口文件（编号为11*）的监控明细-->
+	 <select id="getMonitorDetailsOne" resultType="Map" parameterType="Map">
+		select a.Warn_id as Warn_id, case when a.Warn_id='115' then '数据延迟' when a.Warn_id='114' then '接口检查' when a.Warn_id='113' then '数据差异' when a.Warn_id='112' then '接口重传' when a.Warn_id='111' then '入库问题' end as warn_name,
+		count(*) as provices,sum(a.interfaces) as interfaces  from (SELECT t.Warn_id as Warn_id,count(*) as interfaces, t.prvdId
+		FROM hpmgr.busi_sms_notify_mid t where SUBSTRING(t.Warn_id from 0 for 3)='11' 
+		and t.create_time =CAST(#{today} AS DATE FORMAT'YYYYMMDD')
+		group by t.Warn_id,t.prvdId) a 
+		group by a.Warn_id
+		order by a.warn_id
+	</select>
+	<!--  查询模型执行完毕但审计报告未完成的省份（编号为141）的监控明细-->
+	 <select id="getMonitorDetailsFour" resultType="Map" parameterType="Map">
+		SELECT  case when SUBSTRING(t.subject_id from 0 for 2)='1' then '有价卡管理违规'  when SUBSTRING(t.subject_id from 0 for 2)='2' then '养卡套利'  when SUBSTRING(t.subject_id from 0 for 2)='3' then '终端套利' when SUBSTRING(t.subject_id from 0 for 2)='4' then '欠费管理' end as subjectNm,
+		t.prvdId
+		FROM hpmgr.busi_sms_notify_mid t where t.Warn_id ='141' 
+		and t.create_time = CAST(#{today} AS DATE FORMAT'YYYYMMDD')
+	</select>
+	<select id="getAudReportFileofSubj" resultType="Map" parameterType="Map">
+	select  aud_trm,case when focus_cd=1000 then '有价卡管理违规' when focus_cd=2002 then '养卡套利' when focus_cd=3000 then '终端套利' when focus_cd=4000 then '客户欠费' when focus_cd ='5000' then '员工异常操作' else focus_cd end as subjectNm,doc_file_gen_time as create_time,status from HPMGR.busi_model_notify 
+	where  prvd_id=10000 and status=5 and (
+	(focus_cd ='2002' and CAST(aud_trm AS DATE FORMAT'YYYYMM')=ADD_MONTHS (CAST(#{audMonth} AS DATE FORMAT'YYYYMM'),-3) )
+	 or (focus_cd ='1000' and CAST(aud_trm AS DATE FORMAT'YYYYMM')=ADD_MONTHS (CAST(#{audMonth} AS DATE FORMAT'YYYYMM'),-1) )
+	 or (focus_cd ='3000' and CAST(aud_trm AS DATE FORMAT'YYYYMM')=ADD_MONTHS (CAST(#{audMonth} AS DATE FORMAT'YYYYMM'),-4) )
+	 or (focus_cd ='4000' and CAST(aud_trm AS DATE FORMAT'YYYYMM')=ADD_MONTHS (CAST(#{audMonth} AS DATE FORMAT'YYYYMM'),-1) ) 
+	 or (focus_cd ='5000' and CAST(aud_trm AS DATE FORMAT'YYYYMM')=ADD_MONTHS (CAST(#{audMonth} AS DATE FORMAT'YYYYMM'),-1) ) 
+	 )
+	</select>
+</mapper>

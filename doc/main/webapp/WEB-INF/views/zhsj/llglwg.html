@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>流量管理违规</title>
+    <script type="text/javascript" src="/cmca/resource/zhsj/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/css/dark-theme.css">
+</head>
+
+<body class="dark_theme">
+    <form id="queryParam">
+        <!-- 专题ID -->
+        <input type="hidden" id="subjectId" value="7">
+        <!-- 省ID -->
+        <input type="hidden" id="prvdId" value="">
+        <!-- 省名称字母 -->
+        <input type="hidden" id="prvdName" value="">
+        <!-- 省名称中文 -->
+        <input type="hidden" id="prvdNameZH" value="全公司">
+        <!-- 地市ID -->
+        <input type="hidden" id="ctyId" value="">
+        <!-- 审计时间 -->
+        <input type="hidden" id="audTrm" value="">
+        <!-- 渠道ID -->
+        <input type="hidden" id="chnlId" value="">
+        <!-- 关注点 -->
+        <input type="hidden" id="concern" value="">
+        <!-- 指标 -->
+        <input type="hidden" id="target" value="">
+        <!-- 左上柱形图-第一个指标 -->
+        <input type="hidden" id="resultTarget1" value="">
+        <!-- 左上柱形图-第二个指标 -->
+        <input type="hidden" id="resultTarget2" value="">
+        <!-- 右上柱形图-第三个指标 -->
+        <input type="hidden" id="resultTarget3" value="">
+        <!-- 右上柱形图-第四个指标 -->
+        <input type="hidden" id="resultTarget4" value="">
+        <!-- 指标标题 -->
+        <input type="hidden" id="targetTxt" value="">
+        <!-- 登录所属角色 -->
+        <input type="hidden" id="roleId" value="">
+        <!-- 关注事项 -->
+        <input type="hidden" id="flagId" value="">
+    </form>
+    <div class="wrapper" id="wrapper">
+        <!-- 公共头部 -->
+        <div class="public_header">
+            <p>数据审计平台</p>
+        </div>
+        <!-- 公共主体 -->
+        <div class="public_main">
+            <!-- 侧边栏 -->
+            <div class="public_side_bar" id="navHref">
+                <!-- ≤1366侧边栏 -->
+                <ul class="small_bar" id="smallSideBar">
+                    <li class="title_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjizhuanti"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计专题
+                        </a>
+                    </li>
+                    <li class="content_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-llglwg"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>流量管理违规
+                        </a>
+                    </li>
+                </ul>
+                <!-- ＞1366px侧边栏 -->
+                <ul class="big_bar" id="bigSideBar">
+                    <li class="active">
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-shenjizhuanti"></span>审计专题
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" class="active">流量管理违规</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- 主体展示内容 -->
+            <div class="main_content clear_float">
+                <!-- 主体顶部搜索 -->
+                <div class="row main_search">
+                    <!-- 左侧tab展示 -->
+                    <div class="col-xs-3">
+                        <ul class="list-inline l_tab">
+                            <li class="active">
+                                <a href="javascript:;">流量管理违规</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;">审计专题</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 中间搜索区域 -->
+                    <div class="col-xs-6">
+                        <label class="col-xs-2" for="chooseProvince">区域选择</label>
+                        <div class="col-xs-3 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseProvince" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div class="dropdown_menu" id="provinceListWrap">
+                                <ul class="dropdown_list" id="provinceList">
+                                    <!-- 后台传输数据 -->
+                                </ul>
+                            </div>
+                        </div>
+                        <label class="col-xs-2" for="chooseTime">审计月</label>
+                        <div class="col-xs-3 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseTime" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div class="dropdown_menu" id="timeListWrap">
+                                <ul class="dropdown_list" id="timeList">
+                                    <!-- 后台传输数据 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧三级导航 -->
+                    <div class="col-xs-2 pull-right">
+                        <ul class="list-inline three_nav" id="threeLvNav">
+                            <!-- 权限动态控制 -->
+                        </ul>
+                    </div>
+                </div>
+                <div class="row main_show_wrap clear_float">
+                    <!-- 主体左侧 -->
+                    <div class="main_l fl" id="mainLeftShow" style="width:40%;display:none;">
+                        <!-- 左侧中间切换按钮 -->
+                        <button class="btn l_btn public_btn" id="mainLeftBtn">
+                            <span class="caret_left"></span>
+                        </button>
+                        <!-- 左侧图表展示 -->
+                        <div class="l_show_wrap">
+                            <!-- 地图上方专题按钮 -->
+                            <div class="map_top_icon" id="contentTipBtn">
+                                <img class="img-responsive" src="/cmca/resource/images/dzqglwg-icon.png">
+                            </div>
+                            <!-- 地图 -->
+                            <div class="map_wrap" id="mapWrap">
+                                <!-- 地图标题 -->
+                                <div class="map_title" id="mapTitle">
+                                    <!-- 动态生成 -->
+                                </div>
+                                <!-- 地图下方提示按钮 -->
+                                <div class="map_btn map_tip_btn">
+                                    <button class="btn" id="mapTipBtn">
+                                        <span class="glyphicon glyphicon-info-sign"></span>
+                                    </button>
+                                </div>
+                                <!-- 下钻省地图返回按钮 -->
+                                <div class="map_btn map_back_btn">
+                                    <button class="btn back_btn" id="ProvBackBtn">返回</button>
+                                </div>
+                                <!-- 提示信息 -->
+                                <p class="dialog_tip content_tip" id="contentTip">分析31省公司流量赠送、流量统付行为，判断流量违规管理情况，提示套取流量的渠道和所属分公司、用户、套取次数、套取流量值、涉及营销活动、疑似违规转售流量的集团客户等信息。</p>
+                                <p class="dialog_tip note_tip" id="mapTip">
+                                    注：根据
+                                    <span></span> 显示风险级别：红色：排名前3；橙色：排名4-10名；绿色：排名10之后和无违规；灰色：无数据。
+                                </p>
+                                <!-- 地图展示区域 -->
+                                <div class="map_continer" id="chinaMap">
+                                    <!-- 后台调取数据 -->
+                                </div>
+                                <!-- 南海诸岛 -->
+                                <div class="map_nanhaiqundao" id="nanhaiQundao">
+                                    <img src="/cmca/resource/images/nanhaizhudao.png" alt="南沙群岛" style="width: 100%;height: 100%;">
+                                </div>
+                            </div>
+                            <!-- 地图底部卡片 -->
+                            <ul class="card_wrap position_card_wrap clear_float" id="cardContainer">
+                                <li class="card_item col-xs-6" style="padding-right: 0;">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card1">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>异常赠送流量（G）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card2">0%
+                                                <i class="caret_down"></i>
+                                                <span>0%</span>
+                                            </dt>
+                                            <dd>异常赠送流量占比</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6" style="padding-right: 0;">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card3">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>异常赠送次数（次）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card4">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>异常赠送涉及用户数（个）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- 地图下钻 -->
+                        <div class="map_pop_table" id="mapTableDialog">
+                            <!-- 地图下钻到表格 -->
+                            <div class="map_to_table clear_float" id="mapToTable">
+                                <div class="table_title hideUnit" id="dialogQudaoTableTitle">XX省XX市疑似违规流量转售集团客户</div>
+                                <!-- 顶部关注维度筛选 -->
+                                <div class="row top">
+                                    <div class="col-xs-6 hideUnit" id="mapUserChooseConcernWrap1">
+                                        <label for="chooseWeiDu" class="fl">关注维度：</label>
+                                        <div class="col-xs-7 dropdown_con">
+                                            <div class="input_wrap">
+                                                <input type="text" value="重点关注营销案" id="chooseWeiDu" readonly="readonly">
+                                                <i class="caret_down"></i>
+                                            </div>
+                                            <div class="dropdown_menu" id="TypeListWrap3">
+                                                <ul class="dropdown_list" id="TypeList3">
+                                                    <li>
+                                                        <a data="focusCase" href="javascript:;">重点关注营销案</a>
+                                                    </li>
+                                                    <li>
+                                                        <a data="focusUsers" href="javascript:;">重点关注用户</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 hideUnit" id="mapUserChooseConcernWrap" style="padding-left: 0px;">
+                                        <label for="mapUserChooseConcern" class="fl">关注事项：</label>
+                                        <div class="col-xs-7 dropdown_con">
+                                            <div class="input_wrap">
+                                                <input type="text" value="异常发放金额汇总" id="mapUserChooseConcern" readonly="readonly">
+                                                <i class="caret_down"></i>
+                                            </div>
+                                            <div class="dropdown_menu" id="TypeListWrap4">
+                                                <ul class="dropdown_list" id="TypeList4">
+                                                    <li>
+                                                        <a data="T" href="javascript:;">异常赠送流量汇总</a>
+                                                    </li>
+                                                    <li>
+                                                        <a data="C" href="javascript:;">向非正常用户赠送流量值</a>
+                                                    </li>
+                                                    <li>
+                                                        <a data="A" href="javascript:;">高频用户赠送流量值</a>
+                                                    </li>
+                                                    <li>
+                                                        <a data="B" href="javascript:;">高额赠送流量值</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn colse_btn">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                                <!-- 渠道信息表格 -->
+                                <div class="col-xs-12 table_wrap" id="dialogQudaoTableWrap">
+                                    <table id="dialogQudaoTable">
+                                        <!-- 后台调取数据 -->
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 主体右侧 -->
+                    <div class="main_r fr" id="mainRightShow" style="width:60%;display:none;">
+                        <!-- 右侧中间切换按钮 -->
+                        <button class="btn public_btn r_btn " id="mainRightBtn" style="display:none;">
+                            <span class="caret_right"></span>
+                        </button>
+                        <!-- 右侧tab图表展示 -->
+                        <div class="tab-content">
+                            <!-- 三级tab-审计结果内容展示 -->
+                            <div class="tab-pane result_show_wrap" id="resultTabCon">
+                                <!-- 审计结果四级导航 -->
+                                <div class="row four_nav">
+                                    <ul class="list-inline col-xs-12">
+                                        <li class="col-xs-3 active" id="AbnormalCouponsTab">流量异常赠送</li>
+                                        <li class="col-xs-3" id="inconformityTab">疑似违规流量转售</li>
+                                    </ul>
+                                </div>
+                                <!-- 审计结果图表展示 -->
+                                <div class="row">
+                                    <!-- 异常赠送流量排名 -->
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl target_title">异常赠送流量排名</p>
+                                            <!-- 切换按钮 -->
+                                            <div class="btn-group fr hide">
+                                                <button class="btn active_btn" id="resultTarget1btn_L">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="resultTarget1btn_R">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap1">
+                                            <div class="content_show" id="contentShow1">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 异常赠送流量占比排名 -->
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl target_title">异常赠送流量占比排名</p>
+                                            <!-- 切换按钮 -->
+                                            <div class="btn-group fr hide">
+                                                <button class="btn" id="resultTarget2btn_L">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="resultTarget2btn_R">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap2">
+                                            <div class="content_show" id="contentShow2">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 异常赠送流量趋势 -->
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl target_title">异常赠送流量趋势</p>
+                                            <!-- 切换按钮 -->
+                                            <div class="btn-group fr hide">
+                                                <button class="btn active_btn" id="resultTarget3btn_L">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="resultTarget3btn_R">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap3">
+                                            <div class="content_show" id="contentShow3">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 异常赠送流量占比趋势 -->
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl target_title">异常赠送流量占比趋势</p>
+                                            <!-- 切换按钮 -->
+                                            <div class="btn-group fr hide">
+                                                <button class="btn active_btn" id="resultTarget4btn_L">
+                                                    <span class="iconfont icon-area-chart"></span>
+                                                </button>
+                                                <button class="btn" id="resultTarget4btn_R">
+                                                    <span class="iconfont icon-bar-chart"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap4">
+                                            <div class="content_show" id="contentShow4">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 三级tab-统计分析内容展示 -->
+                            <div class="tab-pane fenxi_show_wrap" id="fenxiTabCon">
+                                <!-- 统计分析四级导航 -->
+                                <div class="row four_nav">
+                                    <ul class="list-inline col-xs-12">
+                                        <!-- 权限动态控制 -->
+                                    </ul>
+                                </div>
+                                <!-- 统计分析内容展示 -->
+                                <div class="row tab-content">
+                                    <!-- 四级tab-统计报表内容展示 -->
+                                    <div class="col-xs-12 tab-pane" id="fenxiFourNav1Con">
+                                        <!-- 统计报表五级导航 -->
+                                        <div class="row five_nav">
+                                            <ul class="list-inline col-xs-12">
+                                                <!-- 权限动态控制 -->
+                                            </ul>   
+                                        </div>
+                                        <!-- 统计报表图表展示 -->
+                                        <div class="row tab-content">
+                                            <!-- 排名汇总 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav1Con"
+                                                style="position:relative">
+                                                <!-- 顶部表格标题 -->
+                                                <h5 class="col-xs-12 text-center table_title" id="rankingAllTableTitle">全国流量异常赠送排名汇总</h5>
+                                                <!-- 排名汇总表格 -->
+                                                <table id="rankingAllTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                                <!-- 底部按钮 -->
+                                                <button class="btn bottom_btns change_concern" data-target="7001">疑似违规流量转售</button>
+                                            </div>
+                                            <!-- 增量分析 -->
+                                            <div class="col-xs-12 tab-pane pubu_show" id="fenxiFourNav1FiveNav2Con"
+                                                style="position:relative">
+                                                <h5 class="col-xs-12 text-center table_title" id="pubuChartTitle">流量异常赠送增量分析</h5>
+                                                <!-- 增量分析瀑布图 -->
+                                                <div id="pubuChart">
+                                                    <!-- 后台调取数据 -->
+                                                </div>
+                                                <!-- 瀑布图图例 -->
+                                                <div class="col-xs-12 pubu_legend">
+                                                    <ul class="list-inline">
+                                                        <li>
+                                                            <span class="red"></span>分省环比增加
+                                                        </li>
+                                                        <li>
+                                                            <span class="blue"></span>分省环比减少
+                                                        </li>
+                                                        <li>
+                                                            <span class="green"></span>全网环比增量
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <!-- 底部按钮 -->
+                                                <button class="btn bottom_btns change_concern" data-target="7001">疑似违规流量转售</button>
+                                            </div>
+                                            <!-- 疑似转售集团客户 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav7Con">
+                                                <!-- 疑似转售集团客户 -->
+                                                <table id="zsfocusGroupUsersTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 重点关注集团客户 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav9Con">
+                                                <!-- 重点关注渠道表格 -->
+                                                <table id="focusGroupUsersTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                                 <!-- 重点关注渠道下钻 -->
+                                                <div id="FocusChartWrap" class="table_to_info clear_float" style="display: none;">
+                                                    <div class="col-xs-12 clear_float">
+                                                        <button class="btn back_btn fr" id="FocusChartBackBtn">返回</button>
+                                                    </div>
+                                                    <!-- 渠道基本信息表格 -->
+                                                    <div class="info_item col-xs-12">
+                                                        <h5 class="title">集团客户基本信息</h5>
+                                                        <table id="zdgz_ChnlBaseInfoTable" class="table table-bordered contet">
+                                                            <tr>
+                                                                <td>集团客户名称</td>
+                                                                <td>-</td>
+                                                                <td>业务形态</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>集团客户标识</td>
+                                                                <td>-</td>
+                                                                <td>统付方式</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>公司</td>
+                                                                <td>-</td>
+                                                                <td>城市</td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>违规审计月</td>
+                                                                <td colspan="3">-</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <!-- 渠道趋势图 -->
+                                                    <div class="info_item col-xs-12">
+                                                        <!--<h5 class="title">渠道趋势</h5>-->
+                                                        <div class="content_wrap">
+                                                            <div id="zdgz_qudaoChart" class="contet">
+                                                                <!-- 后台调取数据 -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 重点关注地市 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav3Con">
+                                                <!-- 重点关注地市表格 -->
+                                                <table id="focusCityTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 重点关注营销案 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav4Con">
+                                                <!-- 重点关注营销案表格 -->
+                                                <table id="focusCaseTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 重点关注渠道 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav5Con">
+                                                <!-- 重点关注渠道表格 -->
+                                                <table id="focusChannelTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 重点关注用户 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav6Con">
+                                                <!-- 顶部关注事项筛选 -->
+                                                <div class="row top">
+                                                    <label for="userChooseConcern" class="col-xs-2">关注事项：</label>
+                                                    <div class="col-xs-4 dropdown_con">
+                                                        <div class="input_wrap">
+                                                            <input type="text" value="异常赠送流量汇总" id="userChooseConcern"
+                                                                readonly="readonly">
+                                                            <i class="caret_down"></i>
+                                                        </div>
+                                                        <div class="dropdown_menu" id="TypeListWrap2">
+                                                            <ul class="dropdown_list" id="TypeList2">
+                                                                <li>
+                                                                    <a data="T" href="javascript:;">异常赠送流量汇总</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="C" href="javascript:;">向非正常用户赠送流量值</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="A" href="javascript:;">高频用户赠送流量值</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="B" href="javascript:;">高额赠送流量值</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- 重点关注集团用户 -->
+                                                <table id="focusUsersTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 违规类型分布 -->
+                                            <div class="col-xs-12 tab-pane zhanbi_show" id="fenxiFourNav1FiveNav8Con">
+                                                <!-- 饼图 -->
+                                                <div class="col-xs-7" id="abnormalPieChartWrap">
+                                                    <h5 style="margin:8px 0">
+                                                        <span id="pieAudTrm"></span>
+                                                        <span id="piePrvdName"></span>流量异常赠送违规类型占比分布
+                                                    </h5>
+                                                    <div id="abnormalPieChart">
+                                                        <!-- 后台调取数据 -->
+                                                    </div>
+                                                </div>
+                                                <!-- 堆积图 -->
+                                                <div class="col-xs-5" id="abnormalAreaChartWrap">
+                                                    <h5 style="margin:10px 0">
+                                                        <span id="areaPrvdName"></span>流量异常赠送违规类型占比趋势
+                                                    </h5>
+                                                    <div id="abnormalAreaChart">
+                                                        <!-- 后台调取数据 -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 四级tab-审计整改问责内容展示 -->
+                                    <div class="col-xs-12 tab-pane" id="fenxiFourNav2Con">
+                                        <!-- 审计整改问责五级导航 -->
+                                        <div class="row five_nav">
+                                            <ul class="list-inline col-xs-12">
+                                                <!-- 权限动态控制 -->
+                                            </ul>
+                                        </div>
+                                        <!-- 五级tab-审计整改问责图表展示 -->
+                                        <div class="row tab-content">
+                                            <!-- 整改问责要求 -->
+                                            <div class="col-xs-12 tab-pane wenze_require_wrap" id="fenxiFourNav2FiveNav1Con">
+                                                <h5 class="clear_float">
+                                                    <span class="title" id="wenzeTableTitle">流量管理违规整改问责表</span>
+                                                    <button class="btn" id="wenzeTipbtn">
+                                                        <span class="glyphicon glyphicon-list"></span>
+                                                    </button>
+                                                </h5>
+                                                <div class="wenze_table_wrap">
+                                                    <table id="wenzeTable">
+                                                        <!-- 后台调取数据 -->
+                                                    </table>
+                                                    <!-- 整改问责说明 -->
+                                                    <div class="wenze_tip" id="wenzeTip">
+                                                        <h5>审计整改选择省份标准：</h4>
+                                                            <p>自2018年10月通报起，各公司如出现以下任意一种情形需重点进行整改：<br/>
+                                                                1.通报当期疑似违规转售流量总值超过50TB且违规转售流量占本公司统付流量总量比例超过40%；
+                                                                <br/> 2.通报当期存在单一集团客户疑似违规转售流量超过10TB且占当月全集团违规转售流量总量比例超过5%；
+                                                                <br/>3.存在同一集团客户有两期以上被判定为疑似违规转售流量。
+                                                            </p>
+                                                            <br>
+                                                            <h5>审计问责选择省份标准：</h4>
+                                                                <p>1.自2018年10月通报起，对6个月中有3个月存在上述审计整改情形的公司予以审计问责；<br/>2.对于持续审计结果核查不认真、不完整或反馈不真实的公司予以审计问责；<br/>3.对于长期不传、漏传、错传流量相关基础数据从而影响审计结果的真实性、准确性及完整性的公司，将视情况进行审计问责。</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 整改问责统计 -->
+                                            <div class="col-xs-12 tab-pane wenze_show" id="fenxiFourNav2FiveNav2Con">
+                                                <div class="col-xs-6 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl" title="六个月内达到整改标准次数排名（单位：次）">六个月内达到整改标准次数排名（次）</p>
+                                                        <div class="btn-group fr">
+                                                            <button class="btn active_btn" id="zgbzcsBtn">
+                                                                <span class="glyphicon glyphicon-tasks"></span>
+                                                            </button>
+                                                            <button class="btn" id="wzbzcsPmBtn">
+                                                                <span class="iconfont icon-bar-chart"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="stageAccOrderWrap">
+                                                        <div class="content_show" id="stageAccOrder"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl">累次达到整改次数排名（次）</p>
+                                                        <div class="btn-group fr">
+                                                            <button class="btn active_btn" id="zgcsPmBtn">
+                                                                <span class="glyphicon glyphicon-tasks"></span>
+                                                            </button>
+                                                            <button class="btn" id="wzcsPmBtn">
+                                                                <span class="iconfont icon-bar-chart"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="addUpAccOrderWrap">
+                                                        <div class="content_show" id="addUpAccOrder"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl">达到整改标准省公司数量趋势（个）</p>
+                                                        <div class="btn-group fr">
+                                                            <button class="btn active_btn" id="zgbzBtn">
+                                                                <span class="glyphicon glyphicon-tasks"></span>
+                                                            </button>
+                                                            <button class="btn" id="wzbzBtn">
+                                                                <span class="iconfont icon-bar-chart"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div id="accTrendWrap">
+                                                        <div class="content_show" id="accTrend"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 四级tab-审计报告下载内容展示 -->
+                                    <div class="col-xs-12 tab-pane baogao_down_wrap" id="fenxiFourNav3Con">
+                                        <!-- 审计开关关闭 -->
+                                        <div class="audtrm_off hideUnit">
+                                            <h4>暂无当月审计报告查看权限</h4>
+                                        </div>
+                                        <!-- 审计开关打开 -->
+                                        <div class="audtrm_on hideUnit">
+                                            <div class="down_btn_group clear_float">
+                                                <button class="btn fr" id="sjqdDownBtn">审计清单下载</button>
+                                                <button class="btn fr" style="margin-right: 10px" id="sjbgDownBtn">审计报告下载</button>
+                                            </div>
+                                            <div class="content_wrap" id="sjbgPrview">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/cmca/resource/zhsj/cmca-common.js"></script>
+    <script type="text/javascript" src="/cmca/resource/zhsj/llglwg/llglwgData.js"></script>
+    <script type="text/javascript" src="/cmca/resource/zhsj/llglwg/llglwg.js"></script>
+</body>
+
+</html>

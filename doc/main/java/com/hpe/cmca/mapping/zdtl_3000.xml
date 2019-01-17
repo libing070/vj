@@ -1,0 +1,1050 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="ZDTL3000">
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="totalReport">
+		<result property="statCycle" column="statCycle"/>
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="count" column="errQty"/>
+		<result property="percent" column="qtyPercent"/>
+	</resultMap>
+
+	<resultMap type="java.util.Map"  id="mapReport">
+		<result property="regionId" column="regionId"/>
+		<result property="regionName" column="regionName"/>
+		<result property="numberSum" column="errQty"/>
+		<result property="numberPrecent" column="qtyPrecent"/>
+		<result property="amountSum" column="errAmt"/>
+		<result property="amountPercent" column="amtPercent"/>
+		<result property="totalNum" column="totalNum"/>
+	</resultMap>
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="statReport">
+		<result property="id" column="id"/>
+		<result property="age" column="age"/>
+		<result property="name" column="name"/>
+		<result property="concernCode" column="concernCode"/>
+	</resultMap>
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map"  id="regionTableReport">
+		<result property="province" column="province"/>
+		<result property="cityCount" column="cityCount"/>
+		<result property="numberSum" column="numberErr"/>
+		<result property="numberPrecent" column="numberPrecent"/>
+		<result property="amountSum" column="amountErr"/>
+		<result property="amountPercent" column="amountPercent"/>
+	</resultMap>
+
+	<resultMap type="java.util.Map"  id="typeTableReport">
+		<result property="busiType" column="busiType"/>
+		<result property="errType" column="errType"/>
+		<result property="numberSum" column="numberErr"/>
+		<result property="numberPrecent" column="numberPrecent"/>
+		<result property="amountSum" column="amountErr"/>
+		<result property="amountPercent" column="amountPercent"/>
+	</resultMap>
+
+
+	<!-- 20160513 更新新表-->
+	<!-- 总体情况之全国地图 -->
+	<select id="totalReport_selectChinaMap" resultMap="mapReport" parameterType="java.util.Map">
+	   <if test="provinceCode==10000">
+	   		select t1.CMCC_prov_prvd_nm as regionName,t1.CMCC_prov_prvd_id as regionId,t2.errQty,t2.qtyPercent,t2.errAmt,t2.errPercent,t2.totalNum
+	   		from HPMGR.ref_dm_cmcc_prov_prvd_cd as t1
+	   		left join
+	   		(
+				select regionId,
+				   errQty,
+				   totalNum as tolQty,
+				   qtyPercent,
+				   errAmt,
+				   totalAmt as tolAmt,
+				   errPercent,
+				   totalNum as totalNum
+				   from HPBUS.Sum_zdtl_3000_prvdcty_cj
+				<where>
+					totalNum >0
+					and focus_cd='3001,3002,3004,3005'
+					and prvd_id='10000'
+					<if test="userCityId!=10000">
+						and regionId = #{userCityId}
+					</if>
+					<if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+
+				</where>
+			) t2
+			on t1.CMCC_prov_prvd_id=t2.regionId
+			order by t2.qtyPercent desc
+		</if>
+		<if test="provinceCode!=10000">
+				select t1.CMCC_prvd_nm_short regionName,t1.CMCC_prvd_cd as regionId,t2.errQty,t2.qtyPercent,t2.errAmt,t2.errPercent,t2.totalNum
+			from HPMGR.TB_SUM_PRVD_NAME	as t1
+			left join
+			(
+				select regionId,
+				   errQty,
+				   totalNum as tolQty,
+				   qtyPercent,
+				   errAmt,
+				   totalAmt as tolAmt,
+				   errPercent,
+				   totalNum as totalNum
+				   from HPBUS.Sum_zdtl_3000_prvdcty_cj
+				<where>
+					totalNum>0
+					and	prvd_id=#{provinceCode}
+					and focus_cd='3001,3002,3004,3005'
+					<if test="statCycle!=null">
+						and Aud_trm=#{statCycle}
+					</if>
+
+				</where>
+			) t2
+			on t1.CMCC_prvd_cd=t2.regionId
+			where t1.CMCC_prov_prvd_id=#{provinceCode}
+			order by t2.qtyPercent desc
+		</if>
+	</select>
+
+	<!-- 总体情况之数量前五名 -->
+	<select id="totalReport_selectNumberTop5" resultMap="totalReport" parameterType="java.util.Map">
+		SELECT regionId, RN, regionName,
+		errQty_tmp as errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res_cj
+		WHERE Aud_trm=#{statCycle}
+		AND focus_cd='3000'
+		AND flag='2001'
+		<if test="provinceCode!=null">
+		AND prvd_id=#{provinceCode}
+		</if>
+		ORDER BY  RN
+	</select>
+
+	<!-- 总体情况之占比前五名 -->
+	<select id="totalReport_selectPercentTop5" resultMap="totalReport" parameterType="java.util.Map">
+		SELECT regionId, RN, regionName,
+		errQty_tmp as errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res_cj
+		WHERE Aud_trm=#{statCycle}
+		AND focus_cd='3000'
+		AND flag='2002'
+		<if test="provinceCode!=null">
+		AND prvd_id=#{provinceCode}
+		</if>
+		ORDER BY  RN
+	</select>
+
+	<!-- 统计分析之按地时间趋势"-->
+	<select id="statReport_timeTrend" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT
+			Aud_trm AS statisticalObj,
+			SUM(totalNum) AS totalQty,
+			SUM(errQty) AS errQtyTotal,
+			SUM(errQty) AS errQty,
+			case when totalQty=0 then 0 else CAST(errQtyTotal as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(totalAmt) AS totalAmount,
+			SUM(errAmt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent
+		FROM  HPBUS.Sum_zdtl_3000_prvdcty_cj t
+		WHERE totalNum >0
+		<if test="params.dateF!=null">
+			<![CDATA[and statisticalObj >= #{params.dateF}]]>
+		</if>
+		<if test="params.dateT!=null">
+			<![CDATA[and statisticalObj <= #{params.dateT}]]>
+		</if>
+
+		<if test="params.selProvCodeSTR!=null and params.selProvCodeSTR!=params.selCityCodeSTR">
+			and t.prvd_id in
+        		${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.regionId in
+        		${params.selCityCodeSTR}
+		</if>
+		<if test="params.focusCdKey!=null">
+			and t.focus_cd ='${params.focusCdKey}'
+		</if>
+		<![CDATA[and prvd_id <> '10000']]>
+		GROUP BY statisticalObj
+	</select><!-- 		ORDER BY statisticalObj DESC -->
+
+	<!-- 统计分析之地区横向对比"-->
+	<select id="statReport_areaTrend" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		<if test="params.groupByField=='prvd_id'">
+		SELECT
+			prvd_id,
+			prvd_id as regionId,
+			count(DISTINCT (case when errAmt>0 then regionId else null end)) as cityCount,
+			SUM(totalNum) AS totalQty,
+			SUM(errQty) AS totalErrQty,
+			case when	totalQty=0 then 0 else CAST(totalErrQty as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(totalAmt) AS totalAmount,
+			SUM(errAmt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent,
+			CMCC_prov_prvd_nm AS statisticalObj
+		FROM  HPBUS.Sum_zdtl_3000_prvdcty_cj t
+		LEFT JOIN hpmgr.ref_dm_cmcc_prov_prvd_cd p ON p.CMCC_prov_prvd_id = t.prvd_id
+		WHERE totalNum >0
+		<if test="params.focusCdKey!=null">
+			and t.focus_cd ='${params.focusCdKey}'
+		</if>
+		<if test="params.dateF!=null">
+			<![CDATA[and Aud_trm >= #{params.dateF}]]>
+		</if>
+		<if test="params.dateT!=null">
+			<![CDATA[and Aud_trm <= #{params.dateT}]]>
+		</if>
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in
+        		${params.selProvCodeSTR}
+		</if>
+
+		<![CDATA[and prvd_id <> '10000']]>
+		GROUP BY prvd_id,CMCC_prov_prvd_nm
+		</if>
+
+		<if test="params.groupByField=='cty_id'">
+		SELECT
+			prvd_id,
+			regionId,
+			sum(DISTINCT (case when errAmt>0 then 1 else 0 end)) as cityCount,
+			SUM(totalNum) AS totalQty,
+			SUM(errQty) AS totalErrQty,
+			case when	totalQty=0 then 0 else CAST(totalErrQty as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(totalAmt) AS totalAmount,
+			SUM(errAmt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent,
+			regionName as statisticalObj
+		FROM  HPBUS.Sum_zdtl_3000_prvdcty_cj t
+		WHERE totalNum >0
+		<if test="params.focusCdKey!=null">
+			and t.focus_cd ='${params.focusCdKey}'
+		</if>
+		 <if test="params.dateF!=null">
+			<![CDATA[and Aud_trm >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and Aud_trm <= #{params.dateT}]]>
+		</if>
+
+
+		<if test="params.selCityCodeSTR!=null">
+			and t.regionId in
+        		${params.selCityCodeSTR}
+		</if>
+		<![CDATA[and prvd_id <> '10000']]>
+		GROUP BY prvd_id,regionId,regionName
+		</if>
+
+	</select><!-- ORDER BY t.prvd_id  DESC -->
+
+
+	<!-- 统计报表之有价卡类型错误类型"-->
+	<select id="statReport_cardErrTrend" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select yjk_type.yjk_typ_name as busiTypeName,yjk_type.yjk_typ_cd as busiType,concern_typ.id as errType,concern_typ.name as errName,dataReport.errQty,dataReport.totalQty,dataReport.qtyPercent,
+		dataReport.totalAmount,dataReport.errAmount,dataReport.amountPercent from
+		(SELECT
+			t.yjk_typ AS busiType,
+			t.Focus_cd AS errType,
+			SUM(t.tol_num) AS totalQty,
+			SUM(t.infraction_num) AS errQty,
+			case when totalQty=0 then 0 else CAST(errQty as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(t.tol_sett_amt) AS totalAmount,
+			SUM(t.infraction_sett_amt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent
+		FROM  HPBUS.Sum_zdtl_3000_new t
+		WHERE 1=1
+		 <if test="params.dateF!=null">
+			<![CDATA[and Aud_trm >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and Aud_trm <= #{params.dateT}]]>
+		</if>
+
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in
+        		${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.cty_id in
+        		${params.selCityCodeSTR}
+		</if>
+		<if test="params.yjkTypeSTR!=null">
+			and t.yjk_typ in
+        		${params.yjkTypeSTR}
+		</if>
+		<if test="params.focusCdKey!=null">
+			and t.focus_cd ='${params.focusCdKey}'
+		</if>
+		GROUP BY t.yjk_typ, t.Focus_cd ) as dataReport left join
+		 HPMGR.Dim_yjk_typ as yjk_type on dataReport.busiType = yjk_type.yjk_typ_cd
+		 left join HPMGR.busi_stat_concern as concern_typ on dataReport.errType = concern_typ.biz_code
+
+	</select><!-- ORDER BY t.prvd_id  DESC -->
+
+
+	<!-- 报表分析之按地区统计 -->
+	<!--
+			SUM(t.infraction_num) AS errQty,
+			(SUM(t.infraction_num) / SUM(t.tol_num) *100) AS qtyPercent,
+			SUM(t.infraction_sett_amt) AS errAmount,
+			(SUM(t.infraction_sett_amt) /SUM(t.tol_sett_amt) *100) AS amountPercent -->
+	<select id="tableReport_selectRegion" resultMap="regionTableReport"  parameterType="java.util.Map">
+				select t.prvd_id as regionId,
+		sum(case when infraction_num>0 then 1
+		else 0 end) as cityCount,
+		sum(t.infraction_num) numberErr,
+		sum(tol_num)
+		as tolQty,
+		case when tolQty=0 then 0 else CAST(numberErr as
+		decimal(16,2))*100/tolQty end numberPrecent,
+		sum(t.infraction_sett_amt) amountErr,
+		sum(tol_sett_amt) as tolAmt,
+		case
+		when tolAmt=0 then 0 else CAST(amountErr as decimal(16,2))*100/tolAmt
+		end amountPercent
+		from HPBUS.Sum_zdtl_3000_prvd_cj t
+		WHERE tol_num>0
+		and focus_cd='3001,3002,3004,3005'
+		<if test="params.dateF!=null">
+			<![CDATA[and aud_trm >= #{params.dateF}]]>
+		</if>
+		<if test="params.dateT!=null">
+			<![CDATA[and aud_trm <= #{params.dateT}]]>
+		</if>
+		<![CDATA[and prvd_id <> '10000']]>
+		group by t.prvd_id
+
+	</select><!-- order by t.cityCount desc  -->
+
+	<!-- 报表分析之按类型统计 -->
+	<select id="tableReport_selectType" resultMap="typeTableReport"  parameterType="java.util.Map">
+		select t.busiType,t.errType,
+		sum(t.infraction_num) numberErr,
+		sum(tol_num) as tolQty,
+		case when tolQty=0 then 0 else CAST(numberErr as decimal(16,2))*100/tolQty end numberPrecent,
+		sum(t.infraction_sett_amt) amountErr,
+		sum(tol_amt)  as tolAmt,
+		case when tolAmt=0 then 0 else CAST(amountErr as decimal(16,2))*100/tolAmt end amountPercent
+		from HPBUS.Sum_zdtl_3000_new t
+		WHERE 1=1
+		and focus_cd='3001,3002,3004,3005'
+		 <if test="params.dateF!=null">
+			<![CDATA[and Aud_trm >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and Aud_trm <= #{params.dateT}]]>
+		</if>
+
+		GROUP BY t.yjk_typ, t.infraction_typ
+
+	</select><!-- order by numberSum desc  -->
+
+	<!-- 报表分析之按地区统计 之按城市统计"-->
+	<select id="tableReport_selectRegion_Detail" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		SELECT
+			regionId AS statisticalObj,
+			SUM(totalNum) AS totalQty,
+			SUM(errQty) AS totalErrQty,
+			case when	totalQty=0 then 0 else CAST(totalErrQty as decimal(16,2))*100/totalQty end AS qtyPercent,
+			SUM(totalAmt) AS totalAmount,
+			SUM(errAmt) AS errAmount,
+			case when totalAmount=0 then 0 else CAST(errAmount as decimal(16,2))*100/totalAmount end AS amountPercent,
+			regionName
+		FROM  HPBUS.Sum_zdtl_3000_prvdcty_cj t
+		WHERE totalNum >0
+			and focus_cd='3001,3002,3004,3005'
+			and errQty>0
+		 <if test="params.dateF!=null">
+			<![CDATA[and Aud_trm >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and Aud_trm <= #{params.dateT}]]>
+		</if>
+
+		<if test="params.selProvCodeSTR!=null and params.selProvCodeSTR!=params.selCityCodeSTR">
+			and t.prvd_id in
+        		${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.regionId in
+        		${params.selCityCodeSTR}
+		</if>
+		<![CDATA[and prvd_id <> '10000']]>
+		GROUP BY regionId,regionName
+	</select><!-- ORDER BY t.city  DESC -->
+
+	<!-- 报表分析之有价卡明细  TODO-->
+	<select id="yjk_Detail" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select dataReport.*,cityReport.CMCC_prvd_nm_short as cty_name, tl.name as tlms from
+		(SELECT	focus_cd, Gen_date, Aud_trm, prvd_id, cty_id, chnl_id, '社会渠道' as chnl_type,
+		chnl_name, IMEI, trmnl_style, sals_dt as sals_tm, infraction_sett_amt
+		FROM HPBUS.det_zdtl_3000_union_cj t
+		WHERE 1=1
+		<if test="params.focusCdSTR!=null">
+			and t.focus_cd in
+        		${params.focusCdSTR}
+		</if>
+		 <if test="params.dateF!=null">
+			<![CDATA[and Aud_trm >= #{params.dateF}]]>
+		</if>
+		 <if test="params.dateT!=null">
+			<![CDATA[and Aud_trm <= #{params.dateT}]]>
+		</if>
+
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in
+        		${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.cty_id in
+        		${params.selCityCodeSTR}
+		</if>
+
+		)  as dataReport left join HPMGR.TB_SUM_PRVD_NAME as cityReport
+		on dataReport.cty_id = cityReport.CMCC_prvd_cd
+		left join (SELECT  biz_code, name FROM HPMGR.busi_stat_concern WHERE subject_id=3 <![CDATA[AND id>30]]>
+		)as tl on dataReport.focus_cd= tl.biz_code
+	</select>
+
+
+
+
+
+	<resultMap type="java.util.Map" id="auditReport_total">
+
+		<result property="errQty" column="errQty" />
+		<result property="totalQty" column="totalQty" />
+		<result property="qtyPercent" column="qtyPercent" />
+		<result property="fbQtyPercent" column="fbQtyPercent" />
+
+		<result property="errChnlQty" column="errChnlQty" />
+		<result property="totalChnlQty" column="totalChnlQty" />
+		<result property="qtyChnlPercent" column="qtyChnlPercent" />
+		<result property="fbChnlPercent" column="fbChnlPercent" />
+
+	</resultMap>
+
+	<!-- 社会渠道的统计信息 环比增长是((本月-上月)/上月),环比下降((上月-本月)/上月) 因为页面模板要求显示环比下降的数据，所以这里用(上月-本月)/上月 -->
+	<select id="auditReport_selectChnl_2" resultMap="auditReport_total"
+		parameterType="java.util.Map">
+
+		select
+		coalesce(sum(infraction_num),0) as errQty_tmp,
+		coalesce(sum(tol_num),0) as totalQty_tmp,
+		coalesce(sum(m1_infraction_num),0) as m1_errQty_tmp,
+		coalesce(sum(m1_tol_num),0) as m1_totalQty_tmp,
+
+		trim (errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+		trim (totalQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as totalQty,
+		trim (cast(errQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as errQty_w,
+		trim (cast(totalQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as totalQty_w,
+		trim ((case when totalQty_tmp=0 then 0 else cast(errQty_tmp as
+		decimal(16,2))*100/totalQty_tmp end ) (FORMAT 'ZZ9.99%')(VARCHAR(7)))
+		as qtyPercent ,
+		trim ((case when m1_totalQty_tmp=0 then 0 else cast(m1_errQty_tmp as
+		decimal(16,2))*100/m1_totalQty_tmp end ) (FORMAT
+		'ZZ9.99%')(VARCHAR(7)))as m1_qtyPercent ,
+
+		coalesce(sum(case when infraction_num=0 then 0 else aa_errChnlQty_tmp end),0) as
+		errChnlQty_tmp,
+		coalesce(sum(aa_totalChnlQty_tmp),0) as totalChnlQty_tmp,
+		coalesce(sum(bb_errChnlQty_tmp),0) as m1_errChnlQty_tmp,
+		coalesce(sum(bb_totalChnlQty_tmp),0) as m1_totalChnlQty_tmp,
+
+		trim (errChnlQty_tmp(FORMAT 'ZZZ,ZZZ,ZZ9')(VARCHAR(11))) as errChnlQty,
+		trim (totalChnlQty_tmp(FORMAT 'ZZZ,ZZZ,ZZ9')(VARCHAR(11))) as
+		totalChnlQty,
+		trim (cast(errChnlQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as errChnlQty_w,
+		trim (cast(totalChnlQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as totalChnlQty_w,
+		trim ((case when totalChnlQty_tmp=0 then 0 else cast(errChnlQty_tmp as
+		decimal(16,2))*100/totalChnlQty_tmp end) (FORMAT
+		'ZZ9.99%')(VARCHAR(7))) as qtyChnlPercent ,
+		trim ((case when m1_totalChnlQty_tmp=0 then 0 else cast(m1_errChnlQty_tmp
+		as decimal(16,2))*100/m1_totalChnlQty_tmp end) (FORMAT
+		'ZZ9.99%')(VARCHAR(7))) as m1_qtyChnlPercent ,
+
+		coalesce(sum(m1_infraction_num),0) as m1_errQty,
+		coalesce(sum(bb_errChnlQty_tmp),0) as m1_errChnlQty,
+		trim (case when m1_errQty=0 then 'N/A' else (cast((m1_errQty - errQty_tmp)
+		as decimal(16,2))*100/m1_errQty (FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end) as fbQtyPercent ,
+		trim (case when m1_errChnlQty=0 then 'N/A' else (cast((m1_errChnlQty -
+		errChnlQty_tmp)as decimal(16,2))*100/m1_errChnlQty (FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end) as fbChnlPercent,
+
+		(case when (qtyPercent-m1_qtyPercent)>=0 then '上升' else '下降' end) || (trim
+		(case when m1_errQty_tmp=0 then 'N/A' else
+		(cast((qtyPercent-m1_qtyPercent) as decimal(16,2))(FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end)) as abs_fbQtyPercent ,
+		(case when (qtyChnlPercent-m1_qtyChnlPercent)>=0 then '上升' else '下降' end)||
+		(trim (case when m1_errChnlQty_tmp=0 then 'N/A' else
+		(cast((qtyChnlPercent-m1_qtyChnlPercent)as decimal(16,2))(FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end)) as abs_fbChnlPercent
+
+		from (
+		SELECT t0.*
+		,t1.infraction_num as m1_infraction_num
+		,t1.tol_num as m1_tol_num
+		,t1.errChnlQty as m1_infraction_sett_amt
+		,t1.totalChnlQty as m1_tol_sett_amt
+		, t0.errChnlQty as aa_errChnlQty_tmp, t0.totalChnlQty as
+		aa_totalChnlQty_tmp
+		, t1.errChnlQty as bb_errChnlQty_tmp, t1.totalChnlQty as
+		bb_totalChnlQty_tmp
+		from
+		( select * from hpbus.Sum_zdtl_3000_prvd where aud_trm= #{statCycle}
+
+		and focus_cd='3001,3002,3004,3005' <![CDATA[and prvd_id <> 10000]]>) as t0
+		LEFT JOIN
+		(select * from hpbus.Sum_zdtl_3000_prvd where aud_trm= cast((add_months(cast(
+		#{statCycle} as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))
+
+		and focus_cd='3001,3002,3004,3005' <![CDATA[and prvd_id <> 10000]]>) as t1
+		ON t0.prvd_id = t1.prvd_id
+		) as t
+		<where>
+			1=1
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}
+			</if>
+		</where>
+
+	</select>
+
+	<resultMap type="java.util.Map" id="auditReport_top">
+
+		<result property="seq" column="RN" />
+
+		<result property="regionId" column="regionId" />
+		<result property="regionName" column="regionName" />
+		<result property="chnlName" column="chnlName" />
+		<result property="offerNm" column="offerNm" />
+		<result property="errQty" column="errQty" />
+		<result property="qtyPercent" column="qtyPercent" />
+
+	</resultMap>
+	<!-- 全渠道按数量top5 -->
+	<select id="auditReport_selectChnl_all_num_top5" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res
+		WHERE focus_cd='3000'
+		AND flag='2001'
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+	<!-- 全渠道按占比top5 -->
+	<select id="auditReport_selectChnl_all_percent_top5" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res
+		WHERE focus_cd='3000'
+		AND flag='2002'
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+
+	<!-- 社会渠道按数量top5 -->
+	<select id="auditReport_selectChnl_2_num_top5" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, chnl_name as chnlName,RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res
+		WHERE focus_cd='3000'
+		AND flag='2003'
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+	<!-- 社会渠道按占比top5 -->
+	<select id="auditReport_selectChnl_2_percent_top5" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, chnl_name as chnlName,RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res
+		WHERE focus_cd='3000'
+		AND flag='2004'
+		<if test="provinceCode!=null and provinceCode>10000">
+			and errQty>10
+		</if>
+		<if test="provinceCode!=null and provinceCode==10000">
+			and errQty>100
+		</if>
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+
+	<resultMap type="java.util.Map" id="auditReport_selectFocusCount">
+
+		<result property="errQty_3001" column="errQty_3001" />
+		<result property="errChnlQty_3001" column="errChnlQty_3001" />
+		<result property="errQty_3002" column="errQty_3002" />
+		<result property="errChnlQty_3002" column="errChnlQty_3002" />
+		<result property="errQty_3004" column="errQty_3004" />
+		<result property="errChnlQty_3004" column="errChnlQty_3004" />
+		<result property="errQty_3005" column="errQty_3005" />
+		<result property="errChnlQty_3005" column="errChnlQty_3005" />
+
+	</resultMap>
+	<!-- 按套利模式统计每种套利模式的用户数 -->
+	<select id="auditReport_selectFocusCount" resultMap="auditReport_selectFocusCount"
+		parameterType="java.util.Map">
+
+		select
+		coalesce(sum(case when Focus_cd='3001' then infraction_num else 0 end),0) as
+		errQty_3001
+		,coalesce(sum(case when Focus_cd='3001' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3001
+		,coalesce(sum(case when Focus_cd='3002' then infraction_num else 0 end),0) as
+		errQty_3002
+		,coalesce(sum(case when Focus_cd='3002' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3002
+		,coalesce(sum(case when Focus_cd='3004' then infraction_num else 0 end),0) as
+		errQty_3004
+		,coalesce(sum(case when Focus_cd='3004' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3004
+		,coalesce(sum(case when Focus_cd='3005' then infraction_num else 0 end),0) as
+		errQty_3005
+		,coalesce(sum(case when Focus_cd='3005' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3005
+		from HPBUS.Sum_zdtl_3000_prvd
+		<where>
+			aud_trm=#{statCycle}
+			and tol_num >0
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}
+			</if>
+			<![CDATA[and prvd_id <> '10000']]>
+		</where>
+	</select>
+
+
+
+	<!-- 酬金相关 -->
+	<!-- 社会渠道的统计信息 环比增长是((本月-上月)/上月),环比下降((上月-本月)/上月) 因为页面模板要求显示环比下降的数据，所以这里用(上月-本月)/上月 -->
+	<select id="auditReport_selectChnl_2cj" resultMap="auditReport_total"
+		parameterType="java.util.Map">
+
+		select
+		coalesce(sum(infraction_num),0) as errQty_tmp,
+		coalesce(sum(tol_num),0) as totalQty_tmp,
+		coalesce(sum(m1_infraction_num),0) as m1_errQty_tmp,
+		coalesce(sum(m1_tol_num),0) as m1_totalQty_tmp,
+
+		trim (errQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as errQty,
+		trim (totalQty_tmp(FORMAT 'ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(15))) as totalQty,
+		trim (cast(errQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as errQty_w,
+		trim (cast(totalQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as totalQty_w,
+		trim ((case when totalQty_tmp=0 then 0 else cast(errQty_tmp as
+		decimal(16,2))*100/totalQty_tmp end ) (FORMAT 'ZZ9.99%')(VARCHAR(7)))
+		as qtyPercent ,
+		trim ((case when m1_totalQty_tmp=0 then 0 else cast(m1_errQty_tmp as
+		decimal(16,2))*100/m1_totalQty_tmp end ) (FORMAT
+		'ZZ9.99%')(VARCHAR(7)))as m1_qtyPercent ,
+
+		coalesce(sum(case when infraction_num=0 then 0 else aa_errChnlQty_tmp end),0) as
+		errChnlQty_tmp,
+		coalesce(sum(aa_totalChnlQty_tmp),0) as totalChnlQty_tmp,
+		coalesce(sum(bb_errChnlQty_tmp),0) as m1_errChnlQty_tmp,
+		coalesce(sum(bb_totalChnlQty_tmp),0) as m1_totalChnlQty_tmp,
+
+		trim (errChnlQty_tmp(FORMAT 'ZZZ,ZZZ,ZZ9')(VARCHAR(11))) as errChnlQty,
+		trim (totalChnlQty_tmp(FORMAT 'ZZZ,ZZZ,ZZ9')(VARCHAR(11))) as
+		totalChnlQty,
+		trim (cast(errChnlQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as errChnlQty_w,
+		trim (cast(totalChnlQty_tmp as decimal(16,2)) (FORMAT
+		'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19))) as totalChnlQty_w,
+		trim ((case when totalChnlQty_tmp=0 then 0 else cast(errChnlQty_tmp as
+		decimal(16,2))*100/totalChnlQty_tmp end) (FORMAT
+		'ZZ9.99%')(VARCHAR(7))) as qtyChnlPercent ,
+		trim ((case when m1_totalChnlQty_tmp=0 then 0 else cast(m1_errChnlQty_tmp
+		as decimal(16,2))*100/m1_totalChnlQty_tmp end) (FORMAT
+		'ZZ9.99%')(VARCHAR(7))) as m1_qtyChnlPercent ,
+
+		coalesce(sum(m1_infraction_num),0) as m1_errQty,
+		coalesce(sum(bb_errChnlQty_tmp),0) as m1_errChnlQty,
+		trim (case when m1_errQty=0 then 'N/A' else (cast((m1_errQty - errQty_tmp)
+		as decimal(16,2))*100/m1_errQty (FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end) as fbQtyPercent ,
+		trim (case when m1_errChnlQty=0 then 'N/A' else (cast((m1_errChnlQty -
+		errChnlQty_tmp)as decimal(16,2))*100/m1_errChnlQty (FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end) as fbChnlPercent,
+
+		(case when (qtyPercent-m1_qtyPercent)>=0 then '上升' else '下降' end) || (trim
+		(case when m1_errQty_tmp=0 then 'N/A' else
+		(cast((qtyPercent-m1_qtyPercent) as decimal(16,2))(FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end)) as abs_fbQtyPercent ,
+		(case when (qtyChnlPercent-m1_qtyChnlPercent)>=0 then '上升' else '下降' end)||
+		(trim (case when m1_errChnlQty_tmp=0 then 'N/A' else
+		(cast((qtyChnlPercent-m1_qtyChnlPercent)as decimal(16,2))(FORMAT
+		'ZZZ,ZZZ,ZZ9.99')(VARCHAR(14))) end)) as abs_fbChnlPercent
+
+		from (
+		SELECT t0.*
+		,t1.infraction_num as m1_infraction_num
+		,t1.tol_num as m1_tol_num
+		,t1.errChnlQty as m1_infraction_sett_amt
+		,t1.totalChnlQty as m1_tol_sett_amt
+		, t0.errChnlQty as aa_errChnlQty_tmp, t0.totalChnlQty as
+		aa_totalChnlQty_tmp
+		, t1.errChnlQty as bb_errChnlQty_tmp, t1.totalChnlQty as
+		bb_totalChnlQty_tmp
+		from
+		( select * from hpbus.Sum_zdtl_3000_prvd_cj where aud_trm= #{statCycle}
+		<![CDATA[and prvd_id <> '10000']]>
+		and focus_cd='3001,3002,3004,3005') as t0
+		LEFT JOIN
+		(select * from hpbus.Sum_zdtl_3000_prvd_cj where aud_trm=
+		cast((add_months(cast( #{statCycle} as date format 'YYYYMM'), -1)
+		(format 'YYYYMM')) as varchar(6))
+		<![CDATA[and prvd_id <> '10000']]>
+		and focus_cd='3001,3002,3004,3005') as t1
+		ON t0.prvd_id = t1.prvd_id
+		) as t
+		<where>
+			1=1
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}
+			</if>
+		</where>
+	</select>
+
+	<!-- 全渠道按数量top5 -->
+	<select id="auditReport_selectChnl_all_num_top5cj" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res_cj
+		WHERE focus_cd='3000'
+		AND flag='2001'
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+	<!-- 全渠道按占比top5 -->
+	<select id="auditReport_selectChnl_all_percent_top5cj"
+		resultMap="auditReport_top" parameterType="java.util.Map">
+		SELECT regionId, RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res_cj
+		WHERE focus_cd='3000'
+		AND flag='2002'
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+
+	<!-- 社会渠道按数量top5 -->
+	<select id="auditReport_selectChnl_2_num_top5cj" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, chnl_name as chnlName,RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res_cj
+		WHERE focus_cd='3000'
+		AND flag='2003'
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+	<!-- 社会渠道按占比top5 -->
+	<select id="auditReport_selectChnl_2_percent_top5cj" resultMap="auditReport_top"
+		parameterType="java.util.Map">
+		SELECT regionId, chnl_name as chnlName,RN, regionName,
+		errQty_tmp AS errQty, qtyPercent, totalQty_tmp as tolQty
+		FROM	HPBUS.Sum_zdtl_3000_top5res_cj
+		WHERE focus_cd='3000'
+		AND flag='2004'
+		<if test="provinceCode!=null and provinceCode>10000">
+			and errQty_tmp>10
+		</if>
+		<if test="provinceCode!=null and provinceCode==10000">
+			and errQty_tmp>100
+		</if>
+		<if test="statCycle!=null">
+			and Aud_trm=#{statCycle}
+		</if>
+
+		<if test="provinceCode!=null">
+			and prvd_id=#{provinceCode}
+		</if>
+		ORDER BY RN
+	</select>
+	<resultMap type="java.util.Map" id="auditReport_selectFocusCountcj">
+
+		<result property="errQty_3001" column="errQty_3001" />
+		<result property="errChnlQty_3001" column="errChnlQty_3001" />
+		<result property="errQty_3002" column="errQty_3002" />
+		<result property="errChnlQty_3002" column="errChnlQty_3002" />
+		<result property="errQty_3004" column="errQty_3004" />
+		<result property="errChnlQty_3004" column="errChnlQty_3004" />
+		<result property="errQty_3005" column="errQty_3005" />
+		<result property="errChnlQty_3005" column="errChnlQty_3005" />
+
+	</resultMap>
+	<!-- 按套利模式统计每种套利模式的用户数 -->
+	<select id="auditReport_selectFocusCountcj" resultMap="auditReport_selectFocusCountcj"
+		parameterType="java.util.Map">
+
+		select
+		coalesce(sum(case when Focus_cd='3001' then infraction_num else 0 end),0) as
+		errQty_3001
+		,coalesce(sum(case when Focus_cd='3001' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3001
+		,coalesce(sum(case when Focus_cd='3002' then infraction_num else 0 end),0) as
+		errQty_3002
+		,coalesce(sum(case when Focus_cd='3002' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3002
+		,coalesce(sum(case when Focus_cd='3004' then infraction_num else 0 end),0) as
+		errQty_3004
+		,coalesce(sum(case when Focus_cd='3004' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3004
+		,coalesce(sum(case when Focus_cd='3005' then infraction_num else 0 end),0) as
+		errQty_3005
+		,coalesce(sum(case when Focus_cd='3005' and infraction_num>0 then errChnlQty else 0
+		end),0) as errChnlQty_3005
+		from HPBUS.Sum_zdtl_3000_prvd_cj
+		<where>
+			aud_trm=#{statCycle}
+			and tol_num >0
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}
+			</if>
+			<![CDATA[and prvd_id <> '10000']]>
+
+		</where>
+	</select>
+
+	<!--查询词关注点完成的省份数量 -->
+	<select id="auditReport_selectFinishedProvinceCount" resultType="int"
+		parameterType="java.util.Map">
+		SELECT count(distinct prvd_id) as totalCount
+		FROM
+		hpmgr.busi_model_notify
+		<where>
+			aud_trm=#{statCycle}
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}
+			</if>
+			<if test="concernCode!=null">
+				and Focus_cd=#{concernCode}
+			</if>
+		</where>
+	</select>
+
+	<!--查询词关注点完成的省份数量 -->
+	<resultMap type="java.util.Map" id="finishedCountByFocusCd">
+		<result property="focusCd" column="focusCd" />
+		<result property="totalCount" column="totalCount" />
+	</resultMap>
+
+	<select id="auditReport_selectFinishedProvinceCountByFocusCd"
+		resultMap="finishedCountByFocusCd" parameterType="java.util.Map">
+		SELECT Focus_cd as focusCd ,count(distinct prvd_id) as totalCount
+		FROM
+		hpmgr.busi_model_notify
+		<where>
+			aud_trm=#{statCycle}
+			and focus_cd in ('3001','3002','3004','3005')
+			<if test="userCityId!=10000">
+				and prvd_id = #{userCityId}
+			</if>
+			<if test="provinceCode!=10000">
+				and prvd_id=#{provinceCode}
+			</if>
+		</where>
+		group by Focus_cd
+	</select>
+
+	<select id="provinceCountByChnl" resultMap="mapReport"
+		parameterType="java.util.Map">
+		select dataReport.*,cityReport.CMCC_prvd_nm_short as cty_name from
+		(
+		SELECT
+		chnl_id,cty_id,
+		max(t.chnl_name) AS chnl_name,
+		max(t.chnl_type) AS chnl_class_nm,
+		sum(infraction_num) as errQty,
+		sum(tol_num) as totalQty,
+		case when totalQty=0 then 0 else cast(errQty as
+		decimal(16,2))*100/totalQty end qtyPercent,
+
+		sum(infraction_num) as errAmount,
+		sum(tol_num) as totalAmount,
+		case when totalAmount=0 then 0 else cast(errAmount as
+		decimal(16,2))*100/totalAmount end amountPercent
+
+		from HPBUS.Sum_zdtl_3000_new t
+		WHERE 1=1
+		and focus_cd='3001,3002,3004,3005'
+		and chnl_stat='1'
+		and infraction_num>0
+		<![CDATA[and aud_trm = #{params.dateT}]]>
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in
+			${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.cty_id in
+			${params.selCityCodeSTR}
+		</if>
+
+		GROUP BY t.chnl_id,cty_id ) as dataReport
+		left join
+		HPMGR.TB_SUM_PRVD_NAME as cityReport
+		on dataReport.cty_id =
+		cityReport.CMCC_prvd_cd
+
+	</select>
+
+	<select id="chnlDetailForRptMonitorOneMonth" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select dataReport.*,cityReport.CMCC_prvd_nm_short as cty_name,
+		case
+		when dataReport.chnl_type='1' then '自营厅' when dataReport.chnl_type='2'
+		then '委托经营厅' when dataReport.chnl_type='3' then '社会代理网点' when
+		dataReport.chnl_type='4' then '24小时自助营业厅' else '' end as chnl_class_nm
+		from
+		(
+		SELECT
+		chnl_id,cty_id,
+		max(t.chnl_name) AS chnl_name,
+		max(t.chnl_type) AS chnl_type,
+		sum(infraction_num) as errQty,
+		sum(tol_num) as totalQty,
+		case when totalQty=0 then 0 else cast(errQty as
+		decimal(16,2))*100/totalQty end qtyPercent
+		from HPBUS.Sum_zdtl_3000_new t
+		WHERE focus_cd='3001,3002,3004,3005'
+		and
+		chnl_stat='1'
+		and infraction_num>0
+		<![CDATA[and aud_trm = #{params.dateT}]]>
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in
+			${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.cty_id in
+			${params.selCityCodeSTR}
+		</if>
+
+		GROUP BY t.chnl_id,cty_id ) as dataReport
+		left join
+		HPMGR.TB_SUM_PRVD_NAME as cityReport
+		on dataReport.cty_id =
+		cityReport.CMCC_prvd_cd
+
+	</select>
+
+	<select id="chnlDetailForRptMonitorThreeMonth" resultType="java.util.HashMap"
+		parameterType="java.util.Map">
+		select dataReport.*,cityReport.CMCC_prvd_nm_short as cty_name from
+		(
+		SELECT
+		chnl_id,cty_id,
+		max(t.chnl_name) AS chnl_name,
+		max(t.chnl_class_nm) AS chnl_class_nm,
+		sum(infraction_num) as errQty,
+		sum(tol_num) as totalQty,
+		case when totalQty=0 then 0 else cast(errQty as
+		decimal(16,2))*100/totalQty end qtyPercent
+		from HPBUS.Sum_zdtl_3000_threeMonth t
+		WHERE chnl_stat='1'
+		and tol_num>0
+		and infraction_num>0
+		and is_rase = 1
+		<if test="params.dateT!=null">
+			<![CDATA[and aud_trm = #{params.dateT}]]>
+		</if>
+
+		<if test="params.selProvCodeSTR!=null">
+			and t.prvd_id in
+			${params.selProvCodeSTR}
+		</if>
+		<if test="params.selCityCodeSTR!=null">
+			and t.cty_id in
+			${params.selCityCodeSTR}
+		</if>
+		GROUP BY t.chnl_id,cty_id ) as dataReport
+		left join
+		HPMGR.TB_SUM_PRVD_NAME as cityReport
+		on dataReport.cty_id =
+		cityReport.CMCC_prvd_cd
+	</select>
+</mapper>
+

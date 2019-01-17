@@ -1,0 +1,1758 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd"
+	default-autowire="byName" default-lazy-init="false">
+	<!-- <bean id="smsJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> 
+		<property name="targetObject"> <ref bean="smsJob" /> </property> <property 
+		name="targetMethod"> <value>work</value> </property> <property name="concurrent"> 
+		<value>false</value> </property> </bean> <bean id="smsJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean"> 
+		<property name="jobDetail"> <ref bean="smsJobTask" /> </property> <property 
+		name="cronExpression"> <value>0 0 0/1 * * ?</value> </property> </bean> -->
+
+	<!-- 数据同步生成开始 -->
+
+	<bean id="beHaveJobTaskWork" class="com.hpe.cmca.job.BeHaveJobTaskJob">
+
+	</bean>
+
+	<bean id="beHaveJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="beHaveJobTaskWork" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+	</bean>
+
+	<bean id="behavJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="beHaveJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0 0 * * ?</value>
+		</property>
+	</bean>
+
+
+
+
+
+
+	<!-- 为拼接短信 定义定时任务 -->
+	<bean id="smsIntegrationJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+
+		<!-- 定义调用对象 -->
+
+		<property name="targetObject">
+			<ref bean="SmsIntegrationJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!--拼接短信前扫描任务的触发时间 -->
+
+	<bean id="smsIntegrationJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<!-- 指定定时任务 -->
+			<ref bean="smsIntegrationJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0 12,18 * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 审计报告专题job1：有价卡 20180123 add by PXL begin -->
+	<!--<bean id="yjk1000FileGenProcessorV2" class="com.hpe.cmca.job.v2.Yjk1000FileGenProcessor"> -->
+	<bean id="yjk1000FileGenProcessorV2" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>6</value>
+		</property>
+	</bean>
+
+	<!-- job实体 -->
+	<bean id="yjkFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="yjk1000FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>1</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>1000</value>
+				<value>1001</value>
+				<value>1002</value>
+				<value>1003</value>
+				<value>1004</value>
+				<value>1005</value>
+				<value>1012</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>1000</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="yjkFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="yjkFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="yjkFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="yjkFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 20 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 审计报告专题job1：有价卡 20180123 add by PXL end -->
+
+
+	<!-- 审计报告专题job2：渠道养卡 20161009 add by GuoXY begin -->
+	<bean id="qdyk2002FileGenProcessorV2" class="com.hpe.cmca.job.v2.Qdyk2002FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>1</value>
+		</property>
+	</bean>
+
+	<!-- job实体 -->
+	<bean id="qdykFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="qdyk2002FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>2</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>2002</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>2002</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="qdykFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="qdykFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="qdykFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="qdykFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>10 15 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 审计报告专题job2：渠道养卡 20161009 add by GuoXY end -->
+
+
+	<!-- 审计报告专题job3：终端套利 begin -->
+	<bean id="zdtl3000FileGenProcessorV2" class="com.hpe.cmca.job.v2.Zdtl3000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>4</value>
+		</property>
+	</bean>
+
+	<!-- job实体 -->
+	<bean id="zdtlFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="zdtl3000FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>3</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>3000</value>
+				<value>3001</value>
+				<value>3002</value>
+				<value>3004</value>
+				<value>3005</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>3000</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="zdtlFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="zdtlFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="zdtlFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="zdtlFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 5 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 审计报告专题job3：终端套利 end -->
+
+	<!-- 4000汇总开始 -->
+	<!-- <bean id="qf4000FileGenProcessorV2" class="com.hpe.cmca.job.v2.QF4000FileGenProcessor"> -->
+	<bean id="qF4000FileGenProcessorV2" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>2</value>
+		</property>
+	</bean>
+	<!-- 4000汇总开始 -->
+
+	<bean id="qf4000FileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="qF4000FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>4</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>4000</value>
+				<value>4001</value>
+				<value>4003</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>4000</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+
+	<bean id="qf4000FileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="qf4000FileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="qf4000FileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="qf4000FileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 30 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 4000 汇总结束 -->
+
+	<!-- 员工异常操作start -->
+	<!-- <bean id="ygyc5000FileGenProcessor" class="com.hpe.cmca.job.v2.YGYC5000FileGenProcessor"> -->
+	<bean id="ygyc5000FileGenProcessor" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>4</value>
+		</property>
+	</bean>
+	<!-- 员工异常操作job实体 -->
+	<bean id="ygycFileGenJob" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="ygyc5000FileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>5</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>5000</value>
+				<value>5001</value>
+				<value>5002</value>
+				<value>5003</value>
+				<value>5004</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>5000</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="ygycFileGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="ygycFileGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+	<!-- 定义触发时间 -->
+	<bean id="ygycFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="ygycFileGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 40 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 员工异常操作 end -->
+
+
+	<bean id="notiFile1000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<!-- <ref bean="NotiFileYjk1000SumProcessor" /> <ref bean="NotiFileYjk1000RankProcessor" 
+					/> <ref bean="NotiFileYjk1000SumIllegalProcessor" /> <ref bean="NotiFileyjk1000pmhzProcessor" 
+					/> -->
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>1</value>
+		</property>
+		<property name="focusCd">
+			<value>1000</value>
+		</property>
+		<property name="focusNum">
+			<value>5</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile1000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile1000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile1000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile1000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 22 * * * ?</value>
+		</property>
+	</bean>
+
+
+	<bean id="notiFile2000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<!-- -->
+				<!-- <ref bean="NotiFileQdyk2000AllChnlsProcessor" /> <ref bean="NotiFileQdyk2000OSheHuiChnlsProcessor" 
+					/> <ref bean="NotiFileQdyk2000ZiYouChnlsProcessor" /> <ref bean="NotiFileQdyk2000QiTaChnlsProcessor" 
+					/> <ref bean="NotiFileQdyk2000TolProcessor" /> <ref bean="NotiFileQdyk2000pmhzProcessor" 
+					/> -->
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>2</value>
+		</property>
+		<property name="focusCd">
+			<value>2000</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile2000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile2000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile2000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile2000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 17 * * * ?</value>
+		</property>
+	</bean>
+
+
+	<bean id="notiFile3000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<!-- <ref bean="NotiFileZdtl3000Processor" /> <ref bean="NotiFileZdtl3000TolProcessor" 
+					/> <ref bean="NotiFileZdtl3000AllPmhzProcessor" /> -->
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>3</value>
+		</property>
+		<property name="focusCd">
+			<value>3000</value>
+		</property>
+		<property name="focusNum">
+			<value>4</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile3000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile3000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile3000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile3000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 7 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 欠费排名汇总生成开始 -->
+
+	<bean id="notiFile4000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<!-- <ref bean="NotiFileKhqf4000Top100Processor" /> <ref bean="NotiFileKhqf4000SegmProcessor" 
+					/> <ref bean="NotiFileKhqf4000PmhzProcessor" /> <ref bean="NotiFileKhqf4000AllPmhzProcessor" 
+					/> -->
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>4</value>
+		</property>
+		<property name="focusCd">
+			<value>4000</value>
+		</property>
+		<property name="focusNum">
+			<value>2</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile4000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile4000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile4000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile4000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 32 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 欠费排名汇总生成结束 -->
+	<!-- 员工异常操作排名汇总配置 开始 -->
+	<bean id="notiFile5000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<!-- <ref bean="NotiFileYCCZ5000YCJFZSProcessor" /> <ref bean="NotiFileYCCZ5000SFXZProcessor" 
+					/> <ref bean="NotiFileYCCZ5000YCHFZSProcessor" /> <ref bean="NotiFileYCCZ5000YCTFProcessor" 
+					/> <ref bean="NotiFileYCCZ5000YCJFZYProcessor" /> -->
+				<ref bean="NotiFileYCCZ5000YCHFZSDetailProcessor" />
+				<ref bean="NotiFileYCCZ5000YCJFZSDetailProcessor" />
+				<ref bean="NotiFileYCCZ5000YCJFZYDetailProcessor" />
+				<ref bean="NotiFileYCCZ5000YCTFDetailProcessor" />
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>5</value>
+		</property>
+		<property name="focusCd">
+			<value>5000</value>
+		</property>
+		<property name="focusNum">
+			<value>4</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+		<!-- <property name="focusCd"> <value>5000,-1</value> </property> <property 
+			name="userName"> <value>sys</value> </property> -->
+	</bean>
+
+	<bean id="notiFile5000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile5000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile5000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile5000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 42 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 员工异常操作排名汇总配置 结束 -->
+	<!-- 数据质量通用生成开始 -->
+
+	<bean id="tySJZLGenJob" class="com.hpe.cmca.job.NotiFileAllProcessor">
+
+	</bean>
+
+	<bean id="tySJZLGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="tySJZLGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+	</bean>
+
+	<bean id="tySJZLJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="tySJZLGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 50 * * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 数据质量通用生成结束 -->
+
+	<!-- 电子券排名汇总配置 开始 -->
+	<bean id="notiFile6000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFileDzq6000PrvdChnlProcessor" />
+				<ref bean="NotiFileDzq6000PrvdOfferProcessor" />
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>6</value>
+		</property>
+		<property name="focusCd">
+			<value>6000</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile6000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile6000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile6000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile6000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 37 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 电子券排名汇总配置 结束 -->
+
+
+	<!-- 6000汇总开始 -->
+	<!--<bean id="dzj6000FileGenProcessorV2" class="com.hpe.cmca.job.v2.DZJ6000FileGenProcessor"> -->
+	<bean id="dzj6000FileGenProcessorV2" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>2</value>
+		</property>
+	</bean>
+
+
+	<bean id="dzj6000FileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="dzj6000FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>6</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>6000</value>
+				<value>6001</value>
+				<value>6002</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>6000</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+
+	<bean id="dzj6000FileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="dzj6000FileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="dzj6000FileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="dzj6000FileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 35 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 6000 汇总结束 -->
+
+	<!-- 流量转移排名汇总开始 -->
+	<bean id="notiFile7000GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFileLlzs8000PrvdOfferProcess" />
+				<ref bean="NotiFileLlzs8000PrvdChnlProcess" />
+				<ref bean="NotiFile0000PmhzProcessor" />
+				<!-- <ref bean="NotiFileLlzyOrg7000PmhzProcessor" /> -->
+				<!-- <ref bean="NotiFileLlzyCust7000PmhzProcessor" /> -->
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>7</value>
+		</property>
+		<property name="focusCd">
+			<value>7000</value>
+		</property>
+		<property name="focusNum">
+			<value>2</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile7000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile7000GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile7000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile7000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 53 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 流量转移排名汇总结束 -->
+
+	<!-- 流量异常赠送-排名汇总-开始 -->
+	<bean id="notiFile9999GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>9</value>
+		</property>
+		<property name="focusCd">
+			<value>9999</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile8000GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile9999GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile8000GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile8000GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0/1 11 * * ?</value>
+		</property>
+	</bean>
+	<!-- 流量异常赠送-排名汇总-结束 -->
+
+	<!-- 流量转移审计清单 -->
+	<!-- <bean id="llzy7000FileGenProcessor" class="com.hpe.cmca.job.v2.Llzy7000FileGenProcessor"> -->
+	<bean id="llzy7000FileGenProcessor" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>2</value>
+		</property>
+	</bean>
+	<bean id="llzyFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="llzy7000FileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>7</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>7001</value>
+				<value>7003</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>7000</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="llzyFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="llzyFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work78</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="llzyFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="llzyFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 51 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 流量转移审计清单结束 -->
+
+
+	<!-- 审计报告专题job1：跨省窜卡 20180806 add by PXL begin -->
+
+	<bean id="ksck1100FileGenProcessorV2" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>1</value>
+		</property>
+	</bean>
+
+	<!-- job实体 -->
+	<bean id="ksckFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="ksck1100FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>11</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>1100</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>1100</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="ksckFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="ksckFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="ksckFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="ksckFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 27 * * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 排名汇总：跨省窜卡 20180806 add by PXL begin -->
+	<bean id="notiFile1100GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>11</value>
+		</property>
+		<property name="focusCd">
+			<value>1100</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile1100GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile1100GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile1100GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile1100GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 33 * * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 虚假宽带start -->
+	<bean id="xjkd1200FileGenProcessorV2" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>2</value>
+		</property>
+	</bean>
+	<!-- 虚假宽带job实体 -->
+	<bean id="xjkdFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="xjkd1200FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>12</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>1201</value>
+				<value>1202</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>1200</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="xjkdFileGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="xjkdFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+	<!-- 定义触发时间 -->
+	<bean id="xjkdFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="xjkdFileGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 40 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 虚假宽带操作 end -->
+
+
+	<!-- 虚假宽带排名汇总配置 开始 -->
+	<bean id="notiFile1200GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>12</value>
+		</property>
+		<property name="focusCd">
+			<value>1200</value>
+		</property>
+		<property name="focusNum">
+			<value>2</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+
+	</bean>
+
+	<bean id="notiFile1200GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile1200GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile1200GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile1200GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 42 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 虚假宽带排名汇总配置 结束 -->
+
+
+	<!-- 客户信息安全审计报告 start -->
+	<bean id="xxaq1300FileGenProcessorV2" class="com.hpe.cmca.job.v2.Word0000FileGenProcessor">
+		<property name="focusCdsCount">
+			<value>2</value>
+		</property>
+	</bean>
+	<!-- 虚假宽带job实体 -->
+	<bean id="xxaqFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJob">
+		<property name="fileGenProcessor">
+			<ref bean="xxaq1300FileGenProcessorV2" />
+		</property>
+		<property name="subjectIds">
+			<list>
+				<value>13</value>
+			</list>
+		</property>
+		<property name="focusCds">
+			<list>
+				<value>1301</value>
+				<value>1302</value>
+			</list>
+		</property>
+		<property name="totalFocusCds">
+			<value>1300</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="xxaqFileGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="xxaqFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+	<!-- 定义触发时间 -->
+	<bean id="xxaqFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="xxaqFileGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<!--<value>0 46 * * * ?</value> -->
+			<value>0 50 * * * ?</value>
+		</property>
+	</bean>
+	<!-- 客户信息安全审计报告 end -->
+
+
+	<!-- 客户信息安全排名汇总配置 开始 -->
+	<bean id="notiFile1300GenJob" class="com.hpe.cmca.job.NotiFileGenJob">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>13</value>
+		</property>
+		<property name="focusCd">
+			<value>1300</value>
+		</property>
+		<property name="focusNum">
+			<value>2</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+
+	</bean>
+
+	<bean id="notiFile1300GenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFile1300GenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFile1300GenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFile1300GenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<!--<value>0 39 * * * ?</value> -->
+			<value>0 59 * * * ?</value>
+		</property>
+	</bean>
+	<!--客户信息安全排名汇总结束 -->
+
+
+	<!-- 审计报告专题job1：有价卡 20180123 add by PXL end -->
+	<!-- 有价卡数据质量开始 <bean id="yjkSJZLGenJob" class="com.hpe.cmca.job.SJZLProcessor"> 
+		<property name="auditNmList"> <list> <value>YJK_01</value> <value>YJK_02</value> 
+		<value>YJK_03</value> <value>YJK_04</value> <value>YJK_05</value> <value>YJK_06</value> 
+		<value>YJK_07</value> </list> </property> </bean> <bean id="yjkSJZLGenJobTask" 
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> 
+		<property name="targetObject"> <ref bean="yjkSJZLGenJob" /> </property> <property 
+		name="targetMethod"> <value>work</value> </property> </bean> <bean id="yjkSJZLJobTime" 
+		class="org.springframework.scheduling.quartz.CronTriggerBean"> <property 
+		name="jobDetail"> <ref bean="yjkSJZLGenJobTask" /> </property> <property 
+		name="cronExpression"> <value>0/30 * * * * ?</value> </property> </bean> -->
+	<!-- 有价卡数据质量结束 -->
+
+	<!-- 终端套利数据质量开始 <bean id="zdtlSJZLGenJob" class="com.hpe.cmca.job.SJZLProcessor"> 
+		<property name="auditNmList"> <list> <value>ZDTL_01</value> <value>ZDTL_02</value> 
+		<value>ZDTL_03</value> <value>ZDTL_04</value> </list> </property> </bean> 
+		<bean id="zdtlSJZLGenJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> 
+		<property name="targetObject"> <ref bean="zdtlSJZLGenJob" /> </property> 
+		<property name="targetMethod"> <value>work</value> </property> </bean> <bean 
+		id="zdtlSJZLJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean"> 
+		<property name="jobDetail"> <ref bean="zdtlSJZLGenJobTask" /> </property> 
+		<property name="cronExpression"> <value>0/30 * * * * ?</value> </property> 
+		</bean> -->
+	<!-- 终端套利数据质量结束 -->
+
+	<!-- 渠道养卡数据质量开始 <bean id="qdykSJZLGenJob" class="com.hpe.cmca.job.SJZLProcessor"> 
+		<property name="auditNmList"> <list> <value>QDYK_02</value> <value>QDYK_03</value> 
+		<value>QDYK_04</value> <value>QDYK_05</value> <value>QDYK_06</value> <value>QDYK_07</value> 
+		</list> </property> </bean> <bean id="qdykSJZLGenJobTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> 
+		<property name="targetObject"> <ref bean="qdykSJZLGenJob" /> </property> 
+		<property name="targetMethod"> <value>work</value> </property> </bean> <bean 
+		id="qdykSJZLJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean"> 
+		<property name="jobDetail"> <ref bean="qdykSJZLGenJobTask" /> </property> 
+		<property name="cronExpression"> <value>0/30 * * * * ?</value> </property> 
+		</bean> -->
+	<!-- 渠道养卡数据质量结束 -->
+
+	<!--start 业务预警-排名汇总-宽带管理 -->
+	<bean id="notiFileKDGLGenJob" class="com.hpe.cmca.job.NotiFileGenJobForYWYJ">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>lp1_kdgl</value>
+		</property>
+		<property name="focusCd">
+			<value>lp1_kdgl</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileKDGLGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFileKDGLGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileKDGLGenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFileKDGLGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 6 * * * ?</value>
+		</property>
+	</bean>
+	<!--end 业务预警-排名汇总-宽带管理 -->
+
+
+	<!--start 业务预警-排名汇总-欠费管理 -->
+	<bean id="notiFileQFGLGenJob" class="com.hpe.cmca.job.NotiFileGenJobForYWYJ">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>lp1_qfgl</value>
+		</property>
+		<property name="focusCd">
+			<value>lp1_qfgl</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileQFGLGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFileQFGLGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileQFGLGenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFileQFGLGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 12 * * * ?</value>
+		</property>
+	</bean>
+	<!--end 业务预警-排名汇总-欠费管理 -->
+
+
+	<!--start 业务预警-排名汇总-物联网管理 -->
+	<bean id="notiFileWLWGLGenJob" class="com.hpe.cmca.job.NotiFileGenJobForYWYJ">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>lp1_wlwgl</value>
+		</property>
+		<property name="focusCd">
+			<value>lp1_wlwgl</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileWLWGLGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFileWLWGLGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileWLWGLGenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFileWLWGLGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 18 * * * ?</value>
+		</property>
+	</bean>
+	<!--end 业务预警-排名汇总物联网管理 -->
+
+	<!--start 业务预警-排名汇总-营销资源管理 -->
+	<bean id="notiFileYXZYGLGenJob" class="com.hpe.cmca.job.NotiFileGenJobForYWYJ">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>lp1_yxzygl</value>
+		</property>
+		<property name="focusCd">
+			<value>lp1_yxzygl</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileYXZYGLGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFileYXZYGLGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileYXZYGLGenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFileYXZYGLGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 24 * * * ?</value>
+		</property>
+	</bean>
+	<!--end 业务预警-排名汇总物-营销资源管理 -->
+
+
+	<!--start 业务预警-排名汇总-账本管理 -->
+	<bean id="notiFileZBGLGenJob" class="com.hpe.cmca.job.NotiFileGenJobForYWYJ">
+		<property name="notiFileGenProcessorList">
+			<list>
+				<ref bean="NotiFile0000PmhzProcessor" />
+			</list>
+		</property>
+		<property name="subjectId">
+			<value>lp1_zbgl</value>
+		</property>
+		<property name="focusCd">
+			<value>lp1_zbgl</value>
+		</property>
+		<property name="focusNum">
+			<value>1</value>
+		</property>
+		<property name="isAuto">
+			<value>true</value>
+		</property>
+		<property name="userName">
+			<value>sys</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileZBGLGenJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="notiFileZBGLGenJob" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<bean id="notiFileZBGLGenJobTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="notiFileZBGLGenJobTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 30 * * * ?</value>
+		</property>
+	</bean>
+	<!--end 业务预警-排名汇总物-账本管理 -->
+
+
+	<!--start 业务预警-审计清单-宽带管理 -->
+	<bean id="KDGLFileGenProcessor" class="com.hpe.cmca.job.v2.NotiFileAutoProcessorForYWYJ">
+	</bean>
+	<bean id="KDGLFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJobForYWYJ">
+		<property name="fileGenProcessor">
+			<ref bean="KDGLFileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<value>lp1_kdgl</value>
+		</property>
+		<property name="totalFocusCds">
+			<value>lp1_kdgl</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="KDGLFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="KDGLFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="KDGLFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="KDGLFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 36 * * * ?</value>
+		</property>
+	</bean>
+	<!-- end 业务预警-审计清单-宽带管理 -->
+
+	<!--start 业务预警-审计清单-欠费管理 -->
+	<bean id="QFGLFileGenProcessor" class="com.hpe.cmca.job.v2.NotiFileAutoProcessorForYWYJ">
+	</bean>
+	<bean id="QFGLFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJobForYWYJ">
+		<property name="fileGenProcessor">
+			<ref bean="QFGLFileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<value>lp1_qfgl</value>
+		</property>
+		<property name="totalFocusCds">
+			<value>lp1_qfgl</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="QFGLFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="QFGLFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="QFGLFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="QFGLFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 42 * * * ?</value>
+		</property>
+	</bean>
+	<!-- end 业务预警-审计清单-欠费管理 -->
+
+
+	<!--start 业务预警-审计清单-物联网管理 -->
+	<bean id="WLWGLFileGenProcessor" class="com.hpe.cmca.job.v2.NotiFileAutoProcessorForYWYJ">
+	</bean>
+	<bean id="WLWGLFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJobForYWYJ">
+		<property name="fileGenProcessor">
+			<ref bean="WLWGLFileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<value>lp1_wlwgl</value>
+		</property>
+		<property name="totalFocusCds">
+			<value>lp1_wlwgl</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="WLWGLFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="WLWGLFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="WLWGLFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="WLWGLFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 48 * * * ?</value>
+		</property>
+	</bean>
+	<!-- end 业务预警-审计清单-物联网管理 -->
+
+	<!--start 业务预警-审计清单-营销资源管理 -->
+	<bean id="YXZYGLFileGenProcessor" class="com.hpe.cmca.job.v2.NotiFileAutoProcessorForYWYJ">
+	</bean>
+	<bean id="YXZYGLFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJobForYWYJ">
+		<property name="fileGenProcessor">
+			<ref bean="YXZYGLFileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<value>lp1_yxzygl</value>
+		</property>
+		<property name="totalFocusCds">
+			<value>lp1_yxzygl</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="YXZYGLFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="YXZYGLFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="YXZYGLFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="YXZYGLFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 54 * * * ?</value>
+		</property>
+	</bean>
+	<!-- end 业务预警-审计清单-营销资源管理 -->
+
+	<!--start 业务预警-审计清单-账本管理 -->
+	<bean id="ZBGLFileGenProcessor" class="com.hpe.cmca.job.v2.NotiFileAutoProcessorForYWYJ">
+	</bean>
+	<bean id="ZBGLFileGenJobV2" class="com.hpe.cmca.job.v2.SubjectFileGenJobForYWYJ">
+		<property name="fileGenProcessor">
+			<ref bean="ZBGLFileGenProcessor" />
+		</property>
+		<property name="subjectIds">
+			<value>lp1_zbgl</value>
+		</property>
+		<property name="totalFocusCds">
+			<value>lp1_zbgl</value>
+		</property>
+		<property name="useChineseName">
+			<value>true</value>
+		</property>
+	</bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="ZBGLFileGenJobTaskV2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="ZBGLFileGenJobV2" />
+		</property>
+		<property name="targetMethod">
+			<value>work</value>
+		</property>
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+	</bean>
+
+	<!-- 定义触发时间 -->
+	<bean id="ZBGLFileGenJobTimeV2" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="ZBGLFileGenJobTaskV2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 0 * * * ?</value>
+		</property>
+	</bean>
+	<!-- end 业务预警-审计清单-账本管理 -->
+
+
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+	<bean id="startQuertz" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="xxaqFileGenJobTimeV2" />
+				<ref bean="notiFile1300GenJobTime" />
+
+				<ref bean="xjkdFileGenJobTimeV2" />
+				<ref bean="notiFile1200GenJobTime" />
+
+				<ref bean="ksckFileGenJobTimeV2" />
+				<ref bean="notiFile1100GenJobTime" />
+
+				<ref bean="notiFileKDGLGenJobTime" />
+				<ref bean="notiFileQFGLGenJobTime" />
+				<ref bean="notiFileWLWGLGenJobTime" />
+				<ref bean="notiFileYXZYGLGenJobTime" />
+				<ref bean="notiFileZBGLGenJobTime" />
+
+				<ref bean="KDGLFileGenJobTimeV2" />
+				<ref bean="QFGLFileGenJobTimeV2" />
+				<ref bean="WLWGLFileGenJobTimeV2" />
+				<ref bean="YXZYGLFileGenJobTimeV2" />
+				<ref bean="ZBGLFileGenJobTimeV2" />
+				<ref bean="behavJobTime" />
+				<!-- <ref bean="KDGLFileGenJobTimeV2" /> <ref bean="notiFileQFGLGenJobTime" 
+					/> <ref bean="QFGLFileGenJobTimeV2" /> <ref bean="WLWGLFileGenJobTimeV2" 
+					/> <ref bean="notiFileWLWGLGenJobTime" /> <ref bean="notiFileKDGLGenJobTime" 
+					/> <ref bean="llzyFileGenJobTimeV2" /> <ref bean="qf4000FileGenJobTimeV2" 
+					/> <ref bean="yjkFileGenJobTimeV2" /> <ref bean="dzj6000FileGenJobTimeV2" 
+					/> <ref bean="qdykFileGenJobTimeV2" /> <ref bean="zdtlFileGenJobTimeV2" /> 
+					<ref bean="ygycFileGenJobTimeV2" /> <ref bean="yjkFileGenJobTimeV2" /> <ref 
+					bean="qf4000FileGenJobTimeV2"/> <ref bean="notiFileKDGLGenJobTime" /> <ref 
+					bean="testFileGenJobTimeV2" /> <ref bean="notiFile3000GenJobTime" /> <ref 
+					bean="notiFile1000GenJobTime" /> <ref bean="notiFile2000GenJobTime" /> <ref 
+					bean="notiFile4000GenJobTime" /> <ref bean="notiFile5000GenJobTime" /> <ref 
+					bean="notiFile6000GenJobTime" /> <ref bean="notiFile7000GenJobTime" /> <ref 
+					bean="smsIntegrationJobTime" /> <ref bean="smsJobTime" /> <ref bean="tySJZLJobTime" 
+					/> <ref bean="qdykSJZLJobTime" /> <ref bean="yjkSJZLJobTime" /> <ref bean="zdtlSJZLJobTime" 
+					/> -->
+			</list>
+		</property>
+	</bean>
+
+</beans>

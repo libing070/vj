@@ -1,0 +1,216 @@
+/* 需求管理 */
+.dropdown_con input{
+    line-height: none;
+}
+.dropdown_con input{
+    line-height: 24px;
+}
+.top_form{
+    position: relative;
+}
+.top_form .dataBefore,.top_form .dataAfter{
+    text-align: center;
+    width: 104px;
+    line-height: 22px;
+    height: 28px;
+    font-size: 13px;
+    padding: 3px 0;
+    border: 1px solid #a6a6a6;
+    border-radius: 3px; 
+}
+.top_form .dataBefore:focus,
+.top_form .dataAfter:focus {
+    border-color: #a6a6a6;
+}
+
+/*带搜索图标的搜索框样式*/
+.top_form .inputSearch {float: left}
+.top_form .inputSearch input{width: 196px}
+.top_form .inputSearch .form-control{border: 1px solid #AAAAAA;}
+.top_form .inputSearch .keyword{border: 1px solid #26B4FF;}
+
+.top_form .form-group .btn{
+    font-size: 12px;
+    padding: 2px 4px;
+    margin-bottom: 4px;
+    background-color: #ffffff;
+    border: 1px solid #a6a6a6;
+    color: #333;
+}
+.top_form .form-group .btn:hover{
+    color:#26B4FF;
+    border-color: #26B4FF;
+}
+.top_form .form-group .btn-primary{
+    padding: 4px 12px;
+    margin-right: 4px;
+    border: 1px solid #26B4FF;
+    background-color: #26B4FF;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.top_form .form-group .active{
+    border: 1px solid #26B4FF;
+    background-color: #26B4FF;
+    color: #fff;
+}
+.top_form .form-group .active:hover{
+    border: 1px solid #26B4FF;
+    background-color: #26B4FF;
+    color: #fff;
+}
+/* 新增需求组*/
+.top_form .newly{
+    position: absolute;
+    top: -4px;
+    right: 0px;
+}
+.top_form .newly .btn-primary{
+    padding: 6px 14px;
+}
+.clearfix{
+    height: 0px;
+}
+.bootstrap-table .table:not(.table-condensed)>tbody>tr>td{
+    padding: 4px;
+    font-size: 12px;
+}
+
+.bootstrap-table .table tr:nth-child(even),.bootstrap-table .table th{
+    background-color: #e8ecef;
+}
+.bootstrap-table .btn{
+    border: none;
+    padding: 0px;
+}
+.bootstrap-table .dropdown-menu{
+    min-width: 68px;
+}
+
+
+/* 需求详情页 */
+body.demandFormList{
+    overflow-y: scroll!important; 
+    overflow:-moz-scrollbars-vertical;
+}
+.demandForm{
+    width: 680px;
+    margin: 20px auto;
+}
+.demandForm .btn{
+    border: 1px solid #26B4FF;
+    background-color: #26B4FF;
+    color: #fff;
+}
+.demandForm .input_wrap input{
+    background-color: #fff;
+}
+.main_content .top_search{
+    padding: 15px 10px; 
+}
+.main_content .top_search label{
+    padding: 7px 2px 0;
+}
+.demandFormList textarea{
+    resize: none;
+}
+.formList>li{
+    padding: 8px 0;
+}
+.formList>li label{
+    width: 88px;
+    vertical-align: middle
+}
+.formList>li .demandType label{
+    width: auto;
+    margin-right: 20px;
+    vertical-align: middle
+}
+.formList>li .dropdown_con{
+    display: inline-block;
+    width: 140px;
+    margin-right: 10px;
+}
+.formList>li .td1{
+    display: inline-block;
+    width: 500px;
+    vertical-align: top;
+}
+.formList>li .td2{
+    display: inline-block;
+    width: 196px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.formList>li .td4{
+    display: inline-block;
+    width: 86px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+.formList>li .td2.td_1{
+    width: 326px;
+}
+.formList>li .td2 input,.formList>li .td4 input{
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 14px;
+    height: 31px;
+    line-height:20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+.formList>li .help-block{
+    display: inline;
+}
+.formList .dataCycleLabel{
+    width: 60px;
+}
+.uploadfileList .col-xs-1{
+    width: 88px;
+}
+.uploadfileList .col-xs-11{
+    width: 84%;
+    padding-left: 0;
+    padding-right: 0;
+}
+.uploadfileList .col-xs-11 .col-xs-5{
+    width: 218px;
+    padding-left: 5px;
+    padding-right: 0;
+}
+.glyphicon-plus-sign:hover,.glyphicon-plus-sign:active,.glyphicon-minus-sign:hover,.glyphicon-minus-sign:active{
+    color: #3091DF;
+}
+.interfaceList .form-control{
+    margin:0 4px;
+}
+.webuploader-pick{
+    padding: 7px 20px
+}
+.dispose label{
+    width: 88px;
+    padding: 2px;
+    margin-right: 8px;
+    margin-left: 10px;
+}
+.dispose .td1{
+    display: inline-block;
+    width: 500px;
+    vertical-align: middle;
+}
+
+.submitBtn{
+    margin-bottom: 30px;
+}
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .top_form{
+        height: 32px;
+    }
+}

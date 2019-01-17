@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="SmsJobMapper">
+
+	<!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="java.util.Map" id="smsReqList">
+		<result column="id" property="id" />
+		<result column="phone" property="phone" />
+		<result column="content" property="content" />
+		<result column="send_flag" property="sendFlag" />
+		<result column="send_count" property="sendCount" />
+		<result column="sms_src" property="smsSrc" />
+		<result column="create_time" property="createTime" />
+		<result column="send_time" property="sendTime" />
+	</resultMap>
+
+	<!-- 查询待发送短信的请求列表 -->
+	<select id="selectSmsRequest" resultMap="smsReqList" parameterType="java.util.Map">
+		SELECT * FROM HPMGR.busi_sms_notify where send_flag='N'
+	</select>
+
+	<!-- 更新短信发送状态 -->
+	<update id="updateSmsCountAndTime" parameterType="java.util.Map">
+		update HPMGR.busi_sms_notify set send_flag=#{sendFlag} , send_count=send_count+1 , send_time=current_timestamp(6)
+		where id=#{id}
+	</update>
+	
+	<!-- 查询短信临时表中是否有数据 -->
+	<select id="checkSmsReady" resultMap="smsReqList" parameterType="java.util.Map">
+		 select count(*) as quantity from  hpmgr.busi_sms_notify_temp
+	</select>
+	
+	<!-- 更新短信临时表中的标识 -->
+	<update id="updateSmsFlag" parameterType="java.util.Map">
+ 		update hpmgr.busi_sms_notify_temp set send_count =1
+	</update>
+	
+	<!-- 将临时表中send_count字段是1的记录拷到中间表 -->
+	<insert id="copeSmsToMid" parameterType="java.util.Map" >
+		insert  into  hpmgr.busi_sms_notify_mid select *  from  hpmgr.busi_sms_notify_temp t  where t.send_count=1 
+	</insert>
+	
+	<!-- 查询今天的短信 -->
+	<select id="selectSmsMidRequest" resultType="Map" parameterType="java.util.Map">
+		SELECT t.user_id, t.phone, t.content, t.send_flag, t.send_count, t.sms_src,
+		t.create_time, t.send_time, t.warn_id, t.int_xinxi, t.prvdId, 
+		 case when t.subject_id='1000' then  '有价卡'
+			when  t.subject_id='2000' then '养卡'
+			when  t.subject_id='3000' then '终端套利' end as subject_name,
+		case when t.focus_cd = '1001' then '有价卡未按规定在系统间同步加载'
+			when t.focus_cd = '1002' then '有价卡违规激活'
+			when  t.focus_cd = '1003' then '有价卡违规销售'
+			when  t.focus_cd = '1004' then  '退换后的坏卡或报废卡未封锁'
+			when  t.focus_cd = '1005' then  '有价卡违规重复使用'
+			when  t.focus_cd = '1006' then '有价卡违规重复赠送'
+			when  t.focus_cd = '1007' then '规定使用期限的促销赠送电子券到期未作废'
+			when  t.focus_cd = '1009' then  '限本地使用的电子充值券违规异地使用'
+			when  t.focus_cd = '2002' then '渠道养卡'
+			when  t.focus_cd = '3001' then '代理商沉默串码套利模型逻辑'
+			when  t.focus_cd = '3002' then '代理商养机模型逻辑'
+			when  t.focus_cd = '3003' then'代理商空串码套利模型逻辑'
+			when  t.focus_cd = '3004' then '代理商终端拆包套利模型逻辑'
+			when  t.focus_cd = '3005' then '代理商跨省窜货套利模型逻辑' end as focusName,
+			 t.txdate, t.jobstatus, t.jobtype
+		 FROM HPMGR.busi_sms_notify_mid t,dwetl.etl_job_log b where cast( t.create_time as varchar(19)) between b.StartTime and b.EndTime 
+		 	and etl_system='VER' and etl_job like '%10000_DB_MONITOR_MS_ONE%' and  b.TXDate = CAST(#{today} AS DATE FORMAT'YYYYMMDD') and t.send_count = 1
+	</select>
+	
+	<insert id="addSmsRecord" parameterType="java.util.Map" ><!-- id先不插入 -->
+		insert into HPMGR.busi_sms_notify
+		( user_id, phone, content, send_flag, send_count, sms_src, create_time,send_time)
+		VALUES
+		('0',#{phone},#{content},'N',0,'0',current_timestamp,NULL)
+	</insert>
+	
+	<insert id="addSmsRecordTmp" parameterType="java.util.Map" ><!-- id先不插入 -->
+		insert into HPMGR.busi_sms_notify
+		( user_id, phone, content, send_flag, send_count, sms_src, create_time,send_time)
+		VALUES
+		(#{userId},#{phone},#{content},'Y',0,'0',#{createTime},#{sendTime})
+	</insert>
+	
+	<!-- 将send_count字段是1的记录在临时表里删除 -->
+	<delete id="deleteSmsFromTemp" parameterType="java.util.Map" >
+		delete from hpmgr.busi_sms_notify_temp where send_count =1
+	</delete>
+	
+	<!--将中间表中所有记录的send_count字段更新成2（表示这些记录都不用再拼接了)。  -->
+	<update id="updateSmsCompelteFlag" parameterType="java.util.Map">
+ 		update hpmgr.busi_sms_notify_mid set send_count =2 where send_count =1
+	</update>
+</mapper>

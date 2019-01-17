@@ -1,0 +1,291 @@
+/* 面包屑导航 */
+.light_theme .breadcrumb {
+    color: #409EFF;
+    background-color: transparent;
+    cursor: pointer;
+  }
+
+  .tab-content>.tab-pane{
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .top_form{
+      margin: 0 15px;
+  }
+  .light_theme .breadcrumb>.active {
+    color: #606266;
+    font-weight: 400;
+  }
+  light_theme .layout_col {
+    background-color: #fff;
+    color: #4E5155;
+    border-right: 1px solid rgba(33, 33, 33, .2);
+  }
+  
+  /* 界面布局 */
+.main_content .layout_wrap{
+    position: relative;
+  }
+.light_theme .layout_col {
+    background-color: #fff;
+    color: #4E5155;
+    border-right: 1px solid rgba(33, 33, 33, .2);
+  }
+
+  /* 左侧tab标签 */
+  .light_theme .tabs_col .nav_workLeft{
+      position: relative;
+  }
+  .light_theme .tabs_col .nav_workLeft li{
+    position: relative;
+    text-align: center;
+    color:#909399;
+    border: 1px solid transparent;
+    margin: -1px 0 -1px -1px;
+    padding: 0 20px;
+    cursor: pointer;
+  }
+  
+  
+  .light_theme .tabs_col .nav_workLeft>li>span {
+    color: inherit;
+    display: inline-block;
+    min-width: 130px;
+    height: 60px;
+    line-height: 60px;
+  }
+  .light_theme .tabs_col .nav_workLeft>li li a{
+    color: #909399;
+    display: inline-block;
+    height: 60px;
+    line-height: 60px;
+  }
+  .light_theme .tabs_col .nav_workLeft>li.active{
+    border-color: #d1dbe5 transparent;
+    box-shadow: 10px 1px 0 #fff;
+  }
+  .light_theme .tabs_col .nav_workLeft>li.active::before{
+    content: ' ';
+    height: 46px;
+    position: absolute;
+    left: -4px;
+    top: 30px;
+    z-index: -1;
+    background-color: #309eff;
+    -webkit-transform: translate(0px,-50%);
+    transform: translate(0px,-50%);
+    border-left: 10px solid #409EFF;
+    border-radius: 6px;
+  }
+  .light_theme .tabs_col  .nav_workLeft>li.active span,
+  .light_theme .tabs_col .nav_workLeft>li li.active a{
+    color: #409EFF ;
+  }
+
+  /* 右侧顶部搜索区 */
+
+.main_content .top_search {
+    padding: 15px 10px;
+    height: 62px;
+}
+
+.main_content .top_search label {
+    padding: 7px 2px 0;
+}
+.main_wrap .panel{
+    height: 87%;
+}
+.dataBefore,
+.dataAfter {
+    text-align: center;
+    width: 80px;
+    font-size: 13px;
+    height: 28px;
+    line-height: 22px;
+    padding: 0px 0;
+    border: 1px solid #a6a6a6;
+    border-radius: 6px;
+  
+}
+
+.form-inline .form-group.dropdown {
+    width: 162px;
+}
+
+.searchWrap {
+    height: 28px;
+}
+
+.searchWrap .keyword {
+    text-align: center;
+    width: 174px;
+    font-size: 13px;
+    height: 26px;
+    padding: 2px 15px 2px 5px;
+    border: 1px solid #a6a6a6;
+    border-radius: 3px;
+    margin-top: -3px
+}
+
+.searchWrap .keyword .bs-caret .caret {
+    display: none;
+}
+
+.bootstrap-select.btn-group .dropdown-toggle .filter-option {
+    text-align: center;
+}
+
+.main_content .content_col .content{
+    max-width: 1100px;
+}
+
+.form-group.fr {
+    margin-top: 3px;
+}
+
+.bootstrap-select.btn-group .dropdown-toggle .filter-option {
+    text-align: center;
+}
+
+.btn {
+    border: 1px solid #a6a6a6;
+    padding: 3px 12px;
+    line-height: 1.43;
+}
+
+.btn:hover,
+.btn:focus {
+    border: 1px solid #337ab7;
+    color: #fff;
+    background-color: #337ab7;
+}
+.ui-autocomplete {
+    width: 240px;
+    max-height: 100px;
+    /* left:938.86px; */
+    overflow-y: auto;
+    /* 防止水平滚动条 */
+    overflow-x: hidden;
+    position: absolute;
+    cursor: default;
+    overflow-y: auto;
+    /* 防止出现水平滚动条 */
+    overflow-x: hidden;
+    /* 内容与右侧滚动条的距离 */
+    padding-right: 0px;
+}
+
+
+/* IE 6 不支持 max-height
+   * 我们使用 height 代替，但是这会强制菜单总是显示为那个高度
+   */
+
+* html .ui-autocomplete {
+    height: 100px;
+}
+
+.ui-autocomplete li a {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    /* -o-text-overflow：ellipsis; */
+}
+
+.ui-menu {
+    list-style: none;
+    padding: 2px;
+    margin: 0;
+    display: block;
+    float: left;
+    background: #ffffff;
+    border: 1px solid #d3d3d3
+}
+
+.ui-menu .ui-menu {
+    margin-top: -3px;
+}
+
+.ui-menu .ui-menu-item {
+    margin: 0;
+    padding: 0;
+    zoom: 1;
+    float: left;
+    clear: left;
+    width: 100%;
+    list-style-image: none;
+}
+
+.ui-menu .ui-menu-item a {
+    text-decoration: none;
+    display: block;
+    padding: .2em .4em;
+    line-height: 1.5;
+    zoom: 1;
+}
+
+.ui-menu .ui-menu-item a.ui-state-hover,
+.ui-menu .ui-menu-item a.ui-state-active {
+    background: #abcee4;
+    font-weight: normal;
+}
+
+.bootstrap-table .table:not(.table-condensed)>tbody>tr>td{
+    padding: 4px;
+    font-size: 12px;
+}
+
+.bootstrap-table .table tr:nth-child(even),.bootstrap-table .table th{
+    background-color: #e8ecef;
+}
+.bootstrap-table .btn{
+    border: none;
+    padding: 0px;
+}
+.bootstrap-table .dropdown-menu{
+    min-width: 68px;
+}
+
+.btn {
+    border: 1px solid #a6a6a6;
+    padding: 3px 12px;
+    line-height: 1.43;
+}
+
+.btn:hover,
+.btn:focus {
+    border: 1px solid #a6a6a6;
+    color: #fff;
+    background-color: #fff;
+}
+
+/* 1024*768分辨率下，窗口高度为640px，上方的即为1024分辨率下，部分页面可能需要修改 */
+
+@media screen and (max-width: 1024px) {
+    .top_search {
+        height: 86px;
+    }
+    .main_content .content_col .content{
+        max-width: 768px;
+    }
+}
+  
+/* 1366*768分辨率，窗口高度为640px */
+
+@media screen and (max-width: 1366px) and (min-width: 1025px) {}
+
+/* 1600*900分辨率下，窗口高度为770px */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    .main_content .content_col .content{
+        max-width: 1192px;
+    }
+}
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    .main_content .content_col .content{
+        max-width: 1500px;
+    }
+}

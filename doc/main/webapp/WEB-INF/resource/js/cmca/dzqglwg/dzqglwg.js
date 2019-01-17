@@ -1,0 +1,1054 @@
+$(document).ready(function () {
+    // 插入一经事件码-查询
+    dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+    // 日志记录
+    get_userBehavior_log('专题', '电子券管理违规', '', '访问');
+    // step 1:请求权限控制-动态控制页面元素
+    rightControl();
+    // step 2：个性化本页面的特殊风格
+    initStyle();
+    // step 3：绑定本页面元素的响应时间,比如onclick,onchange,hover等
+    initEvent();
+    // step 4：获取默认首次加载的初始化参数，并给隐藏form赋值
+    initDefaultParams();
+    // step 5:触发页面默认加载函数-加载初始化数据
+    tabActive();
+});
+
+/**
+ * step 1:请求权限控制-此步骤动态创建页面元素并控制页面元素状态
+ * 权限控制:先根据返回权限动态添加tab按钮及控制界面元素（主要为tab页）的显示状态，
+ * 元素状态确定之后调用tabActive()方法，根据页面元素的显示状态，初始化页面显示数据
+ * 修改此方法，因为公共js文件已经获取过权限，将权限保存在sessionstroage中，独立页面不再请求权限，而是从sessionstroage中读取权限缓存 20180205 by xsw
+ */
+function rightControl() {
+    // 读取权限
+    var data = JSON.parse(sessionStorage.getItem('rightControl'));
+    /**
+     * 统计分析权限控制
+     * 统计分析下tab页比较多，还可能存在审计结果和统计分析都具有权限的状态，单独写函数处理,在处理多种情况时都可以调用此函数
+     */
+    function fenxiRightControl() {
+        // 统计分析tab页处于显示状态
+        $('#fenxiTabCon').addClass('active');
+        // 统计分析-统计报表权限控制
+        if (data.dzqpmhz || data.dzqqtcd) {
+            // 添加统计报表tab按钮-并处于活动状态
+            $('#fenxiTabCon .four_nav>ul').append('<li class="col-xs-3 active" data-target="#fenxiFourNav1Con" data-toggle="tab">统计报表</li>');
+            // 统计报表tab页处于显示状态
+            $('#fenxiFourNav1Con').addClass('active');
+            // 统计分析-统计报表-排名汇总和其他tab都有权限
+            if (data.dzqpmhz && data.dzqqtcd) {
+                // 添加统计报表五级tab按钮-且排名汇总tab按钮处于活动状态
+                $('#fenxiFourNav1Con .five_nav>ul').append('<li class="active" data-target="#fenxiFourNav1FiveNav1Con" data-toggle="tab">排名汇总</li>' +
+                    '<li data-target="#fenxiFourNav1FiveNav2Con" data-toggle="tab">增量分析</li>' +
+                    '<li data-target="#fenxiFourNav1FiveNav3Con" data-toggle="tab">重点关注地市</li>' +
+                    '<li data-target="#fenxiFourNav1FiveNav4Con" data-toggle="tab">重点关注营销案</li>' +
+                    '<li data-target="#fenxiFourNav1FiveNav5Con" data-toggle="tab">重点关注渠道</li>' +
+                    '<li data-target="#fenxiFourNav1FiveNav6Con" data-toggle="tab">重点关注用户</li>' +
+                    '<li data-target="#fenxiFourNav1FiveNav7Con" data-toggle="tab">违规类型分布</li>');
+                // 排名汇总tab页处于显示状态
+                $('#fenxiFourNav1FiveNav1Con').addClass('active');
+            } else
+                //统计分析-统计报表-只有排名汇总有权限
+                if (data.dzqpmhz) {
+                    // 添加排名汇总tab按钮-并处于活动状态
+                    $('#fenxiFourNav1Con .five_nav>ul').append('<li class="active" data-target="#fenxiFourNav1FiveNav1Con" data-toggle="tab">排名汇总</li>' +
+                        '<li data-target="#fenxiFourNav1FiveNav4Con" data-toggle="tab">重点关注营销案</li>' +
+                        '<li data-target="#fenxiFourNav1FiveNav5Con" data-toggle="tab">重点关注渠道</li>' +
+                        '<li data-target="#fenxiFourNav1FiveNav6Con" data-toggle="tab">重点关注用户</li>' +
+                        '<li data-target="#fenxiFourNav1FiveNav7Con" data-toggle="tab">违规类型分布</li>');
+                    // 排名汇总tab页处于显示状态
+                    $('#fenxiFourNav1FiveNav1Con').addClass('active');
+                } else
+                    // 统计分析-统计报表-除排名汇总外其他所有tab页权限控制
+                    if (data.dzqqtcd) {
+                        // 添加除排名汇总外其他tab按钮-并使增量分析处于活动状态
+                        $('#fenxiFourNav1Con .five_nav>ul').append('<li class="col-xs-2" data-target="#fenxiFourNav1FiveNav2Con" data-toggle="tab">增量分析</li>' +
+                            '<li class="col-xs-2" data-target="#fenxiFourNav1FiveNav3Con" data-toggle="tab">重点关注地市</li>');
+                        // 统计分析tab页/统计报表tab页/增量分析tab页处于显示状态
+                        $('#fenxiFourNav1FiveNav2Con').addClass('active');
+                    }
+        }
+        // 统计分析-审计整改问责权限控制
+        // data.dzqzgwz
+        if (false) {
+            // 统计报表有权限
+            if (data.dzqpmhz || data.dzqqtcd) {
+                // 只添加审计整改问责tab按钮
+                $('#fenxiTabCon .four_nav>ul').append('<li class="col-xs-3" data-target="#fenxiFourNav2Con" data-toggle="tab">审计整改问责</li>');
+                // 添加审计整改问责五级tab按钮-整改问责要求tab按钮处于活动状态
+                $('#fenxiFourNav2Con .five_nav>ul').append('<li class="col-xs-2" data-target="#fenxiFourNav2FiveNav1Con" data-toggle="tab">整改问责要求</li>' +
+                    '<li class="col-xs-2" data-target="#fenxiFourNav2FiveNav2Con" data-toggle="tab">整改问责统计</li>');
+            } else {
+                // 添加审计整改问责tab按钮
+                $('#fenxiTabCon .four_nav>ul').append('<li class="col-xs-3 active" data-target="#fenxiFourNav2Con" data-toggle="tab">审计整改问责</li>');
+                // 添加审计整改问责五级tab按钮-整改问责要求tab按钮处于活动状态
+                $('#fenxiFourNav2Con .five_nav>ul').append('<li class="col-xs-2 active" data-target="#fenxiFourNav2FiveNav1Con" data-toggle="tab">整改问责要求</li>' +
+                    '<li class="col-xs-2" data-target="#fenxiFourNav2FiveNav2Con" data-toggle="tab">整改问责统计</li>');
+                // 审计整改要求tab页处于显示状态
+                $('#fenxiFourNav2Con,#fenxiFourNav2FiveNav1Con').addClass('active');
+            }
+
+        }
+        // 统计分析-审计报告页面权限控制
+        if (data.dzqsjbg) {
+            // 统计报表/整改问责有权限
+            if (data.dzqpmhz || data.dzqqtcd || false) {
+                // 只添加审计报告tab按钮
+                $('#fenxiTabCon .four_nav>ul').append('<li class="col-xs-3" data-target="#fenxiFourNav3Con" data-toggle="tab">审计报告</li>');
+            } else {
+                // 添加审计报告tab按钮-并处于活动状态
+                $('#fenxiTabCon .four_nav>ul').append('<li class="col-xs-3 active" data-target="#fenxiFourNav3Con" data-toggle="tab">审计报告</li>');
+                // 审计报告tab页处于显示状态
+                $('#fenxiFourNav3Con').addClass('active');
+            }
+        }
+    }
+
+    // 权限控制-HTML元素状态
+    // 审计结果和统计分析下任何一个tab页的权限组合
+    if (data.dzqsjjg && (data.dzqpmhz || data.dzqqtcd || false || data.dzqsjbg)) {
+        // 添加审计结果/统计分析按钮-切审计结果按钮处于活动状态
+        $('#threeLvNav').append('<li class="active"><a href="#resultTabCon" id="resuleBtn" data-toggle="tab">审计结果</a></li>' +
+            '<li><a href="#fenxiTabCon" id="fenxiBtn" data-toggle="tab">统计分析</a></li>');
+        // 主体左右两部分都要显示
+        $('#mainLeftShow,#mainRightShow').show();
+        // 审计结果tab页显示
+        $('#resultTabCon').addClass('active');
+        // 右侧放大缩小按钮显示
+        $('#mainRightBtn').show();
+        // 统计分析tab页权限控制
+        fenxiRightControl();
+    } else
+        // 只有统计分析-有权限
+        if (data.dzqpmhz || data.dzqqtcd || false || data.dzqsjbg) {
+            // 主体右侧显示
+            $('#mainRightShow').attr('style', 'width:100%').show();
+            // 添加统计分析按钮-并处于活动状态
+            $('#threeLvNav').append('<li class="active"><a href="#fenxiTabCon" id="fenxiBtn" data-toggle="tab">统计分析</a></li>');
+            fenxiRightControl();
+        } else
+            // 只有审计结果-有权限
+            if (data.dzqsjjg) {
+                // 添加审计结果按钮-并处于活动状态
+                $('#threeLvNav').append('<li class="active"><a href="#resultTabCon" id="resuleBtn" data-toggle="tab">审计结果</a></li>');
+                // 主体左右两部分都要显示
+                $('#mainLeftShow,#mainRightShow').show();
+                // 审计结果tab页显示
+                $('#resultTabCon').addClass('active');
+                // 右侧放大缩小按钮显示
+                $('#mainRightBtn').show();
+            }
+}
+
+//step 2: 个性化本页面的特殊风格
+function initStyle() {
+    //TODO 自己页面独有的风格
+    //审计结果第一个highchart图形
+    scroll('#contentShowWrap1', '#contentShow1');
+    //审计结果第二个highchart图形
+    scroll('#contentShowWrap2', '#contentShow2');
+    //审计结果第三个highchart图形
+    scroll('#contentShowWrap3', '#contentShow3');
+    //审计结果第四个highchart图形
+    scroll('#contentShowWrap4', '#contentShow4');
+    // 审计整改问责-整改问责统计-六个月内达标排名
+    scroll('#stageAccOrderWrap', '#stageAccOrder');
+    // 审计整改问责-整改问责统计-累次达到整改次数排名
+    scroll('#addUpAccOrderWrap', '#addUpAccOrder');
+    // 审计整改问责-整改问责统计-达到整改标准省公司数量趋势
+    scroll('#accTrendWrap', '#accTrend');
+    //统计分析-增量分析-关注事项
+    scroll('#TypeListWrap1', '#TypeList1');
+    // 统计分析-重点关注用户-关注事项
+    scroll('#TypeListWrap2', '#TypeList2');
+    // 地图下钻-选择关注维度
+    scroll('#TypeListWrap3', '#TypeList3');
+    // 地图下钻-重点关注用户-关注事项
+    scroll('#TypeListWrap4', '#TypeList4');
+    // 统计报表-波动分析瀑布图添加滚动条
+    scroll('#fenxiFourNav1FiveNav2Con', '#pubuChart');
+    // 统计报表-违规类型分布-终端套利占比趋势添加滚动条
+    scroll('#abnormalAreaChartWrap', '#abnormalAreaChart');
+}
+
+//step 3：绑定页面元素的响应时间,比如onclick,onchange,hover等
+function initEvent() {
+    //每一个事件的函数按如下步骤：
+    //1-设置对应form属性值 2-加载本组件数据  3.触发其他需要联动组件数据加载
+
+    // 顶部搜索区域选择
+    $('#provinceList').on('click', 'li a', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '区域选择', '查询');
+
+        // 样式
+        $('#mapTableDialog,#TableToInfoWrap').hide();
+        $('#chooseProvince').val($(this).text());
+        $("#provinceListWrap").getNiceScroll(0).hide();
+        $(this).closest('.dropdown_menu').slideUp();
+        // 改变隐藏域val
+        $('#prvdId').val($(this).attr('id').substring(1));
+        $('#prvdNameZH').val($(this).text());
+        // 加载数据
+        tabActive();
+    });
+
+    // 顶部搜索时间选择
+    $('#timeList').on('click', 'li a', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '时间选择', '查询');
+
+        // 样式
+        $('#mapTableDialog,#TableToInfoWrap').hide();
+        $('#chooseTime').val($(this).text());
+        $("#timeListWrap").getNiceScroll(0).hide();
+        $(this).closest('.dropdown_menu').slideUp();
+        // 改变隐藏域val
+        $('#audTrm').val($(this).attr('id').substring(1));
+        // 加载数据
+        tabActive();
+    });
+
+    //省份地图返回按钮，重新绘制全国地图
+    $("#ProvBackBtn").on('click', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '全国地图', '查询');
+
+        // 样式
+        $(this).hide();
+        $('#nanhaiQundao').show();
+        // 改变隐藏域val
+        $("#prvdId").val(10000);
+        $('#prvdNameZH,#chooseProvince').val('全公司');
+        // 加载数据
+        tabActive();
+    });
+
+    // 地图下钻表格-关注维度选择
+    $("#TypeList3").on('click', 'li a', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text() + '维度信息', '查询');
+
+        var types = $(this).attr('data');
+        // 样式
+        $('#chooseWeiDu').val($(this).text());
+        $("#TypeListWrap3").getNiceScroll(0).hide();
+        $(this).closest('.dropdown_menu').slideUp();
+        // 请求数据
+        switch (types) {
+            case 'focusCase':
+                // 样式
+                $('#mapUserChooseConcernWrap').hide();
+                // 加载数据
+                load_cty_zdgz_case_table();
+                break;
+            default:
+                // 样式
+                $('#mapUserChooseConcernWrap').show();
+                $('#mapUserChooseConcern').val('异常发放金额汇总');
+                // 改变隐藏域
+                $('#flagId').val(6002);
+                // 加载数据
+                load_cty_zdgz_user_table();
+                break;
+        }
+    });
+
+    //地图下钻-重点关注用户-关注事项选择
+    $("#TypeList4").on('click', 'li a', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text() + '事项信息', '查询');
+
+        // 样式
+        $('#mapUserChooseConcern').val($(this).text());
+        $("#TypeListWrap4").getNiceScroll(0).hide();
+        $(this).closest('.dropdown_menu').slideUp();
+        // 改变隐藏域val
+        $('#flagId').val($(this).attr('data'));
+        // 加载数据
+        load_cty_zdgz_user_table();
+    });
+
+    // 审计结果按钮点击，右侧图形内容初始化
+    $('#threeLvNav').on('click', '#resuleBtn', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '审计结果', '查询');
+
+        // 样式
+        $(this).addClass('active').siblings().removeClass('active');
+        // 地图弹出层样式初始化
+        $('#mapTableDialog').hide();
+        // 关注点标签样式初始化
+        $('#AbnormalCouponsTab').addClass('active').siblings().removeClass('active');
+        // 指标样式初始化
+        $('#resultTabCon .show_item button').removeClass('active_btn');
+        $('#resultTarget1btn_L,#resultTarget3btn_L,#resultTarget4btn_L').addClass('active_btn');
+        $('#resultTabCon .show_item:eq(0) .target_title').text('异常发放电子券金额排名（万元）');
+        $('#resultTabCon .show_item:eq(1) .target_title').text('异常发放电子券金额占比排名');
+        $('#resultTabCon .show_item:eq(2) .target_title').text('异常发放电子券金额趋势');
+        $('#resultTabCon .show_item:eq(3) .target_title').text('异常发放电子券金额占比趋势');
+        // 改变隐藏域val
+        $('#concern').val('6002');
+        $('#targetTxt').val('异常发放电子券金额排名（万元）');
+        $('#target,#resultTarget1').val('errAmount');
+        $('#resultTarget2').val('errAmountPercent');
+        $('#resultTarget3').val('errAmountTrend');
+        $('#resultTarget4').val('errAmountPercentTrend');
+        // 加载数据
+        drawMap();
+        load_mapBtm_card_chart();
+        load_result_chart();
+    });
+
+    // 审计结果下切换关注点
+    $('#resultTabCon .four_nav ul').on('click', 'li', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text(), '查询');
+
+        var concernBtn = $(this).attr('id'),
+            targetTitles = [],
+            prvdId = $('#prvdId').val();
+        // 样式-初始化
+        $(this).addClass('active').siblings().removeClass('active');
+        $('#mapTableDialog').hide();
+        $('#resultTarget1btn_L').addClass('active_btn').siblings().removeClass('active_btn').closest('.show_item').siblings().find('button').not("#errPercentBtn").removeClass('active_btn');
+        $('#resultTarget3btn_L,#resultTarget4btn_L').addClass('active_btn').siblings().removeClass('active_btn');
+        // 根据不同的关注点做动态改变
+        switch (concernBtn) {
+            case 'AbnormalCouponsTab': //异常发放电子券
+                // 改变隐藏域
+                $('#concern').val(6002);
+                // 指标标题
+                targetTitles = ['异常发放电子券金额排名（万元）', '异常发放电子券金额占比排名', '异常发放电子券金额趋势（万元）', '异常发放电子券金额占比趋势'];
+                // 改变隐藏域val
+                $('#target,#resultTarget1').val('errAmount');
+                $('#resultTarget2').val('errAmountPercent');
+                $('#resultTarget3').val('errAmountTrend');
+                $('#resultTarget4').val('errAmountPercentTrend');
+                $('#targetTxt').val('异常发放电子券金额排名（万元）');
+                break;
+            case 'inconformityTab': //电子券平台间数据不一致
+                // 改变隐藏域
+                $('#concern').val(6001);
+                // 指标标题
+                targetTitles = ['省无基地有电子券金额排名（万元）', '省无基地有电子券金额占比排名', '省无基地有电子券金额趋势（万元）', '省无基地有电子券金额占比趋势'];
+                // 改变隐藏域val
+                $('#target,#resultTarget1').val('prvdNoAmount');
+                $('#resultTarget2').val('prvdNoAmountPercent');
+                $('#resultTarget3').val('prvdNoAmountTrend');
+                $('#resultTarget4').val('prvdNoAmountPercentTrend');
+                $('#targetTxt').val('省无基地有电子券金额排名（万元）');
+                break;
+        }
+        // 改变指标标题
+        $.each(targetTitles, function (idx) {
+            $('#resultTabCon .target_title:eq(' + idx + ')').text(this);
+        });
+        // 加载数据
+        tabActive();
+    });
+
+    // 审计结果下各指标切换
+    $('#resultTabCon').on('click', '.show_item .title button', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        var btnId = $(this).attr('id'),
+            show_item_idx = $(this).closest('.show_item').index(),
+            targetTitle, targetVal, behav_cont;
+        // 判断是处于哪个关注点下
+        if ($('#AbnormalCouponsTab').hasClass('active')) { //异常发放电子券
+            // 根据指标切换样式和请求数据
+            switch (btnId) {
+                case 'resultTarget1btn_L': //异常发放电子券金额排名
+                    targetTitle = '异常发放电子券金额排名（万元）';
+                    behav_cont = '异常发放电子券金额排名';
+                    targetVal = 'errAmount';
+                    $('#resultTarget1').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow1', '异常发放电子券金额', '#3095f2', '万元', 2);
+                    break;
+                case 'resultTarget1btn_R': //异常发放电子券张数排名
+                    targetTitle = '异常发放电子券张数排名（张）';
+                    behav_cont = '异常发放电子券张数排名';
+                    targetVal = 'errIssueNum';
+                    $('#resultTarget1').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow1', '异常发放电子券张数', '#3095f2', '张', 0);
+                    break;
+                case 'resultTarget2btn_L': //异常发放电子券金额占比排名
+                    targetTitle = '异常发放电子券金额占比排名';
+                    behav_cont = '异常发放电子券金额占比排名';
+                    targetVal = 'errAmountPercent';
+                    $('#resultTarget2').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow2', '异常发放电子券金额占比', '#FF647F', '%', 2);
+                    break;
+                case 'resultTarget2btn_R': //异常发放电子券张数占比排名
+                    targetTitle = '异常发放电子券张数占比排名';
+                    behav_cont = '异常发放电子券张数占比排名';
+                    targetVal = 'errIssueNumPercent';
+                    $('#resultTarget2').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow2', '异常发放电子券张数占比', '#FF647F', '%', 2);
+                    break;
+                case 'resultTarget3btn_L': //异常发放电子券金额趋势
+                    targetTitle = '异常发放电子券金额趋势（万元）';
+                    behav_cont = '异常发放电子券金额趋势';
+                    targetVal = 'errAmountTrend'
+                    $('#resultTarget3').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow3', '异常发放电子券金额', '#00c58e', '万元', 2);
+                    break;
+                case 'resultTarget3btn_R': //异常发放电子券张数趋势
+                    targetTitle = '异常发放电子券张数趋势';
+                    behav_cont = '异常发放电子券张数趋势';
+                    targetVal = 'errIssueNumTrend';
+                    $('#resultTarget3').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow3', '异常发放电子券张数', '#00c58e', '张', 0);
+                    break;
+                case 'resultTarget4btn_L': //异常发放电子券金额占比趋势
+                    targetTitle = '异常发放电子券金额占比趋势';
+                    behav_cont = '异常发放电子券金额占比趋势';
+                    targetVal = 'errAmountPercentTrend';
+                    $('#resultTarget4').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow4', '异常发放电子券金额占比', '#8885d5', '%', 2);
+                    break;
+                case 'resultTarget4btn_R': //异常发放电子券张数占比趋势
+                    targetTitle = '异常发放电子券张数占比趋势';
+                    behav_cont = '异常发放电子券张数占比趋势';
+                    targetVal = 'errIssueNumPercentTrend';
+                    $('#resultTarget4').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow4', '异常发放电子券张数占比', '#8885d5', '%', 2);
+                    break;
+            }
+        } else {
+            // 根据指标切换样式和请求数据
+            switch (btnId) { //电子券平台间数据不一致
+                case 'resultTarget1btn_L': //省无基地有电子券金额排名(万元)
+                    targetTitle = '省无基地有电子券金额排名（万元）';
+                    behav_cont = '省无基地有电子券金额排名';
+                    targetVal = 'prvdNoAmount';
+                    $('#resultTarget1').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow1', '省无基地有电子券金额', '#3095f2', '万元', 2);
+                    break;
+                case 'resultTarget1btn_R': //省有基地无电子券金额排名
+                    targetTitle = '省有基地无电子券金额排名（万元）';
+                    behav_cont = '省有基地无电子券金额排名';
+                    targetVal = 'prvdHaveAmount';
+                    $('#resultTarget1').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow1', '省有基地无电子券金额', '#3095f2', '万元', 2);
+                    break;
+                case 'resultTarget2btn_L': //省无基地有电子券金额占比排名
+                    targetTitle = '省无基地有电子券金额占比排名';
+                    behav_cont = '省无基地有电子券金额占比排名';
+                    targetVal = 'prvdNoAmountPercent';
+                    $('#resultTarget2').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow2', '省无基地有电子券金额占比', '#FF647F', '%', 2);
+                    break;
+                case 'resultTarget2btn_R': //省有基地无电子券金额占比排名
+                    targetTitle = '省有基地无电子券金额占比排名';
+                    behav_cont = '省有基地无电子券金额占比排名';
+                    targetVal = 'prvdHaveAmountPercent';
+                    $('#resultTarget2').val(targetVal);
+                    load_column_chart('/cmca/dzqglwg/getChartData?parameterType=' + targetVal + '', 'contentShow2', '省有基地无电子券金额', '#FF647F', '%', 2);
+                    break;
+                case 'resultTarget3btn_L': //省无基地有电子券金额趋势(万元)
+                    targetTitle = '省无基地有电子券金额趋势（万元）';
+                    behav_cont = '省无基地有电子券金额趋势';
+                    targetVal = 'prvdNoAmountTrend';
+                    $('#resultTarget3').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow3', '省无基地有电子券金额', '#00c58e', '万元', 2);
+                    break;
+                case 'resultTarget3btn_R': //省有基地无电子券金额趋势(万元)
+                    targetTitle = '省有基地无电子券金额趋势（万元）';
+                    behav_cont = '省有基地无电子券金额趋势';
+                    targetVal = 'prvdHaveAmountTrend';
+                    $('#resultTarget3').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow3', '省有基地无电子券金额', '#00c58e', '万元', 2);
+                    break;
+                case 'resultTarget4btn_L': //省无基地有电子券金额占比趋势
+                    targetTitle = '省无基地有电子券金额占比趋势';
+                    behav_cont = '省无基地有电子券金额占比趋势';
+                    targetVal = 'prvdNoAmountPercentTrend';
+                    $('#resultTarget4').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow4', '省无基地有电子券金额占比', '#8885d5', '%', 2);
+                    break;
+                case 'resultTarget4btn_R': //省有基地无电子券金额占比趋势
+                    targetTitle = '省有基地无电子券金额占比趋势';
+                    behav_cont = '省有基地无电子券金额占比趋势';
+                    targetVal = 'prvdHaveAmountPercentTrend';
+                    $('#resultTarget4').val(targetVal);
+                    load_line_chart('/cmca/dzqglwg/getChartLineData?parameterType=' + targetVal + '', 'contentShow4', '省有基地无电子券金额占比', '#8885d5', '%', 2);
+                    break;
+            }
+        }
+
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', behav_cont, '查询');
+        // 指标标题切换
+        $(this).parent().prev('p').text(targetTitle);
+        // 按钮样式切换，因为只有上方的图形切换，需要同时加载地图数据，所以判断按钮，进行样式改变和数据加载
+        if (show_item_idx <= 1) {
+            $(this).addClass('active_btn').siblings().removeClass('active_btn').closest('.show_item').siblings().find('button').not('#resultTarget3btn_L,#resultTarget3btn_R,#resultTarget4btn_L,#resultTarget4btn_R').removeClass('active_btn');
+            // 改变隐藏域val
+            $('#target').val(targetVal);
+            $('#targetTxt').val(targetTitle);
+            // 请求地图数据
+            drawMap();
+            // 地图下方卡片
+            load_mapBtm_card_chart();
+        } else {
+            $(this).addClass('active_btn').siblings().removeClass('active_btn');
+        }
+    });
+
+    // 统计分析按钮点击，统计分析tab页内容初始化，加入权限控制
+    $('#threeLvNav').on('click', '#fenxiBtn', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '统计分析', '查询');
+        
+        //统计分析-子集添加滚动条滚动条
+        var sumWidth=0;
+        $("#fenxiFourNav1Con .list-inline").find("li").each(function(){
+            sumWidth +=parseInt($(this).outerWidth())+5 ;
+        });
+        if(sumWidth==60||sumWidth==0){
+            sumWidth=parseInt($("#fenxiFourNav1Con .list-inline").outerWidth());
+        }
+        $("#fenxiFourNav1Con .list-inline").css({"height":"28px","width":sumWidth})
+        if( $("#fenxiFourNav1Con .list-inline").outerWidth()>$("#fenxiFourNav1Con .five_nav").outerWidth()){
+            $("#fenxiFourNav1Con .five_nav").append('<span class="boxCaret lb" id="cfl"><span class="caret_left"></span></span><span class="boxCaret rb" id="cfr"><span class="caret_right"></span></span>');
+            $("#fenxiFourNav1Con .five_nav .boxCaret.lb").hide();
+            $("#fenxiFourNav1Con .list-inline").css("left","0");
+        }
+
+        var activeTabPane4 = $('#fenxiTabCon .four_nav li:eq(0)').attr('data-target'),
+            activeTabPane5 = $('#fenxiTabCon .five_nav:eq(0) li:eq(0)').attr('data-target');
+        // 统计分析下四级tab按钮及tab内容/五级tab按钮及tab内容初始化到第一个处于活动状态
+        $('#fenxiTabCon .four_nav li:eq(0),#fenxiTabCon .five_nav:eq(0) li:eq(0)').addClass('active').siblings().removeClass('active');
+        $(activeTabPane4).addClass('active').siblings().removeClass('active');
+        $(activeTabPane5).addClass('active').siblings().removeClass('active');
+        // 样式初始化
+        $('#fenxiFourNav1FiveNav1Con .table_title').text('异常发放电子券排名汇总');
+        $('#fenxiFourNav1FiveNav1Con .change_concern').attr('data-target', '6001').text('电子券平台间数据不一致');
+        // 改变隐藏域val-初始化
+        $('#concern').val('6002');
+        $('#target').val('errAmount');
+        // 加入权限控制，控制数据加载
+        if ($('#fenxiFourNav1FiveNav1Con').hasClass('active')) { //排名汇总有权限
+            load_fenxi_pmhz_table();
+        } else if ($('#fenxiFourNav1FiveNav2Con').hasClass('active')) { //除了排名汇总外其他统计tab有权限
+            load_fenxi_zlfx_chart();
+        } else if ($('#fenxiFourNav2Con').hasClass('active')) { //整改问责有权限
+            load_fenxi_zgwz_require_table();
+        } else { //审计报告有权限
+            load_fenxi_sjbg_preview();
+        }
+        drawMap();
+    });
+
+    //统计分析-子集添加滚动条滚动条--左右
+    $("#fenxiFourNav1Con .five_nav").on("click","#cfl",function(){
+        $("#fenxiFourNav1Con .list-inline").css("left","0");
+        $(this).hide();
+        $("#fenxiFourNav1Con .five_nav .boxCaret.rb").show();
+    })
+    $("#fenxiFourNav1Con .five_nav").on("click","#cfr",function(){
+        var firstLi= $("#fenxiFourNav1Con .list-inline").outerWidth()-$("#fenxiFourNav1Con .five_nav").outerWidth();
+        $("#fenxiFourNav1Con .list-inline").css("left",-firstLi);
+        $(this).hide();
+        $("#fenxiFourNav1Con .five_nav .boxCaret.lb").show()
+    })
+
+
+    // 统计分析-统计报表
+    $('#fenxiTabCon .four_nav ul').on('shown.bs.tab', 'li[data-target="#fenxiFourNav1Con"]', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '统计报表', '查询');
+
+        load_fenxi_pmhz_table();
+    });
+
+    // 统计分析-统计报表-五级tab切换
+    $('#fenxiFourNav1Con .five_nav ul').on('click', 'li', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text(), '查询');
+
+        var dataTarget = $(this).attr('data-target');
+        // 改变隐藏域val-初始化
+        $('#concern').val('6002');
+        $('#flagId').val('');
+        $('#target').val('errAmount');
+        // 加载数据
+        switch (dataTarget) {
+            case '#fenxiFourNav1FiveNav1Con': // 排名汇总
+                // 样式初始化
+                $('#fenxiFourNav1FiveNav1Con .table_title').text('异常发放电子券排名汇总');
+                $('#fenxiFourNav1FiveNav1Con .change_concern').text('电子券平台间数据不一致');
+                // 请求数据
+                load_fenxi_pmhz_table();
+                break;
+            case '#fenxiFourNav1FiveNav2Con': // 增量分析
+                // 样式初始化
+                $('#fenxiFourNav1FiveNav2Con .top').hide();
+                $('#fenxiFourNav1FiveNav2Con .change_concern').text('电子券平台间数据不一致');
+                load_fenxi_zlfx_chart();
+                break;
+            case '#fenxiFourNav1FiveNav3Con': // 重点关注地市
+                load_fenxi_zdgz_city_table();
+                break;
+            case '#fenxiFourNav1FiveNav4Con': // 重点关注营销案
+                load_fenxi_zdgz_case_table();
+                break;
+            case '#fenxiFourNav1FiveNav5Con': // 重点关注渠道
+                load_fenxi_zdgz_chnl_table();
+                break;
+            case '#fenxiFourNav1FiveNav6Con': // 重点关注用户
+                // 样式
+                $('#userChooseConcern').val('异常发放金额汇总');
+                // 隐藏域
+                $('#flagId').val('6002');
+                load_fenxi_zdgz_user_table();
+                break;
+            case '#fenxiFourNav1FiveNav7Con': // 违规类型分布
+                load_fenxi_wglxfb_chart();
+                break;
+        }
+        drawMap();
+        load_mapBtm_card_chart();
+    });
+
+    // 统计分析-排名汇总&增量分析，底部按钮切换
+    $('#fenxiFourNav1Con').on('click', '.change_concern', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+
+        var concern = $(this).attr('data-target');
+        // 改变隐藏域
+        switch (concern) {
+            case '6001':
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '电子券平台间数据不一致', '查询');
+                // 样式
+                $(this).attr('data-target', '6002').text('返回');
+                $('#fenxiFourNav1FiveNav2Con .top').show();
+                $('#ZLFXchooseConcern').val('省有基地无电子券增量分析');
+                $('#rankingAllTableTitle').text('电子券平台间数据不一致排名汇总');
+                $('#pubuTitle').hide();
+                // 隐藏域
+                $('#concern').val('6001');
+                $('#target').val('prvdHaveAmount');
+                $('#flagId').val('600101');
+                break;
+            default:
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '异常发放电子券', '查询');
+                // 样式
+                $(this).attr('data-target', '6001').text('电子券平台间数据不一致');
+                $('#fenxiFourNav1FiveNav2Con .top').hide();
+                $('#rankingAllTableTitle').text('异常发放电子券排名汇总');
+                $('#pubuTitle').show();
+                // 隐藏域
+                $('#concern').val('6002');
+                $('#target').val('errAmount');
+                break;
+        }
+        // 请求数据
+        tabActive();
+    });
+
+    //统计分析-统计报表-增量分析 关注事项选择
+    $('#TypeList1').on('click', 'li a', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text() + '增量分析', '查询');
+
+        var objId = $(this).attr('data');
+        // 样式
+        $('#ZLFXchooseConcern').val($(this).text());
+        $(this).closest('.dropdown_menu').slideUp();
+        // 改变隐藏域val
+        $("#flagId").val(objId);
+        switch (objId) {
+            case '600101':
+                $('#target').val('prvdHaveAmount');
+                break;
+            default:
+                $('#target').val('prvdNoAmount');
+                break;
+        }
+        // 加载数据
+        tabActive();
+    });
+
+    // 统计分析-统计报表-重点关注用户-关注事项选择
+    $('#TypeList2').on('click', 'li a', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text() + '重点关注用户', '查询');
+
+
+        var concern = $(this).attr('data');
+        // 样式
+        $('#userChooseConcern').val($(this).text());
+        $(this).closest('.dropdown_menu').slideUp();
+        // 改变隐藏域
+        $('#flagId').val(concern);
+        // 加载数据
+        load_fenxi_zdgz_user_table();
+    });
+
+    // 统计分析-审计整改问责
+    $('#fenxiTabCon .four_nav ul').on('shown.bs.tab', 'li[data-target="#fenxiFourNav2Con"]', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '整改问责', '查询');
+
+        load_fenxi_zgwz_require_table();
+    });
+
+    // 统计分析-审计整改问责-五级tab切换
+    $('#fenxiFourNav2Con .five_nav').on('click', 'li', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', $(this).text(), '查询');
+
+        var dataText = $(this).attr('data-target');
+        // 样式
+        $(this).addClass('active').siblings().removeClass('active');
+        // 加载数据
+        switch (dataText) {
+            case '#fenxiFourNav2FiveNav1Con':
+                load_fenxi_zgwz_require_table();
+                break;
+            default:
+                $('#zgbzcsBtn').addClass('active_btn').siblings().removeClass('active_btn');
+                $('#zgcsPmBtn').addClass('active_btn').siblings().removeClass('active_btn');
+                $('#zgbzBtn').addClass('active_btn').siblings().removeClass('active_btn');
+                $('#zgbzcsBtn').parent('div').prev('p').text('六个月内达到整改标准次数排名（次）');
+                $('#zgcsPmBtn').parent('div').prev('p').text('累计达到整改次数排名（次）');
+                $('#zgbzBtn').parent('div').prev('p').text('达到整改标准省公司数量趋势（个）');
+                load_fenxi_zgwz_statis_chart();
+                break;
+        }
+    });
+
+    //统计分析-审计整改问责统计-关注点切换
+    $('#zgbzcsBtn,#wzbzcsPmBtn,#zgcsPmBtn,#wzcsPmBtn,#zgbzBtn,#wzbzBtn').on('click', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+
+        var btnId = $(this).attr('id');
+        // 样式
+        $(this).addClass('active_btn').siblings().removeClass('active_btn');
+        switch (btnId) {
+            case 'zgbzcsBtn': //整改标准次数排名
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '六个月内达到整改标准次数排名', '查询');
+                // 样式
+                $(this).parent('div').prev('p').text('六个月内达到整改标准次数排名（次）');
+                // 加载数据-整改次数排名
+                load_fenxi_zgwz_zgbzcs_chart();
+                break;
+            case 'wzbzcsPmBtn': //问责标准次数排名
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '六个月内达到问责标准次数排名', '查询');
+                // 样式
+                $(this).parent('div').prev('p').text('六个月内达到问责标准次数排名（次）');
+                // 加载数据-问责次数排名
+                load_fenxi_zgwz_wzbzcs_chart();
+                break;
+            case 'zgcsPmBtn': //整改次数排名
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '累计达到整改次数排名', '查询');
+                // 样式
+                $(this).parent('div').prev('p').text('累计达到整改次数排名（次）');
+                $("#addUpAccOrderWrap").getNiceScroll(0).hide();
+                // 改变隐藏域val
+                $('#focusCd').val('zgtimes');
+                // 加载数据-整改次数排名
+                load_fenxi_zgwz_zgcs_chart();
+                break;
+            case 'wzcsPmBtn': //问责次数排名
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '累计达到问责次数排名', '查询');
+                // 样式
+                $(this).parent('div').prev('p').text('累计达到问责次数排名（次）');
+                // 改变隐藏域val
+                $('#focusCd').val('wztimes');
+                // 加载数据-问责次数排名
+                load_fenxi_zgwz_wzcs_chart();
+                break;
+            case 'zgbzBtn': //整改标准
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '达到整改标准省公司数量趋势', '查询');
+                // 样式
+                $(this).parent('div').prev('p').text('达到整改标准省公司数量趋势（个）');
+                // 改变隐藏域val
+                $('#focusCd').val('zgtimes');
+                // 加载数据-问责次数排名
+                load_fenxi_zgwz_zgbz_chart();
+                break;
+            case 'wzbzBtn': //问责标准
+                // 日志记录
+                get_userBehavior_log('专题', '电子券管理违规', '达到问责标准省公司数量趋势', '查询');
+                // 样式
+                $(this).parent('div').prev('p').text('达到问责标准省公司数量趋势（个）');
+                // 改变隐藏域val
+                $('#focusCd').val('wztimes');
+                // 加载数据-问责次数排名
+                load_fenxi_zgwz_wzbz_chart();
+                break;
+        }
+    });
+
+    // 点击四级导航-审计报告按钮
+    $('#fenxiTabCon .four_nav ul').on('shown.bs.tab', 'li[data-target="#fenxiFourNav3Con"]', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '审计报告', '查询');
+
+        load_fenxi_sjbg_preview();
+    });
+
+    // 审计报告下载
+    $('#sjbgDownBtn').on('click', function () {
+        // 插入一经事件码-附件下载
+        dcs.addEventCode('MAS_HP_CMCA_child_down_file_06');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '审计报告下载', '导出');
+
+        down_sjbg_file();
+    });
+
+    // 审计清单下载
+    $('#sjqdDownBtn').on('click', function () {
+        // 插入一经事件码-附件下载
+        dcs.addEventCode('MAS_HP_CMCA_child_down_file_06');
+        // 日志记录
+        get_userBehavior_log('专题', '电子券管理违规', '审计清单下载', '导出');
+
+        down_sjqd_file();
+    });
+
+    //点击中间的左右按钮切换页面布局
+    $('#mainLeftBtn').on('click', function () {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+
+        var mapW = parseInt($('#mainLeftShow')[0].style.width);
+        if (mapW == 40) {
+            $('#mainLeftShow').hide();
+            $('#mainLeftShow').animate({
+                'width': '0'
+            });
+            $('#mainRightShow').animate({
+                'width': '100%'
+            }, function () {
+                rightChartBlowUp();
+                tabActive();
+            });
+        } else {
+            mapCardShrink();
+            $('#mainLeftShow').animate({
+                'width': '40%'
+            });
+            $('#mainRightShow').animate({
+                'width': '60%'
+            }, function () {
+                $('#mainRightShow').show();
+                rightChartShrink();
+                tabActive();
+            });
+        }
+    });
+    $('#mainRightBtn').on('click', function (e) {
+        // 插入一经事件码-查询
+        dcs.addEventCode('MAS_HP_CMCA_child_query_02');
+
+        var rightW = parseInt($('#mainRightShow')[0].style.width);
+        if (rightW == 60) {
+            mapCardBlowUp();
+            $('#mainRightShow').hide();
+            $('#mainRightShow').animate({
+                'width': '0'
+            });
+            $('#mainLeftShow').animate({
+                'width': '100%'
+            }, function () {
+                tabActive();
+            });
+        } else {
+            $('#mainLeftShow').animate({
+                'width': '40%'
+            }, function () {
+                $('#mainLeftShow').show();
+            });
+            $('#mainRightShow').animate({
+                'width': '60%'
+            }, function () {
+                rightChartShrink();
+                tabActive();
+            });
+        }
+    });
+}
+
+//step 4.获取默认首次加载的初始化参数，并给隐藏form赋值
+function initDefaultParams() {
+    // 判断登陆的是省公司/集团
+    $.ajax({
+        url: "/cmca/dzqglwg/getUserPrvdId",
+        async: false,
+        dataType: 'json',
+        success: function (data) {
+            if (data != 10000) {
+                $("#ProvBackBtn,#nanhaiQundao").remove(); //移除地图返回按钮及南海诸岛信息
+            }
+            var postData = {
+                subjectId: $('#subjectId').val(),
+                prvdId: data,
+                time: new Date().getTime() //解决缓存
+            };
+            /**
+             * 因为后台传过来的id大部分为纯数字，此处拼接字符串，开头为小写字母，再拼接后台传过来的数字，这样符合规范，避免造成不必要的未知问题
+             * 省ID用p,地市ID用c,审计时间用a,类别/关注点用c
+             * 在其他方法中需要用这些id的时候，在判断的时候要注意前面的首字母
+             */
+            $.ajax({
+                url: "/cmca/dzqglwg/getPrvdAndAudTrmInfoData",
+                async: false,
+                dataType: 'json',
+                data: postData,
+                success: function (data) {
+                    // 省/时间下拉列表初始化
+                    $('#provinceList,#chooseTime').empty();
+                    // 加载省下拉列表下拉列表
+                    $.each(data.prvdInfo, function (idx, prvdObj) {
+                        $('#provinceList').append('<li><a href="javascript:;" id="p' + prvdObj.prvdId + '">' + prvdObj.prvdName + '</a></li>');
+                    });
+                     //如果审计月为空则不绘制审计月列表  2018.12.20 qy
+                    // 加载时间选择下拉列表
+                    if(data.audTrmInfo.length>0){
+                        $.each(data.audTrmInfo, function (idx, audTrmObj) {
+                            var audTrmYear = audTrmObj.audTrm.substring(0, 4); //审计年
+                            var audTrmMon = parseInt(audTrmObj.audTrm.substring(4)); //审计月
+                            $('#timeList').append('<li><a href="javascript:;" id="a' + audTrmObj.audTrm + '">' + audTrmYear + '年' + audTrmMon + '月</a></li>');
+                        });
+                        $('#chooseTime').val($('#timeList li:eq(0) a').text());
+                        if(data.audTrmInfo.length>0){
+                            $('#audTrm').val(data.audTrmInfo[0].audTrm);
+                        }else{
+                            $('#audTrm').val("");
+                        }
+                    }else{
+                        $('#timeList,#chooseTime,#audTrm').html("");
+                    }
+                    // 页面显示初始化
+                    $('#chooseProvince').val(data.prvdInfo[0].prvdName);
+                    // 隐藏域value值初始化
+                    $('#prvdNameZH').val(data.prvdInfo[0].prvdName);
+                    $('#prvdId').val(data.prvdInfo[0].prvdId);
+                    $('#concern').val(6002);
+                    // 指标隐藏域val初始化
+                    $('#target,#resultTarget1').val('errAmount');
+                    $('#targetTxt').val('异常发放电子券金额排名（万元）');
+                    $('#resultTarget2').val('errAmountPercent');
+                    $('#resultTarget3').val('errAmountTrend');
+                    $('#resultTarget4').val('errAmountPercentTrend');
+                    // 顶部省份筛选下拉框滚动条
+                    scroll('#provinceListWrap', '#provinceList');
+                    // 顶部时间筛选下拉框滚动条
+                    scroll('#timeListWrap', '#timeList');
+                }
+            });
+        }
+    });
+}
+
+/**
+ * step 5.页面加入权限控制，根据不同的权限来显示页面元素，所以定义此方法判断页面元素显示状态，初始化页面数据加载且实现按需加载数据，优化页面加载
+ */
+function tabActive() {
+    // step1.判断页面左右两个部分显示状态
+
+    //左侧区域显示
+    if ($('#mainLeftShow').is(':visible')) {
+        drawMap(); // 绘制地图
+        load_mapBtm_card_chart(); // 地图下方卡片
+        // step2.判断左侧区域内元素显示状态
+        if ($('#mapToTable').is(':visible')) {
+            if ($('#chooseWeiDu').val() == '重点关注营销案') {
+                load_cty_zdgz_case_table();
+            } else {
+                load_cty_zdgz_user_table();
+            }
+        }
+    }
+
+    //右侧区域显示
+    if ($('#mainRightShow').is(':visible')) {
+        // step2.判断右侧区域内-审计结果/统计分析显示状态
+        if ($('#resultTabCon').is(':visible')) { //审计结果处于显示状态，则重新绘制审计结果图形
+            load_result_chart();
+        } else { //统计分析处于显示状态
+            // step3.判断右侧区域-统计分析-统计报表/审计整改问责/审计报告显示状态
+            if ($('#fenxiFourNav1Con').is(':visible')) { //统计报表处于显示状态
+                // step4.判断右侧区域-统计分析-统计报表-各级tab显示状态
+                if ($('#fenxiFourNav1FiveNav1Con').is(':visible')) {
+                    load_fenxi_pmhz_table(); //排名汇总
+                } else if ($('#fenxiFourNav1FiveNav2Con').is(':visible')) {
+                    load_fenxi_zlfx_chart(); //增量分析
+                } else if ($('#fenxiFourNav1FiveNav3Con').is(':visible')) {
+                    load_fenxi_zdgz_city_table(); //重点关注地市
+                } else if ($('#fenxiFourNav1FiveNav4Con').is(':visible')) {
+                    load_fenxi_zdgz_case_table(); //重点关注营销案
+                } else if ($('#fenxiFourNav1FiveNav5Con').is(':visible')) {
+                    load_fenxi_zdgz_chnl_table(); //重点关注营渠道
+                } else if ($('#fenxiFourNav1FiveNav6Con').is(':visible')) {
+                    load_fenxi_zdgz_user_table(); //重点关注营用户
+                } else if ($('#fenxiFourNav1FiveNav7Con').is(':visible')) {
+                    load_fenxi_wglxfb_chart(); //违规类型分布
+                }
+            } else if ($('#fenxiFourNav2Con').is(':visible')) { //审计整改问责处于显示状态
+                if ($('#fenxiFourNav2FiveNav1Con').is(':visible')) { //整改问责要求
+                    load_fenxi_zgwz_require_table();
+                } else { //整改问责统计
+                    $('#zgbzcsBtn').addClass('active_btn').siblings().removeClass('active_btn');
+                    $('#zgcsPmBtn').addClass('active_btn').siblings().removeClass('active_btn');
+                    $('#zgbzBtn').addClass('active_btn').siblings().removeClass('active_btn');
+                    $('#zgbzcsBtn').parent('div').prev('p').text('六个月内达到整改标准次数排名（次）');
+                    $('#zgcsPmBtn').parent('div').prev('p').text('累计达到整改次数排名（次）');
+                    $('#zgbzBtn').parent('div').prev('p').text('达到整改标准省公司数量趋势（个）');
+                    load_fenxi_zgwz_statis_chart();
+                }
+            } else { //审计报告处于显示状态
+                load_fenxi_sjbg_preview();
+            }
+        }
+    }
+}
+
+// 数据模块单独放在data.js文件中

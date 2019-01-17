@@ -1,0 +1,674 @@
+.btn:hover,
+.btn:focus {
+    border: 1px solid #a6a6a6;
+    color: #000;
+    background-color: #fff;
+}
+
+.btn {
+    border: 1px solid #a6a6a6;
+    padding: 4px 12px;
+}
+
+.dropdown-menu {
+    min-width: 70px;
+}
+
+.webuploader-pick {
+    padding: 5px 15px!important;
+    overflow: initial!important;
+    background-color: #0192d5;
+    height: 100%!important;
+    border-radius: 4px!important;
+}
+
+
+/* 排名汇总样式 */
+
+
+/* 主体顶部 */
+
+.main_content form.main_search label {
+    padding-left: 0;
+    text-align: left;
+}
+
+.main_content form.main_search input {
+    width: 100%;
+}
+
+.main_content .panel-footer .panel {
+    margin-bottom: 0;
+}
+
+
+/* from-group */
+
+.form-inline .form-group,
+.form-inline .form-group .btn {
+    font-size: 12px
+}
+
+
+/* 按钮组 */
+
+.dropdown_con input {
+    height: 28px;
+    line-height: 8px;
+}
+
+
+/* 下拉框公共 */
+
+.dropdown_con .dropdown_menu li a,
+.dropdown_con input {
+    color: #333;
+}
+
+.dropdown_con .dropdown_menu li a:hover {
+    background-color: #ccc;
+}
+
+.dropdown_con .dropdown_menu {
+    background-color: #f0f0f0;
+}
+
+.btn_add_search .btn,
+.modal-footer .btn {
+    border: 1px solid #333;
+    background-color: transparent;
+    color: #333;
+}
+
+.iconGly {
+    margin-left: 10px;
+    display: none;
+}
+
+
+/* 控件图例公共 */
+
+.light_style .panel .panel-body {
+    margin: 0;
+    padding: 8px 14px;
+}
+
+.chart_item .top_legend {
+    font-size: 12px;
+}
+
+.chart_item .top_legend .blue {
+    background-color: #2776dd;
+}
+
+.chart_item .top_legend .red {
+    background-color: #d14d44;
+}
+
+.chart_item .top_legend .none {
+    background-color: #D8D8D8;
+}
+
+.chart_item .top_legend .yellow {
+    background-color: #F4D028;
+}
+
+
+/* 控件1图例 */
+
+.chart_item .top_legend .line_lenged {
+    height: 4px;
+    width: 20px;
+}
+
+
+/* 控件2图例 */
+
+.chart_item .top_legend .cycle_lenge {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+}
+
+
+/* 表格下载按钮 */
+
+.public_main .main_content table a {
+    color: #333;
+    text-decoration: none
+}
+
+.public_main .main_content table a:hover {
+    color: #3095f2;
+    border: 1px solid #3095f2;
+}
+
+
+/* 新增 */
+
+.plusdown_list {
+    border-color: #a6a6a6;
+    background: #f8f8f8;
+    width: 90px;
+    position: absolute;
+    z-index: 1;
+    min-height: 30px;
+    display: none
+}
+
+.plusdown_list:after {
+    position: absolute;
+    content: "";
+    width: 0;
+    height: 0;
+    left: 62px;
+    top: -7px;
+    border-bottom: 7px solid #f8f8f8;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+}
+
+.plusdown_list li {
+    width: 100%;
+}
+
+.plusdown_list li a {
+    display: inline-block;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 10px;
+    color: #333;
+}
+
+.plusdown_list li .uploadForm>label {
+    color: #ffffff;
+    height: 30px;
+    line-height: 30px;
+}
+
+.plusdown_list li a:hover,
+.plusdown_list li label:hover {
+    background-color: #a6a6a6;
+    color: #333
+}
+
+.plusdown_list li a span {
+    margin-right: 6px;
+}
+
+.plusdown_list li .uploadFile {
+    display: none;
+}
+
+
+/*表格开关按钮*/
+
+.table .btn {
+    font-size: 12px;
+    padding: 2px 4px;
+    margin-bottom: 4px;
+}
+
+.button-label {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 20px;
+    background-color: #ccc;
+    box-shadow: #ccc 0px 0px 0px 1px;
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.button-label .text {
+    line-height: 20px;
+    font-size: 14px;
+    text-shadow: 0 0 2px #ddd;
+}
+
+.on {
+    color: #fff;
+    display: none;
+    text-indent: 10px;
+}
+
+.off {
+    color: #fff;
+    display: inline-block;
+    text-indent: 34px;
+}
+
+.button-label .circle {
+    left: 0;
+    transition: all 0.3s;
+}
+
+#toggle-button:checked+label.button-label .circle {
+    left: 40px;
+}
+
+#toggle-button:checked+label.button-label .on {
+    display: inline-block;
+}
+
+#toggle-button:checked+label.button-label .off {
+    display: none;
+}
+
+#toggle-button:checked+label.button-label {
+    background-color: #113ee8;
+}
+
+.hiddeleSwitch {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+
+/* 文件列表 */
+
+.upload_ul .form-control,
+.already .form-control {
+    display: inline-block;
+    height: 30px;
+    width: 91px;
+}
+
+.already,
+.approve {
+    display: none
+}
+
+.uploadfileList {
+    background: #f8f8f8;
+    z-index: 2;
+    width: 840px;
+    height: 300px;
+    position: absolute;
+    right: 1%;
+    bottom: 8%;
+    display: none;
+    border-radius: 10px;
+}
+
+.miniUploadList {
+    position: absolute;
+    right: 1%;
+    bottom: 8%;
+    padding: 4px 6px;
+    background: #f8f8f8;
+    display: none;
+}
+
+.miniUploadList .glyphicon {
+    margin-left: 6px;
+}
+
+.uploadfileList .filListTitle {
+    padding: 10px 6px;
+}
+
+.filListTitle button {
+    margin-left: 30px;
+}
+
+.filListTitle .glyphicon {
+    padding-left: 10px;
+}
+
+.uploadUlWap {
+    width: 840px;
+    height: 82%;
+    overflow: hidden;
+}
+
+.upload_ul {
+    /* width: 100%; */
+    width: 840px;
+}
+
+.upload_ul>li {
+    position: relative;
+    display: table-row;
+    opacity: 1;
+    /*  width: 100%; */
+    width: 840px;
+    overflow: hidden;
+    -webkit-transition: opacity .2s;
+    transition: opacity .2s;
+    background-image: -webkit-linear-gradient(top, #ABD9FF, #88C9FF);
+    background-image: linear-gradient(to bottom, #ABD9FF, #88C9FF);
+    -moz-background-size: 0% 100%;
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    font-size: 12px;
+}
+
+.upload_title {
+    color: #666;
+    background-color: #f0f0f0;
+    font-size: 14px;
+}
+
+.upload_cell {
+    display: table-cell;
+    text-align: center;
+    padding: 5px 8px;
+    border-top: 1px solid #ddd;
+    vertical-align: middle;
+    color: #333;
+    min-width: 83px;
+    /*  width: 12% */
+}
+
+.upload_cellLast {
+    min-width: 40px;
+}
+
+
+/* .upload_cell:last-child {
+    min-width: 40px;
+} */
+
+.fileInput,
+.upStaff {
+    display: none;
+    padding: 3px 10px;
+}
+
+.cellFirst {
+    /* 46.6 */
+    /*  width: 48.5%; */
+    width: 42%;
+}
+
+.filecellFirst {
+    /*  width: 233px; */
+    /* width: 175px; */
+    /*   width: 311px; */
+    width: 36%;
+}
+
+.filecellUp {
+    /* width: 160px; */
+    width: 32%;
+}
+
+.filecellWait {
+    width: 180px;
+    width: 32%;
+}
+
+.upload_cell a {
+    color: #333;
+}
+
+.form-control {
+    padding: 3px 5px;
+}
+
+.approveIdea .form-control {
+    padding: 0px 5px;
+}
+
+.filetypeBtn {
+    min-width: 92px;
+}
+
+.visibleProBtn {
+    min-width: 68px;
+}
+
+.upload_cell a .glyphicon {
+    margin-right: 4px;
+}
+
+.upload_cell .dropdown_con,
+.upload_cell .dropdown_con .dropdown_menu {
+    width: 83px;
+}
+
+.upload_cell .dropdown_con .dropdown_menu li a {
+    padding: 0;
+}
+
+.upIconList {
+    height: 30px;
+}
+
+.xfile {
+    display: inline-flex;
+    clear: both;
+    line-height: 1.42857143;
+    height: 30px!important;
+}
+
+.approveWarp {
+    display: none;
+    position: absolute;
+    width: 330px;
+    height: 130px;
+    padding: 4px 6px;
+    left: 30%;
+    bottom: 22%;
+    background-color: #7b86ea;
+}
+
+.approveWarp .approveTitle {
+    padding: 4px 2px;
+}
+
+.approveWarp .approveSubmit,
+.approveWarp .approveIdea {
+    margin-top: 6px;
+}
+
+.remind {
+    padding: 5px 10px;
+    background-color: #eee;
+    margin-top: 40px;
+    color: #666;
+    font-size: 12px;
+}
+
+.wrapper1 {
+    z-index: 99999;
+    /* background-color: #c5c0c087; */
+    background-color: rgba(197, 192, 192, 0.8);
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    overflow: hidden;
+}
+
+.titlePo {
+    position: relative;
+    top: 50%;
+    left: 45%;
+}
+
+.wrapper2 {
+    z-index: 10;
+    position: absolute;
+    top: 38%;
+    left: 37%;
+    padding: 8px 20px;
+    background-color: #c5c0c0;
+    width: 406px;
+    min-height: 110px;
+    margin: 0 auto;
+    display: none;
+    overflow: hidden;
+}
+
+.wrapper2 .btn {
+    margin-bottom: 10px;
+    display: block
+}
+
+.titlePo .btn,
+.wrapper2 .btn {
+    background-color: #0192d5;
+    color: #fff;
+}
+
+.titlePo .btn:hover,
+.wrapper2 .btn:hover,
+.titlePo .btn:focus,
+.wrapper2 .btn:focus {
+    background-color: #fff;
+    color: #000
+}
+
+
+/* 控件高度响应式 */
+
+
+/* 顶部控件 */
+
+
+/* 模态框 */
+
+.modal-header {
+    padding: 8px;
+}
+
+.modal-dialog {
+    width: 293px;
+    margin: 200px auto;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.modal-body .btn:nth-child(1) {
+    margin: 4px 8px;
+    min-width: 109px;
+}
+
+.modal-body .btn:nth-child(3) {
+    margin: 8px;
+}
+
+.small_size {
+    font-size: 8px;
+    -webkit-text-size-adjust: none;
+    -webkit-transform-origin-x: 0;
+    -webkit-transform: scale(0.10);
+    /* transform: scale(0.5); */
+}
+
+
+/* 1366分辨率下 */
+
+@media screen and (max-width: 1366px) and (min-width: 1024px) {
+    .main_show_wrap .component .chart_item .chart_wrap {
+        height: 150px;
+    }
+    /* 表格控件 */
+    .main_show_wrap .component .table_wrap {
+        height: 230px;
+    }
+}
+
+
+/* 1600*900分辨率下，窗口高度为770px */
+
+@media screen and (max-width: 1600px) and (min-width: 1367px) {
+    /* 顶部控件 */
+    .main_show_wrap .component .chart_item .chart_wrap {
+        height: 250px;
+    }
+    /* 表格控件 */
+    .main_show_wrap .component .table_wrap {
+        height: 230px;
+    }
+}
+
+
+/* 1920*1080分辨率下，窗口高度为900px */
+
+@media screen and (max-width: 1920px) and (min-width: 1601px) {
+    /* 顶部控件 */
+    .main_show_wrap .component .chart_item .chart_wrap {
+        height: 350px;
+    }
+    /* 表格控件 */
+    .main_show_wrap .component .table_wrap {
+        height: 300px;
+    }
+}
+
+.panel-title-color {
+    color: white;
+}
+
+.light_style .table_wrap .new-table-btn-defalut {
+    margin: 1px;
+    border: 1px solid #0192d5;
+    background-color: #fff;
+    color: #0192d5;
+    border-radius: 3px;
+    padding: 0 3px;
+    font-size: 12px;
+}
+
+.light_style .panel_footer_table_style_color {
+    background-color: #fefefe;
+}
+
+.light_style .table_wrap .new-table-btn-defalut:hover,
+.light_style .table_wrap .new-table-btn-defalut:focus,
+.sjbg-modal .modal-footer .btn:hover,
+.sjbg-modal .modal-footer .btn:focus {
+    border: 1px solid #0192d5;
+    background-color: #0192d5;
+    color: #fff;
+}
+
+.sjbg-btn-style {
+    float: right;
+    font-size: 12px;
+    padding: 0px 5px;
+    margin-bottom: -8px;
+    margin-top: -3px;
+    margin-left: 10px;
+}
+
+.sjbg-modal {
+    top: 40%
+}
+
+.sjbg-modal .modal-dialog {
+    width: 25%
+}
+
+.sjbg-modal .modal-body {
+    height: 60px;
+    padding: 20px 15px;
+    text-align: center;
+}
+
+.sjbg-modal .modal-footer {
+    padding: 5px;
+}
+
+.sjbg-modal .modal-footer .btn {
+    border: 1px solid #0192d5;
+    background-color: #fff;
+    color: #0192d5;
+    font-size: 12px;
+}

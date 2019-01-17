@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 
+#{audTrm} ： 参数绑定的方式传值，这个参数会被单独打印出来；
+${audTrm} ：字符串替换/拼接，这个不会被SQL语句当成参数，而是SQL语句的一部分；
+-->
+<mapper namespace="qdyk">
+<cache eviction="LRU"  flushInterval="1800000"  size="4096" readOnly="true" />
+	<select id="getQdykChinaMap" resultType="Map" parameterType="Map">
+    	select t.prvd_id,t.prvd_name as name
+        <if test="attrName != null and attrName =='ykhmsl'">
+			,t.errQty,
+			row_number()over(order by t.errQty_tmp desc) as valRank
+        </if>
+        <if test="attrName != null and attrName =='ykhmzb'">
+			,t.qtyPercent_tmp,t.qtyPercent,
+			row_number()over(order by t.qtyPercent_tmp desc) as valRank
+        </if>
+        <if test="attrName != null and attrName =='sjqdsl'">
+			,t.errChnlQty,
+			row_number()over(order by t.errChnlQty_tmp desc) as valRank
+        </if>
+        <if test="attrName != null and attrName =='sjqdzb'">
+			,t.qtyChnlPercent_tmp,t.qtyChnlPercent,
+			row_number()over(order by t.qtyChnlPercent_tmp desc) as valRank
+        </if>
+    	from hppdata.Sum_qdyk_2002_prvdtl  t where   t.aud_trm=#{audTrm}  
+    	<if test="prvdIdStr != '' and prvdIdStr !=null and prvdIdStr=='10000' ">
+    	and prvd_id not in (10000)
+    	</if>
+    	<if test="prvdIdStr != '' and prvdIdStr !=null and prvdIdStr!='10000' ">
+			and t.prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+	</if>
+    	and t.chnl_class=#{chnlTyp} 
+    	 <if test="attrName =='ykhmsl' or attrName =='ykhmzb' or attrName =='sjqdsl' or attrName =='sjqdzb'"> order by valRank </if>
+ 	</select>
+ 	<select id="getQdykProvMap" resultType="Map" parameterType="Map">
+       select t.prvd_id,t.prvd_name,t.cty_id,t.cty_name_short as name,
+          <if test="attrName != null and attrName =='ykhmsl'">
+			t.errQty,
+			row_number()over(order by t.errQty_tmp desc) as valRank
+        </if>
+        <if test="attrName != null and attrName =='ykhmzb'">
+			t.qtyPercent_tmp,t.qtyPercent,
+			row_number()over(order by t.qtyPercent_tmp desc) as valRank
+        </if>
+        <if test="attrName != null and attrName =='sjqdsl'">
+			t.errChnlQty,
+			row_number()over(order by t.errChnlQty_tmp desc) as valRank
+        </if>
+        <if test="attrName != null and attrName =='sjqdzb'">
+			t.qtyChnlPercent_tmp,t.qtyChnlPercent,
+			row_number()over(order by t.qtyChnlPercent_tmp desc) as valRank
+        </if>
+       from hppdata.Sum_qdyk_2002_ctytl t where   t.aud_trm=#{audTrm}  
+       <if test="prvdIdStr != '' and prvdIdStr !=null and prvdIdStr!='10000'">
+			and t.prvd_id in
+			<foreach item="item" index="index" collection="prvdIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+       and t.chnl_class=#{chnlTyp} 
+        <if test="ctyIdStr != null and ctyIdStr != ''  and ctyIdStr!='10000' ">
+			and t.cty_id in
+			<foreach item="item" index="index" collection="ctyIds" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		order by valRank 
+ 	</select>
+
+ 	<!--渠道养卡报表  20160913 add by GuoXY -->
+ 	<select id="getChnlTab" resultType="java.util.HashMap" parameterType="java.util.Map">
+ 	     <choose>
+ 	     		<!-- 选择全国or多个省or全省(单省数据) -->
+                <when test="ctyIdsStr==null or (ctyIdsStr=='10000' and prvdIdsStr!=10000)">
+                       	select 
+							coalesce( sum(errQty),0) as errQty,			
+							coalesce( sum(errQty),0) as tmp_errQty,			
+							coalesce( sum(totalQty),0) as totalQty, 
+							coalesce( sum(totalQty),0) as tmp_totalQty, 
+							case when tmp_totalQty=0 then 0 else CAST(tmp_errQty as decimal(16,2))*100/tmp_totalQty end AS qtyPercent,
+			
+							coalesce( sum(errChnlQty),0) as errChnlQty,
+							coalesce( sum(errChnlQty),0) as tmp_errChnlQty,
+							coalesce( sum(totalChnlQty),0) as totalChnlQty,
+							coalesce( sum(totalChnlQty),0) as tmp_totalChnlQty,
+							case when tmp_totalChnlQty=0 then 0 else CAST(tmp_errChnlQty as decimal(16,2))*100/tmp_totalChnlQty end AS qtyChnlPercent,
+				
+							coalesce( sum(last_errQty),0) as last_errQty,
+							coalesce( sum(last_errQty),0) as tmp_last_errQty,						
+							coalesce( sum(last_totalQty),0) as last_totalQty, 
+							coalesce( sum(last_totalQty),0) as tmp_last_totalQty,
+							case when tmp_last_totalQty=0 then 0 else CAST(tmp_last_errQty as decimal(16,2))*100/tmp_last_totalQty end AS last_qtyPercent,
+			
+							coalesce( sum(last_errChnlQty),0) as last_errChnlQty,
+							coalesce( sum(last_errChnlQty),0) as tmp_last_errChnlQty,
+							coalesce( sum(last_totalChnlQty),0) as last_totalChnlQty,
+							coalesce( sum(last_totalChnlQty),0) as tmp_last_totalChnlQty,
+							case when tmp_last_totalChnlQty=0 then 0 else CAST(tmp_last_errChnlQty as decimal(16,2))*100/tmp_last_totalChnlQty end AS last_qtyChnlPercent,
+				
+							(case when (qtyPercent - last_qtyPercent)>=0 then '1'  else '-1' end)   as ykhmPerUpdown, 
+							(case when (tmp_totalQty - tmp_last_totalQty)>=0 then '1' else '-1' end) as ykhmNumUpdown,
+							(case when (qtyChnlPercent - last_qtyChnlPercent)>=0 then '1'  else '-1' end)  as sjqdPerUpdown, 
+							(case when (tmp_totalChnlQty - tmp_last_totalChnlQty)>=0 then '1' else '-1' end) as sjqdNumUpdown
+						from  (
+									SELECT 
+									t0.* 
+									,t1.errQty as last_errQty
+									,t1.totalQty as last_totalQty
+									,t1.errChnlQty as last_errChnlQty
+									,t1.totalChnlQty as last_totalChnlQty
+									from 
+								 	(
+									 	select 
+									 	    prvd_id,
+										 	errQty_tmp as errQty,				
+											totalQty_tmp as totalQty, 
+											errChnlQty_tmp as errChnlQty,
+											totalChnlQty_tmp as totalChnlQty
+									    from hppdata.Sum_qdyk_2002_prvdtl
+									 	where  1 = 1 
+										and Aud_trm = ${audTrm}
+										and chnl_class = ${chnlTyp}
+										and prvd_id in ( ${prvdIdsStr} )
+								 	) as t0 
+									LEFT JOIN 
+									 (
+									 	select 
+									 		prvd_id,
+										 	errQty_tmp as errQty,				
+											totalQty_tmp as totalQty, 
+											errChnlQty_tmp as errChnlQty,
+											totalChnlQty_tmp as totalChnlQty
+									    from hppdata.Sum_qdyk_2002_prvdtl
+										where   1 = 1 
+							   <![CDATA[and aud_trm= cast((add_months(cast( #{audTrm} as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))]]>
+										and chnl_class = ${chnlTyp}
+										and prvd_id in ( ${prvdIdsStr} )
+									 ) as t1 
+									ON t0.prvd_id = t1.prvd_id 
+						) as t 
+                </when>
+                <!-- 省公司用户默认有一个省ID可选若干地市公司 -->
+                <otherwise>
+                    	select 
+							coalesce( sum(errQty),0) as errQty,			
+							coalesce( sum(errQty),0) as tmp_errQty,			
+							coalesce( sum(totalQty),0) as totalQty, 
+							coalesce( sum(totalQty),0) as tmp_totalQty, 
+							case when tmp_totalQty=0 then 0 else CAST(tmp_errQty as decimal(16,2))*100/tmp_totalQty end AS qtyPercent,
+			
+							coalesce( sum(errChnlQty),0) as errChnlQty,
+							coalesce( sum(errChnlQty),0) as tmp_errChnlQty,
+							coalesce( sum(totalChnlQty),0) as totalChnlQty,
+							coalesce( sum(totalChnlQty),0) as tmp_totalChnlQty,
+							case when tmp_totalChnlQty=0 then 0 else CAST(tmp_errChnlQty as decimal(16,2))*100/tmp_totalChnlQty end AS qtyChnlPercent,
+				
+							coalesce( sum(last_errQty),0) as last_errQty,
+							coalesce( sum(last_errQty),0) as tmp_last_errQty,						
+							coalesce( sum(last_totalQty),0) as last_totalQty, 
+							coalesce( sum(last_totalQty),0) as tmp_last_totalQty,
+							case when tmp_last_totalQty=0 then 0 else CAST(tmp_last_errQty as decimal(16,2))*100/tmp_last_totalQty end AS last_qtyPercent,
+			
+							coalesce( sum(last_errChnlQty),0) as last_errChnlQty,
+							coalesce( sum(last_errChnlQty),0) as tmp_last_errChnlQty,
+							coalesce( sum(last_totalChnlQty),0) as last_totalChnlQty,
+							coalesce( sum(last_totalChnlQty),0) as tmp_last_totalChnlQty,
+							case when tmp_last_totalChnlQty=0 then 0 else CAST(tmp_last_errChnlQty as decimal(16,2))*100/tmp_last_totalChnlQty end AS last_qtyChnlPercent,
+				
+							(case when (qtyPercent - last_qtyPercent)>=0 then '1'  else '-1' end)   as ykhmPerUpdown, 
+							(case when (tmp_totalQty - tmp_last_totalQty)>=0 then '1' else '-1' end) as ykhmNumUpdown,
+							(case when (qtyChnlPercent - last_qtyChnlPercent)>=0 then '1'  else '-1' end)  as sjqdPerUpdown, 
+							(case when (tmp_totalChnlQty - tmp_last_totalChnlQty)>=0 then '1' else '-1' end) as sjqdNumUpdown	
+							
+						from  (
+									SELECT 
+									t0.* 
+									,t1.errQty as last_errQty
+									,t1.totalQty as last_totalQty
+									,t1.errChnlQty as last_errChnlQty
+									,t1.totalChnlQty as last_totalChnlQty
+									from 
+								 	(
+									 	select 
+									 	    cty_id,
+										 	errQty_tmp as errQty,				
+											totalQty_tmp as totalQty, 
+											errChnlQty_tmp as errChnlQty,
+											totalChnlQty_tmp as totalChnlQty
+									    from hppdata.Sum_qdyk_2002_ctytl
+									 	where  1 = 1 
+										and Aud_trm = ${audTrm}
+										and chnl_class = ${chnlTyp}
+										and cty_id in ( ${ctyIdsStr} )
+								 	) as t0 
+									LEFT JOIN 
+									 (
+									 	select 
+									 		cty_id,
+										 	errQty_tmp as errQty,				
+											totalQty_tmp as totalQty, 
+											errChnlQty_tmp as errChnlQty,
+											totalChnlQty_tmp as totalChnlQty
+									    from hppdata.Sum_qdyk_2002_ctytl
+										where   1 = 1 
+							   <![CDATA[and aud_trm= cast((add_months(cast( #{audTrm} as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))]]>
+										and chnl_class = ${chnlTyp}
+										and cty_id in ( ${ctyIdsStr} )
+									 ) as t1 
+									ON t0.cty_id = t1.cty_id 
+						) as t 
+                </otherwise>
+         </choose>
+	</select>
+
+	<!--按省/地市进行柱状图展现 20160912 add by GuoXY -->
+	<select id="getColumnChartData" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<!-- 集团用户选择了多个省 -->
+		<if test="ctyIdsStr==null">
+			<!-- 集团用户未选择任何省，默认全公司时，查出所有省，并显示无数据省 -->
+			select 
+				prvCon.short_name as regionName, 
+				prvCon.prvd_id as regionId, 
+
+				coalesce(t.errQty,0) as errQty, 
+				coalesce(t.totalQty,0) as totalQty, 
+				coalesce(t.qtyPercent,0) as qtyPercent, 
+				
+				coalesce(t.errChnlQty,0) as errChnlQty, 
+				coalesce(t.totalChnlQty,0) as totalChnlQty, 
+				coalesce(t.qtyChnlPercent,0) as qtyChnlPercent
+			from 
+			(select * from HPMGR.busi_workspace_org
+			<if test="prvdIdsStr=='10000'">
+				where prvd_id not in (10000)
+			</if>
+			<if test="prvdIdsStr!='10000'">
+				where prvd_id in ( ${prvdIdsStr} )
+			</if>
+			)  prvCon left join
+			(
+
+				SELECT
+					prvd_name as regionName,
+					prvd_id as regionId,
+					aud_trm as audTrm,
+					
+					errQty_tmp as errQty,				
+					totalQty_tmp as totalQty, 
+					qtyPercent_tmp as qtyPercent,
+					
+					errChnlQty_tmp as errChnlQty,
+					totalChnlQty_tmp as totalChnlQty,
+					qtyChnlPercent_tmp as qtyChnlPercent
+				from hppdata.Sum_qdyk_2002_prvdtl
+				WHERE 1=1
+				<if test="chnlTyp!=null">
+					and chnl_class = ${chnlTyp}
+				</if>
+				<if test="audTrm!=null">
+					and Aud_trm = ${audTrm}
+				</if>
+				<if test="prvdIdsStr!='10000'">
+					and prvd_id in ( ${prvdIdsStr} )
+				</if>
+				<!-- 这里不可以用不等号，否则会报错，但sql在teardata工具上执行不报错 -->
+				<if test="prvdIdsStr=='10000'">
+					and prvd_id not in (10000)
+				</if>
+			)  t		
+			on t.regionId = prvCon.prvd_id
+			
+		</if>
+		<!-- 省公司用户默认有一个省ID可选若干地市公司 -->
+		<if test="ctyIdsStr!=null">
+			<!-- 省用户未选择任何地市，默认全省时，查出所有地市 -->
+			select 
+				ctyCon.cmcc_prvd_nm_short as regionName, 
+				ctyCon.cmcc_prvd_cd as regionId, 
+
+				coalesce(t.errQty,0) as errQty, 
+				coalesce(t.totalQty,0) as totalQty, 
+				coalesce(t.qtyPercent,0) as qtyPercent, 
+				
+				coalesce(t.errChnlQty,0) as errChnlQty, 
+				coalesce(t.totalChnlQty,0) as totalChnlQty, 
+				coalesce(t.qtyChnlPercent,0) as qtyChnlPercent
+			from 
+			(select * from hpmgr.TB_SUM_PRVD_NAME
+			where 1 = 1 
+			<choose>
+                <when test="ctyIdsStr!=null and ctyIdsStr!='10000'">
+                       and cmcc_prvd_cd in ( ${ctyIdsStr} )
+                </when>
+                <otherwise>
+                       and cmcc_prov_prvd_id = ${prvdIdsStr}
+                </otherwise>
+        	</choose>
+			)
+			 ctyCon left join
+			(
+				 select	
+				 	cty_name_short as regionName,
+					cty_id as regionId,
+					aud_trm as audTrm,
+					
+					errQty_tmp as errQty,				
+					totalQty_tmp as totalQty, 
+					qtyPercent_tmp as qtyPercent,
+					
+					errChnlQty_tmp as errChnlQty,
+					totalChnlQty_tmp as totalChnlQty,
+					qtyChnlPercent_tmp as qtyChnlPercent
+				from hppdata.Sum_qdyk_2002_ctytl
+				WHERE 1=1
+				<if test="chnlTyp!=null">
+					and chnl_class = ${chnlTyp}
+				</if>
+				 <if test="audTrm!=null">
+					and Aud_trm = ${audTrm}
+				</if>
+				<choose>
+	                <when test="ctyIdsStr!=null and ctyIdsStr!='10000'">
+	                       and cty_id in ( ${ctyIdsStr} )
+	                </when>
+	                <otherwise>
+	                       and prvd_id = ${prvdIdsStr}
+	                </otherwise>
+         		</choose>
+			)  t		
+			on t.regionId = ctyCon.cmcc_prvd_cd
+
+		</if>
+		<!-- orderField，1：作为画图的数据属性，2：作为排序属性 -->
+		<if test="orderField=='ykhmsl'">
+			order by errQty desc
+		</if>
+		<if test="orderField=='ykhmzb'">
+			order by qtyPercent desc
+		</if>
+		<if test="orderField=='sjqdsl'">
+			order by errChnlQty desc
+		</if>
+		<if test="orderField=='sjqdzb'">
+			order by qtyChnlPercent desc
+		</if>
+	</select>
+	
+	<!-- 按审计月份进行折线图展示-用于全国、全省的折线图  20160912 add by GuoXY -->
+	<select id="getLineChartDataAll" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<!-- 集团用户选择了多个省 -->
+		<if test="ctyIdsStr==null">
+			SELECT
+				Aud_trm as audTrm,
+				sum(errQty_tmp) as errQty,				
+				sum(totalQty_tmp) as totalQty, 
+				case when sum(totalQty)=0 then 0 else cast(sum(errQty)*100/sum(totalQty) as decimal(16,2)) end qtyPercent,
+				sum(errChnlQty_tmp) as errChnlQty,
+				sum(totalChnlQty_tmp) as totalChnlQty,
+				case when sum(totalChnlQty)=0 then 0 else cast(sum(errChnlQty)*100/sum(totalChnlQty) as decimal(16,2)) end qtyChnlPercent
+				from hppdata.Sum_qdyk_2002_prvdtl t
+			WHERE 1=1
+				
+			<if test="chnlTyp!=null">
+				and chnl_class = ${chnlTyp}
+			</if>
+			<!-- 折线图要显示截止到查询月份，共计13个月内数据 -->
+			<if test="audTrmStart!=null">
+				<![CDATA[and Aud_trm >= #{audTrmStart}]]>
+			</if>
+			<if test="audTrmEnd!=null">
+				<![CDATA[and Aud_trm <= #{audTrmEnd}]]>
+			</if> 
+			<if test="prvdIdsStr!=null">
+				and prvd_id in ( ${prvdIdsStr} )
+			</if>
+			group by audTrm
+		</if>
+		<!-- 省公司用户默认有一个省ID可选若干地市公司 -->
+		<if test="ctyIdsStr!=null">
+			SELECT
+				Aud_trm as audTrm,
+				sum(errQty_tmp) as errQty,				
+				sum(totalQty_tmp) as totalQty, 
+				case when sum(totalQty)=0 then 0 else cast(sum(errQty)*100/sum(totalQty) as decimal(16,2)) end qtyPercent,
+				sum(errChnlQty_tmp) as errChnlQty,
+				sum(totalChnlQty_tmp) as totalChnlQty,
+				case when sum(totalChnlQty)=0 then 0 else cast(sum(errChnlQty)*100/sum(totalChnlQty) as decimal(16,2)) end qtyChnlPercent
+				from hppdata.Sum_qdyk_2002_ctytl
+			WHERE 1=1
+			<if test="chnlTyp!=null">
+				and chnl_class = ${chnlTyp}
+			</if>
+			<!-- 折线图要显示截止到查询月份，共计13个月内数据 -->
+			<if test="audTrmStart!=null">
+				<![CDATA[and Aud_trm >= #{audTrmStart}]]>
+			</if>
+			<if test="audTrmEnd!=null">
+				<![CDATA[and Aud_trm <= #{audTrmEnd}]]>
+			</if> 
+			<if test="ctyIdsStr!='10000'">
+				and cty_id in ( ${ctyIdsStr} )
+			</if>
+			<if test="ctyIdsStr=='10000'">
+				and prvd_id in ( ${prvdIdsStr} )
+			</if>
+			group by audTrm
+		</if>
+	</select>
+	<select id='getCityName'  resultType="java.util.HashMap" parameterType="java.util.Map">
+		sel CMCC_prvd_nm,CMCC_prvd_nm_short as cityName from hpmgr.TB_SUM_PRVD_NAME where CMCC_prvd_cd=#{cityCode}
+	</select>
+	
+	<!-- 按审计月份进行折线图展示-用于多个省、多个地市的折线图，查询几个就调用几次，反复交互数据库效率略有影响，但代码结构更清晰，而且用户也不会单选十几个省市  20160912 add by GuoXY -->
+	<select id="getLineChartDataSingle" resultType="java.util.HashMap" parameterType="java.util.Map">
+		<!-- 集团用户选择了多个省 -->
+		<if test="ctyIdsStr==null">
+			SELECT
+				Aud_trm as audTrm,
+				prvd_id as name,
+				errQty_tmp as errQty,				
+				totalQty_tmp as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty*100/totalQty as decimal(16,2)) end qtyPercent,
+				errChnlQty_tmp as errChnlQty,
+				totalChnlQty_tmp as totalChnlQty,
+				case when totalChnlQty=0 then 0 else cast(errChnlQty*100/totalChnlQty as decimal(16,2)) end qtyChnlPercent
+				from hppdata.Sum_qdyk_2002_prvdtl t
+			WHERE 1=1
+			<if test="chnlTyp!=null">
+				and chnl_class = ${chnlTyp}
+			</if>
+			<!-- 折线图要显示截止到查询月份，共计13个月内数据 -->
+			<if test="audTrmStart!=null">
+				<![CDATA[and Aud_trm >= #{audTrmStart}]]>
+			</if>
+			<if test="audTrmEnd!=null">
+				<![CDATA[and Aud_trm <= #{audTrmEnd}]]>
+			</if> 
+			<if test="prvdIdsStr!=null">
+				and prvd_id = ${prvdIdsStr}
+			</if>
+		</if>
+		<!-- 省公司用户默认有一个省ID可选若干地市公司 -->
+		<if test="ctyIdsStr!=null">
+			SELECT
+				Aud_trm as audTrm,
+				cty_id as name,
+				errQty_tmp as errQty,				
+				totalQty_tmp as totalQty, 
+				case when totalQty=0 then 0 else cast(errQty*100/totalQty as decimal(16,2)) end qtyPercent,
+				errChnlQty_tmp as errChnlQty,
+				totalChnlQty_tmp as totalChnlQty,
+				case when totalChnlQty=0 then 0 else cast(errChnlQty*100/totalChnlQty as decimal(16,2)) end qtyChnlPercent
+				from hppdata.Sum_qdyk_2002_ctytl
+			WHERE 1=1
+			<if test="chnlTyp!=null">
+				and chnl_class = ${chnlTyp}
+			</if>
+			<!-- 折线图要显示截止到查询月份，共计13个月内数据 -->
+			<if test="audTrmStart!=null">
+				<![CDATA[and Aud_trm >= #{audTrmStart}]]>
+			</if>
+			<if test="audTrmEnd!=null">
+				<![CDATA[and Aud_trm <= #{audTrmEnd}]]>
+			</if> 
+			<if test="ctyIdsStr!=10000">
+				and cty_id in ( ${ctyIdsStr} )
+			</if>
+			<if test='ctyIdsStr==10000'>
+				and prvd_id in ( ${prvdIdsStr} )
+			</if>
+		</if>
+	</select>
+	
+	
+	<!-- 审计报告之总体数据  1:全公司, 2:省公司  20160913 add by GuoXY -->
+ 	<select id="getAuditReportData_totalInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select *
+		from
+		(
+		 	select 
+			 	errQty as all_errQty,				
+				totalQty as all_totalQty, 
+				qtyPercent as  all_qtyPercent,
+				errChnlQty as all_errChnlQty,
+				<!-- totalChnlQty as all_totalChnlQty,-->
+				qtyChnlPercent  as  all_qtyChnlPercent
+		    from hppdata.Sum_qdyk_2002_prvdtl
+		    where  1 = 1 
+		 	and chnl_class = 0
+			and Aud_trm = ${audTrm}
+			and prvd_id = ${prvdId}
+		) as allTb,
+		(
+		 	select 
+			 	errQty as zy_errQty,		
+				totalQty as zy_totalQty,
+				qtyPercent as  zy_qtyPercent,
+				errChnlQty as zy_errChnlQty,
+				<!--totalChnlQty as zy_totalChnlQty,-->
+				qtyChnlPercent  as  zy_qtyChnlPercent
+		    from hppdata.Sum_qdyk_2002_prvdtl
+		    where  1 = 1 
+		 	and chnl_class = 1
+			and Aud_trm = ${audTrm}
+			and prvd_id = ${prvdId}
+		) as zyTb,
+		(
+		 	select 
+			 	errQty as sh_errQty,
+				totalQty as sh_totalQty, 
+				qtyPercent as  sh_qtyPercent,
+				errChnlQty as sh_errChnlQty,
+				<!-- totalChnlQty as sh_totalChnlQty,-->
+				qtyChnlPercent  as  sh_qtyChnlPercent
+		    from hppdata.Sum_qdyk_2002_prvdtl
+		    where  1 = 1 
+		 	and chnl_class = 2
+			and Aud_trm = ${audTrm}
+			and prvd_id = ${prvdId}
+		) as shTb
+	</select>
+	
+	<!-- 审计报告之表格数据  1:全公司, 2:省公司  20160913 add by GuoXY -->
+ 	<select id="getAuditReportData_tableInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select    
+			RN, 
+			<if test="prvdId==10000">
+				regionName as prvdName,
+			</if>
+			<if test="prvdId!=10000">
+				cty_name_short as prvdName,
+			</if>
+			errQty, qtyPercent
+		from hppdata.Sum_qdyk_2002_top_chnl
+		where 1 = 1
+			and Aud_trm = ${audTrm}
+			<!--10000是全公司，否则为省市--> 
+			and prvd_id = ${prvdId}
+			and flag = '100001'
+			and chnl_class=0
+			order by RN 
+	</select>
+	
+	
+
+<select id="prvdInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+ select 
+ 	    <if test="orderField=='ykhmsl'"> 	    
+			 row_number()over(order by errQty_tmp desc) as RN,			 
+		</if>
+		<if test="orderField=='ykhmzb'">
+			 row_number()over(order by qtyPercent_tmp desc) as RN,
+		</if>	
+		<if test="orderField=='sjqdsl'">
+			 row_number()over(order by errChnlQty_tmp desc) as RN,	 
+		</if>		
+		<if test="orderField=='sjqdzb'">
+			 row_number()over(order by qtyChnlPercent_tmp desc) as RN,		 
+		</if>
+prvd_name as prvdName,
+ cnt_area  as cntArea,
+ errQty_tmp (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errQty,
+ errQty_tmp as errQty1,
+ qtyPercent_tmp (FORMAT 'ZZ9.99%')(VARCHAR(7)) as qtyPercent,
+ case 
+ 	when substr(abs_fbQtyPercent,1,4)='上升' then substr(abs_fbQtyPercent,5)||'%'
+ 	when substr(abs_fbQtyPercent,1,4)='下降' then '-'||substr(abs_fbQtyPercent,5)||'%'
+ 	else null
+ end  as fbQtyPercent,
+ errChnlQty_tmp (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errChnlQty,
+ errChnlQty_tmp as errChnlQty1,
+ qtyChnlPercent_tmp (FORMAT 'ZZ9.99%')(VARCHAR(7)) as qtyChnlPercent,
+  case 
+ 	when substr(abs_fbChnlPercent,1,4)='上升' then substr(abs_fbChnlPercent,5)||'%'
+ 	when substr(abs_fbChnlPercent,1,4)='下降' then '-'||substr(abs_fbChnlPercent,5)||'%'
+ 	else null
+ end    as fbChnlPercent,
+ prvd_id as prvdId ,
+ totalQty_tmp as totalQty,
+ totalChnlQty_tmp as totalChnlQty
+ from  hppdata.Sum_qdyk_2002_prvdtl 
+ where
+ Aud_trm=${audTrm} and 
+ <if test="prvdIds!='10000' ">
+  <![CDATA[ prvd_id in (${prvdIds}) and ]]>
+ </if>
+ <if test="prvdIds=='10000' ">
+  <![CDATA[prvd_id <>10000 and ]]>
+ </if>
+ chnl_class=${chnlTyp} and errQty_tmp>0
+ order by  RN
+ </select>
+ 
+ 
+ <select id="ctyInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+ select 
+        <if test="orderField=='ykhmsl'"> 	    	
+			 row_number()over(order by errQty_tmp desc) as RN,			 
+		</if>
+		<if test="orderField=='ykhmzb'">
+			 row_number()over(order by qtyPercent_tmp desc) as RN,
+		</if>		
+		<if test="orderField=='sjqdsl'">
+			 row_number()over(order by errChnlQty_tmp desc) as RN,	 
+		</if>		
+		<if test="orderField=='sjqdzb'">
+			 row_number()over(order by qtyChnlPercent_tmp desc) as RN,		 
+		</if>
+ prvd_name as prvdName,
+ cty_name_short as ctyName,
+ errQty_tmp (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errQty,
+ errQty_tmp as errQty1,
+ qtyPercent_tmp (FORMAT 'ZZ9.99%')(VARCHAR(7)) as qtyPercent,
+  case 
+ 	when substr(abs_fbQtyPercent,1,4)='上升' then substr(abs_fbQtyPercent,5)||'%'
+ 	when substr(abs_fbQtyPercent,1,4)='下降' then '-'||substr(abs_fbQtyPercent,5)||'%'
+ 	else null
+ end  as fbQtyPercent,
+ errChnlQty_tmp (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errChnlQty,
+ errChnlQty_tmp as errChnlQty1,
+ qtyChnlPercent_tmp (FORMAT 'ZZ9.99%')(VARCHAR(7)) as qtyChnlPercent,
+   case 
+ 	when substr(abs_fbChnlPercent,1,4)='上升' then substr(abs_fbChnlPercent,5)||'%'
+ 	when substr(abs_fbChnlPercent,1,4)='下降' then '-'||substr(abs_fbChnlPercent,5)||'%'
+ 	else null
+ end    as fbChnlPercent,
+ cty_id as ctyId ,
+ totalQty_tmp as totalQty,
+ totalChnlQty_tmp as totalChnlQty
+ from  hppdata.Sum_qdyk_2002_ctytl 
+ where
+ Aud_trm=${audTrm} and 
+ prvd_id=${prvdId} and 
+ <if test="ctyIds!='' and ctyIds!=null and ctyIds!='10000'">
+  <![CDATA[ cty_id in (${ctyIds}) and ]]>
+ </if>
+ chnl_class=${chnlTyp} and errQty_tmp>0
+ order by  RN 
+ </select>
+ 
+ 
+ <select id="chnlTop5" resultType="java.util.HashMap" parameterType="java.util.Map">
+ <if test="chnlTyp!=0 "><!-- 自有和社会渠道-->
+ select    <!-- 没有全渠道TOP5 需要后台加-->
+ row_number()over(order by RN asc) as RN_,
+ chnlName,
+ case 
+ 	when b.cor_chnl_typ='2' or b.cor_chnl_typ='3' or a.chnlTyp='社会渠道'  then '社会渠道'
+ 	when b.cor_chnl_typ='1' or b.cor_chnl_typ='4' or a.chnlTyp='自有渠道'  then '自有渠道'
+ 	else '全渠道'
+ end as chnlTyp,
+ ctyName,
+ prvdName,
+ errQty,
+ qtyPercent,
+ ctyId,
+ chnlId
+ from(
+ select 	
+ RN,
+ chnlName as chnlName,
+ case 
+ when chnl_class=1 then '自有渠道'
+ when chnl_class=2 then '社会渠道'end as chnlTyp,
+ cty_name_short as ctyName,
+ prvd_name as prvdName,
+ errQty_tmp (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errQty,
+ qtyPercent,
+ cty_id as ctyId,
+ chnl_id as chnlId <!-- 没有渠道ID 需要后台加   已添加-->
+ from  hppdata.Sum_qdyk_2002_top_chnl
+ where
+ Aud_trm=${audTrm} and 
+ <if test="ctyId!='' and ctyId!=null and ctyId!=10000 "><!-- 地市TOP5-->
+  prvd_id=${prvdId} and 
+  cty_id =${ctyId} and
+  flag ='100005' and
+ </if>
+ <if test="ctyId=='' or ctyId==null or ctyId==10000 "><!-- 省份TOP5-->
+  prvd_id=${prvdId} and 
+  flag ='100003' and
+ </if>
+ chnl_class=${chnlTyp})a join 
+ (select cor_chnl_id, cor_chnl_typ from hppdata.TB_SVC_CORCHNL_BASIC where
+ <if test="ctyId!='' and ctyId!=null and ctyId!=10000 "><!-- 地市TOP5-->
+  CMCC_prov_prvd_id =${prvdId} and CMCC_Prov_id=${ctyId} 
+  </if>
+  <if test="ctyId=='' or ctyId==null or ctyId==10000 "><!-- 省份TOP5-->
+  CMCC_prov_prvd_id =${prvdId}
+  </if>
+  group by 1,2)b 
+ on a.chnlId=b.cor_chnl_id
+ order by  RN_
+ </if>
+ 
+ <if test="chnlTyp==0 "><!-- 全渠道-->
+ select    
+ row_number()over(order by RN asc) as RN_,
+ chnlName,
+ case 
+ 	when b.cor_chnl_typ='2' or b.cor_chnl_typ='3' or a.chnlTyp='社会渠道'  then '社会渠道'
+ 	when b.cor_chnl_typ='1' or b.cor_chnl_typ='4' or a.chnlTyp='自有渠道'  then '自有渠道'
+ 	else '全渠道'
+ end as chnlTyp,
+ ctyName,
+ prvdName,
+ errQty,
+ qtyPercent,
+ ctyId,
+ chnlId
+ from(
+ select 	
+ RN,
+ chnlName as chnlName,
+ '全渠道'as chnlTyp,
+ cty_name_short as ctyName,
+ prvd_name as prvdName,
+ errQty_tmp (FORMAT 'ZZZ,ZZZ,ZZZ,ZZZ,ZZ9')(VARCHAR(19)) as errQty,
+ qtyPercent,
+ cty_id as ctyId,
+ chnl_id as chnlId 
+ from  hppdata.Sum_qdyk_2002_top_chnl
+ where
+ Aud_trm=${audTrm} and 
+ <if test="ctyId!='' and ctyId!=null and ctyId!=10000 "><!-- 地市TOP5-->
+  prvd_id=${prvdId} and 
+  cty_id =${ctyId} and
+  flag ='100008' 
+ </if>
+ <if test="ctyId=='' or ctyId==null or ctyId==10000 "><!-- 省份TOP5-->
+  prvd_id=${prvdId} and 
+  flag ='100007' 
+ </if>
+ )a join 
+ (select cor_chnl_id, cor_chnl_typ from hppdata.TB_SVC_CORCHNL_BASIC where
+ <if test="ctyId!='' and ctyId!=null and ctyId!=10000 "><!-- 地市TOP5-->
+  CMCC_prov_prvd_id =${prvdId} and CMCC_Prov_id=${ctyId} 
+  </if>
+  <if test="ctyId=='' or ctyId==null or ctyId==10000 "><!-- 省份TOP5-->
+  CMCC_prov_prvd_id =${prvdId}
+  </if>
+  group by 1,2)b 
+ on a.chnlId=b.cor_chnl_id
+ order by  RN_
+ </if>
+ </select>
+ 
+ 
+ 
+ 
+ <select id="chnlBasisInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+select chnlId,chnlName,chnlTyp,chnlLevel,chnlAddr,signEffDt,chnlStat,chnlBasicTyp,rgnForm,cnty_num,b.CMCC_prvd_nm_short as ctyName from 
+(select 
+cor_chnl_id as chnlId,     
+chnl_nm as chnlName, 
+case 
+	when cor_chnl_typ =1 then '自营厅'
+	when cor_chnl_typ =2 then '委托经营厅'
+	when cor_chnl_typ =3 then '社会代理网点'
+	when cor_chnl_typ =4 then '24小时自助营业厅'
+	else '无'
+end as chnlTyp, 
+case 
+	when chnl_level =1 then '一星级'
+	when chnl_level =2 then '二星级'
+	when chnl_level =3 then '三星级'
+	when chnl_level =4 then '四星级'
+	when chnl_level =5 then '五星级'
+	when chnl_level =6 then '六星级'
+	else '无'
+end as chnlLevel, 
+<!--'NA' as ctyName, 没有地市名，需要自己关联地市信息表 -->
+chnl_addr as chnlAddr,
+agmt_sign_eff_dt as signEffDt,
+case 
+	when chnl_stat =1 then '正常运营'
+	when chnl_stat =2 then '暂停营业/预注销'
+	when chnl_stat =3 then '已关店/注销'
+	else '无'
+end as chnlStat,
+case 
+	when chnl_basic_typ=1 then '普通自营厅'
+	when chnl_basic_typ=2 then '品牌店'
+	when chnl_basic_typ=3 then '旗舰店'
+	when chnl_basic_typ=4 then '24小时自助营业厅'
+	when chnl_basic_typ=5 then '指定专营店'
+	when chnl_basic_typ=6 then '特约代理点'
+	else '无'
+end as chnlBasicTyp,
+
+case 
+	when rgn_form =1 then '商业区'
+	when rgn_form =2 then '交通枢纽'
+	when rgn_form =3 then '居民住宅区'
+	when rgn_form =4 then '商务办公区'
+	when rgn_form =5 then '学校区域'
+	when rgn_form =6 then '工矿厂区和工业园区'
+	when rgn_form =7 then '旅游景区'
+	else '无'
+end as rgnForm,
+cnty_nm as cnty_num ,
+CMCC_prov_prvd_id,
+CMCC_Prov_id   
+from  hppdata.TB_SVC_CORCHNL_BASIC
+ where
+  CMCC_prov_prvd_id=${prvdId} and 
+  CMCC_Prov_id =${ctyId} and
+  cor_chnl_id=#{chnlId})a 
+  join HPMGR.TB_SUM_PRVD_NAME b on
+  a.CMCC_prov_prvd_id=b.CMCC_prov_prvd_id and 
+  a.CMCC_Prov_id=b.CMCC_prvd_cd
+ </select>
+ 
+<select id="getChnlTrendInfo" resultType="java.util.HashMap" parameterType="java.util.Map">
+SELECT	
+Aud_trm as audTrm,
+rase_crd_qty as errQty,
+(case when tol_usrs=0 or tol_usrs  is null then 0 else  rase_crd_qty*1.00/tol_usrs end)*100 as qtyPercent
+FROM	hppdata.Sum_qdyk_2002  
+ where
+  prvd_id=${prvdId} and 
+  cty_id =${ctyId} and
+  chnl_id=#{chnlId}
+  order by Aud_trm
+ </select>
+</mapper>

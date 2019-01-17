@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>有价卡管理违规</title>
+    <link rel="stylesheet" type="text/css" href="/cmca/resource/css/cmca/yjk.css" />
+    <script type="text/javascript" src="/cmca/resource/zhsj/resource.js"></script>
+    <link rel="stylesheet" href="/cmca/resource/css/dark-theme.css">
+</head>
+
+<body class="dark_theme">
+    <form id="queryParam">
+        <!-- 专题ID -->
+        <input type="hidden" id="subjectId" value="1" />
+        <!-- 省ID -->
+        <input type="hidden" id="prvdId" value="" />
+        <!-- 省名称字母 -->
+        <input type="hidden" id="prvdName" value="" />
+        <!-- 省名称中文 -->
+        <input type="hidden" id="prvdNameZH" value="全公司" />
+        <!-- 地市ID -->
+        <input type="hidden" id="ctyId" value="" />
+        <!-- 审计时间 -->
+        <input type="hidden" id="audTrm" value="" />
+        <!-- 类别 -->
+        <input type="hidden" id="concern" value="1000">
+        <!-- 指标 -->
+        <input type="hidden" id="target" value="">
+        <!-- 登录所属角色 -->
+        <input type="hidden" id="roleId" value="" />
+    </form>
+    <div class="wrapper">
+        <!-- 公共头部 -->
+        <div class="public_header">
+            <p>数据审计平台</p>
+        </div>
+        <!-- 公共主体 -->
+        <div class="public_main clear_float">
+            <!-- 侧边栏 -->
+            <div class="public_side_bar" id="navHref">
+                <!-- ≤1366侧边栏 -->
+                <ul class="small_bar" id="smallSideBar">
+                    <li class="title_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-shenjizhuanti"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip">
+                            <i class="caret_left"></i>审计专题
+                        </a>
+                    </li>
+                    <li class="content_icon active">
+                        <a href="javascript:;" class="nav_icon">
+                            <span class="iconfont icon-youjiaqia"></span>
+                        </a>
+                        <a href="javascript:;" class="nav_tip lg_nav_tip">
+                            <i class="caret_left"></i>有价卡管理违规
+                        </a>
+                    </li>
+                </ul>
+                <!-- ＞1366px侧边栏 -->
+                <ul class="big_bar" id="bigSideBar">
+                    <li class="active">
+                        <h5 class="nav_title">
+                            <a href="javascript:void(0)">
+                                <span class="iconfont icon-shenjizhuanti"></span>审计专题
+                                <i class="caret_up"></i>
+                            </a>
+                        </h5>
+                        <ul class="nav_list">
+                            <li>
+                                <a href="javascript:void(0)" class="active">有价卡管理违规</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- 主体展示内容 -->
+            <div class="main_content clear_float">
+                <!-- 主体顶部搜索 -->
+                <div class="row main_search">
+                    <!-- 左侧tab展示 -->
+                    <div class="col-xs-3">
+                        <ul class="list-inline l_tab">
+                            <li class="active">
+                                <a href="javascript:;">有价卡管理违规</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;">审计专题</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 中间搜索区域 -->
+                    <div class="col-xs-7">
+                        <label class="col-xs-2" for="chooseProvince">区域选择</label>
+                        <div class="col-xs-3 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseProvince" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="provinceListWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" id="provinceList">
+                                    <!-- 后台调取数据 -->
+                                </ul>
+                            </div>
+                        </div>
+                        <label class="col-xs-2" for="chooseTime">审计月</label>
+                        <div class="col-xs-3 dropdown_con">
+                            <div class="input_wrap">
+                                <input type="text" value="" id="chooseTime" readonly="readonly">
+                                <i class="caret_down"></i>
+                            </div>
+                            <div id="timeListWrap" class="dropdown_menu">
+                                <ul class="dropdown_list" id="timeList">
+                                    <!-- 后台调取数据 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧三级导航 -->
+                    <div class="col-xs-2 pull-right">
+                        <ul class="list-inline three_nav" id="threeLvNav">
+                            <!-- 权限动态控制 -->
+                        </ul>
+                    </div>
+                </div>
+                <!-- 主要内容部分 -->
+                <div class="row main_show_wrap clear_float">
+                    <!-- 左侧图表展示 -->
+                    <div id="mainLeftShow" class="main_l fl" style="width: 40%;display:none;">
+                        <!-- 有价卡左右切换 - 左边按钮 -->
+                        <button id="mainLeftBtn" class="btn l_btn public_btn yjk_btn_lft">
+                            <span class="caret_left"></span>
+                        </button>
+                        <!-- 有价卡区域 -->
+                        <div id="yjkLftArea" class="yjk_area clear_float">
+                            <!-- 生命周期图 - 圆图 -->
+                            <div class="col-xs-12 yjk_top yjk_pic">
+                                <div class="graph cycle_wrap" id="cycleWrap">
+                                    <div id="mapXsPic" class="map_xs">
+                                        <img src="/cmca/resource/images/youjiaka/map_xs.png" class="img-responsive">
+                                    </div>
+                                    <div id="zhikaPicBtn" class="cycle_item zhika">
+                                        <img src="/cmca/resource/images/youjiaka/zhika.png" class="img-responsive">
+                                        <img src="/cmca/resource/images/youjiaka/zhika_active.png" class="img-responsive">
+                                    </div>
+                                    <div id="xiaoshouPicBtn" class="cycle_item xiaoshou">
+                                        <img src="/cmca/resource/images/youjiaka/xiaoshou.png" class="img-responsive">
+                                        <img src="/cmca/resource/images/youjiaka/xiaoshou_active.png" class="img-responsive">
+                                    </div>
+                                    <div id="chongzhiPicBtn" class="cycle_item chongzhi">
+                                        <img src="/cmca/resource/images/youjiaka/chongzhi.png" class="img-responsive">
+                                        <img src="/cmca/resource/images/youjiaka/chongzhi_active.png" class="img-responsive">
+                                    </div>
+                                    <div id="huaikaPicBtn" class="cycle_item huaika">
+                                        <img src="/cmca/resource/images/youjiaka/huaika.png" class="img-responsive">
+                                        <img src="/cmca/resource/images/youjiaka/huaika_active.png" class="img-responsive">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 有价卡左侧底部 -->
+                            <div class="col-xs-12 yjk_btm clear_float">
+                                <!-- 左边卡片-->
+                                <div class="sum_box col-xs-5">
+                                    <ul class="sum_ctn">
+                                        <li>
+                                            <dl>
+                                                <dt class="clear_float">
+                                                    <span class="fl">违规金额（万元）</span>
+                                                    <span id="infractionAmt" class="fr">0</span>
+                                                </dt>
+                                                <dd id="infractionAmtMom" class="clear_float">
+                                                    <b class="fl">0</b>
+                                                    <span class="glyphicon glyphicon-triangle-bottom text-right fr"></span>
+                                                </dd>
+                                            </dl>
+                                        </li>
+                                        <li>
+                                            <dl>
+                                                <dt class="clear_float">
+                                                    <span class="fl">违规金额占比</span>
+                                                    <span id="amtPercent" class="fr">0</span>
+                                                </dt>
+                                                <dd id="amtPercentMom" class="clear_float">
+                                                    <b class="fl">0</b>
+                                                    <span class="glyphicon glyphicon-triangle-bottom text-right fr"></span>
+                                                </dd>
+                                            </dl>
+                                        </li>
+                                        <li>
+                                            <dl>
+                                                <dt class="clear_float">
+                                                    <span class="fl">违规数量（张）</span>
+                                                    <span id="infractionNum" class="fr">0</span>
+                                                </dt>
+                                                <dd id="infractionNumMom" class="clear_float">
+                                                    <b class="fl">0</b>
+                                                    <span class="glyphicon glyphicon-triangle-bottom text-right fr"></span>
+                                                </dd>
+                                            </dl>
+                                        </li>
+                                        <li>
+                                            <dl>
+                                                <dt class="clear_float">
+                                                    <span class="fl">违规数量占比</span>
+                                                    <span id="numPercent" class="fr">0</span>
+                                                </dt>
+                                                <dd id="numPercentMom" class="clear_float">
+                                                    <b class="fl">0</b>
+                                                    <span class="glyphicon glyphicon-triangle-bottom text-right fr"></span>
+                                                </dd>
+                                            </dl>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                                <!-- VC和CRM比对图 -->
+                                <div class="life_box col-xs-7">
+                                    <div class="life_ctn">
+                                        <div class="life_hed clear_float">
+                                            <div class="fl">VC和CRM系统间数据比对</div>
+                                            <ul id="lifePopTbBtn" class="fr" title="说明">
+                                                <li></li>
+                                                <li></li>
+                                                <li></li>
+                                            </ul>
+                                        </div>
+                                        <div class="life_graph_ctn">
+                                            <div id="lifeChart" class="life_graph">
+                                                <!-- 后台调取数据 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 生命周期图下钻-地图 -->
+                        <div id="yktlLftArea" class="qudao_area GMnone">
+                            <!-- 地图上方专题按钮 -->
+                            <div id="contentTipBtn" class="map_top_icon yjk_text_btn">
+                                <img class="img-responsive" src="/cmca/resource/images/yjk-icon.png">
+                            </div>
+                            <!-- 地图 -->
+                            <div id="mapWrap" class="china_map map_wrap">
+                                <!-- 地图标题 -->
+                                <div class="map_title" id="mapTitle">全网有价卡异常销售占比</div>
+                                <!-- 地图下方提示按钮 -->
+                                <div class="map_btn map_tip_btn">
+                                    <button class="btn yjk_note_btn" id="mapTipBtn">
+                                        <span class="glyphicon glyphicon-info-sign"></span>
+                                    </button>
+                                </div>
+                                <!-- 下钻省地图返回按钮 -->
+                                <div class="map_btn map_back_btn">
+                                    <button class="btn back_btn" id="ProvBackBtn">返回</button>
+                                </div>
+                                <!-- 提示信息 -->
+                                <div id="contentTip" class="dialog_tip content_tip yjk_msg_text">
+                                    通过对31省公司有价卡在BOSS（计费系统）和VC（充值中心）的状态信息进行全量核查和逻辑判断，识别有价卡在数据加载、销售、激活、充值等全业务流程管理中存在的违规风险，并分析违规类型及原因。
+                                </div>
+                                <div class="dialog_tip note_tip yjk_note_text" id="mapTip">
+                                    注：根据违规金额程度显示风险级别：红色：排名前3；黄色：排名4-10名；蓝色：排名10之后和无违规；灰色：无数据。
+                                </div>
+                                <div id="backYjkPic" class="qudao_back">
+                                    <button class="btn btn-xs qudao_back_btn">
+                                        <span class="glyphicon glyphicon-globe fa-lg"></span>
+                                    </button>
+                                </div>
+                                <!-- 地图展示 -->
+                                <div class="map_continer" id="chinaMap">
+                                    <!-- 后台调取数据 -->
+                                </div>
+                                <!-- 南海诸岛 -->
+                                <div class="map_nanhaiqundao" id="nanhaiQundao">
+                                    <img src="/cmca/resource/images/nanhaizhudao.png" alt="南沙群岛" style="width: 100%;height: 100%;">
+                                </div>
+                            </div>
+                            <!-- 地图底部卡片 -->
+                            <ul id="cardContainer" class="card_wrap position_card_wrap clear_float">
+                                <li class="card_item col-xs-6" style="padding-right: 0;">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card1">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>违规金额（万元）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card2">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>违规金额占比</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6" style="padding-right: 0;">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card3">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>违规数量（张）</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                                <li class="card_item col-xs-6">
+                                    <div class="content_wrap">
+                                        <dl>
+                                            <dt id="card4">0
+                                                <i class="caret_down"></i>
+                                                <span>0</span>
+                                            </dt>
+                                            <dd>违规数量占比</dd>
+                                        </dl>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- 点击VC和CRM比对图 ... 的弹层-->
+                        <div id="lifePopctn" class="life_pop">
+                            <div class="col-xs-12">
+                                <button class="btn fr">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                            <div class="col-xs-12">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <i class="vc">VC</i>
+                                                <i class="crm">CRM</i>
+                                            </th>
+                                            <th>生成</th>
+                                            <th>激活</th>
+                                            <th>已使用</th>
+                                            <th>锁定</th>
+                                            <th>清退</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>生成</td>
+                                            <td class="green">制卡信息已同步加载</td>
+                                            <td class="yellow">生成的卡未经销售已被激活</td>
+                                            <td class="red">制卡为销售的却已被充值</td>
+                                            <td class="yellow">生成状态的卡被锁定</td>
+                                            <td class="yellow">生成状态的卡被清退</td>
+                                        </tr>
+                                        <tr>
+                                            <td>已使用</td>
+                                            <td class="green">生产的卡已经配送下发</td>
+                                            <td class="yellow">配送下发的卡未经销售已被激活</td>
+                                            <td class="red">配送下发的卡却已被充值</td>
+                                            <td class="yellow">生成状态的卡被锁定</td>
+                                            <td class="yellow">配送下发的卡被清退</td>
+                                        </tr>
+                                        <tr>
+                                            <td>激活</td>
+                                            <td class="yellow">卡已销售激活却还是生成状态</td>
+                                            <td class="green">卡已销售且被激活</td>
+                                            <td class="red">销售的卡却已被充值</td>
+                                            <td class="red">卡被锁定却被销售</td>
+                                            <td class="red">卡被清退却被销售</td>
+                                        </tr>
+                                        <tr>
+                                            <td>已使用</td>
+                                            <td class="red">生成的卡却已被充值</td>
+                                            <td class="red">销售激活的卡却已被充值</td>
+                                            <td class="green">卡已被充值使用</td>
+                                            <td class="yellow">已充值了的卡被锁定</td>
+                                            <td class="yellow">已充值了的卡被清退</td>
+                                        </tr>
+                                        <tr>
+                                            <td>锁定</td>
+                                            <td class="yellow">卡已锁定却还可销售</td>
+                                            <td class="yellow">锁定的卡被销售激活</td>
+                                            <td class="red">卡已被锁定却被充值</td>
+                                            <td class="green">卡已被锁定</td>
+                                            <td class="green">锁定的卡被清退</td>
+                                        </tr>
+                                        <tr>
+                                            <td>清退</td>
+                                            <td class="yellow">卡已报废却还可销售</td>
+                                            <td class="yellow">卡已报废却被销售激活</td>
+                                            <td class="red">卡已报废却被充值</td>
+                                            <td class="green">报废清退的卡被锁定</td>
+                                            <td class="green">卡已报废且被清退</td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧 - 图表展示 -->
+                    <div id="mainRightShow" class="main_r fr" style="width:60%;display:none;">
+                        <!-- 右侧中间切换按钮 -->
+                        <button id="mainRightBtn" class="btn r_btn public_btn yjk_btn_rit" style="display:none;">
+                            <span class="caret_right"></span>
+                        </button>
+                        <!-- 右侧tab图表展示 -->
+                        <div class="tab-content">
+                            <!-- 三级tab-审计结果内容展示 -->
+                            <div class="tab-pane result_show_wrap" id="resultTabCon">
+                                <!-- 审计结果四级导航 -->
+                                <div class="row four_nav">
+                                    <ul class="col-xs-12 list-inline">
+                                        <li id="huizongBtn" class="col-xs-2 active">汇总</li>
+                                        <li id="weiguixiaoshouBtn" class="col-xs-2">违规销售</li>
+                                        <li id="chongfuBtn" class="col-xs-2">重复使用</li>
+                                        <li id="weitongbuBtn" class="col-xs-2">未同步加载</li>
+                                        <li id="weiguijihuoBtn" class="col-xs-2">违规激活</li>
+                                        <li id="huaikaBtn" class="col-xs-2">坏卡未封存</li>
+                                    </ul>
+                                </div>
+                                <!-- 审计结果图表展示 -->
+                                <div class="row">
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">违规金额占比排名</p>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap1">
+                                            <div class="content_show" id="contentShow1">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">违规数量占比排名</p>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap2">
+                                            <div class="content_show" id="contentShow2">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">违规金额占比趋势</p>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap3">
+                                            <div class="content_show" id="contentShow3">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6 show_item">
+                                        <div class="title clear_float">
+                                            <p class="fl">违规数量占比趋势</p>
+                                        </div>
+                                        <div class="content_show_wrap" id="contentShowWrap4">
+                                            <div class="content_show" id="contentShow4">
+                                                数据加载中...
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 三级tab-统计分析内容展示 -->
+                            <div class="tab-pane fenxi_show_wrap" id="fenxiTabCon">
+                                <!-- 统计分析四级导航 -->
+                                <div class="four_nav">
+                                    <ul class="row list-inline">
+                                        <!-- 权限动态控制 -->
+                                    </ul>
+                                </div>
+                                <!-- 统计分析内容展示 -->
+                                <div class="row tab-content">
+                                    <!-- 四级tab-统计报表内容展示 -->
+                                    <div class="col-xs-12 tab-pane" id="fenxiFourNav1Con">
+                                        <!-- 统计报表五级导航 -->
+                                        <div class="row five_nav">
+                                            <ul class="list-inline col-xs-12">
+                                                <!-- 权限动态控制 -->
+                                            </ul>
+                                        </div>
+                                        <!-- 五级tab-统计报表图表展示 -->
+                                        <div class="row tab-content">
+                                            <!-- 排名汇总 -->
+                                            <div class="col-xs-12 tab-pane table_wrap" id="fenxiFourNav1FiveNav1Con">
+                                                <!-- 顶部关注点筛选 -->
+                                                <div class="row top">
+                                                    <label for="XZYYFBchooseType2" class="col-xs-2" style="margin-top: 5px;">关注点：</label>
+                                                    <div class="col-xs-4 dropdown_con">
+                                                        <div class="input_wrap">
+                                                            <input type="text" value="汇总" id="XZYYFBchooseType2"
+                                                                readonly="readonly">
+                                                            <i class="caret_down"></i>
+                                                        </div>
+                                                        <div class="dropdown_menu" id="TypeListWrap2">
+                                                            <ul class="dropdown_list" id="TypeList2">
+                                                                <li>
+                                                                    <a data="1000" href="javascript:;">汇总</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="1001" href="javascript:;">未按规定在系统间同步加载</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="1002" href="javascript:;">违规激活</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="1003" href="javascript:;">违规销售</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="1004" href="javascript:;">退换后的坏卡或报废卡未封锁</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a data="1005" href="javascript:;">违规重复使用</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- 排名汇总表格 -->
+                                                <table id="rankingAllTable">
+                                                    <!-- 后台调取数据 -->
+                                                </table>
+                                            </div>
+                                            <!-- 增量分析 -->
+                                            <div class="col-xs-12 tab-pane pubu_show" id="fenxiFourNav1FiveNav2Con">
+                                                <!-- 增量分析瀑布图 -->
+                                                <div id="pubuChart"></div>
+                                                <!-- 瀑布图图例 -->
+                                                <div class="col-xs-12 pubu_legend">
+                                                    <ul class="list-inline">
+                                                        <li>
+                                                            <span class="red"></span>分省环比增加</li>
+                                                        <li>
+                                                            <span class="blue"></span>分省环比减少</li>
+                                                        <li>
+                                                            <span class="green"></span>全网环比增量</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <!-- 违规类型分布 -->
+                                            <div class="col-xs-12 tab-pane zhanbi_show" id="fenxiFourNav1FiveNav3Con">
+                                                <!-- 饼图 -->
+                                                <div class="col-xs-7">
+                                                    <h5>
+                                                        <span id="pieAudTrm"></span>各关注点违规数量对比</h5>
+                                                    <div id="zhanbiBingtuChart">
+                                                        数据加载中...
+                                                    </div>
+                                                </div>
+                                                <!-- 堆积图 -->
+                                                <div class="col-xs-5" id="zhanbiQushiChartWrap">
+                                                    <h5 style="margin-bottom:10px;">有价卡管理违规各关注点违规占比</h5>
+                                                    <div id="zhanbiQushiChart">
+                                                        数据加载中...
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 四级tab-审计整改问责内容展示 -->
+                                    <div class="col-xs-12 tab-pane" id="fenxiFourNav2Con">
+                                        <!-- 审计整改问责五级导航 -->
+                                        <div class="row five_nav">
+                                            <ul class="list-inline col-xs-12">
+                                                <!-- 权限动态控制 -->
+                                            </ul>
+                                        </div>
+                                        <!-- 五级tab-审计整改问责图表展示 -->
+                                        <div class="row tab-content">
+                                            <!-- 整改问责要求 -->
+                                            <div class="col-xs-12 tab-pane wenze_require_wrap" id="fenxiFourNav2FiveNav1Con">
+                                                <h5 class="clear_float">
+                                                    <span class="title" id="wenzeTableTitle">有价卡管理违规整改问责表</span>
+                                                    <button class="btn" id="wenzeTipbtn">
+                                                        <span class="glyphicon glyphicon-list"></span>
+                                                    </button>
+                                                </h5>
+                                                <div class="wenze_table_wrap">
+                                                    <table id="wenzeTable">
+                                                        <!-- 后台调取数据 -->
+                                                    </table>
+                                                    <!-- 整改问责说明 -->
+                                                    <div class="wenze_tip" id="wenzeTip">
+                                                        <h5>审计整改选择省份标准：</h4>
+                                                            <p>1．通报当期有价卡整体违规金额占比超过1%；
+                                                                <br> 2．通报当期“有价卡销售前已被充值”违规金额占审计期间充值有价卡金额的比例超过0.1%；
+                                                                <br>
+                                                                3．通报当期有价卡已充值但未在VC系统标记“已充值”状态违规金额占审计期间充值有价卡金额的比例超过0.1%；
+                                                            </p>
+                                                            <br>
+                                                            <h5>审计问责选择省份标准：</h4>
+                                                                <p>对6个月中有3个月均存在上述三种整改情形中任意一种情形的公司予以审计问责。</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 整改问责统计 -->
+                                            <div class="col-xs-12 tab-pane wenze_show" id="fenxiFourNav2FiveNav2Con">
+                                                <div class="col-xs-6 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl" title="六个月内达到整改标准次数排名（单位：次）">六个月内达到整改标准次数排名（次）</p>
+                                                    </div>
+                                                    <div id="stageAccOrderWrap">
+                                                        <div class="content_show" id="stageAccOrder">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-6 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl">累次达到整改次数排名（次）</p>
+                                                    </div>
+                                                    <div id="addUpAccOrderWrap">
+                                                        <div class="content_show" id="addUpAccOrder">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 show_item">
+                                                    <div class="title clear_float">
+                                                        <p class="fl">达到整改标准省公司数量趋势（个）</p>
+                                                    </div>
+                                                    <div id="accTrendWrap">
+                                                        <div class="content_show" id="accTrend">
+                                                            <!-- 后台调取数据 -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 四级tab-审计报告下载内容展示 -->
+                                    <div class="col-xs-12 tab-pane baogao_down_wrap" id="fenxiFourNav3Con">
+                                        <div class="audtrm_off hideUnit">
+                                            <h4>暂无当月审计报告查看权限</h4>
+                                        </div>
+                                        <div class="audtrm_on hideUnit">
+                                            <div class="down_btn_group clear_float">
+                                                <button class="btn fr" id="sjqdDownBtn">审计清单下载</button>
+                                                <button class="btn fr" style="margin-right: 10px" id="sjbgDownBtn">审计报告下载</button>
+                                            </div>
+                                            <div class="content_wrap" id="sjbgPrview">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/cmca/resource/zhsj/cmca-common.js"></script>
+    <script type="text/javascript" src="/cmca/resource/zhsj/yjk/yjkData.js"></script>
+    <script type="text/javascript" src="/cmca/resource/zhsj/yjk/yjk.js"></script>
+</body>
+
+</html>

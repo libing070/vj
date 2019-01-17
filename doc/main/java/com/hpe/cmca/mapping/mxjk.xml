@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间  create by GuoXY 20161215 -->
+<mapper namespace="mxjk">
+
+	<!-- 文件加载-柱型图数据  source from cmccca: modMonitorMapper.selectFileLoadDetail -->
+	<select id="fileLoadColumnData" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	dict.prvd_id as id,
+			dict.short_name as shortName,
+			dict.prvd_name as fullName,
+			coalesce(t.subNum, 0) as num
+		FROM HPMGR.busi_workspace_org dict
+		left join 
+		(
+			SELECT prvd_id,prvd_nm,count(1) subNum
+			from hpmgr.busi_job_source_info
+			where aud_trm = ${audTrm}
+				  and subject_id = ${subjectId}
+				  <if test="fileLoadTab==0"> <!-- 文件加载记录数为0 -->
+			  	 	 and record_num=0
+			  	  </if>
+			  	  <if test="fileLoadTab==1"> <!-- 文件加载记录数环比变化>30% -->
+			  	 	<![CDATA[and (fb_qty_percent > 30 or fb_qty_percent < -30) and fb_qty_percent <> 999999999]]>
+			  	  </if>
+			group by prvd_id,prvd_nm
+		) t
+		on t.prvd_id = dict.prvd_id 
+		where 1=1 and <![CDATA[dict.prvd_id<>10000]]> 
+		ORDER BY t.subNum desc,dict.prvd_id asc
+	</select>
+	<!-- 文件加载-报表展现   source from cmccca: modMonitorMapper.selectTableList5002-->
+	<select id="fileLoadTableShow" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT  row_number()over(order by prvd_id ASC) as RN,	
+				prvd_id, prvd_nm, 
+				subject_id,	subject_name, 
+				focus_id, focus_name, 
+				(case when inter_type = 'F' then '接口文件' when inter_type = 'T' then '任务' end) as dependent,
+				(case when inter_type = 'F' then file_type when inter_type = 'T' then source_job end) as dependentRes,
+				dat_rcd_dt, record_num, sdata_starttime, pdata_starttime,
+				load_duration, source_status,
+				<![CDATA[trim(case when fb_qty_percent>= 999999999 then 'N/A' 
+				         when fb_qty_percent<0 then '-'||cast(cast(fb_qty_percent as FORMAT 'ZZZ,ZZZ,ZZ9.99') as VARCHAR(14))
+				         else cast(cast(fb_qty_percent as FORMAT 'ZZZ,ZZZ,ZZ9.99') as VARCHAR(14))
+				         end)]]> as fb_qty_percent,
+				aud_trm, model_job, 
+				file_type, source_system,
+				source_job,  file_arrivetime, 
+				sdata_endtime,  pdata_endtime
+		from hpmgr.busi_job_source_info
+		where aud_trm = ${audTrm} and subject_id = ${subjectId}
+		 	  <if test="null != prvdIds and '10000' != prvdIds">
+			  and prvd_id in <![CDATA[(${prvdIds})]]> 
+			  </if>
+			  and focus_id = ${focuscds}
+			  <if test="null != loadStatus and '' != loadStatus">
+		      and source_status in <![CDATA[(${loadStatus})]]>
+		      </if>
+			  <if test="null != monitorType and monitorType==0">
+		  	 	 and record_num = '0'
+		  	  </if>
+		  	  <if test="null != monitorType and monitorType==1">
+			  	<![CDATA[and fb_qty_percent <> 999999999 and fb_qty_percent > 30]]>
+			  </if>
+			  <if test="null != monitorType and monitorType==2">
+			  	<![CDATA[and fb_qty_percent <> 999999999 and fb_qty_percent > 50]]>
+			  </if>
+	</select>
+	
+	<!-- 模型执行-圆|扇形图数据 source from cmccca: modMonitorMapper.selectAreaList5003 -->
+	<select id="modelExecRoundData" resultType="java.util.HashMap" parameterType="java.util.Map">
+			<if test="modelExecTab==0"> <!-- 模型执行-总体执行情况 -->
+				SELECT
+						coalesce(sum(case when (model_status ='Pending' or model_status ='Ready') then 1 else 0 end), 0) as unfinishCount,
+						coalesce(sum(case when model_status ='Failed' then 1 else 0 end), 0)  as errorCount,
+						coalesce(sum(case when model_status ='Running' then 1 else 0 end), 0)  as runCount,
+						coalesce(sum(case when model_status ='Success' then 1 else 0 end), 0)  as sucCount
+				FROM	hpmgr.busi_job_model_info
+				where aud_trm=${audTrm} and subject_id = ${subjectId} 
+			</if>
+					  
+			<if test="modelExecTab==1">	<!-- 模型执行-时长数环比变化>30% -->
+				select 
+			    (
+				    select count(1) as execFailed
+					from hpmgr.busi_job_model_info 
+					where aud_trm=${audTrm} and subject_id = ${subjectId} 
+					<![CDATA[ and (model_dura_mom < -30 or model_dura_mom >30) and model_dura_mom<>999999999]]>
+			    ) 
+			    ,
+			    (
+					select count(1) as execSuccess
+					from hpmgr.busi_job_model_info 
+					where aud_trm=${audTrm} and subject_id = ${subjectId} 
+					<![CDATA[ and model_dura_mom >= -30 and model_dura_mom <= 30 ]]>
+				) 	  	
+		    </if>
+	</select>
+	<!-- 模型执行-报表展示 source from cmccca: modMonitorMapper.selectTableList5003  isDoubleHalf小于0，执行时长比上周期减半；  isDoubleHalf大于0，执行时长比上周期翻倍  -->
+	<select id="modelExecTableShow" resultType="java.util.HashMap" parameterType="java.util.Map">
+	   select row_number()over(   ORDER BY t0.prvd_id asc) AS RN,
+   				t0.* ,
+   				t1.model_duration as last_model_duration,
+   			   (
+   			   case 
+   			   <![CDATA[when (t0.model_duration * 2 - t1.model_duration) < 0 then '1']]>    
+   			   <![CDATA[when (t0.model_duration / 2 - t1.model_duration) > 0 then '2']]>   
+   			   else '3'
+   			   end 
+   			   ) as isDoubleHalf   
+   		from                     
+ 		( 
+			SELECT	row_number()over(order by prvd_id ASC) as RN,	
+					focus_name, prvd_nm, prvd_id, subject_id, focus_id,
+					(case when source_info = '1' then '已加载' when source_info = '0' then '未加载' end) as dependent,
+					model_starttime, model_endtime, model_duration,
+			        model_status, model_dura_mom
+			 FROM	hpmgr.busi_job_model_info
+			 where aud_trm = ${audTrm} and subject_id = ${subjectId}
+				  <if test="null != prvdIds and '10000' != prvdIds">
+			 	   and prvd_id in <![CDATA[(${prvdIds})]]> 
+			 	  </if>
+			 	   and focus_id = <![CDATA[(${focuscds})]]>  
+				  <if test="null != loadStatus and '' != loadStatus">
+			       and model_status in <![CDATA[(${loadStatus})]]>
+			      </if>
+			      <!-- 详单抽取时长比上周期翻倍  | 详单抽取时长比上周期减半 ：这次操作放到java中过滤 -->
+			      <!-- cmccca 中监控类型条件: 模型执行时长环比>30% 和 模型执行时长环比<-30%
+			  	  <if test="errorType==30">
+				  	<![CDATA[and model_dura_mom <> 999999999 and model_dura_mom > ${errorType}]]>
+				  </if>
+				  <if test="errorType==-30">
+				  	<![CDATA[and model_dura_mom <> 999999999 and model_dura_mom < ${errorType}]]>
+				  </if>
+				  -->
+				  <if test="null != monitorType">
+				  		<![CDATA[and model_dura_mom <> 999999999]]>
+				  </if>
+		) as t0 
+		LEFT JOIN 
+		(
+			 SELECT	row_number()over(order by prvd_id ASC) as RN,	
+					focus_name, prvd_nm, prvd_id, subject_id, focus_id,
+					(case when source_info = '1' then '已加载' when source_info = '0' then '未加载' end) as dependent,
+					model_starttime, model_endtime, model_duration,
+			        model_status, model_dura_mom
+			 FROM	hpmgr.busi_job_model_info
+			 where <![CDATA[aud_trm= cast((add_months(cast( '${audTrm}' as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))]]>
+			 	   and subject_id = ${subjectId}
+				  <if test="null != prvdIds and '10000' != prvdIds">
+			 	   and prvd_id in <![CDATA[(${prvdIds})]]> 
+			 	  </if>
+			 	   and focus_id = <![CDATA[(${focuscds})]]>  
+				  <if test="null != loadStatus and '' != loadStatus">
+			       and model_status in <![CDATA[(${loadStatus})]]>
+			      </if>
+		) as t1
+		on t0.prvd_id = t1.prvd_id and t0.subject_id = t1.subject_id and t0.focus_id = t1.focus_id 
+	</select>
+	
+	<!-- 详单抽取 -  -->
+	<select id="dict_province" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	prvd_id as id,
+			'province' as bizType,
+			CAST(prvd_id as VARCHAR(12)) as bizValue, 
+			short_name as bizText, 
+			prvd_id as orderIndex,
+			''  as remark
+		FROM HPMGR.busi_workspace_org
+		where 1=1 and prvd_id!=10000
+		ORDER BY id
+	</select>
+	
+	<!-- 详单抽取 - 详单总数-完成；查询31省市名称（没有数据的省也显示），且把结果集按"详单总数-完成 "多到少进行排序，以便图形有层次更好看 -->
+	<select id="detailExtractTotalFinish" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	dict.prvd_id as id,
+			dict.short_name as shortName,
+			dict.prvd_name as fullName,
+			coalesce(t.subNum, 0) as num
+		FROM HPMGR.busi_workspace_org as dict
+		left join 
+		(
+			select prvd_id, count(1) as subNum
+			from HPMGR.busi_model_notify t
+			where aud_trm = ${audTrm} and subject_id = ${subjectId} and
+				t.status = 5
+			group by prvd_id
+		) t
+		on t.prvd_id = dict.prvd_id 
+		where 1=1 and <![CDATA[dict.prvd_id<>10000]]> 
+		ORDER BY t.subNum desc,dict.prvd_id asc
+	</select>
+	<!-- 详单抽取 - 详单总数-执行中  where 1=1 and dict.prvd_id!=10000-->
+	<select id="detailExtractTotalIng" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select  prvd_id, count(1) as num
+		from HPMGR.busi_model_notify t
+		where aud_trm=${audTrm} and subject_id = ${subjectId} and
+				t.status in (1,3)
+		group by prvd_id
+	</select>
+	<!-- 详单抽取 - 详单总数-未开始 -->
+	<select id="detailExtractTotalReady" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select  prvd_id, count(1) as num
+		from HPMGR.busi_model_notify t
+		where aud_trm=${audTrm} and subject_id = ${subjectId} and
+		 		t.status = 0
+		group by prvd_id
+	</select>
+	<!-- 详单抽取 - 执行时间差>24h 之 执行正常；查询31省市名称（没有数据的省也显示），且把结果集按"详单总数-完成 "多到少进行排序，以便图形有层次更好看   -->
+	<select id="detailExtractExecNormal" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT	dict.prvd_id as id,
+			dict.short_name as shortName,
+			dict.prvd_name as fullName,
+			coalesce(t.subNum, 0) as num
+		FROM HPMGR.busi_workspace_org dict
+		left join 
+		(
+			select prvd_id, count(1) as subNum
+			from HPMGR.busi_model_notify t
+			where aud_trm=${audTrm} and subject_id = ${subjectId} and
+				 <![CDATA[( CAST(( (t.model_fin_time + INTERVAL '24' HOUR)  (FORMAT 'YYYYMMDDHHMISS'))AS VARCHAR(14))
+					< CAST(( (t.csv_file_gen_time + INTERVAL '24' HOUR)  (FORMAT 'YYYYMMDDHHMISS'))AS VARCHAR(14)) )]]> 
+	             and t.status = 5
+			group by prvd_id
+		) t
+		on t.prvd_id = dict.prvd_id
+		where 1=1 and <![CDATA[dict.prvd_id<>10000]]> 
+		ORDER BY subNum desc,dict.prvd_id asc
+	</select>
+	<!-- 详单抽取 - 执行时间差>24 之 执行异常  -->
+	<select id="detailExtractExecException" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select prvd_id, count(1) as num
+		from HPMGR.busi_model_notify t
+		where aud_trm=${audTrm} and subject_id = ${subjectId} and
+			<![CDATA[( CAST(( (t.model_fin_time + INTERVAL '24' HOUR)  (FORMAT 'YYYYMMDDHHMISS'))AS VARCHAR(14))
+					< CAST(( (t.csv_file_gen_time + INTERVAL '24' HOUR)  (FORMAT 'YYYYMMDDHHMISS'))AS VARCHAR(14)) )]]> 
+		    and t.status = 1
+		group by prvd_id
+	</select>
+	<!-- 详单抽取-报表展示 -->
+	<select id="detailExtractTableShow" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select 
+			tOut.*,
+			orgTab.short_name as prvdName,
+			focTab.name as focusName
+		from 
+		(
+		   select row_number()over(   ORDER BY t0.model_fin_time desc) AS RN,
+   				t0.* ,
+   				t1.model_fin_time as last_model_fin_time,
+   				t1.csv_file_gen_time as last_csv_file_gen_time,
+   				t1.doc_file_gen_time as last_doc_file_gen_time,
+   				t1.csv_file_ftp_time as last_csv_file_ftp_time,
+   				t1.doc_file_ftp_time as last_doc_file_ftp_time
+		   from                     
+		   ( 
+					SELECT
+							focus_cd, prvd_id, subject_id, model_fin_time, 
+							(case 
+								when status = '0' then '未开始' 
+								when status = '1' then '执行中' 
+							    when status = '2' then '执行中' 
+							    when status = '3' then '执行中' 
+							    when status = '4' then '执行中'
+							    when status = '5' then '完成'
+							 end
+							) as status,
+							csv_file_gen_time, doc_file_gen_time, 
+							csv_file_ftp_time, doc_file_ftp_time, exec_count 
+							<!--报告和审计结果执行时间差   and 详单抽取执行时长：放到java中计算 -->
+							<!--doc_file_ftp- model_fin_time, csv_file_gen_time- model_fin_time-->
+					FROM  hpmgr.busi_model_notify
+					where aud_trm = ${audTrm} and subject_id = ${subjectId}
+						  <if test="null != prvdIds and '10000' != prvdIds">
+					 	   and prvd_id in <![CDATA[(${prvdIds})]]> 
+					 	  </if>
+						  and focus_cd = ${focuscds}
+						  <if test="null != loadStatus and '' != loadStatus">
+					     	and status in <![CDATA[(${loadStatus})]]>
+					      </if>
+					      <!-- 详单抽取时长比上周期翻倍  | 详单抽取时长比上周期减半 ：这次操作放到java中过滤 -->
+  			) as t0 
+			LEFT JOIN 
+			(<!-- 模型重跑时会产生重复记录；所以，跟上个月比较时，只获取上个月的各项最新时间（理论上是最新记录的时间）即可 -->
+				 select 
+				       prvd_id,
+					   subject_id,                      
+				       focus_cd,
+				       max(model_fin_time) as model_fin_time,
+				       max(csv_file_gen_time) as csv_file_gen_time,
+				       max(doc_file_gen_time) as doc_file_gen_time,
+				       max(csv_file_ftp_time) as csv_file_ftp_time,
+				       max(doc_file_ftp_time) as doc_file_ftp_time
+				 FROM hpmgr.busi_model_notify
+				 where <![CDATA[aud_trm= cast((add_months(cast( '${audTrm}' as date format 'YYYYMM'), -1) (format 'YYYYMM')) as varchar(6))]]>
+				 		and subject_id = ${subjectId}
+					    <if test="null != prvdIds and '10000' != prvdIds">
+				 	    	and prvd_id in <![CDATA[(${prvdIds})]]> 
+				 	    </if>
+					    and focus_cd = ${focuscds}
+					    <if test="null != loadStatus and '' != loadStatus">
+				     		and status in <![CDATA[(${loadStatus})]]>
+				      	</if>
+				 group by prvd_id,subject_id, focus_cd
+			 ) as t1
+			 on t0.prvd_id = t1.prvd_id and   t0.subject_id = t1.subject_id and t0.focus_cd = t1.focus_cd
+		) as tOut
+		LEFT JOIN HPMGR.busi_workspace_org  orgTab on orgTab.prvd_id = tOut.prvd_id
+		LEFT JOIN HPMGR.busi_stat_concern  focTab  on focTab.biz_code = tOut.focus_cd
+		order by tOut.RN  
+	</select>
+</mapper>

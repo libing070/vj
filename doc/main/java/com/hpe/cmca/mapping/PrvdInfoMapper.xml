@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  
+   		PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.hpe.cmca.interfaces.PrvdInfoMapper">
+
+    <!-- 结果集映射 从实体对象到关系数据库 -->
+	<resultMap type="com.hpe.cmca.pojo.PrvdInfoData"  id="prvdInfoData">
+		
+		<result property="prvdId" column="CMCC_prov_prvd_id"/>
+		<result property="prvdName" column="CMCC_prov_prvd_nm"/>
+		
+	</resultMap>
+	<select id="getPrvdInfoData" resultMap="prvdInfoData" parameterType="int">
+	<if test="_parameter != null">	
+	SELECT	 CMCC_prov_prvd_nm, CMCC_prov_prvd_id		
+	FROM	hpmgr.ref_dm_cmcc_prov_prvd_cd 
+		<if test="_parameter != 10000">
+		where CMCC_prov_prvd_id = #{_parameter}
+		</if>
+	order by CMCC_prov_prvd_id
+	</if>
+	</select>
+	
+</mapper>
+

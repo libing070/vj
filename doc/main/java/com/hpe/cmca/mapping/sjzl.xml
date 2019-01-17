@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<!-- 命名空间 -->
+<mapper namespace="sjzl">
+
+	<!-- 根据稽核点名称获得尚未生成稽核报告的审计月列表 -->
+	<select id="getAudTrmByNm" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select aud_trm
+		from hppdata.data_audit_auto 
+		where state= 1 and  NM_BM = #{audit_nm}--0 尚未生成数据  1已生成数据但未生成报告  2已生成报告 
+		order by AUD_TRM desc
+	</select>
+	
+	
+		<!-- 从数据质量稽核点配置表中获取生成请求 -->
+	<select id="getSJZLGenList" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select * from   hpmgr.busi_sjzl_file_config where status=0 order by aud_trm desc
+	</select>
+
+
+	<!-- 获取审计周期,升序 -->
+	<select id="getAuditCycle" resultType="java.util.HashMap">
+		select distinct(AUD_TRM) AUDIT_CYCLE from hppdata.data_audit_auto order by AUDIT_CYCLE DESC
+	</select>
+		<!-- 根据专题和周期获取审计稽核点列表_自动化 -->
+	<select id="getAutoList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select a.*,coalesce(b.status,1)as status,b.update_time
+		from 
+		(select * from hpmgr.busi_sjzl_file_info where  aud_trm = #{audTrm} and subject_id = #{subjectId}) a  
+		left join
+		(select * from   hpmgr.busi_sjzl_file_config where aud_trm = #{audTrm} and subject_id = #{subjectId} )b  
+		on a.check_id = b.check_id
+		order by a.check_id 
+	</select>
+	<!-- 根据专题和周期获取审计稽核点列表 -->
+	<select id="getAuditList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select hppdata.data_audit_auto.*
+		from hppdata.data_audit_auto
+		<!-- 把中文名替换成编码 -->
+		where <![CDATA[hppdata.data_audit_auto.AUD_TRM = #{cycleDate}]]> and <![CDATA[hppdata.data_audit_auto.NM_BM like #{jobName}]]>
+	</select>
+	
+		<!-- 根据专题和周期获取审计已经生成报告的稽核点列表 -->
+	<select id="getAuditExcelList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select hppdata.data_audit_auto.*
+		from hppdata.data_audit_auto
+		<!-- 把中文名替换成编码 -->
+		where <![CDATA[hppdata.data_audit_auto.AUD_TRM = #{cycleDate}]]> 
+		and <![CDATA[hppdata.data_audit_auto.NM_BM = #{nmBm}]]>
+		and state= 2
+	</select>
+	
+	<!-- 根据专题和周期获取审计已经生成报告的稽核点列表_自动化 -->
+	<select id="getAutoExcelList" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select *
+		from hpmgr.busi_sjzl_file_info
+		where aud_trm = #{audTrm}
+		and check_id = #{checkId}
+	</select>
+	
+	<!-- 更新最后下载时间和下载次数 -->
+	<update id="updateDownloadInfo" parameterType="java.util.Map">
+		update hppdata.data_audit_auto set 
+		download_times = download_times + 1, 
+		download_date = cast(current_timestamp as varchar(19))
+		
+		where <![CDATA[hppdata.data_audit_auto.AUD_TRM = #{cycleDate}]]> and <![CDATA[hppdata.data_audit_auto.audit_nm = #{auditPoint}]]>
+	</update>
+	
+	<!-- 更新最后下载时间和下载次数 以及下载人-->
+	<update id="updateDdInfo" parameterType="java.util.Map">
+		update hppdata.data_audit_auto set 
+		download_times = download_times + 1, 
+		download_date = cast(current_timestamp as varchar(19)),
+		download_person = #{person}
+		
+		where <![CDATA[hppdata.data_audit_auto.AUD_TRM = #{cycleDate}]]> 
+		and <![CDATA[hppdata.data_audit_auto.nm_bm = #{nmBm}]]>
+	</update>
+	
+		<!-- 更新最后下载时间和下载次数 以及下载人_自动化-->
+	<update id="updateAutoDlInfo" parameterType="java.util.Map">
+		update hpmgr.busi_sjzl_file_info set 
+		download_times = download_times + 1, 
+		download_date = cast(current_timestamp as varchar(19)),
+		download_person = #{person}	
+		where aud_trm = #{audTrm}
+		and check_id = #{checkId}
+	</update>
+	
+	<!-- 新增一条下载信息 -->
+	<insert id="addDownloadInfo" parameterType="java.util.Map">
+		insert into hpmgr.busi_vali_download values(<![CDATA[#{cycleDate}]]>, <![CDATA[#{auditPoint}]]>, cunrrent_timestamp, 0)
+	</insert>
+	
+		<!-- 更新最后下载路径和状态 -->
+	<update id="updateFileStatus" parameterType="java.util.Map">
+		update hppdata.data_audit_auto set 
+		download_url = #{buildDownloadUrl},
+		state=2
+		where <![CDATA[hppdata.data_audit_auto.AUD_TRM = #{cycleDate}]]> 
+		and <![CDATA[hppdata.data_audit_auto.nm_bm = #{nm_bm}]]>
+	</update>
+	
+	
+		<!-- 根据汇总集合点编码和周期获取审计稽核点汇总记录 -->
+	<select id="getAuditTolNum" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select count(1) as tol
+		from hppdata.data_audit_auto
+		<!-- 把中文名替换成编码 -->
+		where <![CDATA[hppdata.data_audit_auto.AUD_TRM = #{cycleDate}]]> 
+		and <![CDATA[hppdata.data_audit_auto.NM_BM = #{nm_bm}]]>
+	</select>
+	
+		<!-- 新增一条汇总稽核点信息 -->
+	<insert id="addAudTolInfo" parameterType="java.util.Map">
+		<if test="focusCd ==1000">
+			INSERT	INTO hppdata.data_audit_auto VALUES	(#{cycleDate},'有价卡违规', '有价卡违规',	2,current_timestamp,current_timestamp,	null, 0, 'YJK_00',	#{buildDownloadUrl}, null);
+	 	</if>
+	 	<if test="focusCd ==2000">
+			INSERT	INTO hppdata.data_audit_auto VALUES	(#{cycleDate},'渠道养卡', '渠道养卡违规',	2,current_timestamp,current_timestamp,	null, 0, 'QDYK_00',	#{buildDownloadUrl}, null);
+	 	</if>
+	 	<if test="focusCd ==3000">
+			INSERT	INTO hppdata.data_audit_auto VALUES	(#{cycleDate},'终端套利', '终端套利违规',	2,current_timestamp,current_timestamp,	null, 0, 'ZDTL_00',	#{buildDownloadUrl}, null);
+	 	</if>
+	</insert>
+	
+	
+	
+	<!-- 新增一条稽核点信息_自动化 -->
+	<insert id="insertAutoInfo" parameterType="java.util.Map">
+		INSERT	INTO hpmgr.busi_sjzl_file_info
+		(aud_trm, subject_id, check_id, check_code, check_name, latest_date,download_date, download_url, download_times, download_person)
+		VALUES	
+		(#{audTrm},#{subjectId}, #{checkId},#{checkCode},#{checkName},current_timestamp,null,#{downloadUrl},0,null);	
+	</insert>
+	
+			<!-- 根据汇总集合点ID和周期获取审计稽核点汇总记录_自动化-->
+	<select id="getAutoInfoNum" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select count(1) as tol
+		from hpmgr.busi_sjzl_file_info		
+		where aud_trm = #{audTrm} and check_id = #{checkId}
+	</select>
+	
+			<!-- 更新最后下载路径和状态_自动化 -->
+	<update id="updateAutoInfo" parameterType="java.util.Map">
+		update hpmgr.busi_sjzl_file_info set 
+		download_url = #{downloadUrl},
+		latest_date = current_timestamp
+		where aud_trm = #{audTrm} and check_id = #{checkId}
+	</update>
+	
+	 <!-- 更新配置表_自动化 -->
+	<update id="updateAutoConf" parameterType="java.util.Map">
+		update hpmgr.busi_sjzl_file_config set 
+		status = #{status}
+		where aud_trm = #{audTrm} and check_id = #{checkId}
+	</update>
+	
+	
+	<!-- 3.1终端套利（05004入库情况） -->
+	<select id="getZDTL31" resultType="java.util.HashMap" parameterType="java.util.Map">
+	select a.*,
+	cast(a.dat_rcd_dt4 as varchar(8)) as d4,
+	cast(a.dat_rcd_dt3 as varchar(8)) d3,
+	cast(a.dat_rcd_dt2 as varchar(8)) d2,
+	cast(a.dat_rcd_dt1 as varchar(8)) d1 	
+	from hppdata.zdtl_05004_4mon_entry a where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 3.2终端套利（05004和22064关联比对） -->
+	<select id="getZDTL32" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select 
+		aud_trm, prvd_nm_05004, prvd_id_05004, sett_amt_typ, sett_amt_typ_05004,
+		amt_sum_05004, prvd_nm_22064, prvd_id_22064, sell_fee_subj, sell_fee_subj_22064,
+		amt_sum_22064, flag, 
+		cast (amt_diff as decimal(18,4))as amt_diff, 
+		cast (amt_diff_per as decimal(18,4)) as amt_diff_per
+ 		from hppdata.zdtl_05004_vs_22064 where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 3.3终端套利违规（22064和22108关联比对） -->
+	<select id="getZDTL33" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select 
+		aud_trm, prvd_nm_22064, prvd_id_22064, sell_fee_subj, subj_nm_22064,
+		cnt_22064, rwd_subj, subj_nm_22108, cnt_22108, flag, 
+		cast (amt_diff as decimal(18,4))as amt_diff,
+		cast (amt_diff_per as decimal(18,4)) as amt_diff_per
+ 		from hppdata.zdtl_22108_vs_22064 where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 3.4终端套利违规（22064与22062关联比对 -->
+	<select id="getZDTL34" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.zdtl_22064_vs_22062 where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 3.5终端套利违规（22097与一级营销销售总数关联比对） -->
+	<select id="getZDTL3522097" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.zdtl_22097_vs_yingxiao_num where <![CDATA[aud_trm = #{cycleDate}]]> and flag = '22097'
+	</select>
+	<!-- 3.5终端套利违规（22097与一级营销销售总数关联比对） -->
+	<select id="getZDTL35yingxiao" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.zdtl_22097_vs_yingxiao_num where <![CDATA[aud_trm = #{cycleDate}]]> and flag = 'yingx'
+	</select>
+	
+	<!-- 3.6终端套利违规（22097与一级营销终端类型关联比对）*** -->
+	<select id="getZDTL36" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.zdtl_22108_vs_22064 where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 2.1有价卡违规（06049入库情况） -->
+	<select id="getYJK21" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_vc_entry_num where <![CDATA[aud_trm = #{cycleDate}]]> order by aud_trm_cnt desc
+	</select>
+	
+	<!-- 2.2有价卡违规（06045入库情况） -->
+	<select id="getYJK22" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_crm_entry_num where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 2.3有价卡违规（06049和06045关联比对） -->
+	<select id="getYJK23" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_stat_num_diff where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 2.4有价卡金额异常 -->
+	<select id="getYJK24" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_amt_error where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 2.5VC和CRM有价卡序列号相同但金额不同 -->
+	<select id="getYJK25" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_amt_nequal where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 2.6 CRM同种状态的有价卡重复数量-->
+	<select id="getYJK26" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_crm_repetition where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+	<!-- 2.7 VC同种状态的有价卡重复数量 -->
+	<select id="getYJK27" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.yjk_vc_repetition where <![CDATA[aud_trm = #{cycleDate}]]>
+	</select>
+	
+		<!-- 1.0 用户历史信息表02004整体的数据情况全部异常类型 -->
+	<select id="getYKAll" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.qdyk_02004 where aud_trm = #{cycleDate}  order by prvd_id
+	</select>
+	<!-- 1.1 用户历史信息表02004整体的数据情况按异常类型筛选 -->
+	<select id="getYKWhole" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.qdyk_02004 where <![CDATA[aud_trm = #{cycleDate}]]> AND <![CDATA[err_type_cd = #{err_type_cd}]]> order by prvd_id
+	</select>
+	
+	<!-- 1.2 用户类型的统计情况-->
+	<select id="getYK12" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.qdyk_user_tl where <![CDATA[aud_trm = #{cycleDate}]]> order by CMCC_prov_prvd_id
+	</select>
+	
+	<!-- 1.3 入网渠道异常变更 -->
+	<select id="getYK13" resultType="java.util.HashMap" parameterType="java.util.Map"> 
+		select * from hppdata.qdyk_change where <![CDATA[aud_trm = #{cycleDate}]]> order by CMCC_prov_prvd_id
+	</select>
+	
+	<!-- 1.4 入网时间的异常变更 -->
+	<select id="getYK14" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.qdyk_network_change where <![CDATA[aud_trm = #{cycleDate}]]> order by CMCC_prov_prvd_id
+	</select>
+	
+	<!-- 1.5 数据sim卡用户标识统计情况 -->
+	<select id="getYK15" resultType="java.util.HashMap" parameterType="java.util.Map">
+		select * from hppdata.qdyk_SIM_sign_tl where <![CDATA[aud_trm = #{cycleDate}]]> order by CMCC_prov_prvd_id
+	</select>
+	
+		
+	<!-- 数据质量首页中"年份下拉框"取值范围：从数据质量情况监控表中选择有效的年份 20161222 add by PXL -->
+	<select id="getYear" resultType="java.util.HashMap" useCache="false" >
+		SELECT distinct t.audTrm as audYear
+		FROM (
+			SELECT CAST(Aud_trm as VARCHAR(4)) as audTrm
+			FROM  hppdata.data_audit_auto
+		) as t
+		order by audTrm desc
+	</select>
+	
+		<!-- 数据质量首页中"年份下拉框"取值范围：从数据质量情况监控表中选择有效的年份_自动化 20170220 add by PXL -->
+	<select id="getSJZLYear" resultType="java.util.HashMap" useCache="false" >
+		SELECT distinct t.audTrm as audYear
+		FROM (
+			SELECT CAST(Aud_trm as VARCHAR(4)) as audTrm
+			FROM  hpmgr.busi_sjzl_file_info
+		) as t
+		order by audTrm desc
+	</select>
+	
+	<!-- 数据质量首页中"月份下拉框"取值范围：从数据质量情况监控表中选择有效的月份 20161222 add by PXL -->
+	<select id="getMonthByYear" resultType="String" parameterType="java.util.Map" useCache="false" >
+		SELECT distinct SUBSTRING(Aud_trm FROM 5 FOR 2) as audMonth
+		FROM	hppdata.data_audit_auto
+		WHERE 1=1 
+		<if test="selYear != null and selYear != ''">
+		and SUBSTRING(Aud_trm FROM 1 FOR 4) = '${selYear}'
+		</if>
+		ORDER BY Aud_trm DESC
+	</select>
+	
+		<!-- 数据质量首页中"月份下拉框"取值范围：从数据质量情况监控表中选择有效的月份_自动化 20170220 add by PXL -->
+	<select id="getSJZLMonthByYear" resultType="String" parameterType="java.util.Map" useCache="false" >
+		SELECT distinct SUBSTRING(Aud_trm FROM 5 FOR 2) as audMonth
+		FROM	hpmgr.busi_sjzl_file_info
+		WHERE 1=1 
+		<if test="selYear != null and selYear != ''">
+		and SUBSTRING(Aud_trm FROM 1 FOR 4) = '${selYear}'
+		</if>
+		ORDER BY Aud_trm DESC
+	</select>
+	
+		<!-- 获取下载次数 -->
+	<select id="getDownloadTimes" resultType="java.util.HashMap" parameterType="java.util.Map">
+		SELECT *
+		FROM hpmgr.busi_sjzl_file_info
+		WHERE aud_trm=#{audTrm} 
+		AND check_id=#{checkId}
+	</select>
+</mapper>
