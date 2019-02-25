@@ -3,8 +3,11 @@
     <el-row>
       <el-col>
         <el-carousel :interval="5000" arrow="always">
-          <el-carousel-item v-for="item in 4" :key="item">
-            <h3>{{ item }}</h3>
+          <el-carousel-item v-for="item in 5" :key="item">
+            <a href="#" >
+              <img style="width: 100%;
+    height: 100%;
+    objec-fit: cover;  " :src="require('./../assets/images/carousel/banner'+item+'_h_m.jpg')" alt=""></a>
           </el-carousel-item>
         </el-carousel>
       </el-col>
@@ -14,7 +17,19 @@
 
 <script>
     export default {
-        name: "carousel"
+        name: "carousel",
+      data () {
+        return {
+        }
+      },
+      created(){
+        this.loadBanner();
+      },
+      methods:{
+          loadBanner(){
+
+          }
+      }
     }
 </script>
 
