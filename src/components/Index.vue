@@ -3,7 +3,8 @@
     <nav-header></nav-header>
     <carousel></carousel>
     <nav-cardproduct></nav-cardproduct>
-    <h1>{{ nickname }}</h1>
+    <nav-news></nav-news>
+    <!--<h1>{{ nickname }}</h1>
 
     <div>
       <p>FullName: {{fullName}}</p>
@@ -13,7 +14,7 @@
     <el-row>
       <el-button>默认按钮</el-button>
     </el-row>
-    <div>{{res}}</div>
+    <div>{{res}}</div>-->
   </div>
 </template>
 
@@ -21,13 +22,15 @@
   import NavHeader from './../components/NavHeader'
   import Carousel from './../components/Carousel'
   import NavCardproduct from './../components/NavCardproduct'
+  import NavNews from './../components/NavNews'
   import API from '../api/api_goods';
   export default {
   name: 'index',
     components:{
       NavHeader:NavHeader,
       Carousel:Carousel,
-      NavCardproduct:NavCardproduct
+      NavCardproduct:NavCardproduct,
+      NavNews:NavNews
     },
     data () {
       return {
@@ -85,6 +88,6 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-  $color: red;
-  div {color:$color;}
+  /*$color: red;
+  div {color:$color;}*/
 </style>

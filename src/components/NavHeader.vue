@@ -9,11 +9,11 @@
           <el-submenu index="1">
             <template slot="title">相关产品</template>
               <el-row class="el-menu-list">
-                <el-col>1111111111111111</el-col>
+                <el-col style="text-align: center;font-weight: bold">待开放中。。。。。</el-col>
               </el-row>
           </el-submenu>
           <el-menu-item index="2">技术文库</el-menu-item>
-          <el-menu-item index="3"><a>关于XX</a></el-menu-item>
+          <el-menu-item index="3"><a>关于鹏诚</a></el-menu-item>
           <el-menu-item index="4"><a>诚聘英才</a></el-menu-item>
           <el-menu-item index="5"><a>投资人专区</a></el-menu-item>
           <el-menu-item index="6"><a>联系我们</a></el-menu-item>

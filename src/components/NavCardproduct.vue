@@ -1,5 +1,5 @@
 <template>
-  <el-row style="margin: 20px">
+  <el-row style="margin: 20px;">
     <el-col :span="4" v-for="(o, index) in cardDate" :key="index" :offset="index > 0 ? 1 : 0">
       <el-card :body-style="{ padding: '0px' }">
         <img :src="require('./../assets/images/navcardproduct/h_pro'+index+'.png')" class="image">
@@ -7,7 +7,7 @@
           <span style="font-weight: bold">{{o.title}}</span>
           <div class="bottom clearfix">
               <dl>
-                <dt style="padding: 5px 0;font-size:12px" v-for="i in o.list"><i class="el-icon-caret-right"></i>{{i}}</dt>
+                <dt style="padding: 5px 0;font-size:12px;cursor: pointer;" v-for="i in o.list"><i class="el-icon-caret-right"></i>{{i}}</dt>
               </dl>
 
             <el-button type="text" class="button">更多</el-button>
@@ -45,13 +45,15 @@
   }
 
   .button {
-    padding: 0;
+    padding: 5px;
     float: right;
   }
 
   .image {
     width: 100%;
     display: block;
+    cursor: pointer;
+    transition: all 0.6s;
   }
 
   .clearfix:before,
@@ -60,7 +62,11 @@
     content: "";
   }
 
-  .clearfix:after {
+  .image:after {
     clear: both
+  }
+
+  .image:hover{
+    transform: scale(1.1); /* 放大1倍 */
   }
 </style>
