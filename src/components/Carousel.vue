@@ -3,7 +3,7 @@
     <el-row>
       <el-col>
         <el-carousel :interval="5000" arrow="always">
-          <el-carousel-item v-for="item in 5" :key="item">
+          <el-carousel-item v-for="item in 6" :key="item">
             <a href="#" >
               <img class="imgbanner" style="width: 100%;height: 100%;objec-fit: cover;" :src="require('./../assets/images/carousel/banner'+item+'_h_m.jpg')" alt=""></a>
           </el-carousel-item>
