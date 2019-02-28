@@ -1,10 +1,11 @@
 <template>
   <div class="hello">
-    <nav-header></nav-header>
+
     <carousel></carousel>
     <nav-cardproduct></nav-cardproduct>
     <nav-news></nav-news>
     <nav-footer></nav-footer>
+
     <!--<h1>{{ nickname }}</h1>
 
     <div>
@@ -20,7 +21,6 @@
 </template>
 
 <script>
-  import NavHeader from './../components/NavHeader'
   import Carousel from './../components/Carousel'
   import NavCardproduct from './../components/NavCardproduct'
   import NavNews from './../components/NavNews'
@@ -29,7 +29,7 @@
   export default {
   name: 'index',
     components:{
-      NavHeader:NavHeader,
+
       Carousel:Carousel,
       NavCardproduct:NavCardproduct,
       NavNews:NavNews,

@@ -1,25 +1,25 @@
 <template>
   <div>
     <el-row class="nav-header">
-      <el-col :span="5">
-        <img style="vertical-align: middle;" src="./../assets/images/navheader/yuming_pic10.png" />
+      <el-col :span="4">
+        <img style="vertical-align: middle;width: 70px;" src="./../assets/images/navheader/logs.png" />
       </el-col>
-      <el-col :span="15">
+      <el-col :span="20">
         <el-menu :default-active="activeIndex" class="" mode="horizontal" @select="handleSelect">
-          <el-submenu index="1">
+          <el-menu-item index="1" @click="jump(1)">首页</el-menu-item>
+          <el-submenu index="2">
             <template slot="title">相关产品</template>
               <el-row class="el-menu-list">
                 <el-col style="text-align: center;font-weight: bold">待开放中。。。。。</el-col>
               </el-row>
           </el-submenu>
-          <el-menu-item index="2">技术文库</el-menu-item>
-          <el-menu-item index="3"><a>关于鹏诚</a></el-menu-item>
-          <el-menu-item index="4"><a>诚聘英才</a></el-menu-item>
-          <el-menu-item index="5"><a>投资人专区</a></el-menu-item>
-          <el-menu-item index="6"><a>联系我们</a></el-menu-item>
+          <el-menu-item index="3" @click="jump(3)">技术文库</el-menu-item>
+          <el-menu-item index="4" @click="jump(4)"><a>关于鹏诚</a></el-menu-item>
+          <el-menu-item index="5" @click="jump(5)"><a>诚聘英才</a></el-menu-item>
+          <el-menu-item index="6" @click="jump(6)"><a>投资人专区</a></el-menu-item>
+          <el-menu-item index="7" @click="jump(7)"><a>联系我们</a></el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="4"></el-col>
     </el-row>
   </div>
 </template>
@@ -38,6 +38,24 @@
            this.initNav();
          },
          methods:{
+           jump(index){
+             let path="/index";
+             if(index==1){
+                path="/index"//默认首页
+             }else if(index==3){
+
+             }else if(index==4){
+
+             }else if(index==5){
+                path="/joinin"//诚聘英才
+             }else if(index==6){
+
+             }else if(index==7){
+
+             }
+
+             this.$router.push({path:path});
+           },
           initNav(){
           },
            handleSelect(key, keyPath) {
@@ -51,8 +69,8 @@
   .el-menu--horizontal>.el-submenu .el-submenu__title,
   .el-menu--horizontal>.el-menu-item{
     font-size: 16px;
-    height: 80px !important;
-    line-height: 80px !important;
+    height: 120px !important;
+    line-height: 120px !important;
   }
   .el-menu--horizontal>.el-menu-item.is-active{
     border-bottom: 2px solid #F3782A;

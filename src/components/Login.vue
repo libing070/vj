@@ -192,7 +192,7 @@
                   that.loading = false;
                   if (result && result.status==1) {
                     localStorage.setItem('access-user', JSON.stringify({"nickname":result.accountId}));
-                    that.$router.push({path: '/index'});
+                    that.$router.push({path: '/mains'});
                   } else {
                     that.$message({showClose: true,type: result.type, message: result.errmsg || '登录失败', duration: 2000});
                   }

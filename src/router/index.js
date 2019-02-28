@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/Login'
+import Mains from '@/components/Mains'
 import Index from '@/components/Index'
 import Register from '@/components/Register'
+import Joinin from '@/components/Joinin'
 
 
 Vue.use(Router)
@@ -26,9 +28,18 @@ let router = new Router({
       component: Register
     },
     {
-      path: '/index',
-      name: 'Index',
-      component: Index
+      path: '/mains',
+      name: 'mains',
+      component: Mains,
+      children:[
+        {
+          path: '/index',  component: Index
+        },
+        {
+          path: '/joinin',  component: Joinin
+        },
+      ],
+      redirect:'/index'
     }
   ]
 })
