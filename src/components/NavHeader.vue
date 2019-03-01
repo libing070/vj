@@ -1,5 +1,10 @@
 <template>
   <div>
+    <!--<el-row class="">
+      <el-col :span="24">
+        <img style="vertical-align: middle;width: 70px;" src="./../assets/images/navheader/loggs.png" />
+      </el-col>
+    </el-row>-->
     <el-row class="nav-header">
       <el-col :span="4">
         <img style="vertical-align: middle;width: 70px;" src="./../assets/images/navheader/logs.png" />
@@ -43,21 +48,31 @@
              if(index==1){
                 path="/index"//默认首页
              }else if(index==3){
-
+              this.alertMsg();
+              return;
              }else if(index==4){
-
+               this.alertMsg();
+               return;
              }else if(index==5){
                 path="/joinin"//诚聘英才
              }else if(index==6){
-
+               this.alertMsg();
+               return;
              }else if(index==7){
-
+               this.alertMsg();
+               return;
              }
 
              this.$router.push({path:path});
            },
           initNav(){
           },
+           alertMsg(){
+             this.$message({
+               message: '暂未开放，敬请期待！',
+               type: 'warning'
+             });
+           },
            handleSelect(key, keyPath) {
              console.log(key, keyPath);
            }
@@ -73,8 +88,8 @@
     line-height: 120px !important;
   }
   .el-menu--horizontal>.el-menu-item.is-active{
-    border-bottom: 2px solid #F3782A;
-    color: #F3782A;
+    border-bottom: 2px solid #FFC908;
+    color: #FFC908;
   }
   .el-menu-list{
     width: 600px;
