@@ -22,7 +22,6 @@
           <el-menu-item index="4" @click="jump(4)"><a>关于鹏诚</a></el-menu-item>
           <el-menu-item index="5" @click="jump(5)"><a>诚聘英才</a></el-menu-item>
           <el-menu-item index="6" @click="jump(6)"><a>投资人专区</a></el-menu-item>
-          <el-menu-item index="7" @click="jump(7)"><a>联系我们</a></el-menu-item>
         </el-menu>
       </el-col>
     </el-row>
@@ -51,14 +50,10 @@
               this.alertMsg();
               return;
              }else if(index==4){
-               this.alertMsg();
-               return;
+               path="/about"//关于我们
              }else if(index==5){
                 path="/joinin"//诚聘英才
              }else if(index==6){
-               this.alertMsg();
-               return;
-             }else if(index==7){
                this.alertMsg();
                return;
              }

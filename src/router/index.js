@@ -5,6 +5,14 @@ import Mains from '@/components/Mains'
 import Index from '@/components/Index'
 import Register from '@/components/Register'
 import Joinin from '@/components/Joinin'
+import About from '@/components/about/Index'
+import AboutComp from '@/components/about/Comp'
+import AboutOrg from '@/components/about/Org'
+import AboutEqint from '@/components/about/Eqint'
+import AboutEqlist from '@/components/about/Eqlist'
+import AboutProflow from '@/components/about/Proflow'
+import AboutPromap from '@/components/about/Promap'
+import AboutConus from '@/components/about/Conus'
 
 
 Vue.use(Router)
@@ -37,6 +45,33 @@ let router = new Router({
         },
         {
           path: '/joinin',  component: Joinin
+        },
+        {
+          path: '/about',  component: About,
+          children:[
+            {
+              path: '/about/comp',  component: AboutComp
+            },
+            {
+              path: '/about/org',  component: AboutOrg
+            },
+            {
+              path: '/about/eqint',  component: AboutEqint
+            },
+            {
+              path: '/about/eqlist',  component: AboutEqlist
+            },
+            {
+              path: '/about/proflow',  component: AboutProflow
+            },
+            {
+              path: '/about/promap',  component: AboutPromap
+            },
+            {
+              path: '/about/conus',  component: AboutConus
+            },
+          ],
+          redirect:'/about/comp'
         },
       ],
       redirect:'/index'

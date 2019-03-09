@@ -22,12 +22,19 @@
   export default {
     data() {
       return {
-        cardDate:[
+        /*cardDate:[
           {title:'低功率/数位3C',list:['网络电源','无线电话电源','其他']},
           {title:'高功率电源',list:['家电类电源','锂电池充电器','工业电源']},
           {title:'磁性组件',list:['变压器/电感','动态应用: 变频驱动,客制组件','静态应用: 电能转换,客制组件']},
           {title:'代工制造',list:['电源相关','无线电话电源','非电源相关']},
           {title:'照明',list:['产品','品质认证条款','其他']},
+        ]*/
+        cardDate:[
+          {title:'立式',list:['网络电源','无线电话电源','其他']},
+          {title:'卧式',list:['家电类电源','锂电池充电器','工业电源']},
+          {title:'桌面式',list:['变压器/电感','动态应用: 变频驱动,客制组件','静态应用: 电能转换,客制组件']},
+          {title:'活动脚',list:['电源相关','无线电话电源','非电源相关']},
+          {title:'其他',list:['产品','品质认证条款','其他']},
         ]
       };
     }
@@ -51,6 +58,8 @@
 
   .image {
     width: 100%;
+    max-width: 216px;
+    max-height: 104px;
     display: block;
     cursor: pointer;
     transition: all 0.6s;
