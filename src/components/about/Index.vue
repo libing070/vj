@@ -12,16 +12,16 @@
             default-active="1-1">
             <el-submenu index="1" >
               <template slot="title">
-                <i class="el-icon-location"></i>
+                <i class="el-icon-menu"></i>
                 <span>关于我们</span>
               </template>
-              <el-menu-item index="1-1" @click="jump(1)">公司介绍</el-menu-item>
-              <el-menu-item index="1-2" @click="jump(2)">组织架构</el-menu-item>
-              <el-menu-item index="1-3" @click="jump(3)">设备介绍</el-menu-item>
-              <el-menu-item index="1-4" @click="jump(4)">设备清单</el-menu-item>
-              <el-menu-item index="1-5" @click="jump(5)">工艺流程</el-menu-item>
-              <el-menu-item index="1-6" @click="jump(6)">产品图示</el-menu-item>
-              <el-menu-item index="1-7" @click="jump(7)">联系我们</el-menu-item>
+              <el-menu-item index="1-1" @click="jump(1)"><i class="iconfont icon-gongsijieshao"  style="padding-right: 5px;"></i><span>公司介绍</span></el-menu-item>
+              <el-menu-item index="1-2" @click="jump(2)"><i class="iconfont icon-zuzhijiagou"  style="padding-right: 5px;"></i><span>组织架构</span></el-menu-item>
+              <el-menu-item index="1-3" @click="jump(3)"><i class="iconfont icon-shebeijieshao"  style="padding-right: 5px;"></i><span>设备介绍</span></el-menu-item>
+              <el-menu-item index="1-4" @click="jump(4)"><i class="iconfont icon-icon-shebeiqingdan"  style="padding-right: 5px;"></i><span>设备清单</span></el-menu-item>
+              <el-menu-item index="1-5" @click="jump(5)"><i class="iconfont icon-liucheng"  style="padding-right: 5px;"></i ><span>工艺流程</span></el-menu-item>
+              <el-menu-item index="1-6" @click="jump(6)"><i class="iconfont icon-tushi1"  style="padding-right: 5px;"></i><span>产品图示</span></el-menu-item>
+              <el-menu-item index="1-7" @click="jump(7)"><i class="iconfont icon-lianxiwomen"  style="padding-right: 5px;"></i><span>联系我们</span></el-menu-item>
             </el-submenu>
           </el-menu>
         </el-col>
