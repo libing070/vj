@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <carousel></carousel>
-    <el-card class="box-card" style="margin: 40px 30px">
+    <el-card class="box-card" style="margin: 20px 30px">
       <el-row class="tac">
         <el-col :span="4">
           <el-menu
