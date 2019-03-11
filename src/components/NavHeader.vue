@@ -12,12 +12,13 @@
       <el-col :span="20">
         <el-menu :default-active="activeIndex" class="" mode="horizontal" @select="handleSelect">
           <el-menu-item index="1" @click="jump(1)">首页</el-menu-item>
-          <el-submenu index="2">
+        <!--  <el-submenu index="2">
             <template slot="title">相关产品</template>
               <el-row class="el-menu-list">
                 <el-col style="text-align: center;font-weight: bold">待开放中。。。。。</el-col>
               </el-row>
-          </el-submenu>
+          </el-submenu>-->
+          <el-menu-item index="2" @click="jump(2)">相关产品</el-menu-item>
           <el-menu-item index="3" @click="jump(3)">技术文库</el-menu-item>
           <el-menu-item index="4" @click="jump(4)"><a>关于鹏诚</a></el-menu-item>
           <el-menu-item index="5" @click="jump(5)"><a>诚聘英才</a></el-menu-item>
@@ -46,6 +47,8 @@
              let path="/index";
              if(index==1){
                 path="/index"//默认首页
+             }else if(index==2){
+               path="/products"//相关产品
              }else if(index==3){
               this.alertMsg();
               return;
@@ -83,8 +86,9 @@
     line-height: 120px !important;
   }
   .el-menu--horizontal>.el-menu-item.is-active{
-    border-bottom: 2px solid #FFC908;
-    color: #FFC908;
+    //border-bottom: 2px solid #FFC908;
+    border-bottom: 2px solid #409EFF;
+    color: #409EFF;
   }
   .el-menu-list{
     width: 600px;

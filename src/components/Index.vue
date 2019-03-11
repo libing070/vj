@@ -4,8 +4,6 @@
     <carousel></carousel>
     <nav-cardproduct></nav-cardproduct>
     <nav-news></nav-news>
-    <nav-footer></nav-footer>
-
     <!--<h1>{{ nickname }}</h1>
 
     <div>
@@ -24,7 +22,6 @@
   import Carousel from './../components/Carousel'
   import NavCardproduct from './../components/NavCardproduct'
   import NavNews from './../components/NavNews'
-  import NavFooter from './../components/NavFooter'
   import API from '../api/api_goods';
   export default {
   name: 'index',
@@ -32,8 +29,7 @@
 
       Carousel:Carousel,
       NavCardproduct:NavCardproduct,
-      NavNews:NavNews,
-      NavFooter:NavFooter
+      NavNews:NavNews
     },
     data () {
       return {

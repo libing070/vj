@@ -73,28 +73,24 @@
           </el-row>
           <el-row style="margin: 0 30px ;">
             <span style="font-size: 24px;line-height: 32px;color: #151515;letter-spacing: .5px;opacity: 1;">欢迎加入我们的团队!</span>
-              <el-button style="float: right;background-color: #FFC908;color: #ffffff">加入我们</el-button>
+              <el-button style="float: right;background-color: #409EFF;color: #ffffff">加入我们</el-button>
           </el-row>
-          <el-row style="margin: 15px 30px;height: 2px;background-color: #ffc908;">
+          <el-row style="margin: 15px 30px;height: 2px;background-color: #409EFF;">
           </el-row>
         </el-col>
       </el-row>
 
     </div>
-    <nav-footer></nav-footer>
   </div>
 </template>
 
 <script>
 
   import Carousel from './../components/Carousel'
-  import NavFooter from './../components/NavFooter'
-
   export default {
         name: "joinin",
       components:{
-        Carousel:Carousel,
-        NavFooter:NavFooter
+        Carousel:Carousel
       },
     }
 </script>

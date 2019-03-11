@@ -1,5 +1,5 @@
 <template>
-  <el-row style="margin: 20px;">
+  <el-row style="margin: 20px 0;">
     <el-col :span="4" v-for="(o, index) in cardDate" :key="index" :offset="index > 0 ? 1 : 0">
       <el-card :body-style="{ padding: '0px' }">
         <img :src="require('./../assets/images/navcardproduct/h_pro'+index+'.png')" class="image">

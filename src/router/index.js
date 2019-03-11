@@ -4,6 +4,7 @@ import Login from '@/components/Login'
 import Mains from '@/components/Mains'
 import Index from '@/components/Index'
 import Register from '@/components/Register'
+import Products from '@/components/products/Index'
 import Joinin from '@/components/Joinin'
 import About from '@/components/about/Index'
 import AboutComp from '@/components/about/Comp'
@@ -42,6 +43,9 @@ let router = new Router({
       children:[
         {
           path: '/index',  component: Index
+        },
+        {
+          path: '/products',  component: Products,
         },
         {
           path: '/joinin',  component: Joinin

@@ -1,12 +1,12 @@
 <template>
   <div class="about">
     <carousel></carousel>
-    <el-card class="box-card" style="margin: 20px 30px">
+    <el-card class="box-card" style="margin: 20px 0">
       <el-row class="tac">
-        <el-col :span="4">
+        <el-col :span="5">
           <el-menu
             style="min-height: 700px"
-            active-text-color="#ffc908"
+            active-text-color="#409EFF"
             text-color=""
             :unique-opened="true"
             default-active="1-1">
@@ -25,12 +25,11 @@
             </el-submenu>
           </el-menu>
         </el-col>
-        <el-col :span="20">
+        <el-col :span="19">
           <router-view></router-view>
         </el-col>
       </el-row>
     </el-card>
-    <nav-footer></nav-footer>
   </div>
 </template>
 
@@ -38,13 +37,10 @@
 <script>
 
   import Carousel from './../../components/Carousel'
-  import NavFooter from './../../components/NavFooter'
-
   export default {
     name: "about",
     components:{
-      Carousel:Carousel,
-      NavFooter:NavFooter
+      Carousel:Carousel
     },
     methods: {
       jump(index){
