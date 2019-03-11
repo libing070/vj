@@ -1,7 +1,7 @@
 <template>
   <div class="products-list" style="margin: 25px 50px;">
     <span v-for=" list in productsList">
-      <el-card style="margin: 10px 0">
+      <el-card style="margin: 5px 0">
        <el-row>
         <el-col :span="6" style="height: 130px">
           <img style="height: 100%" class="" :src="require('./../../assets/images/about/aboutcomp1.png')" alt="">

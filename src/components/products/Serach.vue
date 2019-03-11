@@ -26,6 +26,15 @@
     <el-row>
         <el-button style="width: 100%" size="small" type="primary">查询</el-button>
     </el-row>
+    <el-row>
+      <el-tree
+        style="height: 100%;"
+        :data="treedata"
+        :props="defaultProps"
+        accordion
+        @node-click="handleNodeClick">
+      </el-tree>
+    </el-row>
   </div>
 </template>
 
@@ -34,6 +43,107 @@
       name: "serach",
       data() {
         return {
+          treedata:[
+            {
+              label: '低功率/数位3C',
+              children: [{
+                label: '网络电源'
+              }, {
+                  label: '无线电话电源',
+              }, {
+                  label: 'USB充电',
+              }, {
+                  label: '其他',
+                children: [{
+                  label: 'CPU中央处理器'
+                },{
+                  label: '主机板'
+                }]
+              }]
+            }, {
+              label: '高功率电源',
+              children: [{
+                label: '家电类电源',
+              }, {
+                label: '锂电池充电器',
+              }, {
+                label: '工业电源',
+                children: [{
+                  label: '客制化电源'
+                }]
+              }]
+            }, {
+              label: '磁性组件',
+              children: [{
+                label: '变压器/电感',
+                children: [{
+                  label: '高频率'
+                },{
+                  label: '低频率'
+                }]
+              }, {
+                label: '动态应用：变频驱动，客制组件',
+                children: [{
+                  label: '电梯'
+                }]
+              }, {
+                label: '静态应用：电能转换，客制组件',
+                children: [{
+                  label: '再生能源'
+                },{
+                  label: '逆变器&不间断电源'
+                }]
+              }]
+            }, {
+              label: '代工制造',
+              children: [{
+                label: '电源相关',
+                children: [{
+                  label: '车载配件'
+                },{
+                  label: '工业电源'
+                },{
+                  label: 'LED驱动器'
+                },{
+                  label: '轨道交通'
+                },{
+                  label: '智能家居（厨具）'
+                },{
+                  label: '智能家居（排插）'
+                },{
+                  label: '智能家居（电源）'
+                },{
+                  label: '交换式电源供应器'
+                }]
+              },{
+                label: '非电源相关',
+                children: [{
+                  label: '水质监测笔'
+                }]
+              }]
+            }, {
+              label: '照明',
+              children: [{
+                label: '产品',
+                children: [{
+                  label: 'ASL系列'
+                },{
+                  label: 'uASL系列'
+                },{
+                  label: 'iDL系列'
+                },{
+                  label: 'G7系列'
+                },{
+                  label: 'uDL系列'
+                }]
+              },{
+                label: '品质认证条款',
+              }]
+            },
+          ],defaultProps: {
+            children: 'children',
+            label: 'label'
+          },
           input: '',
           valuews:'',
           valuetype:'',
@@ -114,6 +224,9 @@
       methods: {
         handleClick() {
           alert('button click');
+        },
+        handleNodeClick(data) {
+          console.log(data);
         }
       }
     }
