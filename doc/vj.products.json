@@ -1,0 +1,121 @@
+{ 
+    "_id" : ObjectId("5c85f31cf55b74c4946b1d0f"), 
+    "index" : "100001", 
+    "name" : "6W usb charger", 
+    "type" : "Wall-Mounted Type", 
+    "feature" : [
+        "Universal Input", 
+        "Constant Voltage/Current", 
+        "DoE VI, CoC V5 Tier 2", 
+        "Pin < 0.075W @ 230Vac No Load", 
+        "Operating Temperature 0℃~ 45℃", 
+        "Surge 2.5KV"
+    ], 
+    "applications" : [
+        "Networking", 
+        "Charger", 
+        "OTT Box, Set-Top-Box"
+    ], 
+    "safetyemc" : [
+        "FCC PART15 B, CISPR22/24", 
+        "IEC/EN60950-1,UL60950-1", 
+        "IEC/EN60065,UL60065"
+    ], 
+    "dimensions" : {
+        "LxWxH" : "46*36*24", 
+        "ModelNo" : "", 
+        "InputVoltage" : "100~240", 
+        "OutputVoltage" : "3-7.5  or 9-12", 
+        "OutputCurrent" : "0.05-1", 
+        "ProtectionFunctions" : "OCP,SCP,OVP", 
+        "Safety" : "CB,UL,CCC,FCC,CE,GS,SAA,PSE"
+    }, 
+    "imageurl" : "www.baidu.com", 
+    "desc" : "", 
+    "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
+    "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
+}
+{ 
+    "_id" : ObjectId("5c85f513f55b74c4946b1d10"), 
+    "index" : "100002", 
+    "name" : "6W usb charger", 
+    "type" : "Wall-Mounted Type", 
+    "feature" : [
+        " Universal Input", 
+        "Constant Voltage/Current", 
+        "DoE VI, CoC V5 Tier 2", 
+        "Pin < 0.075W @ 230Vac No Load", 
+        "Operating Temperature 0℃~ 45℃", 
+        "Surge 1KV"
+    ], 
+    "applications" : [
+        "Networking", 
+        "Charger", 
+        "OTT Box, Set-Top-Box"
+    ], 
+    "safetyemc" : [
+        "FCC PART15B/ICES-003", 
+        "IEC62368, UL62368,GB4943, GB8898"
+    ], 
+    "dimensions" : {
+        "LxWxH" : "33.5*31.5*21", 
+        "ModelNo" : "", 
+        "InputVoltage" : "100~240", 
+        "OutputVoltage" : "5-5.5V", 
+        "OutputCurrent" : "0.05-1.2", 
+        "ProtectionFunctions" : "OCP,SCP,OVP", 
+        "Safety" : "CB,UL,CCC,FCC,PSE"
+    }, 
+    "imageurl" : "www.baidu.com", 
+    "desc" : "", 
+    "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
+    "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
+}
+
+
+
+
+
+
+use vj;
+db.products.insert({"index": "100001", 
+    "name": "6W usb charger",
+    "type": "Wall-Mounted Type",
+    "feature": ['Universal Input','Constant Voltage/Current','DoE VI, CoC V5 Tier 2','Pin < 0.075W @ 230Vac No Load','Operating Temperature 0℃~ 45℃','Surge 2.5KV'],
+    "applications":['Networking','Charger','OTT Box, Set-Top-Box'],
+    "safetyemc":['FCC PART15 B, CISPR22/24','IEC/EN60950-1,UL60950-1','IEC/EN60065,UL60065'],
+    "dimensions":
+    {'LxWxH':'46*36*24',
+    'ModelNo':'',
+    'InputVoltage':'100~240',
+    'OutputVoltage':'3-7.5  or 9-12',
+    'OutputCurrent':'0.05-1',
+    'ProtectionFunctions':'OCP,SCP,OVP',
+    'Safety':'CB,UL,CCC,FCC,CE,GS,SAA,PSE'},
+    "imageurl":'www.baidu.com',
+    "desc": '',
+    "createTime": ISODate("2018-10-26T17:22:44.000+0000"), 
+    "lastUpdate": ISODate("2019-03-11T18:30:10.880+0000"),
+})
+
+db.products.insert({"index": "100002", 
+    "name": "6W usb charger",
+    "type": "Wall-Mounted Type",
+    "feature": [' Universal Input','Constant Voltage/Current','DoE VI, CoC V5 Tier 2','Pin < 0.075W @ 230Vac No Load','Operating Temperature 0℃~ 45℃','Surge 1KV'],
+    "applications":['Networking','Charger','OTT Box, Set-Top-Box'],
+    "safetyemc":['FCC PART15B/ICES-003','IEC62368, UL62368,GB4943, GB8898'],
+    "dimensions":
+    {'LxWxH':'33.5*31.5*21',
+    'ModelNo':'',
+   'InputVoltage':'100~240',
+    'OutputVoltage':'5-5.5V',
+    'OutputCurrent':'0.05-1.2',   
+    'ProtectionFunctions':'OCP,SCP,OVP',
+    'Safety':'CB,UL,CCC,FCC,PSE'},
+   "imageurl":'www.baidu.com',
+    "desc": '',
+    "createTime": ISODate("2018-10-26T17:22:44.000+0000"), 
+    "lastUpdate": ISODate("2019-03-11T18:30:10.880+0000"),
+})
+
+db.products.find();
