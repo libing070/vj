@@ -38,11 +38,27 @@
           };
         },
         created(){
+
          },
          mounted() {
            this.initNav();
+           var path=window.location.href;
+           if(path.indexOf("index")!=-1){
+             this.activeIndex=1;
+           }else if(path.indexOf("products")!=-1){
+             this.activeIndex=2;
+           }else if(path.indexOf("about")!=-1){
+             this.activeIndex=4;
+           }else if(path.indexOf("joinin")!=-1){
+             this.activeIndex=5;
+           }
          },
-         methods:{
+      watch: {
+        $route(to, from) {
+          console.log(this.$route.path);
+        }
+      },
+      methods:{
            jump(index){
              let path="/index";
              if(index==1){
