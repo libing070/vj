@@ -57,7 +57,18 @@
          },
       watch: {
         $route(to, from) {
-          console.log(this.$route.path);
+          //监听路由 判断路由是否从一个页面跳转到另外一个页面
+          //console.log(this.$route.path);
+          var path=this.$route.path;
+          if(path.indexOf("index")!=-1){
+            this.activeIndex="1";
+          }else if(path.indexOf("products")!=-1){
+            this.activeIndex="2";
+          }else if(path.indexOf("about")!=-1){
+            this.activeIndex="4";
+          }else if(path.indexOf("joinin")!=-1){
+            this.activeIndex="5";
+          }
         }
       },
       methods:{
@@ -78,7 +89,6 @@
                this.alertMsg();
                return;
              }
-
              this.$router.push({path:path});
            },
           initNav(){
@@ -90,7 +100,6 @@
              });
            },
            handleSelect(key, keyPath) {
-             console.log(key, keyPath);
            }
       }
     }

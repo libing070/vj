@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin: 20px">
       <el-card  class="products-list" style="margin: 5px 0" v-for="(list ,index) in productsList" :key="index">
        <el-row>
         <el-col :span="6" style="height: 120px">
@@ -12,7 +12,7 @@
           <span class="text">输出功率: 60W</span>
         </el-col>
         <el-col :span="2" style="height: 120px;line-height: 120px">
-          <el-button type="danger" @click="productListsClick(list)">详情</el-button>
+          <el-button type="danger" size="mini" @click="productListsClick(list)">详情</el-button>
         </el-col>
       </el-row>
       </el-card>
@@ -41,16 +41,13 @@
           API.findList().then(function (result) {
             that.loading = false;
             if(result){
-              console.log(result.result.list);
               that.productsList=result.result.list;
-              console.log(that.productsList);
             }
           }, function (err) {
             that.loading = false;
             that.$message.error({showClose: true, message: err.toString(), duration: 2000});
           }).catch(function (error) {
             that.loading = false;
-            console.log(error);
             that.$message.error({showClose: true, message: '请求出现异常', duration: 2000});
           });
         },

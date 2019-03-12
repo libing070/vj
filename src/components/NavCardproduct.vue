@@ -10,7 +10,7 @@
                 <dt style="padding: 5px 0;font-size:12px;cursor: pointer;" v-for="i in o.list"><i class="el-icon-caret-right"></i>{{i}}</dt>
               </dl>
 
-            <el-button type="text" class="button">更多</el-button>
+            <el-button type="text" class="button" @click="productsPage()">更多</el-button>
           </div>
         </div>
       </el-card>
@@ -37,6 +37,11 @@
           {title:'其他',list:['产品','品质认证条款','其他']},
         ]
       };
+    },
+    methods:{
+      productsPage(){
+        this.$router.push({path:'/products'});
+      }
     }
   }
 </script>

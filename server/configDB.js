@@ -4,6 +4,8 @@ var mongoose=require('mongoose');
 mongoose.connect('mongodb://libing:123456@127.0.0.1:27017/vj');
 
 mongoose.connection.on("connected",function(){
+  console.log("用户名：libing");
+  console.log("密码：123456");
   console.log("MongoDB 数据库链接成功！");
 })
 mongoose.connection.on("error",function(){
