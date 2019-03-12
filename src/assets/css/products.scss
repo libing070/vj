@@ -1,25 +1,21 @@
 
 @media screen and (max-width: 1024px) {
-  .products-index .box-card{
-    height: 800px;
+  .products-index{
   }
 }
 
 @media screen and (max-width: 1366px) and (min-width: 1025px){
-  .products-index .box-card{
-    height: 800px;
+  .products-index{
   }
 }
 @media screen and (max-width: 1600px) and (min-width: 1367px){
-  .products-index .box-card{
+  .products-index{
     margin: 20px 0;
-    height: 1000px;
   }
 }
 @media screen and (max-width: 1920px) and (min-width: 1601px){
-  .products-index .box-card{
+  .products-index{
     margin: 20px 0;
-    height: 1000px;
 
   }
 }

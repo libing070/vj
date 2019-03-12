@@ -6,10 +6,10 @@
       </el-col>
     </el-row>-->
     <el-row class="nav-header">
-      <el-col :span="4">
-        <img style="vertical-align: middle;width: 70px;" src="./../assets/images/navheader/logs.png" />
+      <el-col :span="8">
+        <img style="vertical-align: middle;width: 300px;" src="./../assets/images/navheader/loggs.png" />
       </el-col>
-      <el-col :span="20">
+      <el-col :span="16">
         <el-menu :default-active="activeIndex" class="" mode="horizontal" @select="handleSelect">
           <el-menu-item index="1" @click="jump(1)">首页</el-menu-item>
         <!--  <el-submenu index="2">
@@ -19,10 +19,12 @@
               </el-row>
           </el-submenu>-->
           <el-menu-item index="2" @click="jump(2)">相关产品</el-menu-item>
-          <el-menu-item index="3" @click="jump(3)">技术文库</el-menu-item>
+         <!-- <el-menu-item index="3" @click="jump(3)">技术文库</el-menu-item>-->
           <el-menu-item index="4" @click="jump(4)"><a>关于鹏诚</a></el-menu-item>
           <el-menu-item index="5" @click="jump(5)"><a>诚聘英才</a></el-menu-item>
+<!--
           <el-menu-item index="6" @click="jump(6)"><a>投资人专区</a></el-menu-item>
+-->
         </el-menu>
       </el-col>
     </el-row>
@@ -44,13 +46,13 @@
            this.initNav();
            var path=window.location.href;
            if(path.indexOf("index")!=-1){
-             this.activeIndex=1;
+             this.activeIndex="1";
            }else if(path.indexOf("products")!=-1){
-             this.activeIndex=2;
+             this.activeIndex="2";
            }else if(path.indexOf("about")!=-1){
-             this.activeIndex=4;
+             this.activeIndex="4";
            }else if(path.indexOf("joinin")!=-1){
-             this.activeIndex=5;
+             this.activeIndex="5";
            }
          },
       watch: {

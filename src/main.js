@@ -4,6 +4,7 @@ import Vue from 'vue'
 const Bus = new Vue();
 import App from './App'
 import router from './router'
+import store from './store'//引入store
 import  'jquery';
 // 引入i18n国际化插件
 import VueI18n from 'vue-i18n'
@@ -33,6 +34,7 @@ Vue.use(ElementUI);
 new Vue({
   el: '#app',
   router,
+  store,//使用store
   data:{
     Bus
   },

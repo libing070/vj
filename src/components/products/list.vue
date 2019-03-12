@@ -1,23 +1,21 @@
 <template>
-  <div class="products-list" style="margin: 25px 50px;">
-    <span v-for=" list in productsList">
-      <el-card style="margin: 5px 0">
+  <div>
+      <el-card  class="products-list" style="margin: 5px 0" v-for="(list ,index) in productsList" :key="index">
        <el-row>
-        <el-col :span="6" style="height: 130px">
-          <img style="height: 100%" class="" :src="require('./../../assets/images/about/aboutcomp1.png')" alt="">
+        <el-col :span="6" style="height: 120px">
+          <img style="height: 100%" class="" :src="require('./../../assets/images/products/icon/'+list.imageurl+'.png')" alt="">
         </el-col>
-        <el-col :span="16" style="height: 130px">
+        <el-col :span="16" style="height: 120px">
           <span class="text title">{{list.name}} </span>
           <span class="text">输入电压:{{list.dimensions.OutputVoltage}}</span>
           <span class="text">额定输出: {{list.dimensions.OutputCurrent}}</span>
           <span class="text">输出功率: 60W</span>
         </el-col>
-        <el-col :span="2" style="height: 130px;line-height: 130px">
-          <el-button type="danger">详情</el-button>
+        <el-col :span="2" style="height: 120px;line-height: 120px">
+          <el-button type="danger" @click="productListsClick(list)">详情</el-button>
         </el-col>
       </el-row>
-     </el-card>
-    </span>
+      </el-card>
   </div>
 </template>
 
@@ -27,10 +25,13 @@
         name: "list",
       data () {
         return {
-         productsList:[]
+         productsList:[],
+          flag:true
         }
       },
       mounted() {
+      },
+      created(){
         this.search()
       },
       methods:{
@@ -53,6 +54,11 @@
             that.$message.error({showClose: true, message: '请求出现异常', duration: 2000});
           });
         },
+        productListsClick(currlist){
+          this.$store.commit('ProductListStore',currlist);
+          this.flag=false;
+          this.$emit("listentoProductListPageEvent",this.flag);
+        }
       }
     }
 </script>

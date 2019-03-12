@@ -7,7 +7,12 @@
           <serach></serach>
         </el-col>
         <el-col :span="20">
-          <list>1</list>
+          <span v-if="isProductListPage">
+            <list v-on:listentoProductListPageEvent="fromProductListPage"></list>
+          </span>
+          <span v-if="isProductDetailPage">
+          <detail v-on:listentoProductDetailPageEvent="fromProductDetailPage"></detail>
+        </span>
         </el-col>
       </el-row>
     </el-card>
@@ -21,6 +26,31 @@
   import Detail from './detail'
     export default {
       name: "index",
+      data () {
+        return {
+          isProductListPage:true,
+          isProductDetailPage:false
+        }
+      },
+      watch:{
+       },
+
+      computed:{
+      },
+      mounted() {
+      },
+      created(){
+      },
+      methods:{
+        fromProductListPage(data){
+          this.isProductListPage=data;
+          this.isProductDetailPage=true;
+        },
+        fromProductDetailPage(data){
+          this.isProductDetailPage=data;
+          this.isProductListPage=true;
+        }
+      },
       components:{
         Carousel:Carousel,
         Serach:Serach,
@@ -32,5 +62,4 @@
 
 <style lang="scss" scoped>
   @import "~css/products";
-
 </style>

@@ -1,10 +1,10 @@
 <template>
   <span>
-     <el-row class="footer" >
+    <!-- <el-row class="footer" >
     <el-col :span="24">
         <img style="vertical-align: middle;width: 300px;" src="./../assets/images/navheader/loggs.png" />
     </el-col>
-  </el-row>
+  </el-row>-->
   <el-row class="footer" >
     <el-col :span="24">
       110 110 110（周一至周五 09：00-18：00） 广东省东莞市横沥镇上文前二路

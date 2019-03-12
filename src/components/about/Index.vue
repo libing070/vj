@@ -9,7 +9,7 @@
             active-text-color="#409EFF"
             text-color=""
             :unique-opened="true"
-            default-active="1-1">
+            :default-active="activeIndex">
             <el-submenu index="1" >
               <template slot="title">
                 <i class="el-icon-menu"></i>
@@ -39,8 +39,31 @@
   import Carousel from './../../components/Carousel'
   export default {
     name: "about",
+    data() {
+      return {
+        activeIndex: '1-1',
+      };
+    },
     components:{
       Carousel:Carousel
+    },
+    mounted() {
+      var path=window.location.href;
+      if(path.indexOf("/comp")!=-1){
+        this.activeIndex='1-1';
+      }else if(path.indexOf("/org")!=-1){
+        this.activeIndex='1-2';
+      }else if(path.indexOf("/eqint")!=-1){
+        this.activeIndex='1-3';
+      }else if(path.indexOf("/eqlist")!=-1){
+        this.activeIndex='1-4';
+      }else if(path.indexOf("/proflow")!=-1){
+        this.activeIndex='1-5';
+      }else if(path.indexOf("/promap")!=-1){
+        this.activeIndex='1-6';
+      }else if(path.indexOf("/conus")!=-1){
+        this.activeIndex='1-7';
+      }
     },
     methods: {
       jump(index){
