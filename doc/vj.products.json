@@ -1,16 +1,17 @@
-db.products.insert({ 
-    "index" : "100003", 
-    "wattage" : "6w", 
-    "name" : "6W adapter series", 
+{ 
+    "_id" : ObjectId("5c85f31cf55b74c4946b1d0f"), 
+    "index" : "100001", 
+    "wattage" : 6.0, 
+    "name" : "6W usb charger", 
     "type" : "Wall-Mounted Type", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        "DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 24KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 2.5KV"
+    }, 
     "applications" : [
         "Networking", 
         "Charger", 
@@ -18,7 +19,82 @@ db.products.insert({
     ], 
     "safetyemc" : [
         "FCC PART15 B, CISPR22/24", 
-        " IEC/EN60950-1,UL60950-1", 
+        "IEC/EN60950-1,UL60950-1", 
+        "IEC/EN60065,UL60065"
+    ], 
+    "dimensions" : {
+        "LxWxH" : "46*36*24", 
+        "ModelNo" : "", 
+        "InputVoltage" : "100~240", 
+        "OutputVoltage" : "3-7.5  or 9-12", 
+        "OutputCurrent" : "0.05-1", 
+        "ProtectionFunctions" : "OCP,SCP,OVP", 
+        "Safety" : "CB,UL,CCC,FCC,CE,GS,SAA,PSE"
+    }, 
+    "imageurl" : "6w_u_c_1", 
+    "desc" : "", 
+    "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
+    "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
+}
+{ 
+    "_id" : ObjectId("5c85f513f55b74c4946b1d10"), 
+    "index" : "100002", 
+    "name" : "6W usb charger", 
+    "type" : "Wall-Mounted Type", 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 1KV"
+    }, 
+    "applications" : [
+        "Networking", 
+        "Charger", 
+        "OTT Box, Set-Top-Box"
+    ], 
+    "safetyemc" : [
+        "FCC PART15B/ICES-003", 
+        "IEC62368, UL62368,GB4943, GB8898"
+    ], 
+    "dimensions" : {
+        "LxWxH" : "33.5*31.5*21", 
+        "ModelNo" : "", 
+        "InputVoltage" : "100~240", 
+        "OutputVoltage" : "5-5.5V", 
+        "OutputCurrent" : "0.05-1.2", 
+        "ProtectionFunctions" : "OCP,SCP,OVP", 
+        "Safety" : "CB,UL,CCC,FCC,PSE"
+    }, 
+    "imageurl" : "6w_u_c_m_1", 
+    "desc" : "", 
+    "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
+    "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000"), 
+    "wattage" : 6.0
+}
+{ 
+    "_id" : ObjectId("5c875836c006009161068868"), 
+    "index" : "100003", 
+    "wattage" : 6.0, 
+    "name" : "6W adapter series", 
+    "type" : "Wall-Mounted Type", 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 24KV"
+    }, 
+    "applications" : [
+        "Networking", 
+        "Charger", 
+        "OTT Box, Set-Top-Box"
+    ], 
+    "safetyemc" : [
+        "FCC PART15 B, CISPR22/24", 
+        " IEC/EN60950-1,UL60950-1"
     ], 
     "dimensions" : {
         "LxWxH" : "46*36*24", 
@@ -33,28 +109,29 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-});
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875836c006009161068869"), 
     "index" : "100004", 
-    "wattage" : "10w", 
+    "wattage" : 10.0, 
     "name" : "10W usb charger series", 
     "type" : "Wall-Mounted Type", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        "DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 2KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 2KV"
+    }, 
     "applications" : [
         "Mobile Phone", 
         "Security product"
     ], 
     "safetyemc" : [
         "FCC PART15 B, CISPR22/24", 
-        "IEC/EN60950-1,UL60950-1",
-        " IEC/EN60065,UL60065" 
+        "IEC/EN60950-1,UL60950-1", 
+        " IEC/EN60065,UL60065"
     ], 
     "dimensions" : {
         "LxWxH" : "51*37*22", 
@@ -69,29 +146,29 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
-
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875d1dc00600916106886a"), 
     "index" : "100005", 
-    "wattage" : "10w", 
+    "wattage" : 10.0, 
     "name" : "10W usb charger series mini size", 
     "type" : "Wall-Mounted Type", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        "DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 1KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 1KV"
+    }, 
     "applications" : [
-        "Networking",
-        "OTT Box, Set-Top-Box",
-       "Security Device",
+        "Networking", 
+        "OTT Box, Set-Top-Box", 
+        "Security Device", 
         "Auido, Video"
     ], 
     "safetyemc" : [
-       "FCC PART15B/ICES-003,EN55032/35",
+        "FCC PART15B/ICES-003,EN55032/35", 
         "IEC62368, UL62368,EN62368, EN60950-1, GB4943, GB8898"
     ], 
     "dimensions" : {
@@ -107,30 +184,31 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875d1dc00600916106886b"), 
     "index" : "100006", 
-    "wattage" : "12w", 
+    "wattage" : 12.0, 
     "name" : "12W adapter series ", 
     "type" : "Wall-Mounted Type 立式、卧式", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        "DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 6KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 6KV"
+    }, 
     "applications" : [
-        "Networking",
-        "OTT Box, Set-Top-Box",
-       "Security Device",
+        "Networking", 
+        "OTT Box, Set-Top-Box", 
+        "Security Device", 
         "Auido, Video"
     ], 
     "safetyemc" : [
-      "FCC PART15 B, CISPR22/24",
-      "IEC/EN60950-1,UL60950-1",
-      "IEC/EN60065,UL60065"
+        "FCC PART15 B, CISPR22/24", 
+        "IEC/EN60950-1,UL60950-1", 
+        "IEC/EN60065,UL60065"
     ], 
     "dimensions" : {
         "LxWxH" : "76*40*30", 
@@ -145,31 +223,31 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
-
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875d1dc00600916106886c"), 
     "index" : "100007", 
-    "wattage" : "12w", 
+    "wattage" : 12.0, 
     "name" : "12W adapter series ", 
     "type" : "(Interchangeable) 可换插头", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        "DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 6KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 6KV"
+    }, 
     "applications" : [
-        "Networking",
-        "OTT Box, Set-Top-Box",
-       "Security Device",
+        "Networking", 
+        "OTT Box, Set-Top-Box", 
+        "Security Device", 
         "Auido, Video"
     ], 
     "safetyemc" : [
-      "FCC PART15 B, CISPR22/24",
-      "IEC/EN60950-1,UL60950-1",
-      "IEC/EN60065,UL60065"
+        "FCC PART15 B, CISPR22/24", 
+        "IEC/EN60950-1,UL60950-1", 
+        "IEC/EN60065,UL60065"
     ], 
     "dimensions" : {
         "LxWxH" : "76*40*30", 
@@ -184,32 +262,32 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
-
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875d1dc00600916106886d"), 
     "index" : "100008", 
-    "wattage" : "12w", 
+    "wattage" : 12.0, 
     "name" : "12W adapter series ", 
     "type" : "(Wall-Mounted Type) mini size, low cost", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        "DoE VI", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 2KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : "DoE VI", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 2KV"
+    }, 
     "applications" : [
-        "Networking",
-        "OTT Box, Set-Top-Box",
-       "Security Device",
+        "Networking", 
+        "OTT Box, Set-Top-Box", 
+        "Security Device", 
         "Auido, Video"
     ], 
     "safetyemc" : [
-      " FCC PART15B/ICES-003, EN55032/35 ",
-      " IEC/EN60950-1,GB4943",
-      " IEC/UL62368-1, CAN/CSA C22.2 No.",
-      " 62368-1-14,GB8898,AS/NZS 62368.1"
+        " FCC PART15B/ICES-003, EN55032/35 ", 
+        " IEC/EN60950-1,GB4943", 
+        " IEC/UL62368-1, CAN/CSA C22.2 No.", 
+        " 62368-1-14,GB8898,AS/NZS 62368.1"
     ], 
     "dimensions" : {
         "LxWxH" : "66*37*28", 
@@ -224,30 +302,31 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875d1dc00600916106886e"), 
     "index" : "100009", 
-    "wattage" : "18w", 
+    "wattage" : 18.0, 
     "name" : "18W adapter series ", 
     "type" : "(Wall-Mounted Type) 立式", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        " DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 6KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : " DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 6KV"
+    }, 
     "applications" : [
-        "Networking",
-        "OTT Box, Set-Top-Box",
-       "Security Device",
+        "Networking", 
+        "OTT Box, Set-Top-Box", 
+        "Security Device", 
         "Auido, Video"
     ], 
     "safetyemc" : [
-      "FCC PART15B/ICES-003, EN55032:2015 ",
-      "IEC/EN60950-1,UL60950-1,GB4943",
-      "IEC/UL62368-1, CAN/CSA C22.2 No.   62368-1-14,GB8898,AS/NZS 62368.1"
+        "FCC PART15B/ICES-003, EN55032:2015 ", 
+        "IEC/EN60950-1,UL60950-1,GB4943", 
+        "IEC/UL62368-1, CAN/CSA C22.2 No.   62368-1-14,GB8898,AS/NZS 62368.1"
     ], 
     "dimensions" : {
         "LxWxH" : "85.0*33.20*39.00", 
@@ -262,31 +341,31 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
-
-db.products.insert({ 
+}
+{ 
+    "_id" : ObjectId("5c875d1dc00600916106886f"), 
     "index" : "100010", 
-    "wattage" : "18w", 
+    "wattage" : 18.0, 
     "name" : "18W adapter series ", 
     "type" : "(Wall-Mounted Type) 卧式", 
-    "feature" : [
-        "Universal Input", 
-        "Constant Voltage/Current", 
-        " DoE VI, CoC V5 Tier 2", 
-        "Pin < 0.075W @ 230Vac No Load", 
-        "Operating Temperature 0℃~ 45℃", 
-        "Surge 6KV"
-    ], 
+    "feature" : {
+        "feature1" : "Universal Input", 
+        "feature2" : "Constant Voltage/Current", 
+        "feature3" : " DoE VI, CoC V5 Tier 2", 
+        "feature4" : "Pin < 0.075W @ 230Vac No Load", 
+        "feature5" : "Operating Temperature 0℃~ 45℃", 
+        "feature6" : "Surge 6KV"
+    }, 
     "applications" : [
-        "Networking",
-        "OTT Box, Set-Top-Box",
-       "Security Device",
+        "Networking", 
+        "OTT Box, Set-Top-Box", 
+        "Security Device", 
         "Auido, Video"
     ], 
     "safetyemc" : [
-      "FCC PART15B/ICES-003, EN55032:2015 ",
-      "IEC/EN60950-1,UL60950-1,GB4943",
-      "IEC/UL62368-1, CAN/CSA C22.2 No.   62368-1-14,GB8898,AS/NZS 62368.1"
+        "FCC PART15B/ICES-003, EN55032:2015 ", 
+        "IEC/EN60950-1,UL60950-1,GB4943", 
+        "IEC/UL62368-1, CAN/CSA C22.2 No.   62368-1-14,GB8898,AS/NZS 62368.1"
     ], 
     "dimensions" : {
         "LxWxH" : "85.00*39.00*32.20", 
@@ -301,4 +380,4 @@ db.products.insert({
     "desc" : "", 
     "createTime" : ISODate("2018-10-26T17:22:44.000+0000"), 
     "lastUpdate" : ISODate("2019-03-11T18:30:10.880+0000")
-})
+}
