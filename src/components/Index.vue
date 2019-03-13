@@ -70,7 +70,6 @@
           that.loading = false;
           if(result){
             that.res=result;
-            console.log(result);
           }
         }, function (err) {
           that.loading = false;

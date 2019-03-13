@@ -233,6 +233,7 @@
         },
         searchProductsBtn(){
           let that = this;
+          this.$store.commit('productListOrDetailPageStore',0);//列表页面
           let ws=that.valuews,type=that.valuetype,inp=that.input;
           let arr=[],gte="",lte="";
           if(ws!=""){
@@ -250,7 +251,6 @@
           //小于"lt",大于等于"gte",小于等于"lte"
           let params={gte:Number(gte),lte:Number(lte),inp:inp};
           API.findProductsListByParams(params).then(function (result) {
-            console.log(result.result.list);
             that.loading = false;
             if(result){
               that.$store.commit('ProductsListStore',result.result.list);

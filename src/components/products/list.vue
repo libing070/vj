@@ -25,7 +25,6 @@
         name: "list",
       data () {
         return {
-          flag:true
         }
       },
      computed:{
@@ -39,14 +38,14 @@
        }
      } ,
       mounted() {
-
+          this.search()
       },
       created(){
-            this.search()
+
+
       },
       methods:{
         search(){
-          console.log(1);
           let that = this;
           that.loading = true;
           API.findList().then(function (result) {
@@ -64,9 +63,8 @@
           });
         },
         productListsClick(currlist){
+          this.$store.commit('productListOrDetailPageStore',1);//详情页面
           this.$store.commit('ProductsDetailsStore',currlist);
-          this.flag=false;
-          this.$emit("listentoProductListPageEvent",this.flag);
         }
       }
     }

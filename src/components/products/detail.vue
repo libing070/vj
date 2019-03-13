@@ -7,7 +7,7 @@
     </el-row>
     <el-row style="margin: 10px">
       <el-col :span="10" >
-        <img style="height: 280px;width:280px" :src="imageurl">
+        <img style="height: 280px;width:280px" :src="require('./../../assets/images/products/icon/'+productsList.imageurl+'.png')">
       </el-col>
       <el-col :span="14">
         <span style="display:block;font-size: 18px;font-weight: bold;padding: 5px;margin-bottom: 10px">产品特色</span>
@@ -44,24 +44,26 @@
         name: "detail",
       data () {
         return {
-          flag:false,
-          productsList:{feature:'',dimensions:''},
-          imageurl:""
+
         }
       },
+      computed:{
+        productsList:{
+          get(){
+            return  this.$store.state.productsDetails;
+          },
+          set: function (newValue) {
+            this.$store.state.productsDetails = newValue;
+          }
+        },
+      } ,
       mounted() {
-        this.productsList=this.$store.state.productsDetails;
-        console.log(this.productsList);
-       this.imageurl=require('./../../assets/images/products/icon/'+this.productsList.imageurl+'.png');//这里图片单独处理
-
       },
       created(){
-
       },
       methods:{
         productDetailsClick(){
-          this.flag=this.$store.state.isProductListPage;
-          this.$emit("listentoProductDetailPageEvent",this.flag);
+          this.$store.commit('productListOrDetailPageStore',0);//列表页面
         }
       }
     }

@@ -4,7 +4,8 @@ Vue.use(Vuex);
 const state={   //要设置的全局访问的state对象
   showFooter: true,
   changableNum:0,
-  productsList:[],
+  productListOrDetailPage:0, //"0" 列表页面 "1"详情页面
+  productsList:{},
   productsDetails:{}
   //要设置的初始属性值
 };
@@ -25,6 +26,9 @@ const mutations = {
   },
   newNum(state,sum){ //同上，这里面的参数除了state之外还传了需要增加的值sum
     state.changableNum+=sum;
+  },
+  productListOrDetailPageStore(state,ststus){
+    state.productListOrDetailPage=ststus;
   },
   ProductsDetailsStore(state,productsDetails){
     state.productsDetails=productsDetails;

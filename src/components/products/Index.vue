@@ -7,12 +7,12 @@
           <serach></serach>
         </el-col>
         <el-col :span="20">
-          <span v-if="isProductListPage">
-            <list v-on:listentoProductListPageEvent="fromProductListPage"></list>
+          <span v-show="whichPage==0">
+            <list></list>
           </span>
-          <span v-if="isProductDetailPage">
-          <detail v-on:listentoProductDetailPageEvent="fromProductDetailPage"></detail>
-        </span>
+          <span v-if="whichPage==1">
+             <detail ></detail>
+          </span>
         </el-col>
       </el-row>
     </el-card>
@@ -28,28 +28,25 @@
       name: "index",
       data () {
         return {
-          isProductListPage:true,
-          isProductDetailPage:false
         }
       },
       watch:{
        },
-
       computed:{
+        whichPage:{
+          get(){
+            return  this.$store.state.productListOrDetailPage;
+          },
+          set: function (newValue) {
+            this.$store.state.productListOrDetailPage = newValue;
+          }
+        }
       },
       mounted() {
       },
       created(){
       },
       methods:{
-        fromProductListPage(data){
-          this.isProductListPage=data;
-          this.isProductDetailPage=true;
-        },
-        fromProductDetailPage(data){
-          this.isProductDetailPage=data;
-          this.isProductListPage=true;
-        }
       },
       components:{
         Carousel:Carousel,
