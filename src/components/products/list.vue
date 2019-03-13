@@ -9,7 +9,7 @@
           <span class="text title">{{list.name}} </span>
           <span class="text">输入电压:{{list.dimensions.OutputVoltage}}</span>
           <span class="text">额定输出: {{list.dimensions.OutputCurrent}}</span>
-          <span class="text">输出功率: 60W</span>
+          <span class="text">输出功率: {{list.wattage}}w</span>
         </el-col>
         <el-col :span="2" style="height: 120px;line-height: 120px">
           <el-button type="danger" size="mini" @click="productListsClick(list)">详情</el-button>
@@ -25,23 +25,35 @@
         name: "list",
       data () {
         return {
-         productsList:[],
           flag:true
         }
       },
+     computed:{
+       productsList:{
+         get(){
+           return  this.$store.state.productsList;
+         },
+         set: function (newValue) {
+           this.$store.state.productsList = newValue;
+         }
+       }
+     } ,
       mounted() {
+
       },
       created(){
-        this.search()
+            this.search()
       },
       methods:{
         search(){
+          console.log(1);
           let that = this;
           that.loading = true;
           API.findList().then(function (result) {
             that.loading = false;
             if(result){
-              that.productsList=result.result.list;
+              that.$store.commit('ProductsListStore',result.result.list);
+              that.productsList=that.$store.state.productsList;
             }
           }, function (err) {
             that.loading = false;
@@ -52,7 +64,7 @@
           });
         },
         productListsClick(currlist){
-          this.$store.commit('ProductListStore',currlist);
+          this.$store.commit('ProductsDetailsStore',currlist);
           this.flag=false;
           this.$emit("listentoProductListPageEvent",this.flag);
         }

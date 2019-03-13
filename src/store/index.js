@@ -4,7 +4,8 @@ Vue.use(Vuex);
 const state={   //要设置的全局访问的state对象
   showFooter: true,
   changableNum:0,
-  productsList:{}
+  productsList:[],
+  productsDetails:{}
   //要设置的初始属性值
 };
 const getters = {   //实时监听state值的变化(最新状态)
@@ -25,7 +26,10 @@ const mutations = {
   newNum(state,sum){ //同上，这里面的参数除了state之外还传了需要增加的值sum
     state.changableNum+=sum;
   },
-  ProductListStore(state,productsList){
+  ProductsDetailsStore(state,productsDetails){
+    state.productsDetails=productsDetails;
+  },
+  ProductsListStore(state,productsList){
     state.productsList=productsList;
   }
 };

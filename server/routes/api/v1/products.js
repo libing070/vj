@@ -7,5 +7,7 @@ var productsController = require('../../../controllers/products');
 //返回products的集合
 router.get('/findAllProductsList', productsController.find);
 
+//返回products的集合
+router.post('/findProductsListByParams', productsController.findByParams);
 indexRouter.router = router;
 module.exports=indexRouter;
