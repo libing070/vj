@@ -57,23 +57,6 @@ https://shimo.im/sheet/uqKpjODC09wrNOuk
 
 
 
-http://localhost:8080/cmwa/tyghyc/index?provinceCode=12400&beforeAcctMonth=201407&endAcctMonth=201611&auditId=4.4.3&taskCode=1111
-
-
-http://localhost:8081/cmwa/shqdcjyc/index?provinceCode=12400&beforeAcctMonth=201705&endAcctMonth=201804&auditId=3ab71c3498df485b88479ea06274e065&taskCode=1111
-
-http://localhost:8081/cmwa/jtsrycbd/index?provinceCode=12400&beforeAcctMonth=201703&endAcctMonth=201804&auditId=3ab71c3498df485b88479ea06274e065&taskCode=1111
-
-http://localhost:8081/cmwa/cqqfyw/index?provinceCode=10900&beforeAcctMonth=201705&endAcctMonth=201804&auditId=3ab71c3498df485b88479ea06274e065&taskCode=1111
-
-
-
-
-http://localhost:8081/cmwa/ycsdblyw/index?provinceCode=12400&beforeAcctMonth=201705&endAcctMonth=201804&auditId=3ab71c3498df485b88479ea06274e065&taskCode=1111
-
-http://localhost:8081/cmwa/shqdghblyw/index?provinceCode=12400&beforeAcctMonth=201705&endAcctMonth=201805&auditId=3ab71c3498df485b88479ea06274e065&taskCode=1111
-
-http://localhost:8081/cmwa/tyghdmslyw/index?provinceCode=12400&beforeAcctMonth=201705&endAcctMonth=201805&auditId=3ab71c3498df485b88479ea06274e065&taskCode=1111
 
 
 
@@ -115,14 +98,13 @@ https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b
 https://www.cnblogs.com/Mrrabbit/p/10210473.html  小程序 实现多个图表
 
 
-https://unsplash.com/  素材网
+https://unsplash.com/
 
 
 https://www.pexels.com/
 
 
 https://pixabay.com/
-https://www.designspiration.net/
 
 
-https://juejin.im/post/59f0550e6fb9a044fd10f8bb  部署阿里云
+http://www.ngrok.cc/_book/start/ngrok_windows.html
