@@ -1,6 +1,6 @@
 var express=require('express');
 var router=express.Router();
-const mongoose = require('../../../configDB');//获取MongoDB链接
+//const mongoose = require('../../../configDB');//获取MongoDB链接
 var indexRouter = {};
 var goodsController = require('../../../controllers/goods');
 var accountController = require('../../../controllers/accounts');

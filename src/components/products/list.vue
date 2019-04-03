@@ -1,6 +1,14 @@
 <template>
   <div style="margin: 20px">
-      <el-card  class="products-list" style="margin: 5px 0" v-for="(list ,index) in productsList" :key="index">
+    <span v-if="productsList.length<=0">
+      <el-card>
+        <el-row>
+          <el-col :span="24"><h1 style="text-align: center">暂无数据！</h1></el-col>
+        </el-row>
+      </el-card>
+    </span>
+    <span v-else>
+       <el-card  class="products-list" style="margin: 5px 0" v-for="(list ,index) in productsList" :key="index">
        <el-row>
         <el-col :span="6" style="height: 120px">
           <img style="height: 100%" class="" :src="require('./../../assets/images/products/icon/'+list.imageurl+'.png')" alt="">
@@ -16,13 +24,18 @@
         </el-col>
       </el-row>
       </el-card>
+
+    </span>
+
   </div>
 </template>
 
 <script>
   import API from '../../api/api_products';
+  import ElRow from "element-ui/packages/row/src/row";
     export default {
-        name: "list",
+      components: {ElRow},
+      name: "list",
       data () {
         return {
         }
