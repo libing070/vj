@@ -191,7 +191,8 @@
               name:'',
               phone:'',
               email:'',
-              questions:''
+              questions:'',
+              yzm:''
             },
             // 校验规则
             rules: {
