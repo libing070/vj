@@ -113,9 +113,7 @@
     line-height: 120px !important;
   }
   .el-menu--horizontal>.el-menu-item.is-active{
-    //border-bottom: 2px solid #FFC908;
-    border-bottom: 2px solid #409EFF;
-    color: #409EFF;
+    color: #409EFF !important;
   }
   .el-menu-list{
     width: 600px;
