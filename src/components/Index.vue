@@ -17,7 +17,6 @@
     <div>{{res}}</div>-->
   </div>
 </template>
-
 <script>
   import Carousel from './../components/Carousel'
   import NavCardproduct from './../components/NavCardproduct'
@@ -59,8 +58,7 @@
         user = JSON.parse(user);
         this.nickname ="Welcome "+ user.nickname || '';
       }
-
-      this.search()
+      this.search();
     },
     methods:{
       search(){

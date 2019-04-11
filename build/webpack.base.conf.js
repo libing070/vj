@@ -23,6 +23,9 @@ module.exports = {
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath
   },
+  externals:{
+    "returnCitySN":"returnCitySN" //获取用户当前额城市以及ip   index.html 引入第三方cdn  mains.vue中导入
+  },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
