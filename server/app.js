@@ -7,6 +7,10 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var ejs=require('ejs');
 var indexRouter = require('./routes/index');
+// const logger = require('./middleware/logger')
+// const log4js = require('./utils/logger')
+// const log = log4js.getLogger('app.js')
+
 
 var app = express();
 
@@ -15,6 +19,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.engine('.html',ejs.__express);//使用html
 //app.set('view engine', 'jade');
 app.set('view engine', 'html');
+// 控制台日志输出
+// app.use(logger);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -50,3 +56,5 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
+// log.info('服务启动....')
