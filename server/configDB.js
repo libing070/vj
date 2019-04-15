@@ -1,8 +1,8 @@
 var mongoose=require('mongoose');
 
 //链接MongoDB数据库
- mongoose.connect('mongodb://libing:123456@127.0.0.1:27017/vj');
-//mongoose.connect('mongodb://libing:123456@47.104.248.4:27017/vj');
+ //mongoose.connect('mongodb://libing:123456@127.0.0.1:27017/vj');
+mongoose.connect('mongodb://libing:123456@47.104.248.4:27017/vj');
 mongoose.connection.on("connected",function(){
   console.log("用户名：libing");
   console.log("密码：123456");

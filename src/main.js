@@ -1,5 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+//import  "babel-polyfill";//转译es6语法  兼容IE浏览器
 import Vue from 'vue'
 const Bus = new Vue();
 import App from './App'
@@ -22,7 +23,6 @@ const i18n = new VueI18n({
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'css/common.css'
-import  "babel-polyfill";//转译es6语法  兼容IE浏览器
 import 'icon/iconfont.css'
 import md5 from 'js-md5';
 Vue.prototype.$md5 = md5;//使用MD5加密
