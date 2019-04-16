@@ -1,6 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-//import  "babel-polyfill";//转译es6语法  兼容IE浏览器
+import  "babel-polyfill";//转译es6语法  兼容IE浏览器
 import Vue from 'vue'
 const Bus = new Vue();
 import App from './App'
