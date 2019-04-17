@@ -2,7 +2,6 @@ var mongoose=require('mongoose');
 var logger = require('./utils/logger').getLogger();
 //链接MongoDB数据库
  //mongoose.connect('mongodb://libing:123456@127.0.0.1:27017/vj');
-mongoose.connect('mongodb://libing:123456@47.104.248.4:27017/vj');
 mongoose.connection.on("connected",function(){
   logger.info('MongoDB 数据库链接成功！');
   // console.log("用户名：libing");
