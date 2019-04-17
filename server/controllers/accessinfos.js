@@ -1,4 +1,5 @@
 var Accessinfos=require('../models/accessinfos');
+var logger = require('../utils/logger').getLogger();
 let accessinfosController = {};
 
 
@@ -8,18 +9,19 @@ let accessinfosController = {};
  * @param res
  */
 accessinfosController.addAccessinfos = function (req, res) {
-  Accessinfos.create({
-        "ip":req.body.ip,
-        "cid":req.body.cid,
-        "area":req.body.area,
-        "browserVersion":req.body.browserVersion,
-        "accesstime":(new Date().getTime()+1000*60*60*8)//时差 少了八个小时 加8小时
-      }, function (error, doc) {
+  var jsonList={"ip":req.body.ip,
+    "cid":req.body.cid,
+    "area":req.body.area,
+    "browserVersion":req.body.browserVersion,
+    "accesstime":(new Date().getTime()+1000*60*60*8)//时差 少了八个小时 加8小时
+     }
+  logger.info('/api/v1/accessinfos/addAccessinfos  参数：'+JSON.stringify(jsonList));
+  Accessinfos.create(jsonList, function (error, doc) {
         if (error) {
-          console.error(error);
+          logger.error(error);
           return res.json({"errcode": 40001, "type": 'error',"errmsg": "添加失败"});
         } else {
-          console.error(doc);
+         // logger.info(doc);
           return res.json({"errcode": 40000, "type": 'success',"errmsg": "添加成功"});
 
         }
