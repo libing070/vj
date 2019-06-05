@@ -1,4 +1,4 @@
-$ git config --global user.email "18680506315@163.com"  //µÇÂ¼ÓÊÏäÕËºÅ
+$  git config --global user.email "18680506315@163.com"  //µÇÂ¼ÓÊÏäÕËºÅ
 
 $ git config --global user.name "libing070"    //µÇÂ¼ÓÃ»§Ãû
 
@@ -7,7 +7,7 @@ $ git config --global user.name "libing070"    //µÇÂ¼ÓÃ»§Ãû
 
 $ git init // ³õÊ¼»¯±¾µØÏîÄ¿ Éú³É.git
 
-$ git status  //²é¿´×´Ì¬   
+$ git status  //²é¿´×´Ì¬
 
 $ git add .  //Ìí¼ÓÏîÄ¿µ½²Ö¿â
 
@@ -21,14 +21,6 @@ $ git push -u origin master  //ÉÏ´«µ½github  Èç¹û±¨´íÖ´ĞĞÏÂÃæÃüÁî  ÓÉÓÚ°æ±¾²»Ò»Ö
 $ git push -u origin master -f  
 
 
-ÉÏ´«²¿·ÖÎÄ¼ş
-$ git status  //²é¿´×´Ì¬   
-
-$ git add .  //Ìí¼ÓÏîÄ¿µ½²Ö¿â
-
-$ git commit -m "Ìá½»ĞÅÏ¢"
-
-$ git push -u origin master
 
 /////////////////////////////////
 ´Ógithub.comÏÂÔØÏîÄ¿µ½±¾µØ  
@@ -62,7 +54,17 @@ https://www.cnblogs.com/smiler/p/6924583.html //ÇĞ»»·ÖÖ§
 
 
 
+https://www.cnblogs.com/ymwangel/p/5859453.html mongodb°²×°
+
+
+http://git.danuooa.com
 
 
 
+https://blog.csdn.net/jingtingfengguo/article/details/51892864  ´ÓĞÂÉú³É.ssh
 
+
+libing@skyengine.cn    Xflhklb8561070..
+
+
+http://123.56.180.12:8888
