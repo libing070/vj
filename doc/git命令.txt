@@ -67,4 +67,9 @@ https://blog.csdn.net/jingtingfengguo/article/details/51892864  从新生成.ssh
 libing@skyengine.cn    Xflhklb8561070..
 
 
-http://123.56.180.12:8888
+http://123.56.180.12:8888   libing 123456
+
+https://org.modao.cc/app/7bf5f2f7001c17b6a980614a1490b85d9e3f2a2e 教育原型
+
+
+https://wangdahoo.github.io/vonic/docs/#/ vonic ui
