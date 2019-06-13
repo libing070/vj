@@ -21,6 +21,22 @@ $ git push -u origin master  //ÉÏ´«µ½github  Èç¹û±¨´íÖ´ĞĞÏÂÃæÃüÁî  ÓÉÓÚ°æ±¾²»Ò»Ö
 $ git push -u origin master -f  
 
 
+1. git status£¨²é¿´±¾µØ·ÖÖ§ÎÄ¼şĞÅÏ¢£¬È·±£¸üĞÂÊ±²»²úÉú³åÍ»£©
+
+2. git checkout -- [file name] £¨ÈôÎÄ¼şÓĞĞŞ¸Ä£¬¿ÉÒÔ»¹Ô­µ½×î³õ×´Ì¬; ÈôÎÄ¼şĞèÒª¸üĞÂµ½·şÎñÆ÷ÉÏ£¬Ó¦¸ÃÏÈmergeµ½·şÎñÆ÷£¬ÔÙ¸üĞÂµ½±¾µØ£©
+
+3. git branch£¨²é¿´µ±Ç°·ÖÖ§Çé¿ö£©
+
+4. git checkout [remote branch](Èô·ÖÖ§Îª±¾µØ·ÖÖ§£¬ÔòĞèÇĞ»»µ½·şÎñÆ÷µÄÔ¶³Ì·ÖÖ§)
+
+5. git pull
+
+ÈôÃüÁîÖ´ĞĞ³É¹¦£¬Ôò¸üĞÂ´úÂë³É¹¦£¡
+
+
+git fetch origin master ´ÓÔ¶³Ì»ñÈ¡×îĞÂ°æ±¾µ½±¾µØ
+
+
 
 /////////////////////////////////
 ´Ógithub.comÏÂÔØÏîÄ¿µ½±¾µØ  
@@ -70,6 +86,8 @@ libing@skyengine.cn    Xflhklb8561070..
 http://123.56.180.12:8888   libing 123456
 
 https://org.modao.cc/app/7bf5f2f7001c17b6a980614a1490b85d9e3f2a2e ½ÌÓıÔ­ĞÍ
-
+https://org.modao.cc/app/5c4ce47568cb9ea3abc526993e489ca8#screen=s85F2E754131559720705966 ÌúÈËÁªÃË
 
 https://wangdahoo.github.io/vonic/docs/#/ vonic ui
+
+http://mint-ui.github.io/#!/zh-cn
