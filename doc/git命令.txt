@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 $  git config --global user.email "18680506315@163.com"  //登录邮箱账号
 
 $ git config --global user.name "libing070"    //登录用户名
@@ -96,3 +97,98 @@ lixiaolong@skyengine.cn  11235813a
 后台 | 铁三 https://test-t3.skyengine.cn/admin.php/admin  amdin admin
 
 https://youzan.github.io/vant-weapp/#/intro   有赞ui    
+=======
+$  git config --global user.email "18680506315@163.com"  //登录邮箱账号
+
+$ git config --global user.name "libing070"    //登录用户名
+
+
+上传项目到git  注意 上传之前 要在github中创建一个文件夹 和你的项目文件夹名字一致
+
+$ git init // 初始化本地项目 生成.git
+
+$ git status  //查看状态
+
+$ git add .  //添加项目到仓库
+
+$ git commit -m "提交信息"
+
+$ git pull --rebase origin master  //如果本地没有README.md文件  执行该命令 如果报错执行下命令
+$ git remote add origin git@github.com:libing070/aaa.git 该命令执行完后再执行上个命令
+
+$ git push -u origin master  //上传到github  如果报错执行下面命令  由于版本不一致导致上传出错
+
+$ git push -u origin master -f  
+
+
+1. git status（查看本地分支文件信息，确保更新时不产生冲突）
+
+2. git checkout -- [file name] （若文件有修改，可以还原到最初状态; 若文件需要更新到服务器上，应该先merge到服务器，再更新到本地）
+
+3. git branch（查看当前分支情况）
+
+4. git checkout [remote branch](若分支为本地分支，则需切换到服务器的远程分支)
+
+5. git pull
+
+若命令执行成功，则更新代码成功！
+
+
+git fetch origin master 从远程获取最新版本到本地
+
+
+
+/////////////////////////////////
+从github.com下载项目到本地  
+
+$ git clone https://github.com/libing070/omp.git
+
+上传单个文件到github.com
+https://blog.csdn.net/web_hwg/article/details/72312954
+
+1.检测本地修改过的文件（git status）
+2.添加修改过的文件到索引库（git add -u）
+3.再次检测（git status）
+4.将修改从暂存区提交到本地版本库（git commit -m “modify”）
+5.从远程获取最新版本并merge到本地（git pull）
+6.将本地版本库的分支推送到远程服务器上对应的分支（git push）
+
+
+
+
+
+git clone git@code.aliyun.com:CXSJ/Hadoop-web.git
+
+git branch -r   查看远程分支
+
+git checkout -b web-header origin/web-header
+
+git branch --set-upstream-to=origin/web-header web-header
+
+
+https://www.cnblogs.com/smiler/p/6924583.html //切换分支
+
+
+
+https://www.cnblogs.com/ymwangel/p/5859453.html mongodb安装
+
+
+http://git.danuooa.com
+
+
+
+https://blog.csdn.net/jingtingfengguo/article/details/51892864  从新生成.ssh
+
+
+libing@skyengine.cn    Xflhklb8561070..
+
+
+http://123.56.180.12:8888   libing 123456
+
+https://org.modao.cc/app/7bf5f2f7001c17b6a980614a1490b85d9e3f2a2e 教育原型
+https://org.modao.cc/app/5c4ce47568cb9ea3abc526993e489ca8#screen=s85F2E754131559720705966 铁人联盟
+
+https://wangdahoo.github.io/vonic/docs/#/ vonic ui
+
+http://mint-ui.github.io/#!/zh-cn
+>>>>>>> 4e3609e7e278c0963db720cbccbf862a73a1fd7c
