@@ -1,0 +1,13 @@
+{ 
+    "_id" : ObjectId("5bce97314f1547d8e24e409e"), 
+    "id" : "10000001", 
+    "userId" : "libing070", 
+    "userEmail" : "18680506315@163.com", 
+    "userPhone" : "18680506315", 
+    "userName" : "李兵", 
+    "userAge" : "24", 
+    "userSex" : "0", 
+    "userJob" : "码农", 
+    "userAddress" : "湖北", 
+    "time" : ISODate("2018-10-23T03:36:17.362+0000")
+}

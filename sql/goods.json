@@ -1,0 +1,252 @@
+{ 
+    "_id" : ObjectId("5bc99877688d2cdc120e2173"), 
+    "productId" : 1000001.0, 
+    "productName" : "平衡车", 
+    "salePrice" : 1999.0, 
+    "productImage" : "pinghengche.jpg", 
+    "productUrl" : "http://www.aaa.com", 
+    "time" : ISODate("2018-10-22T10:02:22.124+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99877688d2cdc120e2174"), 
+    "productId" : 1000002.0, 
+    "productName" : "充电宝", 
+    "salePrice" : 99.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "http://www.bbb.com", 
+    "time" : ISODate("2018-10-22T10:02:21.190+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99877688d2cdc120e2175"), 
+    "productId" : 1000003.0, 
+    "productName" : "手机", 
+    "salePrice" : 9997.0, 
+    "productImage" : "shouji.jpg", 
+    "productUrl" : "http://www.ccc.com", 
+    "time" : ISODate("2018-10-22T10:02:20.003+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99877688d2cdc120e2176"), 
+    "productId" : 1000004.0, 
+    "productName" : "平板", 
+    "salePrice" : 4539.0, 
+    "productImage" : "pingban.jpg", 
+    "productUrl" : "http://www.ddd.com", 
+    "time" : ISODate("2018-10-22T10:02:19.069+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99877688d2cdc120e2177"), 
+    "productId" : 1000005.0, 
+    "productName" : "电脑", 
+    "salePrice" : 7969.0, 
+    "productImage" : "diannao.jpg", 
+    "productUrl" : "http://www.eee.com", 
+    "time" : ISODate("2018-10-22T10:02:14.574+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99877688d2cdc120e2178"), 
+    "productId" : 1000006.0, 
+    "productName" : "洗衣机", 
+    "salePrice" : 1999.0, 
+    "productImage" : "xiyiji.jpg", 
+    "productUrl" : "http://www.fff.com", 
+    "time" : ISODate("2018-10-22T10:02:16.595+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99878688d2cdc120e2179"), 
+    "productId" : 1000007.0, 
+    "productName" : "冰箱", 
+    "salePrice" : 1659.0, 
+    "productImage" : "bingxiang.jpg", 
+    "productUrl" : "http://www.ggg.com", 
+    "time" : ISODate("2018-10-22T10:02:12.864+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99878688d2cdc120e217a"), 
+    "productId" : 1000008.0, 
+    "productName" : "空调", 
+    "salePrice" : 3999.0, 
+    "productImage" : "kongtiao.jpg", 
+    "productUrl" : "http://www.hhh.com", 
+    "time" : ISODate("2018-10-22T10:02:11.244+0000")
+}
+{ 
+    "_id" : ObjectId("5bc99878688d2cdc120e217b"), 
+    "salePrice" : 250.0, 
+    "productId" : 1010210.0, 
+    "productName" : "hoho", 
+    "productImage" : "jiashiqi.jpg", 
+    "productUrl" : "xx.com", 
+    "time" : ISODate("2018-10-23T02:54:09.112+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0aa"), 
+    "time" : ISODate("2018-10-22T09:47:53.129+0000"), 
+    "productId" : 1003449.0, 
+    "productName" : "冰箱", 
+    "salePrice" : 4343.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0ab"), 
+    "time" : ISODate("2018-10-22T09:47:53.192+0000"), 
+    "productId" : 1000769.0, 
+    "productName" : "hoho", 
+    "salePrice" : 247.0, 
+    "productImage" : "jiashiqi.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0ac"), 
+    "time" : ISODate("2018-10-22T09:47:53.240+0000"), 
+    "productId" : 1006669.0, 
+    "productName" : "手机壳", 
+    "salePrice" : 11.0, 
+    "productImage" : "jiashiqi.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0ad"), 
+    "time" : ISODate("2018-10-22T09:47:53.282+0000"), 
+    "productId" : 1007709.0, 
+    "productName" : "暖手宝", 
+    "salePrice" : 223.0, 
+    "productImage" : "jiashiqi.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0ae"), 
+    "time" : ISODate("2018-10-22T09:47:53.328+0000"), 
+    "productId" : 1000909.0, 
+    "productName" : "短裤", 
+    "salePrice" : 21.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0af"), 
+    "time" : ISODate("2018-10-22T09:47:53.373+0000"), 
+    "productId" : 1076509.0, 
+    "productName" : "羽绒服", 
+    "salePrice" : 1232.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0b0"), 
+    "time" : ISODate("2018-10-22T09:47:53.416+0000"), 
+    "productId" : 1555559.0, 
+    "productName" : "可乐", 
+    "salePrice" : 4.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0b1"), 
+    "time" : ISODate("2018-10-22T09:47:53.465+0000"), 
+    "productId" : 1543309.0, 
+    "productName" : "雪碧", 
+    "salePrice" : 4.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9cc9319adfa5a83ee0b2"), 
+    "time" : ISODate("2018-10-22T09:47:53.508+0000"), 
+    "productId" : 1033009.0, 
+    "productName" : "牛奶", 
+    "salePrice" : 5.0, 
+    "productImage" : "chongdianbao.jpg", 
+    "productUrl" : "xxx.com"
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b3"), 
+    "productId" : 1000018.0, 
+    "productName" : "手电筒", 
+    "salePrice" : 44.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.549+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b4"), 
+    "productId" : 1000019.0, 
+    "productName" : "无人机", 
+    "salePrice" : 4121.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.594+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b5"), 
+    "productId" : 1000028.0, 
+    "productName" : "充电器", 
+    "salePrice" : 221.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.643+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b6"), 
+    "productId" : 1000038.0, 
+    "productName" : "耳机", 
+    "salePrice" : 313.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.683+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b7"), 
+    "productId" : 1000048.0, 
+    "productName" : "蓝牙耳机", 
+    "salePrice" : 234.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.724+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b8"), 
+    "productId" : 1000058.0, 
+    "productName" : "水杯", 
+    "salePrice" : 44.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.764+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0b9"), 
+    "productId" : 1000608.0, 
+    "productName" : "运动鞋", 
+    "salePrice" : 540.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.805+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0ba"), 
+    "productId" : 1000708.0, 
+    "productName" : "帆布鞋", 
+    "salePrice" : 64.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.852+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0bb"), 
+    "productId" : 1000088.0, 
+    "productName" : "衬衣", 
+    "salePrice" : 99.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.894+0000")
+}
+{ 
+    "_id" : ObjectId("5bcd9dfc319adfa5a83ee0bc"), 
+    "productId" : 1000098.0, 
+    "productName" : "长袖", 
+    "salePrice" : 218.0, 
+    "productImage" : "xxx.jpg", 
+    "productUrl" : "xxx.com", 
+    "time" : ISODate("2018-10-22T09:53:00.936+0000")
+}

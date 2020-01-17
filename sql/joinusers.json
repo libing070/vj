@@ -1,0 +1,100 @@
+{ 
+    "_id" : ObjectId("5ca474cc11a3753284dfa0e2"), 
+    "compname" : "百度", 
+    "name" : "李彦宏", 
+    "phone" : "18763565435", 
+    "email" : "18763565435@118.com", 
+    "questions" : "efhka靠的就是就开始大数据时代开发就可视对讲福克斯", 
+    "createTime" : ISODate("2019-04-03T16:54:36.895+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5ca474f311a3753284dfa0e3"), 
+    "compname" : "腾讯", 
+    "name" : "马化腾", 
+    "phone" : "18763525555", 
+    "email" : "18763525555@ds.com", 
+    "questions" : "广东省客户说的机会焦点网和贷款首付加快速度", 
+    "createTime" : ISODate("2019-04-03T16:55:15.778+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5ca47a4111a3753284dfa0e4"), 
+    "compname" : "喝点开水", 
+    "name" : "的开发环境", 
+    "phone" : "18756476463", 
+    "email" : "ehjwk@112huk.com", 
+    "questions" : "过得好快捷好的计划经济合计合计上课回到家开始开发", 
+    "createTime" : ISODate("2019-04-03T17:17:53.110+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5ca5dd97ea099a35a81249a1"), 
+    "compname" : "网易公司", 
+    "name" : "张朝阳", 
+    "phone" : "18678787654", 
+    "email" : "18678787654@11.com", 
+    "questions" : "大会上客户好看电视剧喝点开水的授课计划的健康第三季好的健康和发动机和 ", 
+    "createTime" : ISODate("2019-04-04T18:33:59.039+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5cadb2ecd2fcd62cd4390ffc"), 
+    "compname" : "回到家开始", 
+    "name" : "的空间良好的", 
+    "phone" : "18657478443", 
+    "email" : "1888@127817.com", 
+    "questions" : "$  git config --global user.email \"18680506315@163.com\"  //登录邮箱账号\n\n$ git config --global user.name \"libing070\"    //登录用户名\n\n\n上传项目到git  注意 上传之前 要在github中创建一个文件夹 和你的项目文件夹名字一致\n\n$ git init // 初始化本地项目 生成.git\n\n$ git status  //查看状态\n\n$ git add .  //添加项目到仓库\n\n$ git commit -m \"提交信息\"\n\n$ git pull --rebase origin master  //如果本地没有README.md文件  执行该命令 如果报错执行下命令\n$ git remote add origin git@github.com:libing070/aaa.git 该命令执行完后再执行上个命令\n\n$ git push -u origin master  //上传到github  如果报错执行下面命令  由于版本不一致导致上传出错\n\n$ git push -u origin master -f  \n\n\n\n/////////////////////////////////\n从github.com下载项目到本地  \n\n$ git clone https://github.com/libing070/omp.git\n\n上传单个文件到github.com\nhttps://blog.csdn.net/web_hwg/article/details/72312954\n\n1.检测本地修改过的文件（git status）\n2.添加修改过的文件到索引库（git add -u）\n3.再次检测（git status）\n4.将修改从暂存区提交到本地版本库（git commit -m “modify”）\n5.从远程获取最新版本并merge到本地（git pull）\n6.将本地版本库的分支推送到远程服务器上对应的分支（git push）\n\n\n\n\n\ngit clone git@code.aliyun.com:CXSJ/Hadoop-web.git\n\ngit branch -r   查看远程分支\n\ngit checkout -b web-header origin/web-header\n\ngit branch --set-upstream-to=origin/web-header web-header\n\n\nhttps://www.cnblogs.com/smiler/p/6924583.html //切换分支\n\n\n\nhttps://www.cnblogs.com/ymwangel/p/5859453.html mongodb安装\n\n\nhttp://git.danuooa.com\n\n\n\nhttps://blog.csdn.net/jingtingfengguo/article/details/51892864  从新生成.ssh", 
+    "createTime" : ISODate("2019-04-10T17:10:04.431+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5cadb498d2fcd62cd4390ffd"), 
+    "compname" : "点击", 
+    "name" : "好的会计师", 
+    "phone" : "18765637890", 
+    "email" : "278@11j.com", 
+    "questions" : "E:\\WebStorm\\bin\\runnerw.exe \"C:\\Program Files\\nodejs\\node.exe\" E:\\workspace\\vj\\server\\bin\\www\nnew Date().getTime()1554885274048        155488527404928800000\n(node:11476) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.\n用户名：libing\n密码：123456\nMongoDB 数据库链接成功！\nPOST /api/v1/accounts/login 200 88.785 ms - 342\nGET /api/v1/goods/findAllGoodsList 200 25.725 ms - 5273\nGET /api/v1/products/findAllProductsList 200 21.889 ms - 8589\nGET /api/v1/products/findAllProductsList 304 9.440 ms - -\nGET /api/v1/products/findAllProductsList 304 13.641 ms - -\nGET /api/v1/products/findAllProductsList 200 8.699 ms - 8589\nGET /api/v1/products/findAllProductsList 304 9.323 ms - -\nGET /api/v1/goods/findAllGoodsList 200 11.765 ms - 5273\nGET /api/v1/products/findAllProductsList 304 30.354 ms - -\nPOST /api/v1/accounts/login 200 7.357 ms - 342\nGET /api/v1/goods/findAllGoodsList 200 21.530 ms - 5273\nGET /api/v1/goods/findAllGoodsList 304 12.896 ms - -\nGET /api/v1/products/findAllProductsList 200 14.842 ms - 8589\nGET /api/v1/products/findAllProductsList 304 16.068 ms - -\nGET /api/v1/products/findAllProductsList 304 14.052 ms - -\nGET /api/v1/products/findAllProductsList 304 19.481 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.905 ms - -\nGET /api/v1/products/findAllProductsList 304 16.722 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.258 ms - -\nGET /api/v1/products/findAllProductsList 304 11.189 ms - -\nGET /api/v1/products/findAllProductsList 304 9.276 ms - -\nGET /api/v1/goods/findAllGoodsList 304 18.144 ms - -\nGET /api/v1/products/findAllProductsList 304 15.500 ms - -\nGET /api/v1/products/findAllProductsList 304 18.650 ms - -\nGET /api/v1/products/findAllProductsList 304 10.151 ms - -\nGET /api/v1/goods/findAllGoodsList 304 13.861 ms - -\nGET /api/v1/products/findAllProductsList 304 11.281 ms - -\nGET /api/v1/products/findAllProductsList 304 10.572 ms - -\nGET /api/v1/products/findAllProductsList 304 10.205 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.622 ms - -\nGET /api/v1/products/findAllProductsList 304 5.823 ms - -\nGET /api/v1/products/findAllProductsList 304 13.635 ms - -\nGET /api/v1/goods/findAllGoodsList 304 18.387 ms - -\nGET /api/v1/products/findAllProductsList 304 10.725 ms - -\nGET /api/v1/products/findAllProductsList 304 11.570 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.018 ms - -\nGET /api/v1/products/findAllProductsList 304 11.053 ms - -\nGET /api/v1/products/findAllProductsList 304 9.592 ms - -\nGET /api/v1/products/findAllProductsList 304 12.876 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.593 ms - -\nGET /api/v1/products/findAllProductsList 304 12.213 ms - -\nGET /api/v1/products/findAllProductsList 304 11.164 ms - -\nGET /api/v1/goods/findAllGoodsList 304 18.656 ms - -\nGET /api/v1/products/findAllProductsList 304 7.587 ms - -\nGET /api/v1/products/findAllProductsList 304 10.113 ms - -\nGET /api/v1/products/findAllProductsList 304 11.330 ms - -\nGET /api/v1/products/findAllProductsList 304 12.319 ms - -\nGET /api/v1/goods/findAllGoodsList 304 19.296 ms - -\nGET /api/v1/products/findAllProductsList 304 12.879 ms - -\nGET /api/v1/products/findAllProductsList 304 13.844 ms - -\nGET /api/v1/goods/findAllGoodsList 304 8.370 ms - -\nGET /api/v1/products/findAllProductsList 304 9.893 ms - -\nGET /api/v1/products/findAllProductsList 304 8.634 ms - -\nGET /api/v1/products/findAllProductsList 304 15.535 ms - -\nGET /api/v1/goods/findAllGoodsList 304 19.950 ms - -\nGET /api/v1/products/findAllProductsList 304 7.707 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.746 ms - -\nGET /api/v1/products/findAllProductsList 304 8.756 ms - -\nGET /api/v1/products/findAllProductsList 304 11.902 ms - -\nGET /api/v1/goods/findAllGoodsList 304 12.528 ms - -\nGET /api/v1/products/findAllProductsList 304 9.157 ms - -\nGET /api/v1/goods/findAllGoodsList 304 12.924 ms - -\nGET /api/v1/products/findAllProductsList 304 9.889 ms - -\nGET /api/v1/goods/findAllGoodsList 304 22.511 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.018 ms - -\nGET /api/v1/products/findAllProductsList 304 15.310 ms - -\nGET /api/v1/products/findAllProductsList 304 5.568 ms - -\nGET /api/v1/goods/findAllGoodsList 304 16.392 ms - -\nGET /api/v1/products/findAllProductsList 304 8.384 ms - -\nGET /api/v1/goods/findAllGoodsList 304 19.129 ms - -\nGET /api/v1/products/findAllProductsList 304 12.784 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.542 ms - -\nGET /api/v1/products/findAllProductsList 304 16.232 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.321 ms - -\nGET /api/v1/products/findAllProductsList 304 12.283 ms - -\nGET /api/v1/goods/findAllGoodsList 304 24.284 ms - -\nGET /api/v1/goods/findAllGoodsList 304 18.394 ms - -\nGET /api/v1/goods/findAllGoodsList 304 27.880 ms - -\nGET /api/v1/goods/findAllGoodsList 304 34.327 ms - -\nGET /api/v1/goods/findAllGoodsList 304 13.237 ms - -\nGET /api/v1/goods/findAllGoodsList 304 27.835 ms - -\nGET /api/v1/goods/findAllGoodsList 304 11.045 ms - -\nGET /api/v1/products/findAllProductsList 304 9.399 ms - -\nGET /api/v1/goods/findAllGoodsList 304 28.572 ms - -\nGET /api/v1/products/findAllProductsList 304 12.611 ms - -\nGET /api/v1/products/findAllProductsList 304 19.469 ms - -\nGET /api/v1/goods/findAllGoodsList 304 19.045 ms - -\nGET /api/v1/products/findAllProductsList 304 17.235 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.080 ms - -\nGET /api/v1/goods/findAllGoodsList 304 10.507 ms - -\nGET /api/v1/goods/findAllGoodsList 304 27.986 ms - -\nGET /api/v1/products/findAllProductsList 304 8.695 ms - -\nGET /api/v1/goods/findAllGoodsList 304 10.708 ms - -\nGET /api/v1/goods/findAllGoodsList 304 16.898 ms - -\nGET /api/v1/products/findAllProductsList 304 31.494 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.174 ms - -\nGET /api/v1/goods/findAllGoodsList 304 24.239 ms - -\nGET /api/v1/goods/findAllGoodsList 304 29.649 ms - -\nGET /api/v1/goods/findAllGoodsList 304 19.499 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.270 ms - -\nGET /api/v1/goods/findAllGoodsList 304 12.386 ms - -\nGET /api/v1/goods/findAllGoodsList 304 23.631 ms - -\nGET /api/v1/goods/findAllGoodsList 304 8.709 ms - -\nGET /api/v1/goods/findAllGoodsList 304 13.513 ms - -\nGET /api/v1/goods/findAllGoodsList 304 19.615 ms - -\nGET /api/v1/goods/findAllGoodsList 304 16.546 ms - -\nGET /api/v1/goods/findAllGoodsList 304 13.159 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.098 ms - -\nGET /api/v1/products/findAllProductsList 304 10.078 ms - -\nGET /api/v1/goods/findAllGoodsList 304 16.387 ms - -\nGET /api/v1/goods/findAllGoodsList 304 12.013 ms - -\nGET /api/v1/products/findAllProductsList 304 11.437 ms - -\nGET /api/v1/goods/findAllGoodsList 304 13.193 ms - -\nGET /api/v1/products/findAllProductsList 304 19.679 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.261 ms - -\nGET /api/v1/products/findAllProductsList 304 10.582 ms - -\nGET /api/v1/goods/findAllGoodsList 304 16.501 ms - -\nGET /api/v1/products/findAllProductsList 304 11.205 ms - -\nGET /api/v1/products/findAllProductsList 304 13.979 ms - -\nGET /api/v1/goods/findAllGoodsList 304 17.206 ms - -\nGET /api/v1/products/findAllProductsList 304 10.386 ms - -\nGET /api/v1/products/findAllProductsList 304 13.039 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.576 ms - -\nGET /api/v1/products/findAllProductsList 304 9.305 ms - -\nGET /api/v1/products/findAllProductsList 304 9.120 ms - -\nGET /api/v1/goods/findAllGoodsList 304 15.239 ms - -\nGET /api/v1/products/findAllProductsList 304 9.661 ms - -\nGET /api/v1/goods/findAllGoodsList 304 14.695 ms - -\nPOST /api/v1/joins/addusers 200 91.230 ms - 58\n{ _id: 5cadb2ecd2fcd62cd4390ffc,\n  compname: '回到家开始',\n  name: '的空间良好的',\n  phone: '18657478443',\n  email: '1888@127817.com',\n  questions:\n   '$  git config --global user.email \"18680506315@163.com\"  //登录邮箱账号\\n\\n$ git config --global user.name \"libing070\"    //登录用户名\\n\\n\\n上传项目到git  注意 上传之前 要在github中创建一个文件夹 和你的项目文件夹名字一致\\n\\n$ git init // 初始化本地项目 生成.git\\n\\n$ git status  //查看状态\\n\\n$ git add .  //添加项目到仓库\\n\\n$ git commit -m \"提交信息\"\\n\\n$ git pull --rebase origin master  //如果本地没有README.md文件  执行该命令 如果报错执行下命令\\n$ git remote add origin git@github.com:libing070/aaa.git 该命令执行完后再执行上个命令\\n\\n$ git push -u origin master  //上传到github  如果报错执行下面命令  由于版本不一致导致上传出错\\n\\n$ git push -u origin master -f  \\n\\n\\n\\n/////////////////////////////////\\n从github.com下载项目到本地  \\n\\n$ git clone https://github.com/libing070/omp.git\\n\\n上传单个文件到github.com\\nhttps://blog.csdn.net/web_hwg/article/details/72312954\\n\\n1.检测本地修改过的文件（git status）\\n2.添加修改过的文件到索引库（git add -u）\\n3.再次检测（git status）\\n4.将修改从暂存区提交到本地版本库（git commit -m “modify”）\\n5.从远程获取最新版本并merge到本地（git pull）\\n6.将本地版本库的分支推送到远程服务器上对应的分支（git push）\\n\\n\\n\\n\\n\\ngit clone git@code.aliyun.com:CXSJ/Hadoop-web.git\\n\\ngit branch -r   查看远程分支\\n\\ngit checkout -b web-header origin/web-header\\n\\ngit branch --set-upstream-to=origin/web-header web-header\\n\\n\\nhttps://www.cnblogs.com/smiler/p/6924583.html //切换分支\\n\\n\\n\\nhttps://www.cnblogs.com/ymwangel/p/5859453.html mongodb安装\\n\\n\\nhttp://git.danuooa.com\\n\\n\\n\\nhttps://blog.csdn.net/jingtingfengguo/article/details/51892864  从新生成.ssh',\n  createTime: 2019-04-10T17:10:04.431Z,\n  __v: 0 }\nPOST /api/v1/joins/addusers 413 107.122 ms - 184\n", 
+    "createTime" : ISODate("2019-04-10T17:17:12.787+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5cb2d835918e0a42c4b90c1f"), 
+    "compname" : "把等哈", 
+    "name" : "李兵", 
+    "phone" : "18680506315", 
+    "email" : "18680506315@163.com", 
+    "questions" : "hdsjk好客见当时", 
+    "createTime" : ISODate("2019-04-14T14:50:29.815+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5cb6dc9658ff361a3c04e2c3"), 
+    "compname" : "黄带眶棘鲈", 
+    "name" : "大会上科技了", 
+    "phone" : "18567564731", 
+    "email" : "1747837@1212.com", 
+    "questions" : "hdsl打开后市净率", 
+    "createTime" : ISODate("2019-04-17T15:58:14.755+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5cf0d8018bd6d222fc9eeadd"), 
+    "compname" : "休闲鞋", 
+    "name" : "231231", 
+    "phone" : "18276553422", 
+    "email" : "18276553422@qq.com", 
+    "questions" : "eq2321312", 
+    "createTime" : ISODate("2019-05-31T15:30:09.363+0000"), 
+    "__v" : NumberInt(0)
+}
+{ 
+    "_id" : ObjectId("5d00a1542dbfbf0dd002d328"), 
+    "compname" : "北京达诺科技有限公司", 
+    "name" : "赵海", 
+    "phone" : "18576476665", 
+    "email" : "178291798@qq.com", 
+    "questions" : "海枯石烂科技的", 
+    "createTime" : ISODate("2019-06-12T14:53:08.518+0000"), 
+    "__v" : NumberInt(0)
+}

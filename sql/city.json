@@ -1,0 +1,6 @@
+{ 
+    "_id" : NumberInt(1), 
+    "cityCode" : "10001", 
+    "cityName" : "beijing", 
+    "_class" : "com.winc.mongo.model.City"
+}
